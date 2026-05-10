@@ -1,0 +1,49 @@
+<div class="login-layout">
+  <div class="hero-section">
+    <div class="hero-content">
+      <h1>AutoService</h1>
+      <p>Gestión integral para talleres automotrices.</p>
+    </div>
+  </div>
+
+  <div class="form-section">
+    <div class="login-box">
+      <div class="login-header">
+        <h2>Bienvenido</h2>
+        <span class="badge">Modo Admin</span>
+        <p>Ingresa tus credenciales para continuar</p>
+      </div>
+
+      <form (ngSubmit)="handleLogin()" class="login-form">
+
+        <div class="input-group">
+          <mat-form-field appearance="outline" class="w-full">
+            <mat-label>Correo Electrónico</mat-label>
+            <input matInput type="email" [(ngModel)]="email" name="email" placeholder="admin@autoservice.com" required>
+          </mat-form-field>
+        </div>
+
+        <div class="input-group">
+          <mat-form-field appearance="outline" class="w-full">
+            <mat-label>Contraseña</mat-label>
+            <input matInput [type]="hidePassword ? 'password' : 'text'" [(ngModel)]="password" name="password" placeholder="••••••••" required>
+            <button mat-icon-button matSuffix (click)="hidePassword = !hidePassword" type="button">
+              <mat-icon>{{hidePassword ? 'visibility_off' : 'visibility'}}</mat-icon>
+            </button>
+          </mat-form-field>
+        </div>
+
+        @if (errorMessage) {
+          <div class="error-message">
+            <mat-icon style="font-size: 18px; width: 18px; height: 18px;">error_outline</mat-icon>
+            {{ errorMessage }}
+          </div>
+        }
+
+        <button mat-flat-button color="primary" type="submit" [disabled]="isLoading" class="w-full mt-3 submit-btn">
+          {{ isLoading ? 'Iniciando...' : 'Iniciar Sesión' }}
+        </button>
+      </form>
+    </div>
+  </div>
+</div>

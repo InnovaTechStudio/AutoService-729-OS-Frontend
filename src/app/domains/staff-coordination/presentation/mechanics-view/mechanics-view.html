@@ -1,0 +1,85 @@
+<div class="mechanics-container">
+
+  <div class="header-actions">
+    <h1>Panel de Staff (Mecánicos)</h1>
+    <button mat-raised-button color="primary" (click)="openDialog()">
+      <mat-icon>person_add</mat-icon>
+      Registrar Mecánico
+    </button>
+  </div>
+
+  <div class="mechanics-grid">
+    @for (mechanic of mechanicStore.mechanics(); track mechanic.id) {
+      <mat-card class="mechanic-card">
+        <div class="load-indicator" [ngClass]="getLoadClass(mechanic.id, mechanic.maxCapacity)"></div>
+
+        <mat-card-header class="card-header">
+          <div mat-card-avatar class="avatar-circle">
+            <mat-icon>person</mat-icon>
+          </div>
+          <mat-card-title>{{ mechanic.fullName }}</mat-card-title>
+          <mat-card-subtitle>{{ mechanic.specialty }}</mat-card-subtitle>
+        </mat-card-header>
+
+        <mat-card-content class="card-content">
+          <div class="load-info">
+            <span>Carga Laboral</span>
+            <span class="fw-bold">{{ getActiveTasksCount(mechanic.id) }} / {{ mechanic.maxCapacity }}</span>
+          </div>
+
+          <mat-progress-bar
+            mode="determinate"
+            [value]="calculateLoadPercentage(mechanic.id, mechanic.maxCapacity)"
+            [ngClass]="getLoadClass(mechanic.id, mechanic.maxCapacity) + '-bar'">
+          </mat-progress-bar>
+
+          <div class="status-footer">
+            <span class="custom-badge" [ngClass]="getLoadClass(mechanic.id, mechanic.maxCapacity) + '-badge'">
+              {{ getWorkloadStatus(mechanic.id, mechanic.maxCapacity) }}
+            </span>
+          </div>
+        </mat-card-content>
+      </mat-card>
+    }
+
+    @if (mechanicStore.mechanics().length === 0 && !mechanicStore.isLoading()) {
+      <div class="empty-state">No hay mecánicos en el equipo.</div>
+    }
+  </div>
+
+  <ng-template #mechanicDialog>
+    <h2 mat-dialog-title>Nuevo Integrante del Staff</h2>
+
+    <mat-dialog-content>
+      <div class="form-container">
+        <mat-form-field appearance="outline">
+          <mat-label>Nombre Completo</mat-label>
+          <input matInput [(ngModel)]="newMechanic.fullName" required autofocus>
+        </mat-form-field>
+
+        <mat-form-field appearance="outline">
+          <mat-label>Especialidad</mat-label>
+          <mat-select [(ngModel)]="newMechanic.specialty" required>
+            @for (spec of specialties; track spec) {
+              <mat-option [value]="spec">{{ spec }}</mat-option>
+            }
+          </mat-select>
+        </mat-form-field>
+
+        <mat-form-field appearance="outline">
+          <mat-label>Capacidad Máxima de Tareas</mat-label>
+          <input matInput type="number" min="1" max="10" [(ngModel)]="newMechanic.maxCapacity" required>
+        </mat-form-field>
+      </div>
+    </mat-dialog-content>
+
+    <mat-dialog-actions align="end">
+      <button mat-button (click)="closeDialog()">Cancelar</button>
+      <button mat-flat-button color="primary" (click)="saveMechanic()"
+              [disabled]="!newMechanic.fullName || !newMechanic.specialty">
+        Guardar
+      </button>
+    </mat-dialog-actions>
+  </ng-template>
+
+</div>

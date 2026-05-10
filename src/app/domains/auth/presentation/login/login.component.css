@@ -1,0 +1,115 @@
+.login-layout {
+  display: flex;
+  height: 100vh;
+  width: 100vw;
+  font-family: system-ui, -apple-system, sans-serif;
+}
+
+.hero-section {
+  flex: 1;
+  background: linear-gradient(135deg, #1e3a8a 0%, #3b82f6 100%);
+  color: white;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 2rem;
+}
+
+.hero-content h1 {
+  font-size: 3.5rem;
+  font-weight: bold;
+  margin-bottom: 0.5rem;
+}
+
+.hero-content p {
+  font-size: 1.2rem;
+  opacity: 0.9;
+}
+
+.form-section {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background-color: #f8fafc;
+}
+
+.login-box {
+  width: 100%;
+  max-width: 400px;
+  background: white;
+  padding: 3rem;
+  border-radius: 12px;
+  box-shadow: 0 10px 25px rgba(0,0,0,0.05);
+}
+
+.login-header {
+  margin-bottom: 1.5rem;
+  text-align: center;
+}
+
+.login-header h2 {
+  font-size: 1.8rem;
+  color: #1e293b;
+  margin: 0 0 0.5rem 0;
+}
+
+.badge {
+  background: #e2e8f0;
+  color: #475569;
+  padding: 0.2rem 0.8rem;
+  border-radius: 20px;
+  font-size: 0.8rem;
+  font-weight: bold;
+  display: inline-block;
+  margin-bottom: 1rem;
+}
+
+.login-header p {
+  color: #64748b;
+  font-size: 0.95rem;
+}
+
+.login-form {
+  display: flex;
+  flex-direction: column;
+}
+
+/* Ajustes para Angular Material */
+.input-group {
+  width: 100%;
+  margin-bottom: -10px; /* Compensa el padding interno de mat-form-field */
+}
+
+.w-full {
+  width: 100%;
+}
+
+.submit-btn {
+  padding: 24px 0 !important;
+  font-size: 1.1rem !important;
+  border-radius: 8px !important;
+}
+
+.mt-3 {
+  margin-top: 1rem;
+}
+
+.error-message {
+  color: #dc2626;
+  background-color: #fef2f2;
+  padding: 0.75rem;
+  border-radius: 6px;
+  font-size: 0.875rem;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  border: 1px solid #fecaca;
+  margin-bottom: 1rem;
+}
+
+@media (max-width: 768px) {
+  .hero-section {
+    display: none;
+  }
+}

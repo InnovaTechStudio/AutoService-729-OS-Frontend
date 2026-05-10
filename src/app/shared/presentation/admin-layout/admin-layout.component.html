@@ -1,0 +1,56 @@
+<mat-sidenav-container class="admin-container">
+
+  <mat-sidenav mode="side" opened class="sidebar">
+    <div class="logo-area">
+      <h2>AutoService</h2>
+      <span class="subtitle">Panel de Control</span>
+    </div>
+
+    <mat-nav-list class="menu">
+      <a mat-list-item routerLink="/admin/dashboard" routerLinkActive="active-menu-item">
+        <mat-icon matListItemIcon>dashboard</mat-icon>
+        <span matListItemTitle>Dashboard</span>
+      </a>
+      <a mat-list-item routerLink="/admin/customers" routerLinkActive="active-menu-item">
+        <mat-icon matListItemIcon>people</mat-icon>
+        <span matListItemTitle>Clientes</span>
+      </a>
+      <a mat-list-item routerLink="/admin/vehicles" routerLinkActive="active-menu-item">
+        <mat-icon matListItemIcon>directions_car</mat-icon>
+        <span matListItemTitle>Vehículos</span>
+      </a>
+      <a mat-list-item routerLink="/admin/work-orders" routerLinkActive="active-menu-item">
+        <mat-icon matListItemIcon>assignment</mat-icon>
+        <span matListItemTitle>Órdenes de Trabajo</span>
+      </a>
+      <a mat-list-item routerLink="/admin/tasks" routerLinkActive="active-menu-item">
+        <mat-icon matListItemIcon>checklist</mat-icon>
+        <span matListItemTitle>Tareas</span>
+      </a>
+      <a mat-list-item routerLink="/admin/mechanics" routerLinkActive="active-menu-item">
+        <mat-icon matListItemIcon>engineering</mat-icon>
+        <span matListItemTitle>Mecánicos</span>
+      </a>
+    </mat-nav-list>
+  </mat-sidenav>
+
+  <mat-sidenav-content class="main-content">
+
+    <mat-toolbar class="topbar">
+      <div class="welcome-msg">
+        <span class="text-gray">Bienvenido al Taller, </span>
+        <span class="fw-bold">{{ userName }}</span>
+      </div>
+
+      <span class="spacer"></span> <button mat-button color="warn" (click)="logout()">
+      <mat-icon>logout</mat-icon>
+      Cerrar Sesión
+    </button>
+    </mat-toolbar>
+
+    <div class="content-area">
+      <router-outlet></router-outlet>
+    </div>
+
+  </mat-sidenav-content>
+</mat-sidenav-container>

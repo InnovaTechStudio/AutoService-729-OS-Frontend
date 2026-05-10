@@ -1,0 +1,81 @@
+.admin-container {
+  height: 100vh;
+  width: 100vw;
+  background-color: #f8fafc;
+}
+
+.sidebar {
+  width: 260px;
+  background-color: #1e293b;
+  color: white;
+  border-right: none;
+}
+
+.logo-area {
+  padding: 1.5rem;
+  border-bottom: 1px solid #334155;
+  text-align: center;
+}
+
+.logo-area h2 {
+  margin: 0;
+  color: white;
+  font-size: 1.5rem;
+}
+
+.subtitle {
+  font-size: 0.85rem;
+  color: #94a3b8;
+}
+
+/* Modificadores para anular estilos por defecto de Material y parecerse a tu Vue */
+::ng-deep .mat-mdc-list-item {
+  color: #cbd5e1 !important;
+  margin: 4px 8px !important;
+  border-radius: 8px !important;
+}
+
+::ng-deep .mat-mdc-list-item-icon {
+  color: #94a3b8 !important;
+}
+
+::ng-deep .active-menu-item {
+  background-color: #334155 !important;
+  color: white !important;
+  border-left: 4px solid #00BFA5 !important;
+  border-radius: 0 8px 8px 0 !important;
+  margin-left: 0 !important;
+}
+
+::ng-deep .active-menu-item .mat-mdc-list-item-icon {
+  color: #00BFA5 !important;
+}
+
+.topbar {
+  background: white;
+  border-bottom: 1px solid #e2e8f0;
+  box-shadow: 0 1px 3px rgba(0,0,0,0.05);
+}
+
+.welcome-msg {
+  font-size: 1rem;
+}
+
+.text-gray {
+  color: #475569;
+}
+
+.fw-bold {
+  font-weight: bold;
+  color: #0f172a;
+}
+
+.spacer {
+  flex: 1 1 auto;
+}
+
+.content-area {
+  padding: 2rem;
+  height: calc(100vh - 64px); /* 64px es el alto del toolbar */
+  overflow-y: auto;
+}

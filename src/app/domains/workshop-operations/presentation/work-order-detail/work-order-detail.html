@@ -1,0 +1,109 @@
+<div class="container" *ngIf="order; else loading">
+
+  <div class="header-actions">
+    <div class="title-group">
+      <button mat-icon-button (click)="goBack()">
+        <mat-icon>arrow_back</mat-icon>
+      </button>
+      <h1>Detalle de Orden: <span class="text-primary">{{ order.trackingCode }}</span></h1>
+    </div>
+
+    <mat-chip-set>
+      <mat-chip [ngClass]="order.status === 'Finalizado' ? 'bg-success' : 'bg-info'" disabled>
+        {{ order.status }}
+      </mat-chip>
+    </mat-chip-set>
+  </div>
+
+  <mat-card class="detail-card mb-4">
+    <mat-card-content class="grid-layout">
+      <div class="info-section">
+        <p><strong>Descripción:</strong> {{ order.description }}</p>
+        <p><strong>Fecha Ingreso:</strong> {{ order.startDate }}</p>
+        <p><strong>Fecha Estimada:</strong> {{ order.estimatedDate }}</p>
+      </div>
+      <div class="price-section">
+        <mat-form-field appearance="outline">
+          <mat-label>Precio Total (S/.)</mat-label>
+          <span matTextPrefix>S/.&nbsp;</span>
+          <input matInput type="number" [(ngModel)]="localPrice" (blur)="savePrice()">
+        </mat-form-field>
+      </div>
+    </mat-card-content>
+  </mat-card>
+
+  <div class="header-actions mt-4">
+    <h2>Tareas Asignadas</h2>
+    <button mat-stroked-button color="primary" (click)="openTaskDialog()">
+      <mat-icon>add</mat-icon> Agregar Tarea
+    </button>
+  </div>
+
+  <div class="mat-elevation-z2">
+    <table mat-table [dataSource]="orderTasks">
+
+      <ng-container matColumnDef="description">
+        <th mat-header-cell *matHeaderCellDef> Descripción </th>
+        <td mat-cell *matCellDef="let element" class="fw-bold"> {{element.description}} </td>
+      </ng-container>
+
+      <ng-container matColumnDef="mechanic">
+        <th mat-header-cell *matHeaderCellDef> Mecánico Asignado </th>
+        <td mat-cell *matCellDef="let element">
+          <mat-icon class="sm-icon">person</mat-icon> {{getMechanicName(element.mechanicId)}}
+        </td>
+      </ng-container>
+
+      <ng-container matColumnDef="status">
+        <th mat-header-cell *matHeaderCellDef> Estado </th>
+        <td mat-cell *matCellDef="let element">
+          <mat-form-field appearance="outline" class="status-dropdown" subscriptSizing="dynamic">
+            <mat-select [value]="element.status" (selectionChange)="updateTaskStatus(element, $event.value)">
+              <mat-option value="Pendiente">Pendiente</mat-option>
+              <mat-option value="En Proceso">En Proceso</mat-option>
+              <mat-option value="Completada">Completada</mat-option>
+            </mat-select>
+          </mat-form-field>
+        </td>
+      </ng-container>
+
+      <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
+      <tr mat-row *matRowDef="let row; columns: displayedColumns;"></tr>
+    </table>
+
+    <div *ngIf="orderTasks.length === 0" class="empty-state">No hay tareas creadas aún.</div>
+  </div>
+
+  <ng-template #taskDialog>
+    <h2 mat-dialog-title>Nueva Tarea</h2>
+    <mat-dialog-content>
+      <div class="form-container">
+        <mat-form-field appearance="outline">
+          <mat-label>Descripción</mat-label>
+          <input matInput [(ngModel)]="newTask.description" required autofocus>
+        </mat-form-field>
+
+        <mat-form-field appearance="outline">
+          <mat-label>Mecánico Asignado</mat-label>
+          <mat-select [(ngModel)]="newTask.mechanicId" required>
+            @for (mech of mechanicStore.mechanics(); track mech.id) {
+              <mat-option [value]="mech.id">{{ mech.fullName }}</mat-option>
+            }
+          </mat-select>
+        </mat-form-field>
+      </div>
+    </mat-dialog-content>
+    <mat-dialog-actions align="end">
+      <button mat-button (click)="closeDialog()">Cancelar</button>
+      <button mat-flat-button color="primary" (click)="saveTask()" [disabled]="!newTask.description || !newTask.mechanicId">Guardar Tarea</button>
+    </mat-dialog-actions>
+  </ng-template>
+
+</div>
+
+<ng-template #loading>
+  <div class="loading-state">
+    <mat-icon class="spin">sync</mat-icon>
+    Cargando detalles de la orden...
+  </div>
+</ng-template>

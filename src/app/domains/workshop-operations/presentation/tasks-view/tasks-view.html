@@ -1,0 +1,76 @@
+<div class="tasks-container">
+
+  <div class="header-actions">
+    <h1>Tablero de Tareas Activas</h1>
+    <button mat-icon-button color="primary" (click)="loadAllData()" [disabled]="taskStore.isLoading()">
+      <mat-icon [class.spin]="taskStore.isLoading()">refresh</mat-icon>
+    </button>
+  </div>
+
+  <div class="mat-elevation-z2 table-container">
+    @if (taskStore.isLoading()) {
+      <div class="loading-shade">Sincronizando tareas...</div>
+    }
+
+    <table mat-table [dataSource]="taskStore.tasks()">
+
+      <ng-container matColumnDef="workOrder">
+        <th mat-header-cell *matHeaderCellDef> Orden de Trabajo </th>
+        <td mat-cell *matCellDef="let element">
+          <mat-chip-set>
+            <mat-chip disabled>{{ getWorkOrderCode(element.workOrderId) }}</mat-chip>
+          </mat-chip-set>
+        </td>
+      </ng-container>
+
+      <ng-container matColumnDef="description">
+        <th mat-header-cell *matHeaderCellDef> Descripción de la Tarea </th>
+        <td mat-cell *matCellDef="let element" class="fw-bold"> {{element.description}} </td>
+      </ng-container>
+
+      <ng-container matColumnDef="mechanic">
+        <th mat-header-cell *matHeaderCellDef> Mecánico Asignado </th>
+        <td mat-cell *matCellDef="let element">
+          <div class="mechanic-cell">
+            <mat-icon class="sm-icon">person</mat-icon>
+            <span>{{ getMechanicName(element.mechanicId) }}</span>
+          </div>
+        </td>
+      </ng-container>
+
+      <ng-container matColumnDef="status">
+        <th mat-header-cell *matHeaderCellDef> Estado </th>
+        <td mat-cell *matCellDef="let element">
+          <mat-form-field appearance="outline" class="status-dropdown" subscriptSizing="dynamic">
+            <mat-select [value]="element.status" (selectionChange)="onStatusChange(element, $event.value)">
+              @for (status of statusOptions; track status) {
+                <mat-option [value]="status">
+                  <span [ngClass]="{'text-green': status === 'Completada', 'text-blue': status === 'En Proceso'}">
+                    {{ status }}
+                  </span>
+                </mat-option>
+              }
+            </mat-select>
+          </mat-form-field>
+        </td>
+      </ng-container>
+
+      <ng-container matColumnDef="actions">
+        <th mat-header-cell *matHeaderCellDef> Acciones </th>
+        <td mat-cell *matCellDef="let element">
+          <button mat-icon-button color="accent" matTooltip="Ir a la Orden" (click)="goToWorkOrder(element.workOrderId)">
+            <mat-icon>launch</mat-icon>
+          </button>
+        </td>
+      </ng-container>
+
+      <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
+      <tr mat-row *matRowDef="let row; columns: displayedColumns;"></tr>
+    </table>
+
+    @if (taskStore.tasks().length === 0 && !taskStore.isLoading()) {
+      <div class="empty-state">No hay tareas pendientes en este momento.</div>
+    }
+  </div>
+
+</div>

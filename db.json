@@ -1,0 +1,433 @@
+{
+  "workshops": [
+    {
+      "id": "WS-1",
+      "name": "AutoTaller Surco",
+      "email": "admin@autotaller.com",
+      "password": "admin"
+    },
+    {
+      "id": "WS-2",
+      "name": "Taller Los Rápidos",
+      "email": "admin@rapidos.com",
+      "password": "admin"
+    }
+  ],
+  "customers": [
+    {
+      "id": "C-1",
+      "workshopId": "WS-1",
+      "fullName": "Juan Pérez",
+      "dni": "72345677",
+      "email": "juan.perez@email.com",
+      "phone": "987654321"
+    },
+    {
+      "id": "C-2",
+      "workshopId": "WS-1",
+      "fullName": "María Gómez",
+      "dni": "71234567",
+      "email": "maria.gomez@email.com",
+      "phone": "912345678"
+    },
+    {
+      "id": "C-3",
+      "workshopId": "WS-1",
+      "fullName": "Carlos López",
+      "dni": "70123456",
+      "email": "carlos.lopez@email.com",
+      "phone": "998877665"
+    },
+    {
+      "id": "C-6",
+      "workshopId": "WS-1",
+      "fullName": "Lucía Méndez",
+      "dni": "45678901",
+      "email": "lucia.mendez@outlook.com",
+      "phone": "955443322"
+    },
+    {
+      "id": "C-7",
+      "workshopId": "WS-1",
+      "fullName": "Roberto Valdivia",
+      "dni": "12348765",
+      "email": "rvaldivia@empresa.pe",
+      "phone": "900112233"
+    },
+    {
+      "id": "C-4",
+      "workshopId": "WS-2",
+      "fullName": "Ana Sánchez",
+      "dni": "12345678",
+      "email": "ana.sanchez@email.com",
+      "phone": "988776655"
+    },
+    {
+      "id": "C-5",
+      "workshopId": "WS-2",
+      "fullName": "Pedro Ramírez",
+      "dni": "87654321",
+      "email": "pedro.ramirez@email.com",
+      "phone": "911223344"
+    },
+    {
+      "id": "C-8",
+      "workshopId": "WS-2",
+      "fullName": "Elena Torres",
+      "dni": "55667788",
+      "email": "etorres@gmail.com",
+      "phone": "933221100"
+    }
+  ],
+  "vehicles": [
+    {
+      "id": "V-1",
+      "workshopId": "WS-1",
+      "plate": "ABC-123",
+      "brand": "Toyota",
+      "model": "Yaris",
+      "year": "2020",
+      "color": "Plata",
+      "status": "En Taller",
+      "customerId": "C-1"
+    },
+    {
+      "id": "V-2",
+      "workshopId": "WS-1",
+      "plate": "XYZ-987",
+      "brand": "Honda",
+      "model": "Civic",
+      "year": "2022",
+      "color": "Negro",
+      "status": "Listo",
+      "customerId": "C-2"
+    },
+    {
+      "id": "V-3",
+      "workshopId": "WS-1",
+      "plate": "DEF-456",
+      "brand": "Nissan",
+      "model": "Sentra",
+      "year": "2019",
+      "color": "Rojo",
+      "status": "En Taller",
+      "customerId": "C-3"
+    },
+    {
+      "id": "V-4",
+      "workshopId": "WS-1",
+      "plate": "GHI-789",
+      "brand": "Kia",
+      "model": "Rio",
+      "year": "2021",
+      "color": "Blanco",
+      "status": "Entregado",
+      "customerId": "C-1"
+    },
+    {
+      "id": "V-7",
+      "workshopId": "WS-1",
+      "plate": "MNO-444",
+      "brand": "Hyundai",
+      "model": "Tucson",
+      "year": "2023",
+      "color": "Azul Marino",
+      "status": "En Taller",
+      "customerId": "C-6"
+    },
+    {
+      "id": "V-8",
+      "workshopId": "WS-1",
+      "plate": "BMW-555",
+      "brand": "BMW",
+      "model": "X5",
+      "year": "2021",
+      "color": "Gris",
+      "status": "En Taller",
+      "customerId": "C-7"
+    },
+    {
+      "id": "V-5",
+      "workshopId": "WS-2",
+      "plate": "LMN-456",
+      "brand": "Ford",
+      "model": "Fiesta",
+      "year": "2018",
+      "color": "Azul",
+      "status": "En Taller",
+      "customerId": "C-4"
+    },
+    {
+      "id": "V-6",
+      "workshopId": "WS-2",
+      "plate": "PQR-123",
+      "brand": "Chevrolet",
+      "model": "Spark",
+      "year": "2023",
+      "color": "Gris",
+      "status": "En Taller",
+      "customerId": "C-5"
+    },
+    {
+      "id": "V-9",
+      "workshopId": "WS-2",
+      "plate": "TES-001",
+      "brand": "Tesla",
+      "model": "Model 3",
+      "year": "2024",
+      "color": "Blanco",
+      "status": "En Taller",
+      "customerId": "C-8"
+    }
+  ],
+  "mechanics": [
+    {
+      "id": "M-1",
+      "workshopId": "WS-1",
+      "fullName": "Roberto Sánchez",
+      "specialty": "Mecánica General",
+      "maxCapacity": 4
+    },
+    {
+      "id": "M-2",
+      "workshopId": "WS-1",
+      "fullName": "Luis Torres",
+      "specialty": "Electricidad",
+      "maxCapacity": 3
+    },
+    {
+      "id": "M-3",
+      "workshopId": "WS-1",
+      "fullName": "Fernando Díaz",
+      "specialty": "Planchado y Pintura",
+      "maxCapacity": 2
+    },
+    {
+      "id": "M-4",
+      "workshopId": "WS-2",
+      "fullName": "Miguel Ángel",
+      "specialty": "Mecánica General",
+      "maxCapacity": 5
+    },
+    {
+      "id": "M-5",
+      "workshopId": "WS-2",
+      "fullName": "Sofía Ruiz",
+      "specialty": "Electricidad",
+      "maxCapacity": 4
+    }
+  ],
+  "work-orders": [
+    {
+      "id": "WO-1",
+      "workshopId": "WS-1",
+      "trackingCode": "AS-1001A",
+      "vehicleId": "V-1",
+      "customerId": "C-1",
+      "description": "Mantenimiento 10k y frenos",
+      "status": "En Proceso",
+      "startDate": "2026-05-08",
+      "estimatedDate": "2026-05-10",
+      "price": 450
+    },
+    {
+      "id": "WO-2",
+      "workshopId": "WS-1",
+      "trackingCode": "AS-1002B",
+      "vehicleId": "V-2",
+      "customerId": "C-2",
+      "description": "Falla eléctrica en tablero",
+      "status": "Finalizado",
+      "startDate": "2026-05-05",
+      "estimatedDate": "2026-05-07",
+      "price": 250
+    },
+    {
+      "id": "WO-3",
+      "workshopId": "WS-1",
+      "trackingCode": "AS-1003C",
+      "vehicleId": "V-3",
+      "customerId": "C-3",
+      "description": "Choque, puerta y pintura",
+      "status": "En Proceso",
+      "startDate": "2026-05-09",
+      "estimatedDate": "2026-05-15",
+      "price": 1200
+    },
+    {
+      "id": "WO-6",
+      "workshopId": "WS-1",
+      "trackingCode": "AS-3344D",
+      "vehicleId": "V-7",
+      "customerId": "C-6",
+      "description": "Ajuste de suspensión y dirección",
+      "status": "En Proceso",
+      "startDate": "2026-05-10",
+      "estimatedDate": "2026-05-12",
+      "price": 350
+    },
+    {
+      "id": "WO-7",
+      "workshopId": "WS-1",
+      "trackingCode": "AS-5566E",
+      "vehicleId": "V-8",
+      "customerId": "C-7",
+      "description": "Cambio de inyectores y limpieza de motor",
+      "status": "En Proceso",
+      "startDate": "2026-05-11",
+      "estimatedDate": "2026-05-13",
+      "price": 800
+    },
+    {
+      "id": "WO-4",
+      "workshopId": "WS-2",
+      "trackingCode": "TR-2001X",
+      "vehicleId": "V-5",
+      "customerId": "C-4",
+      "description": "Revisión de motor que tiembla",
+      "status": "En Proceso",
+      "startDate": "2026-05-09",
+      "estimatedDate": "2026-05-11",
+      "price": 300
+    },
+    {
+      "id": "WO-5",
+      "workshopId": "WS-2",
+      "trackingCode": "TR-2002Y",
+      "vehicleId": "V-6",
+      "customerId": "C-5",
+      "description": "Cambio de batería y alternador",
+      "status": "En Proceso",
+      "startDate": "2026-05-09",
+      "estimatedDate": "2026-05-10",
+      "price": 480
+    },
+    {
+      "id": "WO-8",
+      "workshopId": "WS-2",
+      "trackingCode": "TR-9900Z",
+      "vehicleId": "V-9",
+      "customerId": "C-8",
+      "description": "Mantenimiento preventivo de software y batería",
+      "status": "En Proceso",
+      "startDate": "2026-05-12",
+      "estimatedDate": "2026-05-14",
+      "price": 200
+    }
+  ],
+  "tasks": [
+    {
+      "id": "T-1",
+      "workshopId": "WS-1",
+      "workOrderId": "WO-1",
+      "description": "Cambio de aceite",
+      "status": "Completada",
+      "mechanicId": "M-1"
+    },
+    {
+      "id": "T-2",
+      "workshopId": "WS-1",
+      "workOrderId": "WO-1",
+      "description": "Ajuste de pastillas de freno",
+      "status": "En Proceso",
+      "mechanicId": "M-1"
+    },
+    {
+      "id": "T-3",
+      "workshopId": "WS-1",
+      "workOrderId": "WO-2",
+      "description": "Escaneo electrónico",
+      "status": "Completada",
+      "mechanicId": "M-2"
+    },
+    {
+      "id": "T-4",
+      "workshopId": "WS-1",
+      "workOrderId": "WO-3",
+      "description": "Desabollado de puerta derecha",
+      "status": "En Proceso",
+      "mechanicId": "M-3"
+    },
+    {
+      "id": "T-5",
+      "workshopId": "WS-1",
+      "workOrderId": "WO-3",
+      "description": "Preparación y pintura",
+      "status": "Pendiente",
+      "mechanicId": "M-3"
+    },
+    {
+      "id": "T-10",
+      "workshopId": "WS-1",
+      "workOrderId": "WO-6",
+      "description": "Alineamiento y balanceo",
+      "status": "En Proceso",
+      "mechanicId": "M-1"
+    },
+    {
+      "id": "T-11",
+      "workshopId": "WS-1",
+      "workOrderId": "WO-6",
+      "description": "Engrase de terminales",
+      "status": "Pendiente",
+      "mechanicId": "M-1"
+    },
+    {
+      "id": "T-12",
+      "workshopId": "WS-1",
+      "workOrderId": "WO-7",
+      "description": "Limpieza de inyectores por ultrasonido",
+      "status": "Completada",
+      "mechanicId": "M-2"
+    },
+    {
+      "id": "T-13",
+      "workshopId": "WS-1",
+      "workOrderId": "WO-7",
+      "description": "Cambio de filtro de combustible",
+      "status": "En Proceso",
+      "mechanicId": "M-2"
+    },
+    {
+      "id": "T-6",
+      "workshopId": "WS-2",
+      "workOrderId": "WO-4",
+      "description": "Diagnóstico de motor",
+      "status": "En Proceso",
+      "mechanicId": "M-4"
+    },
+    {
+      "id": "T-7",
+      "workshopId": "WS-2",
+      "workOrderId": "WO-4",
+      "description": "Limpieza de inyectores",
+      "status": "Pendiente",
+      "mechanicId": "M-4"
+    },
+    {
+      "id": "T-8",
+      "workshopId": "WS-2",
+      "workOrderId": "WO-5",
+      "description": "Instalación de batería",
+      "status": "Completada",
+      "mechanicId": "M-5"
+    },
+    {
+      "id": "T-9",
+      "workshopId": "WS-2",
+      "workOrderId": "WO-5",
+      "description": "Revisión de alternador",
+      "status": "En Proceso",
+      "mechanicId": "M-5"
+    },
+    {
+      "id": "T-14",
+      "workshopId": "WS-2",
+      "workOrderId": "WO-8",
+      "description": "Diagnóstico de batería HV",
+      "status": "En Proceso",
+      "mechanicId": "M-5"
+    }
+  ],
+  "$schema": "./node_modules/json-server/schema.json"
+}

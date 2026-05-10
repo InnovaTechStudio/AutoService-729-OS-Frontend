@@ -1,0 +1,25 @@
+.tasks-container { background: transparent; }
+.header-actions { display: flex; justify-content: space-between; align-items: center; margin-bottom: 2rem; }
+.header-actions h1 { margin: 0; color: #1e293b; font-size: 1.8rem; }
+.table-container { background: white; border-radius: 8px; overflow: hidden; position: relative; }
+table { width: 100%; }
+
+.loading-shade { position: absolute; top: 0; left: 0; right: 0; bottom: 0; background: rgba(255, 255, 255, 0.8); z-index: 10; display: flex; justify-content: center; align-items: center; font-weight: bold; color: #3b82f6; }
+.empty-state { padding: 3rem; text-align: center; color: #64748b; }
+
+.fw-bold { font-weight: 500; color: #334155; }
+.mechanic-cell { display: flex; align-items: center; gap: 0.5rem; color: #475569; }
+.sm-icon { font-size: 18px; width: 18px; height: 18px; color: #94a3b8; }
+
+/* Estilizar el dropdown de la tabla para que no sea gigante */
+.status-dropdown { width: 140px; }
+::ng-deep .status-dropdown .mat-mdc-text-field-wrapper { padding: 0 8px !important; }
+::ng-deep .status-dropdown .mat-mdc-form-field-infix { padding-top: 8px !important; padding-bottom: 8px !important; min-height: 0 !important; }
+
+/* Colores para el texto del dropdown */
+.text-green { color: #10b981; font-weight: 500; }
+.text-blue { color: #3b82f6; font-weight: 500; }
+
+/* Animación para el botón de refrescar */
+.spin { animation: spin 1s linear infinite; }
+@keyframes spin { 100% { transform: rotate(360deg); } }

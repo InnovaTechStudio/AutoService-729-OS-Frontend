@@ -1,0 +1,55 @@
+<div class="tracking-layout">
+  <div class="tracking-header">
+    <mat-icon class="hero-icon">directions_car</mat-icon>
+    <h1>Rastrea tu Vehículo</h1>
+    <p>Ingresa el código AS-XXXXX para ver el estado de tu servicio.</p>
+  </div>
+
+  <div class="tracking-content">
+    <mat-card class="search-card">
+      <mat-form-field appearance="outline" class="w-full">
+        <mat-label>Código de Servicio</mat-label>
+        <input matInput [(ngModel)]="trackingCode" placeholder="Ej: AS-1001A" (keyup.enter)="handleSearch()">
+        <button mat-icon-button matSuffix (click)="handleSearch()" [disabled]="trackingStore.isLoading()">
+          <mat-icon>search</mat-icon>
+        </button>
+      </mat-form-field>
+
+      @if (trackingStore.error()) {
+        <div class="error-msg">{{ trackingStore.error() }}</div>
+      }
+    </mat-card>
+
+    @if (trackingStore.order()) {
+      <div class="results-container fade-in">
+        <mat-card class="info-card">
+          <div class="vehicle-info">
+            <span class="label">Vehículo</span>
+            <h2>{{ trackingStore.vehicle()?.brand }} {{ trackingStore.vehicle()?.model }}</h2>
+            <span class="plate-badge">{{ trackingStore.vehicle()?.plate }}</span>
+          </div>
+          <div class="dates">
+            <div><small>Ingreso:</small> {{ trackingStore.order()?.startDate }}</div>
+            <div><small>Estimado:</small> {{ trackingStore.order()?.estimatedDate }}</div>
+          </div>
+        </mat-card>
+
+        <mat-card class="timeline-card">
+          <h3>Progreso del Servicio</h3>
+          <mat-vertical-stepper [linear]="false" #stepper>
+            @for (task of trackingStore.tasks(); track task.id) {
+              <mat-step [completed]="task.status === 'Completada'" [editable]="false">
+                <ng-template matStepLabel>
+                  <div class="step-label">
+                    <strong>{{ task.description }}</strong>
+                    <span class="status-text" [ngClass]="task.status">{{ task.status }}</span>
+                  </div>
+                </ng-template>
+              </mat-step>
+            }
+          </mat-vertical-stepper>
+        </mat-card>
+      </div>
+    }
+  </div>
+</div>

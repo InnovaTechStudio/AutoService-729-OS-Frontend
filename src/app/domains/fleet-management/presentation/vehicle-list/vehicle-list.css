@@ -1,0 +1,29 @@
+.vehicle-list-container { background: transparent; }
+.header-actions { display: flex; justify-content: space-between; align-items: center; margin-bottom: 2rem; }
+.header-actions h1 { margin: 0; color: #1e293b; font-size: 1.8rem; }
+.table-container { background: white; border-radius: 8px; overflow: hidden; position: relative; }
+table { width: 100%; }
+
+.loading-shade { position: absolute; top: 0; left: 0; right: 0; bottom: 0; background: rgba(255, 255, 255, 0.8); z-index: 10; display: flex; justify-content: center; align-items: center; font-weight: bold; color: #3b82f6; }
+.empty-state { padding: 3rem; text-align: center; color: #64748b; }
+
+.fw-bold { font-weight: bold; }
+.sm-icon { font-size: 16px; width: 16px; height: 16px; vertical-align: middle; color: #94a3b8; margin-right: 4px; }
+
+/* Badges estilo PrimeVue para Material */
+.custom-badge {
+  padding: 4px 8px;
+  border-radius: 6px;
+  font-size: 0.8rem;
+  font-weight: 600;
+  display: inline-block;
+}
+.badge-warning { background-color: #fef08a; color: #854d0e; }
+.badge-success { background-color: #bbf7d0; color: #166534; }
+.badge-info { background-color: #bae6fd; color: #075985; }
+
+/* Grid para el formulario del Modal */
+.form-container { display: flex; flex-direction: column; margin-top: 1rem; min-width: 450px; }
+.full-width { width: 100%; }
+.form-row { display: flex; gap: 1rem; width: 100%; }
+.form-row mat-form-field { flex: 1; }

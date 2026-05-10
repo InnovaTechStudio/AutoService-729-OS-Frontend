@@ -1,0 +1,56 @@
+.create-wo-container { background: transparent; padding-bottom: 2rem; }
+
+.header-actions { margin-bottom: 1.5rem; }
+.title-group { display: flex; align-items: center; gap: 1rem; }
+.title-group h1 { margin: 0; color: #1e293b; font-size: 1.8rem; }
+
+/* Grid a dos columnas */
+.wo-grid {
+  display: grid;
+  grid-template-columns: 1fr 1.2fr;
+  gap: 1.5rem;
+  align-items: start;
+}
+
+.form-card { border-radius: 12px; box-shadow: 0 4px 6px rgba(0,0,0,0.05); }
+.pt-3 { padding-top: 1rem; }
+.h-full { height: 100%; min-height: 400px; }
+
+/* Inputs Izquierda */
+.w-full { width: 100%; margin-bottom: -10px; }
+.form-row { display: flex; gap: 1rem; width: 100%; margin-top: 5px; }
+.w-half { flex: 1; }
+
+/* Tareas Derecha */
+.tasks-header { display: flex; justify-content: space-between; align-items: center; width: 100%; margin-bottom: 1rem; }
+::ng-deep .tasks-header .mat-mdc-card-header-text { margin: 0; }
+
+.tasks-list { display: flex; flex-direction: column; gap: 0.5rem; }
+.task-row {
+  display: flex;
+  gap: 1rem;
+  align-items: flex-start;
+  background-color: #f8fafc;
+  padding: 1rem 1rem 0 1rem;
+  border-radius: 8px;
+  border: 1px solid #e2e8f0;
+}
+.task-desc { flex: 2; }
+.task-mech { flex: 1.5; }
+.delete-btn { margin-top: 4px; } /* Alinear con los inputs */
+
+.empty-state { text-align: center; padding: 2rem; color: #64748b; font-style: italic; background: #f8fafc; border-radius: 8px; border: 1px dashed #cbd5e1; }
+
+/* Acciones Footer */
+.footer-actions { display: flex; justify-content: flex-end; gap: 1rem; margin-top: 2rem; }
+
+/* Spinner */
+.spin { animation: spin 1s linear infinite; }
+@keyframes spin { 100% { transform: rotate(360deg); } }
+
+/* Responsivo para móviles */
+@media (max-width: 900px) {
+  .wo-grid { grid-template-columns: 1fr; }
+  .task-row { flex-direction: column; gap: 0; }
+  .task-desc, .task-mech { width: 100%; }
+}

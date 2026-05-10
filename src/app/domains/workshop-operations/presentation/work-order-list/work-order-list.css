@@ -1,0 +1,25 @@
+.work-order-list-container { background: transparent; }
+.header-actions { display: flex; justify-content: space-between; align-items: center; margin-bottom: 2rem; }
+.header-actions h1 { margin: 0; color: #1e293b; font-size: 1.8rem; }
+.table-container { background: white; border-radius: 8px; overflow: hidden; position: relative; }
+table { width: 100%; }
+
+.loading-shade { position: absolute; top: 0; left: 0; right: 0; bottom: 0; background: rgba(255, 255, 255, 0.8); z-index: 10; display: flex; justify-content: center; align-items: center; font-weight: bold; color: #3b82f6; }
+.empty-state { padding: 3rem; text-align: center; color: #64748b; }
+
+.fw-bold { font-weight: bold; }
+.text-primary { color: #3b82f6; }
+.flex-align { display: flex; align-items: center; gap: 4px; }
+.sm-icon { font-size: 16px; width: 16px; height: 16px; color: #64748b; }
+
+.hover-row:hover { background-color: #f8fafc; transition: background-color 0.2s ease; }
+
+/* Progress Bar Customization */
+.progress-cell { display: flex; align-items: center; gap: 8px; width: 120px; }
+.progress-cell mat-progress-bar { flex: 1; border-radius: 4px; height: 8px; }
+.progress-text { font-size: 0.8rem; color: #64748b; font-weight: 500; min-width: 30px; }
+
+/* Badges */
+.custom-badge { padding: 4px 10px; border-radius: 20px; font-size: 0.8rem; font-weight: 600; display: inline-block; }
+.badge-success { background-color: #d1fae5; color: #065f46; }
+.badge-info { background-color: #e0f2fe; color: #0369a1; }

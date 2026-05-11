@@ -37,8 +37,8 @@
   </div>
 
   <app-vehicle-filters
-    [search]="search"
-    [status]="selectedStatus"
+    [search]="search()"
+    [status]="selectedStatus()"
     [statusOptions]="statusOptions"
     (searchChange)="onSearchChange($event)"
     (statusChange)="onStatusChange($event)">

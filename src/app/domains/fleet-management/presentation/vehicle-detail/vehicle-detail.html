@@ -1,0 +1,168 @@
+<section class="vehicle-detail-page">
+  <header class="page-header">
+    <button mat-icon-button type="button" aria-label="Volver a vehículos" (click)="goBack()">
+      <mat-icon>arrow_back</mat-icon>
+    </button>
+
+    <div>
+      <p class="eyebrow">Gestión de flota</p>
+      <h1>Detalles del vehículo</h1>
+      <span>Consulta trazabilidad, diagnóstico y tareas asociadas al servicio.</span>
+    </div>
+  </header>
+
+  @if (vehicle(); as currentVehicle) {
+    <div class="detail-grid">
+      <mat-card class="identity-card">
+        <mat-card-content>
+          <div class="identity-head">
+            <div>
+              <span class="label">Identificación</span>
+              <h2>{{ getVehicleName(currentVehicle) }}</h2>
+              <p class="plate">{{ currentVehicle.plate }}</p>
+            </div>
+
+            <div class="car-icon">
+              <mat-icon>directions_car</mat-icon>
+            </div>
+          </div>
+
+          <div class="owner-row">
+            <mat-icon>person</mat-icon>
+            <div>
+              <span>Propietario</span>
+              <strong>{{ ownerName() }}</strong>
+            </div>
+          </div>
+
+          <div class="vehicle-meta">
+            <span>
+              <mat-icon>calendar_month</mat-icon>
+              {{ currentVehicle.year }}
+            </span>
+
+            <span>
+              <mat-icon>palette</mat-icon>
+              {{ currentVehicle.color }}
+            </span>
+          </div>
+        </mat-card-content>
+      </mat-card>
+
+      <mat-card class="status-card">
+        <mat-card-content>
+          <span class="label">Estado actual</span>
+
+          <div class="status-head">
+            <h2>{{ getStatusLabel(currentVehicle.status) }}</h2>
+            <strong>{{ progress() }}%</strong>
+          </div>
+
+          <mat-progress-bar
+            mode="determinate"
+            [value]="progress()">
+          </mat-progress-bar>
+
+          <p>
+            Avance calculado según tareas completadas y estado operativo del servicio.
+          </p>
+        </mat-card-content>
+      </mat-card>
+
+      <mat-card class="diagnosis-card">
+        <mat-card-content>
+          <section class="info-block">
+            <div class="section-title">
+              <mat-icon>warning_amber</mat-icon>
+              <h3>Problema reportado</h3>
+            </div>
+
+            <p class="note-box">
+              {{ problemReported() }}
+            </p>
+          </section>
+
+          <section class="info-block">
+            <div class="section-title">
+              <mat-icon>engineering</mat-icon>
+              <h3>Diagnóstico técnico</h3>
+            </div>
+
+            <p class="note-box">
+              {{ technicalDiagnosis() }}
+            </p>
+          </section>
+        </mat-card-content>
+      </mat-card>
+
+      <mat-card class="tasks-card">
+        <mat-card-header>
+          <mat-card-title>
+            <mat-icon>assignment</mat-icon>
+            Tareas de mantenimiento
+          </mat-card-title>
+
+          <mat-card-subtitle>
+            {{ vehicleTasks().length }} tareas registradas
+          </mat-card-subtitle>
+        </mat-card-header>
+
+        <mat-card-content>
+          @if (vehicleTasks().length > 0) {
+            <div class="task-list">
+              @for (task of vehicleTasks(); track task.id) {
+                <article class="task-item">
+                  <div class="task-icon" [ngClass]="getTaskStatusClass(task.status)">
+                    <mat-icon>{{ getTaskIcon(task.status) }}</mat-icon>
+                  </div>
+
+                  <div class="task-body">
+                    <strong>{{ task.description }}</strong>
+                    <span [ngClass]="getTaskStatusClass(task.status)">
+                      {{ getTaskStatusLabel(task.status) }}
+                    </span>
+                  </div>
+
+                  <button
+                    mat-icon-button
+                    type="button"
+                    aria-label="Editar tarea"
+                    (click)="goToWorkOrder()">
+                    <mat-icon>edit</mat-icon>
+                  </button>
+                </article>
+              }
+            </div>
+          } @else {
+            <div class="empty-tasks">
+              <mat-icon>assignment_late</mat-icon>
+              <p>No hay tareas registradas para este vehículo.</p>
+            </div>
+          }
+
+          <button
+            mat-flat-button
+            color="primary"
+            type="button"
+            class="add-task-button"
+            (click)="goToNewTask()">
+            <mat-icon>add</mat-icon>
+            Agregar tarea
+          </button>
+        </mat-card-content>
+      </mat-card>
+    </div>
+  } @else {
+    <mat-card class="not-found-card">
+      <mat-card-content>
+        <mat-icon>directions_car</mat-icon>
+        <h2>Vehículo no encontrado</h2>
+        <p>No se encontró información para el vehículo seleccionado.</p>
+
+        <button mat-flat-button color="primary" type="button" (click)="goBack()">
+          Volver a vehículos
+        </button>
+      </mat-card-content>
+    </mat-card>
+  }
+</section>

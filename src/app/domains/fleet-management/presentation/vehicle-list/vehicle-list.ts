@@ -1,5 +1,5 @@
 import { CommonModule } from '@angular/common';
-import { Component, computed, inject, OnInit, TemplateRef, ViewChild } from '@angular/core';
+import { Component, computed, inject, OnInit, signal, TemplateRef, ViewChild } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { Router } from '@angular/router';
 
@@ -45,8 +45,8 @@ export class VehicleListComponent implements OnInit {
   protected currentVehicle: Vehicle = this.getEmptyVehicle();
   protected isEditing = false;
 
-  protected search = '';
-  protected selectedStatus: string | null = null;
+  protected readonly search = signal('');
+  protected readonly selectedStatus = signal<string | null>(null);
   protected readonly statusOptions = ['En Taller', 'Listo', 'Entregado'];
 
   private readonly carImages = [
@@ -72,7 +72,8 @@ export class VehicleListComponent implements OnInit {
   );
 
   protected readonly filteredVehicles = computed(() => {
-    const term = this.search.toLowerCase().trim();
+    const term = this.search().toLowerCase().trim();
+    const selectedStatus = this.selectedStatus();
 
     return this.vehiclesView().filter((item) => {
       const matchesSearch =
@@ -82,7 +83,7 @@ export class VehicleListComponent implements OnInit {
         item.owner.toLowerCase().includes(term);
 
       const matchesStatus =
-        !this.selectedStatus || item.status === this.selectedStatus;
+        !selectedStatus || item.status === selectedStatus;
 
       return matchesSearch && matchesStatus;
     });
@@ -105,11 +106,11 @@ export class VehicleListComponent implements OnInit {
   }
 
   protected onSearchChange(value: string): void {
-    this.search = value;
+    this.search.set(value);
   }
 
   protected onStatusChange(value: string | null): void {
-    this.selectedStatus = value;
+    this.selectedStatus.set(value);
   }
 
   protected openNewDialog(): void {

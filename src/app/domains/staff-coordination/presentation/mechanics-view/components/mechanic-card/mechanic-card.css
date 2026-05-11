@@ -1,0 +1,149 @@
+.mechanic-card {
+  position: relative;
+  padding: 1.2rem;
+  overflow: hidden;
+  border: 1px solid #e8edf5;
+  border-radius: 24px;
+  background: #ffffff;
+  box-shadow: 0 12px 28px rgba(15, 23, 42, 0.06);
+}
+
+.load-line {
+  position: absolute;
+  top: 0;
+  left: 0;
+  height: 5px;
+  width: 100%;
+}
+
+.load-low {
+  background: #16a34a;
+}
+
+.load-medium {
+  background: #f59e0b;
+}
+
+.load-high {
+  background: #ef4444;
+}
+
+.mechanic-top {
+  display: flex;
+  justify-content: space-between;
+  gap: 1rem;
+  align-items: flex-start;
+}
+
+.mechanic-profile {
+  display: flex;
+  gap: 0.85rem;
+  align-items: center;
+}
+
+.mechanic-avatar {
+  width: 3.2rem;
+  height: 3.2rem;
+  display: grid;
+  place-items: center;
+  color: #0b1680;
+  border-radius: 50%;
+  background: #eef2ff;
+}
+
+h3 {
+  margin: 0;
+  color: #0f172a;
+  font-size: 1.15rem;
+}
+
+p {
+  margin: 0.25rem 0 0;
+  color: #64748b;
+}
+
+.workload-chip {
+  display: inline-flex;
+  width: fit-content;
+  padding: 0.3rem 0.7rem;
+  border-radius: 999px;
+  font-size: 0.68rem;
+  font-weight: 900;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+.status-success {
+  color: #047857;
+  background: #d1fae5;
+}
+
+.status-warning {
+  color: #92400e;
+  background: #fef3c7;
+}
+
+.status-danger {
+  color: #b91c1c;
+  background: #fee2e2;
+}
+
+.mechanic-stats {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 0.8rem;
+  margin: 1.2rem 0;
+}
+
+.mechanic-stats div {
+  padding: 0.85rem;
+  border-radius: 16px;
+  background: #f8fafc;
+}
+
+.mechanic-stats span {
+  display: block;
+  color: #64748b;
+  font-size: 0.86rem;
+  font-weight: 700;
+}
+
+.mechanic-stats strong {
+  display: block;
+  margin-top: 0.25rem;
+  color: #0b1680;
+  font-size: 1.3rem;
+}
+
+.load-label {
+  display: flex;
+  justify-content: space-between;
+  margin-bottom: 0.5rem;
+  color: #64748b;
+  font-weight: 700;
+}
+
+.load-label strong {
+  color: #0b1680;
+}
+
+.load-progress {
+  height: 8px;
+  border-radius: 999px;
+  overflow: hidden;
+}
+
+.mechanic-actions {
+  display: flex;
+  gap: 0.75rem;
+  margin-top: 1.2rem;
+}
+
+.action-button {
+  flex: 1;
+  border-radius: 14px;
+}
+
+.delete-button {
+  border-radius: 14px;
+}

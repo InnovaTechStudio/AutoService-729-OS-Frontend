@@ -4,9 +4,22 @@ import { Mechanic } from '../../domain/models/mechanic.model';
 
 @Injectable({ providedIn: 'root' })
 export class MechanicService {
-  private http = inject(HttpClient);
-  private apiUrl = 'http://localhost:3000/mechanics';
+  private readonly http = inject(HttpClient);
+  private readonly apiUrl = 'http://localhost:3000/mechanics';
 
-  getAll() { return this.http.get<Mechanic[]>(this.apiUrl); }
-  create(mechanic: Mechanic) { return this.http.post<Mechanic>(this.apiUrl, mechanic); }
+  getMechanics() {
+    return this.http.get<Mechanic[]>(this.apiUrl);
+  }
+
+  createMechanic(data: Mechanic) {
+    return this.http.post<Mechanic>(this.apiUrl, data);
+  }
+
+  updateMechanic(id: string, data: Mechanic) {
+    return this.http.put<Mechanic>(`${this.apiUrl}/${id}`, data);
+  }
+
+  deleteMechanic(id: string) {
+    return this.http.delete<void>(`${this.apiUrl}/${id}`);
+  }
 }

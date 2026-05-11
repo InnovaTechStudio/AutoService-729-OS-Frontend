@@ -11,7 +11,7 @@ import { CreateWorkOrderComponent } from './domains/workshop-operations/presenta
 import { WorkOrderDetailComponent } from './domains/workshop-operations/presentation/work-order-detail/work-order-detail';
 import {TrackingViewComponent} from './domains/customer-trust/presentation/tracking-view/tracking-view';
 import { VehicleDetailComponent } from './domains/fleet-management/presentation/vehicle-detail/vehicle-detail';
-
+import { MechanicWorkspaceComponent } from './domains/staff-coordination/presentation/mechanic-workspace/mechanic-workspace';
 
 
 export const routes: Routes = [
@@ -30,6 +30,7 @@ export const routes: Routes = [
       { path: 'work-orders', component: WorkOrderListComponent },
       { path: 'work-orders/new', component: CreateWorkOrderComponent },
       { path: 'work-orders/:id', component: WorkOrderDetailComponent },
+      { path: 'mechanic-workspace', component: MechanicWorkspaceComponent },
       { path: '', redirectTo: 'dashboard', pathMatch: 'full' }
     ]
   },

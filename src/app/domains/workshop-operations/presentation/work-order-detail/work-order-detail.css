@@ -354,7 +354,68 @@
     grid-template-columns: 1fr;
   }
 }
+.qa-card {
+  margin-bottom: 1.25rem;
+  padding: 1.4rem;
+  border-radius: 24px;
+  background: #ffffff;
+  box-shadow: 0 12px 28px rgba(15, 23, 42, 0.06);
+}
 
+.qa-status {
+  display: inline-flex;
+  padding: 0.5rem 0.85rem;
+  border-radius: 999px;
+  color: #92400e;
+  background: #fef3c7;
+  font-size: 0.78rem;
+  font-weight: 900;
+  text-transform: uppercase;
+}
+
+.qa-status.approved {
+  color: #047857;
+  background: #d1fae5;
+}
+
+.qa-list {
+  display: grid;
+  gap: 0.85rem;
+  margin-top: 1rem;
+}
+
+.qa-item {
+  display: flex;
+  gap: 0.8rem;
+  align-items: center;
+  padding: 1rem;
+  border-radius: 1rem;
+  color: #64748b;
+  background: #f8fafc;
+}
+
+.qa-item.completed {
+  color: #047857;
+  background: #ecfdf5;
+}
+
+.qa-item strong {
+  display: block;
+  color: #0f172a;
+}
+
+.qa-item span {
+  display: block;
+  margin-top: 0.2rem;
+}
+
+.ready-button {
+  width: 100%;
+  margin-top: 1rem;
+  border-radius: 999px;
+  padding: 1.4rem;
+  font-weight: 800;
+}
 @media (max-width: 640px) {
   .work-order-detail-page {
     padding: 1rem;

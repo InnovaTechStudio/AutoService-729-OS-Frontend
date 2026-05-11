@@ -42,9 +42,11 @@
 
   <div class="order-footer">
     @if (order.isRisk) {
-      <div class="risk-badge">
-        <mat-icon>warning_amber</mat-icon>
-        Riesgo de retraso
+      <div class="risk-badge" [ngClass]="order.riskClass">
+        <mat-icon>
+          {{ order.isRisk ? 'warning_amber' : 'verified' }}
+        </mat-icon>
+        {{ order.riskStatus }}
       </div>
     }
 

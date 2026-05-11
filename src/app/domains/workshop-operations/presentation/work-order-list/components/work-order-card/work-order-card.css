@@ -136,3 +136,37 @@ mat-progress-bar {
     width: 100%;
   }
 }
+.risk-ok {
+  color: #047857;
+  background: #d1fae5;
+}
+
+.risk-success {
+  color: #047857;
+  background: #d1fae5;
+}
+
+.risk-warning {
+  color: #92400e;
+  background: #fef3c7;
+}
+
+.risk-danger {
+  color: #b91c1c;
+  background: #fee2e2;
+}
+
+.risk-secondary {
+  color: #475569;
+  background: #e2e8f0;
+}
+
+.status-danger {
+  color: #b91c1c;
+  background: #fee2e2;
+}
+
+.status-warning {
+  color: #92400e;
+  background: #fef3c7;
+}

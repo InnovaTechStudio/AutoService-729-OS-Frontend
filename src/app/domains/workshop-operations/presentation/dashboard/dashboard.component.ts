@@ -1,67 +1,233 @@
-import { Component, inject } from '@angular/core';
+import { CommonModule, CurrencyPipe } from '@angular/common';
+import { Component, OnInit, computed, inject } from '@angular/core';
+import { Router, RouterModule } from '@angular/router';
+
+import { MatButtonModule } from '@angular/material/button';
 import { MatCardModule } from '@angular/material/card';
 import { MatIconModule } from '@angular/material/icon';
-import { CommonModule } from '@angular/common';
+import { MatProgressBarModule } from '@angular/material/progress-bar';
+
+import { VehicleStore } from '../../../fleet-management/application/vehicle.store';
+import { WorkOrderStore } from '../../application/work-order.store';
+import { TaskStore } from '../../application/task.store';
+import { Vehicle } from '../../../fleet-management/domain/models/vehicle.model';
+import { WorkOrder } from '../../domain/models/work-order.model';
+
+interface DashboardVehiclePreview {
+  id: string;
+  name: string;
+  status: string;
+  progress: number;
+  image: string;
+}
+
+interface FrequentService {
+  name: string;
+  count: number;
+  amount: number;
+  progress: number;
+  icon: string;
+}
 
 @Component({
   selector: 'app-dashboard',
   standalone: true,
-  imports: [MatCardModule, MatIconModule, CommonModule],
-  template: `
-    <div class="dashboard-container p-4">
-      <h1 class="mat-headline-4 mb-4">Panel de Control - AutoService</h1>
-
-      <div class="kpi-grid">
-        <mat-card class="kpi-card border-blue">
-          <mat-card-content class="flex-between">
-            <div>
-              <span class="kpi-label">Vehículos en Taller</span>
-              <div class="kpi-value">12</div>
-            </div>
-            <div class="icon-box bg-blue"><mat-icon>directions_car</mat-icon></div>
-          </mat-card-content>
-        </mat-card>
-
-        <mat-card class="kpi-card border-orange">
-          <mat-card-content class="flex-between">
-            <div>
-              <span class="kpi-label">Órdenes Activas</span>
-              <div class="kpi-value">8</div>
-            </div>
-            <div class="icon-box bg-orange"><mat-icon>assignment</mat-icon></div>
-          </mat-card-content>
-        </mat-card>
-
-        <mat-card class="kpi-card border-teal">
-          <mat-card-content class="flex-between">
-            <div>
-              <span class="kpi-label">Tareas Pendientes</span>
-              <div class="kpi-value">24</div>
-            </div>
-            <div class="icon-box bg-teal"><mat-icon>checklist</mat-icon></div>
-          </mat-card-content>
-        </mat-card>
-      </div>
-    </div>
-  `,
-  styles: [`
-    .p-4 { padding: 2rem; }
-    .mb-4 { margin-bottom: 1.5rem; }
-    .kpi-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 1.5rem; }
-    .kpi-card { border-radius: 12px; box-shadow: 0 4px 6px rgba(0,0,0,0.05); }
-    .border-blue { border-left: 5px solid #3b82f6; }
-    .border-orange { border-left: 5px solid #f59e0b; }
-    .border-teal { border-left: 5px solid #14b8a6; }
-    .flex-between { display: flex; justify-content: space-between; align-items: center; }
-    .kpi-label { color: #64748b; font-size: 0.9rem; font-weight: 500; display: block; margin-bottom: 0.5rem; }
-    .kpi-value { font-size: 2rem; font-weight: bold; color: #0f172a; }
-    .icon-box { width: 48px; height: 48px; border-radius: 8px; display: flex; align-items: center; justify-content: center; }
-    .icon-box mat-icon { color: white; }
-    .bg-blue { background-color: #3b82f6; }
-    .bg-orange { background-color: #f59e0b; }
-    .bg-teal { background-color: #14b8a6; }
-  `]
+  imports: [
+    CommonModule,
+    RouterModule,
+    CurrencyPipe,
+    MatCardModule,
+    MatIconModule,
+    MatButtonModule,
+    MatProgressBarModule
+  ],
+  templateUrl: './dashboard.component.html',
+  styleUrl: './dashboard.component.css'
 })
-export class DashboardComponent {
-  // Los números están en duro por ahora, luego los conectaremos con los Stores (Signals)
+export class DashboardComponent implements OnInit {
+  private readonly router = inject(Router);
+  private readonly vehicleStore = inject(VehicleStore);
+  private readonly workOrderStore = inject(WorkOrderStore);
+  private readonly taskStore = inject(TaskStore);
+
+  protected readonly fallbackVehicleImages = [
+    'https://images.unsplash.com/photo-1552519507-da3b142c6e3d?w=300&auto=format&fit=crop',
+    'https://images.unsplash.com/photo-1542362567-b07e54358753?w=300&auto=format&fit=crop',
+    'https://images.unsplash.com/photo-1492144534655-ae79c964c9d7?w=300&auto=format&fit=crop',
+    'https://images.unsplash.com/photo-1503376780353-7e6692767b70?w=300&auto=format&fit=crop'
+  ];
+
+  protected readonly vehicles = this.vehicleStore.vehicles;
+  protected readonly workOrders = this.workOrderStore.workOrders;
+  protected readonly tasks = this.taskStore.tasks;
+
+  protected readonly vehiclesInWorkshop = computed(() =>
+    this.vehicles().filter((vehicle) => vehicle.status !== 'Entregado').length
+  );
+
+  protected readonly activeOrders = computed(() =>
+    this.workOrders().filter((order) => order.status === 'En Proceso').length
+  );
+
+  protected readonly completedOrders = computed(() =>
+    this.workOrders().filter((order) => order.status === 'Finalizado').length
+  );
+
+  protected readonly pendingTasks = computed(() =>
+    this.tasks().filter((task) => task.status === 'Pendiente').length
+  );
+
+  protected readonly projectedIncome = computed(() =>
+    this.workOrders()
+      .reduce((total, order) => total + Number(order.price || 0), 0)
+  );
+
+  protected readonly activeVehiclePreview = computed<DashboardVehiclePreview[]>(() => {
+    const sourceVehicles = this.vehicles().length
+      ? this.vehicles()
+      : this.getFallbackVehicles();
+
+    return sourceVehicles
+      .filter((vehicle) => vehicle.status !== 'Entregado')
+      .slice(0, 4)
+      .map((vehicle, index) => ({
+        id: String(vehicle.id ?? index),
+        name: `${vehicle.brand} ${vehicle.model}`,
+        status: this.getReadableVehicleStatus(vehicle.status),
+        progress: this.getProgressByStatus(vehicle.status),
+        image: this.fallbackVehicleImages[index % this.fallbackVehicleImages.length]
+      }));
+  });
+
+  protected readonly recentOrders = computed(() =>
+    [...this.workOrders()].reverse().slice(0, 5)
+  );
+
+  protected readonly frequentServices: FrequentService[] = [
+    {
+      name: 'Cambio de aceite',
+      count: 12,
+      amount: 540,
+      progress: 86,
+      icon: 'settings'
+    },
+    {
+      name: 'Reparación de frenos',
+      count: 8,
+      amount: 820,
+      progress: 68,
+      icon: 'build'
+    },
+    {
+      name: 'Rotación de neumáticos',
+      count: 5,
+      amount: 140,
+      progress: 44,
+      icon: 'sync'
+    }
+  ];
+
+  protected readonly weeklyIncomeBars = [
+    { day: 'Lun', value: 380 },
+    { day: 'Mar', value: 520 },
+    { day: 'Mié', value: 460 },
+    { day: 'Jue', value: 610 },
+    { day: 'Vie', value: 900 },
+    { day: 'Sáb', value: 300 }
+  ];
+
+  ngOnInit(): void {
+    this.vehicleStore.loadVehicles();
+    this.workOrderStore.loadWorkOrders();
+    this.taskStore.loadAllTasks();
+  }
+
+  protected goToVehicles(): void {
+    this.router.navigate(['/admin/vehicles']);
+  }
+
+  protected goToOrders(): void {
+    this.router.navigate(['/admin/work-orders']);
+  }
+
+  protected goToCreateOrder(): void {
+    this.router.navigate(['/admin/work-orders/new']);
+  }
+
+  protected getProgressWidth(value: number): string {
+    return `${Math.min(Math.max(value, 0), 100)}%`;
+  }
+
+  protected getBarHeight(value: number): string {
+    const maxValue = Math.max(...this.weeklyIncomeBars.map((item) => item.value));
+    const height = maxValue > 0 ? (value / maxValue) * 120 : 0;
+    return `${height}px`;
+  }
+
+  protected getStatusClass(status: string): string {
+    const normalized = status.toLowerCase();
+
+    if (normalized.includes('completado') || normalized.includes('listo')) {
+      return 'status-success';
+    }
+
+    if (normalized.includes('proceso') || normalized.includes('taller')) {
+      return 'status-info';
+    }
+
+    if (normalized.includes('pendiente')) {
+      return 'status-warning';
+    }
+
+    return 'status-secondary';
+  }
+
+  private getProgressByStatus(status: string): number {
+    if (status === 'Listo') return 100;
+    if (status === 'En Taller') return 65;
+    if (status === 'Entregado') return 100;
+    return 10;
+  }
+
+  private getReadableVehicleStatus(status: string): string {
+    if (status === 'En Taller') return 'En proceso';
+    if (status === 'Listo') return 'Completado';
+    if (status === 'Entregado') return 'Entregado';
+    return 'Pendiente';
+  }
+
+  private getFallbackVehicles(): Vehicle[] {
+    return [
+      {
+        id: '1',
+        plate: 'ABC123',
+        brand: 'Audi',
+        model: 'A4 Premium',
+        year: '2024',
+        color: 'Negro',
+        status: 'En Taller',
+        customerId: '1'
+      },
+      {
+        id: '2',
+        plate: 'XYZ789',
+        brand: 'BMW',
+        model: 'X5',
+        year: '2023',
+        color: 'Azul',
+        status: 'En Taller',
+        customerId: '2'
+      },
+      {
+        id: '3',
+        plate: 'DEF456',
+        brand: 'Tesla',
+        model: 'Model 3',
+        year: '2024',
+        color: 'Gris',
+        status: 'Listo',
+        customerId: '3'
+      }
+    ];
+  }
 }

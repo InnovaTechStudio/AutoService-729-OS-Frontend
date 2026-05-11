@@ -1,56 +1,135 @@
-.mechanics-container { background: transparent; }
-.header-actions { display: flex; justify-content: space-between; align-items: center; margin-bottom: 2rem; }
-.header-actions h1 { margin: 0; color: #1e293b; font-size: 1.8rem; }
-
-.mechanics-grid {
-  display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
-  gap: 1.5rem;
+.mechanics-page {
+  min-height: 100%;
+  padding: 1.5rem;
+  background: #f7f8fc;
 }
 
-.mechanic-card {
-  position: relative;
-  overflow: hidden;
-  border-radius: 12px;
-  padding-top: 8px; /* Espacio para el indicador */
-}
-
-/* Indicador superior */
-.load-indicator { position: absolute; top: 0; left: 0; width: 100%; height: 6px; }
-
-/* Avatar */
-.card-header { margin-bottom: 1rem; }
-.avatar-circle {
-  background-color: #f1f5f9;
-  border-radius: 50%;
+.mechanics-header {
   display: flex;
-  align-items: center;
-  justify-content: center;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: 1.5rem;
+  margin-bottom: 1.5rem;
+}
+
+.eyebrow {
+  display: inline-flex;
+  margin-bottom: 0.5rem;
+  color: #0b1680;
+  font-size: 0.78rem;
+  font-weight: 800;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+.mechanics-header h1 {
+  margin: 0;
+  color: #0f172a;
+  font-size: clamp(2rem, 4vw, 2.7rem);
+  line-height: 1.05;
+  letter-spacing: -0.04em;
+}
+
+.mechanics-header p {
+  max-width: 680px;
+  margin: 0.75rem 0 0;
   color: #64748b;
 }
 
-/* Contenido y Carga */
-.card-content { display: flex; flex-direction: column; gap: 0.8rem; }
-.load-info { display: flex; justify-content: space-between; font-size: 0.9rem; color: #475569; }
-.fw-bold { font-weight: bold; color: #1e293b; }
+.add-button {
+  border-radius: 14px;
+}
 
-/* Status Footer */
-.status-footer { display: flex; justify-content: space-between; align-items: center; margin-top: 0.5rem; }
-.custom-badge { padding: 4px 10px; border-radius: 20px; font-size: 0.8rem; font-weight: 600; }
+.summary-row {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 1rem;
+  margin-bottom: 1.25rem;
+}
 
-/* Colores Dinámicos (Verde, Naranja, Rojo) */
-.bg-green { background-color: #10b981 !important; }
-::ng-deep .bg-green-bar .mdc-linear-progress__bar-inner { border-color: #10b981 !important; }
-.bg-green-badge { background-color: #d1fae5; color: #065f46; }
+.summary-card {
+  padding: 1rem 1.2rem;
+  border: 1px solid #e8edf5;
+  border-radius: 20px;
+  background: #ffffff;
+  box-shadow: 0 10px 24px rgba(15, 23, 42, 0.05);
+}
 
-.bg-orange { background-color: #f59e0b !important; }
-::ng-deep .bg-orange-bar .mdc-linear-progress__bar-inner { border-color: #f59e0b !important; }
-.bg-orange-badge { background-color: #fef3c7; color: #92400e; }
+.summary-card span {
+  display: block;
+  color: #64748b;
+  font-weight: 700;
+}
 
-.bg-red { background-color: #ef4444 !important; }
-::ng-deep .bg-red-bar .mdc-linear-progress__bar-inner { border-color: #ef4444 !important; }
-.bg-red-badge { background-color: #fee2e2; color: #991b1b; }
+.summary-card strong {
+  display: block;
+  margin-top: 0.25rem;
+  color: #0b1680;
+  font-size: 1.8rem;
+}
 
-/* Formulario */
-.form-container { display: flex; flex-direction: column; margin-top: 1rem; min-width: 350px; }
-.empty-state { grid-column: 1 / -1; padding: 3rem; text-align: center; color: #64748b; }
+.summary-card.warning strong {
+  color: #c2410c;
+}
+
+.mechanics-grid {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 1rem;
+}
+
+.empty-state {
+  display: grid;
+  place-items: center;
+  min-height: 260px;
+  padding: 2rem;
+  text-align: center;
+  color: #64748b;
+  border: 1px dashed #cbd5e1;
+  border-radius: 24px;
+  background: #ffffff;
+}
+
+.empty-state mat-icon {
+  color: #0b1680;
+  font-size: 2.4rem;
+  width: 2.4rem;
+  height: 2.4rem;
+  margin-bottom: 0.75rem;
+}
+
+.empty-state h3 {
+  margin: 0;
+  color: #0f172a;
+}
+
+.spin {
+  animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+@media (max-width: 1200px) {
+  .mechanics-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
+@media (max-width: 768px) {
+  .mechanics-header {
+    flex-direction: column;
+  }
+
+  .add-button {
+    width: 100%;
+  }
+
+  .summary-row,
+  .mechanics-grid {
+    grid-template-columns: 1fr;
+  }
+}

@@ -1,0 +1,76 @@
+<article class="task-card">
+  <div class="task-top">
+    <div>
+      <mat-chip class="order-chip">
+        {{ task.workOrderCode }}
+      </mat-chip>
+
+      <h3>{{ task.description }}</h3>
+
+      <p>
+        <mat-icon>person</mat-icon>
+        {{ task.mechanicName }}
+      </p>
+    </div>
+
+    <span class="status-chip" [ngClass]="getStatusClass(task.status)">
+      {{ task.status }}
+    </span>
+  </div>
+
+  <div class="task-meta">
+    <span>
+      <mat-icon>schedule</mat-icon>
+      {{ task.estimatedTime }} h estimadas
+    </span>
+
+    <span [ngClass]="getPriorityClass(task.priority)">
+      <mat-icon>flag</mat-icon>
+      {{ task.priority }}
+    </span>
+  </div>
+
+  <div class="task-status">
+    <label>Actualizar estado</label>
+
+    <mat-form-field appearance="outline" subscriptSizing="dynamic">
+      <mat-select
+        [ngModel]="task.status"
+        (ngModelChange)="onStatusChange($event)">
+        @for (status of statusOptions; track status) {
+          <mat-option [value]="status">
+            {{ status }}
+          </mat-option>
+        }
+      </mat-select>
+    </mat-form-field>
+  </div>
+
+  <div class="task-actions">
+    <button
+      mat-stroked-button
+      type="button"
+      class="action-button"
+      (click)="onGoOrder()">
+      <mat-icon>open_in_new</mat-icon>
+      Orden
+    </button>
+
+    <button
+      mat-stroked-button
+      type="button"
+      class="icon-button"
+      (click)="onEdit()">
+      <mat-icon>edit</mat-icon>
+    </button>
+
+    <button
+      mat-stroked-button
+      color="warn"
+      type="button"
+      class="icon-button"
+      (click)="onDelete()">
+      <mat-icon>delete</mat-icon>
+    </button>
+  </div>
+</article>

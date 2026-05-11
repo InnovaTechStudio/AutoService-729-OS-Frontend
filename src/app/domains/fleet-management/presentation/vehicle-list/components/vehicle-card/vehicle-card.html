@@ -1,0 +1,60 @@
+<article class="vehicle-card">
+  <img [src]="vehicle.image" [alt]="vehicle.name" class="vehicle-image" />
+
+  <div class="vehicle-content">
+    <div class="vehicle-header">
+      <div>
+        <h3>{{ vehicle.name }}</h3>
+        <p>{{ vehicle.owner }}</p>
+      </div>
+
+      <button
+        mat-icon-button
+        type="button"
+        aria-label="Editar vehículo"
+        (click)="onEdit()">
+        <mat-icon>edit</mat-icon>
+      </button>
+    </div>
+
+    <div class="vehicle-meta">
+      <span>
+        <mat-icon>badge</mat-icon>
+        {{ vehicle.plate }}
+      </span>
+
+      <span>
+        <mat-icon>calendar_month</mat-icon>
+        {{ vehicle.year }}
+      </span>
+
+      <span>
+        <mat-icon>palette</mat-icon>
+        {{ vehicle.color }}
+      </span>
+    </div>
+
+    <div class="vehicle-status">
+      <span class="custom-badge" [ngClass]="getStatusClass(vehicle.status)">
+        {{ vehicle.status }}
+      </span>
+
+      <strong>{{ vehicle.progress }}%</strong>
+    </div>
+
+    <mat-progress-bar
+      mode="determinate"
+      [value]="vehicle.progress"
+      class="vehicle-progress">
+    </mat-progress-bar>
+
+    <button
+      mat-stroked-button
+      type="button"
+      class="details-button"
+      (click)="onViewDetails()">
+      Ver detalles
+      <mat-icon>arrow_forward</mat-icon>
+    </button>
+  </div>
+</article>

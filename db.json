@@ -178,6 +178,16 @@
       "color": "Blanco",
       "status": "En Taller",
       "customerId": "C-8"
+    },
+    {
+      "plate": "aaaa",
+      "brand": "casa",
+      "model": "lamborgini",
+      "year": "2025",
+      "color": "azul",
+      "status": "En Taller",
+      "customerId": "C-1",
+      "id": "U1JjnTBFeYg"
     }
   ],
   "mechanics": [
@@ -313,6 +323,17 @@
       "startDate": "2026-05-12",
       "estimatedDate": "2026-05-14",
       "price": 200
+    },
+    {
+      "vehicleId": "U1JjnTBFeYg",
+      "customerId": "C-1",
+      "description": "llanta rota ",
+      "estimatedDate": "2026-05-09",
+      "price": 20000,
+      "status": "En Proceso",
+      "trackingCode": "AS-2DSLO",
+      "startDate": "2026-05-11",
+      "id": "bzF_6sWaY0c"
     }
   ],
   "tasks": [
@@ -427,6 +448,13 @@
       "description": "Diagnóstico de batería HV",
       "status": "En Proceso",
       "mechanicId": "M-5"
+    },
+    {
+      "description": "cambio de llanta ",
+      "mechanicId": "M-2",
+      "status": "Pendiente",
+      "workOrderId": "bzF_6sWaY0c",
+      "id": "IIeQKwzxvE8"
     }
   ],
   "$schema": "./node_modules/json-server/schema.json"

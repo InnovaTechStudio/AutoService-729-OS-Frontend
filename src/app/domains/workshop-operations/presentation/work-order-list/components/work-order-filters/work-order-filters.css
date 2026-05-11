@@ -1,0 +1,26 @@
+.work-order-filters {
+  display: flex;
+  gap: 1rem;
+  margin-bottom: 1.5rem;
+  flex-wrap: wrap;
+}
+
+.search-box {
+  flex: 1;
+  min-width: 280px;
+}
+
+.status-filter {
+  min-width: 220px;
+}
+
+@media (max-width: 720px) {
+  .work-order-filters {
+    flex-direction: column;
+  }
+
+  .search-box,
+  .status-filter {
+    width: 100%;
+  }
+}

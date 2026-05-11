@@ -1,110 +1,204 @@
-import { Component, inject, OnInit, TemplateRef, ViewChild } from '@angular/core';
 import { CommonModule } from '@angular/common';
+import { Component, computed, inject, OnInit, signal } from '@angular/core';
 import { FormsModule } from '@angular/forms';
-import { ActivatedRoute, Router } from '@angular/router';
+import { ActivatedRoute, Router, RouterModule } from '@angular/router';
 
-import { MatCardModule } from '@angular/material/card';
 import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
 import { MatInputModule } from '@angular/material/input';
-import { MatFormFieldModule } from '@angular/material/form-field';
-import { MatTableModule } from '@angular/material/table';
+import { MatProgressBarModule } from '@angular/material/progress-bar';
 import { MatSelectModule } from '@angular/material/select';
-import { MatDialog, MatDialogModule } from '@angular/material/dialog';
-import { MatChipsModule } from '@angular/material/chips';
 
-import { WorkOrderStore } from '../../application/work-order.store';
-import { TaskStore } from '../../application/task.store';
+import { VehicleStore } from '../../../fleet-management/application/vehicle.store';
 import { MechanicStore } from '../../../staff-coordination/application/mechanic.store';
+import { TaskStore } from '../../application/task.store';
+import { WorkOrderStore } from '../../application/work-order.store';
 import { Task, WorkOrder } from '../../domain/models/work-order.model';
 
 @Component({
   selector: 'app-work-order-detail',
   standalone: true,
   imports: [
-    CommonModule, FormsModule, MatCardModule, MatButtonModule, MatIconModule,
-    MatInputModule, MatFormFieldModule, MatTableModule, MatSelectModule,
-    MatDialogModule, MatChipsModule
+    CommonModule,
+    FormsModule,
+    RouterModule,
+    MatButtonModule,
+    MatIconModule,
+    MatInputModule,
+    MatProgressBarModule,
+    MatSelectModule
   ],
   templateUrl: './work-order-detail.html',
   styleUrl: './work-order-detail.css'
 })
 export class WorkOrderDetailComponent implements OnInit {
-  private route = inject(ActivatedRoute);
-  private router = inject(Router);
-  private dialog = inject(MatDialog);
+  private readonly route = inject(ActivatedRoute);
+  private readonly router = inject(Router);
 
-  workOrderStore = inject(WorkOrderStore);
-  taskStore = inject(TaskStore);
-  mechanicStore = inject(MechanicStore);
+  protected readonly workOrderStore = inject(WorkOrderStore);
+  protected readonly taskStore = inject(TaskStore);
+  protected readonly mechanicStore = inject(MechanicStore);
+  protected readonly vehicleStore = inject(VehicleStore);
 
-  orderId = '';
-  localPrice = 0;
-  priceInitialized = false; // Bandera para no sobreescribir el input mientras el usuario escribe
+  protected readonly orderId = this.route.snapshot.paramMap.get('id') ?? '';
+  protected readonly taskDialog = signal(false);
 
-  displayedColumns = ['description', 'mechanic', 'status'];
+  protected readonly taskStatusOptions: Task['status'][] = [
+    'Pendiente',
+    'En Proceso',
+    'Completada'
+  ];
 
-  @ViewChild('taskDialog') taskDialogTemplate!: TemplateRef<any>;
-  newTask: Partial<Task> = { description: '', status: 'Pendiente', mechanicId: '' };
+  protected localPrice = 0;
 
-  ngOnInit() {
-    this.orderId = this.route.snapshot.paramMap.get('id') || '';
+  protected newTask: Task = this.getEmptyTask();
 
-    if (this.workOrderStore.workOrders().length === 0) this.workOrderStore.loadWorkOrders();
-    if (this.mechanicStore.mechanics().length === 0) this.mechanicStore.loadMechanics();
-    this.taskStore.loadAllTasks();
-  }
+  protected readonly order = computed<WorkOrder | undefined>(() =>
+    this.workOrderStore
+      .workOrders()
+      .find((item) => String(item.id) === String(this.orderId))
+  );
 
-  // Getter para buscar la orden dinámicamente
-  get order(): WorkOrder | undefined {
-    const o = this.workOrderStore.workOrders().find(w => String(w.id) === String(this.orderId));
-    if (o && !this.priceInitialized && o.price !== undefined) {
-      this.localPrice = o.price;
-      this.priceInitialized = true;
+  protected readonly vehicle = computed(() => {
+    const order = this.order();
+
+    if (!order) {
+      return undefined;
     }
-    return o;
+
+    return this.vehicleStore
+      .vehicles()
+      .find((item) => String(item.id) === String(order.vehicleId));
+  });
+
+  protected readonly orderTasks = computed<Task[]>(() =>
+    this.taskStore
+      .tasks()
+      .filter((task) => String(task.workOrderId) === String(this.orderId))
+  );
+
+  protected readonly completedTasks = computed(() =>
+    this.orderTasks().filter((task) => task.status === 'Completada').length
+  );
+
+  protected readonly progress = computed(() => {
+    const tasks = this.orderTasks();
+
+    if (!tasks.length) {
+      return 0;
+    }
+
+    return Math.round((this.completedTasks() / tasks.length) * 100);
+  });
+
+  ngOnInit(): void {
+    this.workOrderStore.loadWorkOrders();
+    this.taskStore.loadAllTasks();
+    this.mechanicStore.loadMechanics();
+    this.vehicleStore.loadVehicles();
+
+    setTimeout(() => {
+      this.localPrice = Number(this.order()?.price || 0);
+    }, 250);
   }
 
-  // Getter para filtrar solo las tareas de esta orden
-  get orderTasks(): Task[] {
-    return this.taskStore.tasks().filter(t => String(t.workOrderId) === String(this.orderId));
-  }
-
-  getMechanicName(id: string): string {
-    if (!id) return 'Sin asignar';
-    const mech = this.mechanicStore.mechanics().find(m => String(m.id) === String(id));
-    return mech ? mech.fullName : 'No encontrado';
-  }
-
-  goBack() {
+  protected goBack(): void {
     this.router.navigate(['/admin/work-orders']);
   }
 
-  savePrice() {
-    if (this.order && this.order.id) {
-      this.workOrderStore.updateWorkOrder(this.order.id, { price: this.localPrice });
+  protected openTaskDialog(): void {
+    this.newTask = this.getEmptyTask();
+    this.taskDialog.set(true);
+  }
+
+  protected closeTaskDialog(): void {
+    this.taskDialog.set(false);
+  }
+
+  protected saveTask(): void {
+    if (!this.newTask.description || !this.newTask.mechanicId) {
+      return;
     }
+
+    this.taskStore.addTask(this.newTask);
+    this.closeTaskDialog();
   }
 
-  openTaskDialog() {
-    this.newTask = { workOrderId: this.orderId, description: '', status: 'Pendiente', mechanicId: '' };
-    this.dialog.open(this.taskDialogTemplate, { width: '400px' });
-  }
-
-  closeDialog() {
-    this.dialog.closeAll();
-  }
-
-  saveTask() {
-    if (this.newTask.description && this.newTask.mechanicId) {
-      this.taskStore.addTask(this.newTask as Task);
-      this.closeDialog();
+  protected updateTaskStatus(task: Task, status: Task['status']): void {
+    if (!task.id) {
+      return;
     }
+
+    this.taskStore.updateTaskStatus(task.id, status);
   }
 
-  protected updateTaskStatus(task: Task, newStatus: Task['status']): void {
-    if (task.id) {
-      this.taskStore.updateTaskStatus(task.id, newStatus);
+  protected savePrice(): void {
+    const order = this.order();
+
+    if (!order?.id) {
+      return;
     }
+
+    const updatedOrder: WorkOrder = {
+      ...order,
+      price: Number(this.localPrice || 0)
+    };
+
+    this.workOrderStore.updateWorkOrder(order.id, updatedOrder);
+  }
+
+  protected getMechanicName(mechanicId: string): string {
+    if (!mechanicId) {
+      return 'Sin asignar';
+    }
+
+    const mechanic = this.mechanicStore
+      .mechanics()
+      .find((item) => String(item.id) === String(mechanicId));
+
+    return mechanic?.fullName ?? 'Mecánico no encontrado';
+  }
+
+  protected getVehicleName(): string {
+    const vehicle = this.vehicle();
+
+    if (!vehicle) {
+      return 'Vehículo no encontrado';
+    }
+
+    return `${vehicle.brand} ${vehicle.model}`;
+  }
+
+  protected getTaskIcon(status: Task['status']): string {
+    if (status === 'Completada') {
+      return 'check_circle';
+    }
+
+    if (status === 'En Proceso') {
+      return 'sync';
+    }
+
+    return 'schedule';
+  }
+
+  protected getTaskClass(status: Task['status']): string {
+    if (status === 'Completada') {
+      return 'task-completed';
+    }
+
+    if (status === 'En Proceso') {
+      return 'task-progress';
+    }
+
+    return 'task-pending';
+  }
+
+  private getEmptyTask(): Task {
+    return {
+      workOrderId: this.orderId,
+      description: '',
+      status: 'Pendiente',
+      mechanicId: ''
+    };
   }
 }

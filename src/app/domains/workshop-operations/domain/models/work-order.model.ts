@@ -18,4 +18,6 @@ export interface Task {
   description: string;
   status: 'Pendiente' | 'En Proceso' | 'Completada';
   mechanicId: string;
+  priority?: 'Baja' | 'Media' | 'Alta' | 'Crítica';
+  estimatedTime?: number;
 }

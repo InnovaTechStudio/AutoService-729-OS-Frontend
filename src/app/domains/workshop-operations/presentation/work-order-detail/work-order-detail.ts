@@ -16,7 +16,7 @@ import { MatChipsModule } from '@angular/material/chips';
 import { WorkOrderStore } from '../../application/work-order.store';
 import { TaskStore } from '../../application/task.store';
 import { MechanicStore } from '../../../staff-coordination/application/mechanic.store';
-import { WorkOrder, Task } from '../../domain/models/work-order.model';
+import { Task, WorkOrder } from '../../domain/models/work-order.model';
 
 @Component({
   selector: 'app-work-order-detail',
@@ -102,7 +102,7 @@ export class WorkOrderDetailComponent implements OnInit {
     }
   }
 
-  updateTaskStatus(task: Task, newStatus: string) {
+  protected updateTaskStatus(task: Task, newStatus: Task['status']): void {
     if (task.id) {
       this.taskStore.updateTaskStatus(task.id, newStatus);
     }

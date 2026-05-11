@@ -1,70 +1,231 @@
-import { Component, inject, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { FormsModule } from '@angular/forms';
+import { Component, computed, inject, OnInit, signal } from '@angular/core';
 import { Router } from '@angular/router';
 
-import { MatTableModule } from '@angular/material/table';
 import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
-import { MatSelectModule } from '@angular/material/select';
-import { MatChipsModule } from '@angular/material/chips'; // Reemplazo de Tag de PrimeVue
-import { MatTooltipModule } from '@angular/material/tooltip';
 
+import { MechanicStore } from '../../../staff-coordination/application/mechanic.store';
 import { TaskStore } from '../../application/task.store';
 import { WorkOrderStore } from '../../application/work-order.store';
-import { MechanicStore } from '../../../staff-coordination/application/mechanic.store';
 import { Task } from '../../domain/models/work-order.model';
+import { TaskCardComponent, TaskCardView } from './components/task-card/task-card';
+import { TaskDialogComponent } from './components/task-dialog/task-dialog';
+import { TaskFiltersComponent } from './components/task-filters/task-filters';
+
+type TaskPriority = 'Baja' | 'Media' | 'Alta' | 'Crítica';
 
 @Component({
   selector: 'app-tasks-view',
   standalone: true,
   imports: [
-    CommonModule, FormsModule, MatTableModule, MatButtonModule,
-    MatIconModule, MatSelectModule, MatChipsModule, MatTooltipModule
+    CommonModule,
+    MatButtonModule,
+    MatIconModule,
+    TaskFiltersComponent,
+    TaskCardComponent,
+    TaskDialogComponent
   ],
   templateUrl: './tasks-view.html',
   styleUrl: './tasks-view.css'
 })
 export class TasksViewComponent implements OnInit {
-  taskStore = inject(TaskStore);
-  workOrderStore = inject(WorkOrderStore);
-  mechanicStore = inject(MechanicStore);
-  private router = inject(Router);
+  protected readonly taskStore = inject(TaskStore);
+  protected readonly workOrderStore = inject(WorkOrderStore);
+  protected readonly mechanicStore = inject(MechanicStore);
+  private readonly router = inject(Router);
 
-  displayedColumns: string[] = ['workOrder', 'description', 'mechanic', 'status', 'actions'];
-  statusOptions = ['Pendiente', 'En Proceso', 'Completada'];
+  protected readonly search = signal('');
+  protected readonly selectedStatus = signal<Task['status'] | null>(null);
+  protected readonly selectedMechanicId = signal<string | null>(null);
+  protected readonly displayDialog = signal(false);
 
-  ngOnInit() {
+  protected taskForm: Task = this.getEmptyTask();
+
+  protected readonly statusOptions: Task['status'][] = [
+    'Pendiente',
+    'En Proceso',
+    'Completada'
+  ];
+
+  protected readonly priorityOptions: TaskPriority[] = [
+    'Baja',
+    'Media',
+    'Alta',
+    'Crítica'
+  ];
+
+  protected readonly tasksView = computed<TaskCardView[]>(() =>
+    this.taskStore.tasks().map((task) => ({
+      id: String(task.id ?? crypto.randomUUID()),
+      raw: task,
+      description: task.description || 'Tarea sin descripción',
+      workOrderId: task.workOrderId,
+      workOrderCode: this.getWorkOrderCode(task.workOrderId),
+      mechanicId: task.mechanicId,
+      mechanicName: this.getMechanicName(task.mechanicId),
+      status: task.status || 'Pendiente',
+      priority: task.priority || 'Media',
+      estimatedTime: task.estimatedTime || 2
+    }))
+  );
+
+  protected readonly filteredTasks = computed(() => {
+    const term = this.search().toLowerCase().trim();
+    const selectedStatus = this.selectedStatus();
+    const selectedMechanicId = this.selectedMechanicId();
+
+    return this.tasksView().filter((task) => {
+      const matchesSearch =
+        !term ||
+        task.description.toLowerCase().includes(term) ||
+        task.workOrderCode.toLowerCase().includes(term) ||
+        task.mechanicName.toLowerCase().includes(term);
+
+      const matchesStatus =
+        !selectedStatus || task.status === selectedStatus;
+
+      const matchesMechanic =
+        !selectedMechanicId || String(task.mechanicId) === String(selectedMechanicId);
+
+      return matchesSearch && matchesStatus && matchesMechanic;
+    });
+  });
+
+  protected readonly pendingTasks = computed(() =>
+    this.taskStore.tasks().filter((task) => task.status === 'Pendiente').length
+  );
+
+  protected readonly inProgressTasks = computed(() =>
+    this.taskStore.tasks().filter((task) => task.status === 'En Proceso').length
+  );
+
+  protected readonly completedTasks = computed(() =>
+    this.taskStore.tasks().filter((task) => task.status === 'Completada').length
+  );
+
+  ngOnInit(): void {
     this.loadAllData();
   }
 
-  loadAllData() {
+  protected loadAllData(): void {
     this.taskStore.loadAllTasks();
-    if (this.workOrderStore.workOrders().length === 0) this.workOrderStore.loadWorkOrders();
-    if (this.mechanicStore.mechanics().length === 0) this.mechanicStore.loadMechanics();
-  }
 
-  getWorkOrderCode(woId: string): string {
-    if (!woId) return 'N/A';
-    const wo = this.workOrderStore.workOrders().find(w => String(w.id) === String(woId));
-    return wo ? wo.trackingCode || 'Desconocida' : 'Desconocida';
-  }
+    if (this.workOrderStore.workOrders().length === 0) {
+      this.workOrderStore.loadWorkOrders();
+    }
 
-  getMechanicName(mechanicId: string): string {
-    if (!mechanicId) return 'Sin asignar';
-    const mechanic = this.mechanicStore.mechanics().find(m => String(m.id) === String(mechanicId));
-    return mechanic ? mechanic.fullName : 'No encontrado';
-  }
-
-  onStatusChange(task: Task, newStatus: string) {
-    if (task.id) {
-      this.taskStore.updateTaskStatus(task.id, newStatus);
+    if (this.mechanicStore.mechanics().length === 0) {
+      this.mechanicStore.loadMechanics();
     }
   }
 
-  goToWorkOrder(woId: string) {
-    if (woId) {
-      this.router.navigate(['/admin/work-orders', woId]);
+  protected onSearchChange(value: string): void {
+    this.search.set(value);
+  }
+
+  protected onStatusFilterChange(value: Task['status'] | null): void {
+    this.selectedStatus.set(value);
+  }
+
+  protected onMechanicFilterChange(value: string | null): void {
+    this.selectedMechanicId.set(value);
+  }
+
+  protected openDialog(): void {
+    this.taskForm = this.getEmptyTask();
+    this.displayDialog.set(true);
+  }
+
+  protected editTask(task: Task): void {
+    this.taskForm = {
+      ...task,
+      priority: task.priority || 'Media',
+      estimatedTime: task.estimatedTime || 2
+    };
+    this.displayDialog.set(true);
+  }
+
+  protected hideDialog(): void {
+    this.displayDialog.set(false);
+    this.taskForm = this.getEmptyTask();
+  }
+
+  protected saveTask(): void {
+    if (!this.taskForm.description || !this.taskForm.workOrderId) {
+      return;
     }
+
+    if (this.taskForm.id) {
+      this.taskStore.updateTask(this.taskForm.id, this.taskForm);
+    } else {
+      this.taskStore.addTask(this.taskForm);
+    }
+
+    this.hideDialog();
+  }
+
+  protected deleteTask(task: Task): void {
+    if (!task.id) {
+      return;
+    }
+
+    const confirmed = window.confirm(`¿Eliminar la tarea "${task.description}"?`);
+
+    if (!confirmed) {
+      return;
+    }
+
+    this.taskStore.deleteTask(task.id);
+  }
+
+  protected onStatusChange(event: { task: Task; status: Task['status'] }): void {
+    if (event.task.id) {
+      this.taskStore.updateTaskStatus(event.task.id, event.status);
+    }
+  }
+
+  protected goToWorkOrder(workOrderId: string): void {
+    if (workOrderId) {
+      this.router.navigate(['/admin/work-orders', workOrderId]);
+    }
+  }
+
+  protected getWorkOrderCode(workOrderId: string): string {
+    if (!workOrderId) {
+      return 'N/A';
+    }
+
+    const workOrder = this.workOrderStore
+      .workOrders()
+      .find((order) => String(order.id) === String(workOrderId));
+
+    return workOrder?.trackingCode ?? 'Desconocida';
+  }
+
+  protected getMechanicName(mechanicId: string): string {
+    if (!mechanicId) {
+      return 'Sin asignar';
+    }
+
+    const mechanic = this.mechanicStore
+      .mechanics()
+      .find((item) => String(item.id) === String(mechanicId));
+
+    return mechanic?.fullName ?? 'No encontrado';
+  }
+
+  private getEmptyTask(): Task {
+    const defaultOrderId = this.workOrderStore.workOrders()[0]?.id ?? '';
+    const defaultMechanicId = this.mechanicStore.mechanics()[0]?.id ?? '';
+
+    return {
+      description: '',
+      workOrderId: String(defaultOrderId),
+      mechanicId: String(defaultMechanicId),
+      status: 'Pendiente',
+      priority: 'Media',
+      estimatedTime: 2
+    };
   }
 }

@@ -1,0 +1,26 @@
+.task-filters {
+  display: flex;
+  gap: 1rem;
+  flex-wrap: wrap;
+  margin-bottom: 1.5rem;
+}
+
+.search-box {
+  flex: 1;
+  min-width: 280px;
+}
+
+.filter-select {
+  min-width: 210px;
+}
+
+@media (max-width: 760px) {
+  .task-filters {
+    flex-direction: column;
+  }
+
+  .search-box,
+  .filter-select {
+    width: 100%;
+  }
+}

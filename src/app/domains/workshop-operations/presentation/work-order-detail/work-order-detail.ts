@@ -14,7 +14,7 @@ import { MechanicStore } from '../../../staff-coordination/application/mechanic.
 import { TaskStore } from '../../application/task.store';
 import { WorkOrderStore } from '../../application/work-order.store';
 import { Task, WorkOrder } from '../../domain/models/work-order.model';
-
+import { MatCheckboxModule } from '@angular/material/checkbox';
 @Component({
   selector: 'app-work-order-detail',
   standalone: true,
@@ -26,6 +26,7 @@ import { Task, WorkOrder } from '../../domain/models/work-order.model';
     MatIconModule,
     MatInputModule,
     MatProgressBarModule,
+    MatCheckboxModule,
     MatSelectModule
   ],
   templateUrl: './work-order-detail.html',
@@ -48,7 +49,55 @@ export class WorkOrderDetailComponent implements OnInit {
     'En Proceso',
     'Completada'
   ];
+  protected readonly finalEvidenceRegistered = signal(false);
+  protected readonly supervisorApproved = signal(false);
 
+  protected readonly allTasksCompleted = computed(() => {
+    const tasks = this.orderTasks();
+    return tasks.length > 0 && tasks.every((task) => task.status === 'Completada');
+  });
+
+  protected readonly costsValidated = computed(() => {
+    const order = this.order();
+    return Number(order?.price || this.localPrice || 0) > 0;
+  });
+
+  protected readonly diagnosticRegistered = computed(() => {
+    const order = this.order();
+    return !!order?.description && order.description.trim().length > 0;
+  });
+
+  protected readonly canMarkReadyForDelivery = computed(() =>
+    this.allTasksCompleted() &&
+    this.finalEvidenceRegistered() &&
+    this.costsValidated() &&
+    this.diagnosticRegistered() &&
+    this.supervisorApproved()
+  );
+
+  protected toggleFinalEvidence(value: boolean): void {
+    this.finalEvidenceRegistered.set(value);
+  }
+
+  protected toggleSupervisorApproval(value: boolean): void {
+    this.supervisorApproved.set(value);
+  }
+
+  protected markOrderAsReadyForDelivery(): void {
+    const order = this.order();
+
+    if (!order?.id || !this.canMarkReadyForDelivery()) {
+      return;
+    }
+
+    const updatedOrder: WorkOrder = {
+      ...order,
+      status: 'Finalizado',
+      price: Number(this.localPrice || order.price || 0)
+    };
+
+    this.workOrderStore.updateWorkOrder(order.id, updatedOrder);
+  }
   protected localPrice = 0;
 
   protected newTask: Task = this.getEmptyTask();

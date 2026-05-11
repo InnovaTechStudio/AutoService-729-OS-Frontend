@@ -20,8 +20,9 @@ export interface WorkOrderCardView {
   status: WorkOrder['status'];
   price: number;
   isRisk: boolean;
+  riskStatus: string;
+  riskClass: string;
 }
-
 @Component({
   selector: 'app-work-order-card',
   standalone: true,
@@ -45,9 +46,9 @@ export class WorkOrderCardComponent {
   }
 
   protected getStatusClass(status: WorkOrder['status']): string {
-    if (status === 'Finalizado') {
-      return 'status-success';
-    }
+    if (status === 'Finalizado') return 'status-success';
+    if (status === 'Cancelado') return 'status-danger';
+    if (status === 'Pendiente') return 'status-warning';
 
     return 'status-info';
   }

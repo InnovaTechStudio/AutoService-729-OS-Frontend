@@ -1,14 +1,13 @@
 export interface WorkOrder {
   id?: string;
-  workshopId?: string;
   trackingCode?: string;
   vehicleId: string;
   customerId: string;
   description: string;
-  status: 'En Proceso' | 'Finalizado';
   startDate: string;
   estimatedDate: string;
-  price: number;
+  status: 'Pendiente' | 'En Proceso' | 'Finalizado' | 'Cancelado';
+  price?: number;
 }
 
 export interface Task {

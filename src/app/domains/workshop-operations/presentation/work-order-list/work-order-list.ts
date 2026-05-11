@@ -183,7 +183,7 @@ export class WorkOrderListComponent implements OnInit {
     const today = new Date();
     const estimatedDate = order.estimatedDate ? new Date(order.estimatedDate) : null;
 
-    if (estimatedDate && estimatedDate < today && order.status !== 'Finalizado') {
+    if (estimatedDate && estimatedDate < today) {
       return 'Retrasada';
     }
 
@@ -193,7 +193,6 @@ export class WorkOrderListComponent implements OnInit {
 
     return 'A tiempo';
   }
-
   private getDelayRiskClass(order: WorkOrder): string {
     const status = this.getDelayRiskStatus(order);
 
@@ -204,7 +203,6 @@ export class WorkOrderListComponent implements OnInit {
 
     return 'risk-ok';
   }
-
 
 
 }

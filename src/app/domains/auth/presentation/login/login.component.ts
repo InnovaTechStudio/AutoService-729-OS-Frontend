@@ -95,6 +95,8 @@ export class LoginComponent {
     ) {
       localStorage.setItem('auth_role', 'Mecanico');
       localStorage.setItem('auth_email', normalizedEmail);
+      localStorage.setItem('auth_mechanic_id', 'M-1');
+      localStorage.setItem('auth_workshop_id', 'WS-1');
 
       this.isLoading = false;
       this.router.navigate(['/mechanic/workspace']);

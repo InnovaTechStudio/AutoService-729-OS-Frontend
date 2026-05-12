@@ -1,5 +1,5 @@
 import { CommonModule } from '@angular/common';
-import { Component, computed, signal } from '@angular/core';
+import { Component, computed, inject, OnInit, signal } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 
 import { MatButtonModule } from '@angular/material/button';
@@ -11,28 +11,15 @@ import { MatInputModule } from '@angular/material/input';
 import { MatProgressBarModule } from '@angular/material/progress-bar';
 import { MatSelectModule } from '@angular/material/select';
 
-type MechanicTaskStatus = 'Pendiente' | 'En Proceso' | 'Completada';
-type MechanicTaskPriority = 'Baja' | 'Media' | 'Alta' | 'Crítica';
+import { TaskStore } from '../../../workshop-operations/application/task.store';
+import { WorkOrderStore } from '../../../workshop-operations/application/work-order.store';
+import { VehicleStore } from '../../../fleet-management/application/vehicle.store';
+import { MechanicStore } from '../../application/mechanic.store';
+import { Task } from '../../../workshop-operations/domain/models/work-order.model';
+import { CustomerStore } from '../../../customer-management/application/customer.store';
 
-interface MechanicTask {
-  id: string;
-  orderCode: string;
-  vehicle: string;
-  plate: string;
-  customerName: string;
-  taskName: string;
-  description: string;
-  status: MechanicTaskStatus;
-  priority: MechanicTaskPriority;
-  estimatedTime: number;
-  technicalDiagnosis: string;
-  customerExplanation: string;
-  internalObservation: string;
-  evidenceRegistered: boolean;
-  adminReviewStatus: 'Sin enviar' | 'Enviado al Administrador';
-  customerReportStatus: 'No visible' | 'Visible para Cliente';
-  completedAt?: string;
-}
+type MechanicTaskStatus = Task['status'];
+type MechanicTaskPriority = 'Baja' | 'Media' | 'Alta' | 'Crítica';
 
 @Component({
   selector: 'app-mechanic-workspace',
@@ -52,10 +39,12 @@ interface MechanicTask {
   templateUrl: './mechanic-workspace.html',
   styleUrl: './mechanic-workspace.css'
 })
-export class MechanicWorkspaceComponent {
-  protected readonly mechanicName = 'Carlos Ramírez';
-  protected readonly mechanicSpecialty = 'Mecánica general';
-  protected readonly mechanicStatus = 'Turno activo';
+export class MechanicWorkspaceComponent implements OnInit {
+  protected readonly taskStore = inject(TaskStore);
+  protected readonly workOrderStore = inject(WorkOrderStore);
+  protected readonly vehicleStore = inject(VehicleStore);
+  protected readonly mechanicStore = inject(MechanicStore);
+  protected readonly customerStore = inject(CustomerStore);
 
   protected readonly statusOptions: MechanicTaskStatus[] = [
     'Pendiente',
@@ -64,82 +53,136 @@ export class MechanicWorkspaceComponent {
   ];
 
   protected readonly selectedStatus = signal<MechanicTaskStatus | 'Todas'>('Todas');
-  protected readonly selectedTask = signal<MechanicTask | null>(null);
+  protected readonly selectedTask = signal<Task | null>(null);
 
-  protected readonly tasks = signal<MechanicTask[]>([
-    {
-      id: 'T-001',
-      orderCode: 'WO-1001',
-      vehicle: 'Toyota Corolla 2020',
-      plate: 'ABC-123',
-      customerName: 'Juan Pérez',
-      taskName: 'Revisión de frenos',
-      description: 'Inspeccionar desgaste de pastillas y verificar presión del sistema.',
-      status: 'En Proceso',
-      priority: 'Alta',
-      estimatedTime: 2,
-      technicalDiagnosis: 'Se observa desgaste irregular en pastillas delanteras y ligera vibración al frenar.',
-      customerExplanation: 'Los frenos delanteros presentan desgaste y deben revisarse para evitar pérdida de seguridad al manejar.',
-      internalObservation: 'Revisar discos antes de aprobar cambio de pastillas.',
-      evidenceRegistered: true,
-      adminReviewStatus: 'Sin enviar',
-      customerReportStatus: 'No visible',
-      completedAt: ''
-    },
-    {
-      id: 'T-002',
-      orderCode: 'WO-1002',
-      vehicle: 'Hyundai Tucson 2021',
-      plate: 'XYZ-789',
-      customerName: 'María López',
-      taskName: 'Diagnóstico de motor',
-      description: 'Evaluar ruido en arranque y pérdida de potencia.',
-      status: 'Pendiente',
-      priority: 'Crítica',
-      estimatedTime: 3,
-      technicalDiagnosis: '',
-      customerExplanation: '',
-      internalObservation: '',
-      evidenceRegistered: false,
-      adminReviewStatus: 'Sin enviar',
-      customerReportStatus: 'No visible',
-      completedAt: ''
-    },
-    {
-      id: 'T-003',
-      orderCode: 'WO-1003',
-      vehicle: 'Kia Rio 2019',
-      plate: 'FRT-456',
-      customerName: 'Luis Torres',
-      taskName: 'Cambio de aceite y filtros',
-      description: 'Realizar mantenimiento preventivo básico.',
-      status: 'Completada',
-      priority: 'Media',
-      estimatedTime: 1,
-      technicalDiagnosis: 'Aceite degradado por kilometraje. Filtro de aceite con saturación normal.',
-      customerExplanation: 'Se realizó el cambio de aceite y filtro para mantener el motor protegido.',
-      internalObservation: 'Próximo cambio recomendado en 5,000 km.',
-      evidenceRegistered: true,
-      adminReviewStatus: 'Sin enviar',
-      customerReportStatus: 'No visible',
-      completedAt: ''
+  /**
+   * Temporary mechanic id for the simulated mechanic session.
+   * Later this can come from authenticated user data.
+   */
+  protected readonly currentMechanicId = signal<string>(
+    localStorage.getItem('auth_mechanic_id') ?? 'M-1'
+  );
+
+  protected readonly currentMechanic = computed(() =>
+    this.mechanicStore
+      .mechanics()
+      .find((mechanic) => String(mechanic.id) === String(this.currentMechanicId()))
+  );
+
+  protected readonly mechanicName = computed(() =>
+    this.currentMechanic()?.fullName ?? 'Carlos Ramírez'
+  );
+
+  protected readonly mechanicSpecialty = computed(() =>
+    this.currentMechanic()?.specialty ?? 'Mecánica general'
+  );
+
+  protected readonly mechanicStatus = computed(() =>
+    this.currentMechanic()?.status ?? 'Turno activo'
+  );
+
+  protected readonly assignedTasks = computed(() =>
+    this.taskStore
+      .tasks()
+      .filter((task) => String(task.mechanicId) === String(this.currentMechanicId()))
+  );
+
+  protected readonly filteredTasks = computed(() => {
+    const status = this.selectedStatus();
+
+    if (status === 'Todas') {
+      return this.assignedTasks();
     }
-  ]);
-  protected startSelectedTask(): void {
-    const current = this.selectedTask();
 
-    if (!current) {
+    return this.assignedTasks().filter((task) => task.status === status);
+  });
+
+  protected readonly pendingTasks = computed(() =>
+    this.assignedTasks().filter((task) => task.status === 'Pendiente').length
+  );
+
+  protected readonly inProgressTasks = computed(() =>
+    this.assignedTasks().filter((task) => task.status === 'En Proceso').length
+  );
+
+  protected readonly completedTasks = computed(() =>
+    this.assignedTasks().filter((task) => task.status === 'Completada').length
+  );
+
+  protected readonly generalProgress = computed(() => {
+    const total = this.assignedTasks().length;
+
+    if (total === 0) {
+      return 0;
+    }
+
+    return Math.round((this.completedTasks() / total) * 100);
+  });
+
+  ngOnInit(): void {
+    this.taskStore.loadAllTasks();
+    this.workOrderStore.loadWorkOrders();
+    this.vehicleStore.loadVehicles();
+    this.mechanicStore.loadMechanics();
+    this.customerStore.loadCustomers();
+  }
+
+  protected selectStatus(status: MechanicTaskStatus | 'Todas'): void {
+    this.selectedStatus.set(status);
+  }
+
+  protected openTask(task: Task): void {
+    this.selectedTask.set({
+      ...task,
+      priority: task.priority ?? 'Media',
+      estimatedTime: task.estimatedTime ?? 2,
+      technicalDiagnosis: task.technicalDiagnosis ?? '',
+      customerExplanation: task.customerExplanation ?? '',
+      internalObservation: task.internalObservation ?? '',
+      evidenceRegistered: task.evidenceRegistered ?? false,
+      adminReviewStatus: task.adminReviewStatus ?? 'Sin enviar',
+      customerReportStatus: task.customerReportStatus ?? 'No visible',
+      completedAt: task.completedAt ?? ''
+    });
+  }
+
+  protected closeTaskPanel(): void {
+    this.selectedTask.set(null);
+  }
+
+  protected updateTaskStatus(taskId: string | undefined, status: MechanicTaskStatus): void {
+    if (!taskId) {
       return;
     }
 
-    const updatedTask: MechanicTask = {
+    const current = this.selectedTask();
+
+    if (current?.id === taskId) {
+      this.selectedTask.set({
+        ...current,
+        status,
+        adminReviewStatus: 'Enviado al Administrador'
+      });
+    }
+
+    this.taskStore.updateTaskStatus(taskId, status);
+  }
+
+  protected startSelectedTask(): void {
+    const current = this.selectedTask();
+
+    if (!current?.id) {
+      return;
+    }
+
+    const updatedTask: Task = {
       ...current,
       status: 'En Proceso',
       adminReviewStatus: 'Enviado al Administrador'
     };
 
-    this.updateTaskInList(updatedTask);
     this.selectedTask.set(updatedTask);
+    this.taskStore.updateMechanicTechnicalReport(current.id, updatedTask);
   }
 
   protected generateCustomerExplanation(): void {
@@ -149,11 +192,9 @@ export class MechanicWorkspaceComponent {
       return;
     }
 
-    const explanation = this.buildCustomerExplanation(current);
-
     this.selectedTask.set({
       ...current,
-      customerExplanation: explanation
+      customerExplanation: this.buildCustomerExplanation(current)
     });
   }
 
@@ -164,19 +205,19 @@ export class MechanicWorkspaceComponent {
       return false;
     }
 
-    return !!current.technicalDiagnosis.trim() &&
-      !!current.customerExplanation.trim() &&
-      current.evidenceRegistered;
+    return !!current.technicalDiagnosis?.trim() &&
+      !!current.customerExplanation?.trim() &&
+      !!current.evidenceRegistered;
   }
 
   protected completeSelectedTask(): void {
     const current = this.selectedTask();
 
-    if (!current || !this.canCompleteSelectedTask()) {
+    if (!current?.id || !this.canCompleteSelectedTask()) {
       return;
     }
 
-    const updatedTask: MechanicTask = {
+    const completedTask: Task = {
       ...current,
       status: 'Completada',
       adminReviewStatus: 'Enviado al Administrador',
@@ -184,34 +225,132 @@ export class MechanicWorkspaceComponent {
       completedAt: new Date().toLocaleString('es-PE')
     };
 
-    this.updateTaskInList(updatedTask);
-    this.selectedTask.set(updatedTask);
+    this.selectedTask.set(completedTask);
+    this.taskStore.completeTaskFromMechanic(current.id, completedTask);
   }
 
-  protected getAdminSyncClass(task: MechanicTask): string {
+  protected saveTechnicalUpdate(): void {
+    const editedTask = this.selectedTask();
+
+    if (!editedTask?.id) {
+      return;
+    }
+
+    const updatedTask: Task = {
+      ...editedTask,
+      adminReviewStatus: 'Enviado al Administrador'
+    };
+
+    this.selectedTask.set(updatedTask);
+    this.taskStore.updateMechanicTechnicalReport(editedTask.id, updatedTask);
+  }
+
+  protected toggleEvidence(): void {
+    const current = this.selectedTask();
+
+    if (!current) {
+      return;
+    }
+
+    this.selectedTask.set({
+      ...current,
+      evidenceRegistered: !current.evidenceRegistered
+    });
+  }
+
+  protected getOrderCode(task: Task): string {
+    const order = this.workOrderStore
+      .workOrders()
+      .find((item) => String(item.id) === String(task.workOrderId));
+
+    return order?.trackingCode ?? `WO-${task.workOrderId}`;
+  }
+
+  protected getVehicleName(task: Task): string {
+    const order = this.workOrderStore
+      .workOrders()
+      .find((item) => String(item.id) === String(task.workOrderId));
+
+    if (!order) {
+      return 'Vehículo no encontrado';
+    }
+
+    const vehicle = this.vehicleStore
+      .vehicles()
+      .find((item) => String(item.id) === String(order.vehicleId));
+
+    return vehicle
+      ? `${vehicle.brand} ${vehicle.model}`
+      : 'Vehículo no encontrado';
+  }
+
+  protected getVehiclePlate(task: Task): string {
+    const order = this.workOrderStore
+      .workOrders()
+      .find((item) => String(item.id) === String(task.workOrderId));
+
+    if (!order) {
+      return '---';
+    }
+
+    const vehicle = this.vehicleStore
+      .vehicles()
+      .find((item) => String(item.id) === String(order.vehicleId));
+
+    return vehicle?.plate ?? '---';
+  }
+
+  protected getCustomerName(task: Task): string {
+    const order = this.workOrderStore
+      .workOrders()
+      .find((item) => String(item.id) === String(task.workOrderId));
+
+    if (!order?.customerId) {
+      return 'Cliente no asignado';
+    }
+
+    const customer = this.customerStore
+      .customers()
+      .find((item) => String(item.id) === String(order.customerId));
+
+    return customer?.fullName ?? `Cliente ${order.customerId}`;
+  }
+
+  protected getPriorityClass(priority?: MechanicTaskPriority): string {
+    if (priority === 'Crítica') return 'priority-critical';
+    if (priority === 'Alta') return 'priority-high';
+    if (priority === 'Media') return 'priority-medium';
+    return 'priority-low';
+  }
+
+  protected getStatusClass(status: MechanicTaskStatus): string {
+    if (status === 'Completada') return 'status-completed';
+    if (status === 'En Proceso') return 'status-progress';
+    return 'status-pending';
+  }
+
+  protected getStatusIcon(status: MechanicTaskStatus): string {
+    if (status === 'Completada') return 'check_circle';
+    if (status === 'En Proceso') return 'engineering';
+    return 'schedule';
+  }
+
+  protected getAdminSyncClass(task: Task): string {
     return task.adminReviewStatus === 'Enviado al Administrador'
       ? 'sync-sent'
       : 'sync-pending';
   }
 
-  protected getCustomerReportClass(task: MechanicTask): string {
+  protected getCustomerReportClass(task: Task): string {
     return task.customerReportStatus === 'Visible para Cliente'
       ? 'customer-visible'
       : 'customer-hidden';
   }
 
-  private updateTaskInList(updatedTask: MechanicTask): void {
-    this.tasks.update((tasks) =>
-      tasks.map((task) =>
-        task.id === updatedTask.id ? { ...updatedTask } : task
-      )
-    );
-  }
+  private buildCustomerExplanation(task: Task): string {
+    const diagnosis = task.technicalDiagnosis?.toLowerCase() ?? '';
 
-  private buildCustomerExplanation(task: MechanicTask): string {
-    const diagnosis = task.technicalDiagnosis.toLowerCase();
-
-    if (!task.technicalDiagnosis.trim()) {
+    if (!task.technicalDiagnosis?.trim()) {
       return 'El Mecánico aún está revisando el vehículo. Cuando termine el diagnóstico, se mostrará una explicación clara del trabajo recomendado.';
     }
 
@@ -232,111 +371,5 @@ export class MechanicWorkspaceComponent {
     }
 
     return 'El Mecánico registró una observación técnica del vehículo. Esta información será revisada por el taller para explicar el trabajo necesario de forma clara.';
-  }
-
-  protected readonly filteredTasks = computed(() => {
-    const status = this.selectedStatus();
-
-    if (status === 'Todas') {
-      return this.tasks();
-    }
-
-    return this.tasks().filter((task) => task.status === status);
-  });
-
-  protected readonly pendingTasks = computed(() =>
-    this.tasks().filter((task) => task.status === 'Pendiente').length
-  );
-
-  protected readonly inProgressTasks = computed(() =>
-    this.tasks().filter((task) => task.status === 'En Proceso').length
-  );
-
-  protected readonly completedTasks = computed(() =>
-    this.tasks().filter((task) => task.status === 'Completada').length
-  );
-
-  protected readonly generalProgress = computed(() => {
-    const total = this.tasks().length;
-
-    if (total === 0) {
-      return 0;
-    }
-
-    return Math.round((this.completedTasks() / total) * 100);
-  });
-
-  protected selectStatus(status: MechanicTaskStatus | 'Todas'): void {
-    this.selectedStatus.set(status);
-  }
-
-  protected openTask(task: MechanicTask): void {
-    this.selectedTask.set({ ...task });
-  }
-
-  protected closeTaskPanel(): void {
-    this.selectedTask.set(null);
-  }
-
-  protected updateTaskStatus(taskId: string, status: MechanicTaskStatus): void {
-    this.tasks.update((tasks) =>
-      tasks.map((task) =>
-        task.id === taskId ? { ...task, status } : task
-      )
-    );
-
-    const current = this.selectedTask();
-
-    if (current?.id === taskId) {
-      this.selectedTask.set({ ...current, status });
-    }
-  }
-
-  protected saveTechnicalUpdate(): void {
-    const editedTask = this.selectedTask();
-
-    if (!editedTask) {
-      return;
-    }
-
-    const updatedTask: MechanicTask = {
-      ...editedTask,
-      adminReviewStatus: 'Enviado al Administrador'
-    };
-
-    this.updateTaskInList(updatedTask);
-    this.selectedTask.set(updatedTask);
-  }
-
-  protected toggleEvidence(): void {
-    const current = this.selectedTask();
-
-    if (!current) {
-      return;
-    }
-
-    this.selectedTask.set({
-      ...current,
-      evidenceRegistered: !current.evidenceRegistered
-    });
-  }
-
-  protected getPriorityClass(priority: MechanicTaskPriority): string {
-    if (priority === 'Crítica') return 'priority-critical';
-    if (priority === 'Alta') return 'priority-high';
-    if (priority === 'Media') return 'priority-medium';
-    return 'priority-low';
-  }
-
-  protected getStatusClass(status: MechanicTaskStatus): string {
-    if (status === 'Completada') return 'status-completed';
-    if (status === 'En Proceso') return 'status-progress';
-    return 'status-pending';
-  }
-
-  protected getStatusIcon(status: MechanicTaskStatus): string {
-    if (status === 'Completada') return 'check_circle';
-    if (status === 'En Proceso') return 'engineering';
-    return 'schedule';
   }
 }

@@ -4,18 +4,21 @@ import { FormsModule } from '@angular/forms';
 import { MatInputModule } from '@angular/material/input';
 import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
+import { MatDialog, MatDialogModule } from '@angular/material/dialog';
 import { TrackingStore } from '../../application/tracking.store';
 import { Task } from '../../../workshop-operations/domain/models/work-order.model';
+import { PaymentModalComponent } from '../payment-modal/payment-modal';
 
 @Component({
   selector: 'app-tracking-view',
   standalone: true,
-  imports: [CommonModule, FormsModule, MatInputModule, MatButtonModule, MatIconModule],
+  imports: [CommonModule, FormsModule, MatInputModule, MatButtonModule, MatIconModule, MatDialogModule],
   templateUrl: './tracking-view.html',
   styleUrl: './tracking-view.css'
 })
 export class TrackingViewComponent {
   trackingStore = inject(TrackingStore);
+  dialog = inject(MatDialog);
   trackingCode = '';
   selectedTask: Task | null = null;
 
@@ -40,6 +43,24 @@ export class TrackingViewComponent {
 
   selectTask(task: Task) {
     this.selectedTask = task;
+  }
+
+  openPaymentModal() {
+    const order = this.trackingStore.order();
+    if (order && order.price) {
+      const dialogRef = this.dialog.open(PaymentModalComponent, {
+        width: '500px',
+        panelClass: 'payment-dialog-container',
+        data: { amount: order.price }
+      });
+
+      dialogRef.afterClosed().subscribe(result => {
+        if (result) {
+          // Si el pago fue exitoso, se puede mostrar un snackbar o recargar datos
+          console.log('Pago completado con éxito');
+        }
+      });
+    }
   }
 
   getStatusSeverity(status: string): string {

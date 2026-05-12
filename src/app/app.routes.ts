@@ -29,7 +29,7 @@ import { CustomerListComponent } from './domains/customer-management/presentatio
 
 // Fleet Management
 import { VehicleListComponent } from './domains/fleet-management/presentation/vehicle-list/vehicle-list';
-import { VehicleDetailComponent } from './domains/fleet-management/presentation/vehicle-detail/vehicle-detail';
+
 
 // Staff Coordination
 import { MechanicsViewComponent } from './domains/staff-coordination/presentation/mechanics-view/mechanics-view';
@@ -60,10 +60,15 @@ export const routes: Routes = [
       { path: 'work-orders', component: WorkOrderListComponent },
       { path: 'work-orders/new', component: CreateWorkOrderComponent },
       { path: 'work-orders/:id', component: WorkOrderDetailComponent },
-      { path: 'mechanic-workspace', component: MechanicWorkspaceComponent },
       { path: '', redirectTo: 'dashboard', pathMatch: 'full' }
     ]
   },
+
+  {
+    path: 'mechanic/workspace',
+    component: MechanicWorkspaceComponent
+  },
+
   { path: '', redirectTo: '/admin/dashboard', pathMatch: 'full' },
   { path: '**', redirectTo: '/login' }
 ];

@@ -1,18 +1,18 @@
 /**
  * Domain models for Work Orders and Tasks.
- * 
+ *
  * Contains the main interfaces related to the workflow
  * in the mechanical workshop.
- * 
+ *
  * @module WorkOrder Models
  */
 
 /**
  * Represents a Work Order in the workshop.
- * 
+ *
  * It is the main document that records the entry of a vehicle
  * and groups all associated tasks.
- * 
+ *
  * @interface
  * @model
  */
@@ -51,7 +51,13 @@ export interface WorkOrder {
 
 /**
  * Represents an individual Task within a Work Order.
- * 
+ *
+ * @interface
+ * @model
+ */
+/**
+ * Represents an individual Task within a Work Order.
+ *
  * @interface
  * @model
  */
@@ -83,4 +89,25 @@ export interface Task {
 
   /** Optional evidence photo of the task */
   photo?: string;
+
+  /** Technical diagnosis written by the mechanic */
+  technicalDiagnosis?: string;
+
+  /** Customer-friendly explanation generated from the mechanic diagnosis */
+  customerExplanation?: string;
+
+  /** Internal observation for the administrator */
+  internalObservation?: string;
+
+  /** Indicates whether the mechanic registered simulated evidence */
+  evidenceRegistered?: boolean;
+
+  /** Indicates if the mechanic update was sent to admin review */
+  adminReviewStatus?: 'Sin enviar' | 'Enviado al Administrador';
+
+  /** Indicates if the customer explanation is visible for the customer */
+  customerReportStatus?: 'No visible' | 'Visible para Cliente';
+
+  /** Date and time when the mechanic completed the task */
+  completedAt?: string;
 }

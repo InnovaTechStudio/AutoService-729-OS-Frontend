@@ -54,4 +54,15 @@ export class CustomerStore {
       error: (err) => console.error('Error al actualizar cliente:', err)
     });
   }
+  deleteCustomer(id: string): void {
+    this.customerService.delete(id).subscribe({
+      next: () => {
+        this.customers.update(list =>
+          list.filter(customer => String(customer.id) !== String(id))
+        );
+      },
+      error: (err) => console.error('Error eliminando cliente', err)
+    });
+  }
+
 }

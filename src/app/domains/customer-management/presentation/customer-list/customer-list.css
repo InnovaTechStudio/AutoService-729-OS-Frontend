@@ -1,45 +1,106 @@
 .customer-list-container {
-  background: transparent;
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
 }
+
+/* HEADER */
 
 .header-actions {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  margin-bottom: 2rem;
 }
 
 .header-actions h1 {
   margin: 0;
-  color: #1e293b;
-  font-size: 1.8rem;
+  font-size: 2rem;
+  font-weight: 700;
+  color: #0f172a;
 }
+
+/* SUMMARY */
+
+.summary-cards {
+  display: flex;
+  gap: 1.5rem;
+}
+
+.summary-card {
+  flex: 1;
+  background: white;
+  border-radius: 18px;
+  padding: 1.5rem;
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  box-shadow: 0 8px 24px rgba(0,0,0,0.08);
+}
+
+.summary-card mat-icon {
+  font-size: 2.5rem;
+  width: 2.5rem;
+  height: 2.5rem;
+  color: #2563eb;
+}
+
+.summary-card span {
+  color: #64748b;
+  font-size: 0.9rem;
+}
+
+.summary-card h2 {
+  margin: 0.3rem 0 0;
+  font-size: 2rem;
+  color: #0f172a;
+}
+
+.summary-card.blue {
+  background: #1e3a8a;
+  color: white;
+}
+
+.summary-card.blue span,
+.summary-card.blue h2,
+.summary-card.blue mat-icon {
+  color: white;
+}
+
+/* TABLE */
 
 .table-container {
   background: white;
-  border-radius: 8px;
+  border-radius: 18px;
   overflow: hidden;
-  position: relative;
+  box-shadow: 0 8px 24px rgba(0,0,0,0.08);
 }
 
 table {
   width: 100%;
 }
 
-.loading-shade {
-  position: absolute;
-  top: 0;
-  left: 0;
-  right: 0;
-  bottom: 0;
-  background: rgba(255, 255, 255, 0.8);
-  z-index: 10;
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  font-weight: bold;
-  color: #3b82f6;
+th {
+  background: #f8fafc;
+  color: #334155;
+  font-weight: 700;
 }
+
+td, th {
+  padding: 1rem;
+}
+
+tr:hover {
+  background: #f8fafc;
+}
+
+/* ACTIONS */
+
+.action-buttons {
+  display: flex;
+  gap: 0.5rem;
+}
+
+/* EMPTY */
 
 .empty-state {
   padding: 3rem;
@@ -47,10 +108,26 @@ table {
   color: #64748b;
 }
 
+/* FORM */
+
 .form-container {
   display: flex;
   flex-direction: column;
-  gap: 0.5rem;
-  margin-top: 1rem;
+  gap: 1rem;
   min-width: 380px;
+  margin-top: 1rem;
+}
+
+/* LOADING */
+
+.loading-shade {
+  position: absolute;
+  inset: 0;
+  background: rgba(255,255,255,0.7);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 10;
+  font-weight: bold;
+  color: #2563eb;
 }

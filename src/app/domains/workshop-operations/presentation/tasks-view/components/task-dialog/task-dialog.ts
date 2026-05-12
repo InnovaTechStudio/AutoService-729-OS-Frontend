@@ -41,4 +41,16 @@ export class TaskDialogComponent {
   protected onCancel(): void {
     this.cancel.emit();
   }
+  protected onImageSelected(event: Event): void {
+    const input = event.target as HTMLInputElement;
+    if (!input.files || input.files.length === 0) {
+      return;
+    }
+    const file = input.files[0];
+    const reader = new FileReader();
+    reader.onload = () => {
+      this.task.photo = reader.result as string;
+    };
+    reader.readAsDataURL(file);
+  }
 }

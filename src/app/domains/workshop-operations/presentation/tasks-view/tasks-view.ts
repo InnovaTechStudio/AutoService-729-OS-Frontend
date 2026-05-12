@@ -66,7 +66,8 @@ export class TasksViewComponent implements OnInit {
       mechanicName: this.getMechanicName(task.mechanicId),
       status: task.status || 'Pendiente',
       priority: task.priority || 'Media',
-      estimatedTime: task.estimatedTime || 2
+      estimatedTime: task.estimatedTime || 2,
+      photo: task.photo,
     }))
   );
 

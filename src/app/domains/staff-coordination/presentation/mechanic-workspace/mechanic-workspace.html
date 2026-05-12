@@ -1,120 +1,239 @@
 <section class="mechanic-workspace">
   <header class="workspace-header">
     <div>
-      <span class="eyebrow">Espacio del mecánico</span>
+      <span class="eyebrow">Workspace del Mecánico</span>
       <h1>Mis tareas asignadas</h1>
       <p>
-        Consulta tus tareas activas, actualiza estados y mantén sincronizado el avance con el administrador.
+        Registra diagnósticos técnicos, actualiza avances y genera información clara para el Cliente.
       </p>
     </div>
 
-    <mat-form-field appearance="outline" class="mechanic-select">
-      <mat-label>Mecánico</mat-label>
-      <mat-select
-        [value]="selectedMechanicId()"
-        (selectionChange)="selectMechanic($event.value)">
-        @for (mechanic of mechanicStore.mechanics(); track mechanic.id) {
-          <mat-option [value]="mechanic.id">
-            {{ mechanic.fullName }} - {{ mechanic.specialty }}
-          </mat-option>
-        }
-      </mat-select>
-    </mat-form-field>
-  </header>
-
-  @if (currentMechanic(); as mechanic) {
-    <section class="mechanic-summary">
-      <div class="mechanic-avatar">
+    <div class="mechanic-profile">
+      <div class="avatar">
         <mat-icon>engineering</mat-icon>
       </div>
 
       <div>
-        <h2>{{ mechanic.fullName }}</h2>
-        <p>{{ mechanic.specialty }}</p>
+        <strong>{{ mechanicName }}</strong>
+        <span>{{ mechanicSpecialty }}</span>
+        <small>{{ mechanicStatus }}</small>
       </div>
+    </div>
+  </header>
 
-      <div class="progress-box">
-        <span>Avance general</span>
-        <strong>{{ progress() }}%</strong>
-        <mat-progress-bar mode="determinate" [value]="progress()"></mat-progress-bar>
-      </div>
-    </section>
-  }
+  <section class="summary-grid">
+    <mat-card class="summary-card">
+      <mat-card-content>
+        <span>Pendientes</span>
+        <strong>{{ pendingTasks() }}</strong>
+        <small>Tareas por iniciar</small>
+      </mat-card-content>
+    </mat-card>
 
-  <section class="kpi-grid">
-    <article>
-      <span>Pendientes</span>
-      <strong>{{ pendingTasks() }}</strong>
-    </article>
+    <mat-card class="summary-card">
+      <mat-card-content>
+        <span>En proceso</span>
+        <strong>{{ inProgressTasks() }}</strong>
+        <small>Trabajo activo</small>
+      </mat-card-content>
+    </mat-card>
 
-    <article>
-      <span>En proceso</span>
-      <strong>{{ inProgressTasks() }}</strong>
-    </article>
+    <mat-card class="summary-card">
+      <mat-card-content>
+        <span>Completadas</span>
+        <strong>{{ completedTasks() }}</strong>
+        <small>Listas para revisión</small>
+      </mat-card-content>
+    </mat-card>
 
-    <article>
-      <span>Completadas</span>
-      <strong>{{ completedTasks() }}</strong>
-    </article>
+    <mat-card class="summary-card progress-card">
+      <mat-card-content>
+        <div class="progress-head">
+          <span>Avance general</span>
+          <strong>{{ generalProgress() }}%</strong>
+        </div>
+
+        <mat-progress-bar
+          mode="determinate"
+          [value]="generalProgress()">
+        </mat-progress-bar>
+      </mat-card-content>
+    </mat-card>
   </section>
 
-  @if (assignedTasks().length) {
-    <div class="task-grid">
-      @for (task of assignedTasks(); track task.id) {
-        <article class="task-card">
-          <div class="task-top">
-            <div class="task-icon" [ngClass]="getTaskClass(task.status)">
-              <mat-icon>{{ getTaskIcon(task.status) }}</mat-icon>
+  <section class="workspace-body">
+    <div class="tasks-panel">
+      <div class="section-header">
+        <div>
+          <h2>Tareas del día</h2>
+          <p>Filtra y actualiza el estado real del servicio.</p>
+        </div>
+
+        <mat-form-field appearance="outline">
+          <mat-label>Filtrar estado</mat-label>
+          <mat-select
+            [value]="selectedStatus()"
+            (selectionChange)="selectStatus($event.value)">
+            <mat-option value="Todas">Todas</mat-option>
+            @for (status of statusOptions; track status) {
+              <mat-option [value]="status">{{ status }}</mat-option>
+            }
+          </mat-select>
+        </mat-form-field>
+      </div>
+
+      <div class="tasks-grid">
+        @for (task of filteredTasks(); track task.id) {
+          <article class="task-card" [class.selected]="selectedTask()?.id === task.id">
+            <div class="task-top">
+              <div class="task-icon" [ngClass]="getStatusClass(task.status)">
+                <mat-icon>{{ getStatusIcon(task.status) }}</mat-icon>
+              </div>
+
+              <div class="task-title">
+                <span>{{ task.orderCode }}</span>
+                <h3>{{ task.taskName }}</h3>
+                <p>{{ task.vehicle }} · {{ task.plate }}</p>
+              </div>
             </div>
 
-            <div>
-              <span class="order-code">{{ getWorkOrderCode(task.workOrderId) }}</span>
-              <h3>{{ task.description }}</h3>
-              <p>{{ getVehicleName(task.workOrderId) }}</p>
+            <div class="task-meta">
+              <span [ngClass]="getPriorityClass(task.priority)">
+                <mat-icon>flag</mat-icon>
+                {{ task.priority }}
+              </span>
+
+              <span>
+                <mat-icon>schedule</mat-icon>
+                {{ task.estimatedTime }} h estimadas
+              </span>
             </div>
+
+            <p class="task-description">
+              {{ task.description }}
+            </p>
+
+            <div class="task-footer">
+              <span class="status-badge" [ngClass]="getStatusClass(task.status)">
+                {{ task.status }}
+              </span>
+
+              <button
+                mat-stroked-button
+                type="button"
+                (click)="openTask(task)">
+                Trabajar
+                <mat-icon>arrow_forward</mat-icon>
+              </button>
+            </div>
+          </article>
+        }
+      </div>
+    </div>
+
+    <aside class="technical-panel">
+      @if (selectedTask(); as task) {
+        <div class="panel-header">
+          <div>
+            <span class="eyebrow">Registro técnico</span>
+            <h2>{{ task.taskName }}</h2>
+            <p>{{ task.vehicle }} · {{ task.plate }}</p>
           </div>
-
-          <div class="task-meta">
-            <span>
-              <mat-icon>flag</mat-icon>
-              {{ task.priority || 'Media' }}
-            </span>
-
-            <span>
-              <mat-icon>schedule</mat-icon>
-              {{ task.estimatedTime || 2 }} h estimadas
-            </span>
-          </div>
-
-          <mat-form-field appearance="outline" class="full-width">
-            <mat-label>Actualizar estado</mat-label>
-            <mat-select
-              [value]="task.status"
-              (selectionChange)="updateTaskStatus(task, $event.value)">
-              @for (status of statusOptions; track status) {
-                <mat-option [value]="status">
-                  {{ status }}
-                </mat-option>
-              }
-            </mat-select>
-          </mat-form-field>
 
           <button
-            mat-stroked-button
+            mat-icon-button
             type="button"
-            class="order-button"
-            (click)="goToOrder(task.workOrderId)">
-            <mat-icon>open_in_new</mat-icon>
-            Ver orden
+            aria-label="Cerrar panel"
+            (click)="closeTaskPanel()">
+            <mat-icon>close</mat-icon>
           </button>
-        </article>
+        </div>
+
+        <div class="customer-box">
+          <mat-icon>person</mat-icon>
+          <div>
+            <span>Cliente</span>
+            <strong>{{ task.customerName }}</strong>
+          </div>
+        </div>
+
+        <mat-form-field appearance="outline" class="full-width">
+          <mat-label>Estado de la tarea</mat-label>
+          <mat-select
+            [(ngModel)]="task.status"
+            (selectionChange)="updateTaskStatus(task.id, $event.value)">
+            @for (status of statusOptions; track status) {
+              <mat-option [value]="status">{{ status }}</mat-option>
+            }
+          </mat-select>
+        </mat-form-field>
+
+        <mat-form-field appearance="outline" class="full-width">
+          <mat-label>Diagnóstico técnico del Mecánico</mat-label>
+          <textarea
+            matInput
+            rows="4"
+            [(ngModel)]="task.technicalDiagnosis"
+            placeholder="Ej. Se detecta desgaste irregular en pastillas delanteras...">
+          </textarea>
+        </mat-form-field>
+
+        <mat-form-field appearance="outline" class="full-width">
+          <mat-label>Explicación simple para el Cliente</mat-label>
+          <textarea
+            matInput
+            rows="4"
+            [(ngModel)]="task.customerExplanation"
+            placeholder="Ej. Los frenos delanteros presentan desgaste y requieren revisión...">
+          </textarea>
+        </mat-form-field>
+
+        <mat-form-field appearance="outline" class="full-width">
+          <mat-label>Observación interna para Administrador</mat-label>
+          <textarea
+            matInput
+            rows="3"
+            [(ngModel)]="task.internalObservation"
+            placeholder="Ej. Validar cambio de disco antes de aprobar cotización...">
+          </textarea>
+        </mat-form-field>
+
+        <button
+          mat-stroked-button
+          type="button"
+          class="evidence-button"
+          [class.active]="task.evidenceRegistered"
+          (click)="toggleEvidence()">
+          <mat-icon>{{ task.evidenceRegistered ? 'image' : 'add_photo_alternate' }}</mat-icon>
+          {{ task.evidenceRegistered ? 'Evidencia simulada registrada' : 'Registrar evidencia simulada' }}
+        </button>
+
+        <div class="sync-preview">
+          <h3>Vista que se enviará al Cliente</h3>
+          <p>
+            {{ task.customerExplanation || 'Todavía no se registró una explicación para el Cliente.' }}
+          </p>
+        </div>
+
+        <button
+          mat-flat-button
+          color="primary"
+          type="button"
+          class="save-button"
+          (click)="saveTechnicalUpdate()">
+          <mat-icon>save</mat-icon>
+          Guardar actualización técnica
+        </button>
+      } @else {
+        <div class="empty-panel">
+          <mat-icon>engineering</mat-icon>
+          <h2>Selecciona una tarea</h2>
+          <p>
+            Aquí registrarás el diagnóstico técnico, la explicación para el Cliente,
+            observaciones internas y evidencia simulada.
+          </p>
+        </div>
       }
-    </div>
-  } @else {
-    <div class="empty-state">
-      <mat-icon>task_alt</mat-icon>
-      <h3>No tienes tareas asignadas</h3>
-      <p>Cuando el administrador asigne tareas, aparecerán en este espacio.</p>
-    </div>
-  }
+    </aside>
+  </section>
 </section>

@@ -51,8 +51,10 @@ export class WorkOrderListComponent implements OnInit {
   protected readonly selectedStatus = signal<WorkOrder['status'] | null>(null);
 
   protected readonly statusOptions: WorkOrder['status'][] = [
+    'Pendiente',
     'En Proceso',
-    'Finalizado'
+    'Finalizado',
+    'Cancelado'
   ];
 
   /** Enriched view of the orders for display in cards */
@@ -69,6 +71,8 @@ export class WorkOrderListComponent implements OnInit {
       estimatedDate: order.estimatedDate,
       status: order.status,
       price: Number(order.price || 0),
+      riskStatus: this.getDelayRiskStatus(order),
+      riskClass: this.getDelayRiskClass(order),
       isRisk: this.isRiskOrder(order)
     }))
   );
@@ -177,7 +181,47 @@ export class WorkOrderListComponent implements OnInit {
   }
 
   private isRiskOrder(order: WorkOrder): boolean {
+    const riskStatus = this.getDelayRiskStatus(order);
+    return riskStatus === 'En riesgo' || riskStatus === 'Retrasada';
+  }
+
+  private getDelayRiskStatus(
+    order: WorkOrder
+  ): 'A tiempo' | 'En riesgo' | 'Retrasada' | 'Completada' | 'Cancelada' {
+
+    if (order.status === 'Finalizado') {
+      return 'Completada';
+    }
+
+    if (order.status === 'Cancelado') {
+      return 'Cancelada';
+    }
+
     const progress = this.calculateProgress(String(order.id));
-    return order.status === 'En Proceso' && progress < 50;
+    const today = new Date();
+    const estimatedDate = order.estimatedDate
+      ? new Date(order.estimatedDate)
+      : null;
+
+    if (estimatedDate && estimatedDate < today) {
+      return 'Retrasada';
+    }
+
+    if (order.status === 'En Proceso' && progress < 50) {
+      return 'En riesgo';
+    }
+
+    return 'A tiempo';
+  }
+
+  private getDelayRiskClass(order: WorkOrder): string {
+    const status = this.getDelayRiskStatus(order);
+
+    if (status === 'Completada') return 'risk-success';
+    if (status === 'Cancelada') return 'risk-secondary';
+    if (status === 'Retrasada') return 'risk-danger';
+    if (status === 'En riesgo') return 'risk-warning';
+
+    return 'risk-ok';
   }
 }

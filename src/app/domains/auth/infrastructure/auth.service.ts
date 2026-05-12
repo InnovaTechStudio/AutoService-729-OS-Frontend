@@ -15,16 +15,13 @@ import { Injectable, inject } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Router } from '@angular/router';
 import { tap, catchError, of, map } from 'rxjs';
+import { environment } from '../../../../environments/environment';
 
 @Injectable({ providedIn: 'root' })
 export class AuthService {
   private http = inject(HttpClient);
   private router = inject(Router);
-
-  /**
- * Base URL of the API (json-server)
- */
-  private readonly API_URL = 'http://localhost:3000'; // Tu db.json local
+  private readonly API_URL = environment.apiUrl;
 
   /**
  *

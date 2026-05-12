@@ -17,6 +17,7 @@
  * @model
  */
 export interface WorkOrder {
+
   /** Unique ID of the work order */
   id?: string;
 
@@ -36,7 +37,7 @@ export interface WorkOrder {
   description: string;
 
   /** Current status of the order */
-  status: 'En Proceso' | 'Finalizado';
+  status: 'Pendiente' | 'En Proceso' | 'Finalizado' | 'Cancelado';
 
   /** Start date of the order */
   startDate: string;
@@ -45,7 +46,7 @@ export interface WorkOrder {
   estimatedDate: string;
 
   /** Total estimated or agreed price */
-  price: number;
+  price?: number;
 }
 
 /**
@@ -55,9 +56,10 @@ export interface WorkOrder {
  * @model
  */
 export interface Task {
+
   /** Unique ID of the task */
   id?: string;
-  
+
   /** ID of the workshop */
   workshopId?: string;
 
@@ -78,4 +80,7 @@ export interface Task {
 
   /** Estimated time in hours */
   estimatedTime?: number;
+
+  /** Optional evidence photo of the task */
+  photo?: string;
 }

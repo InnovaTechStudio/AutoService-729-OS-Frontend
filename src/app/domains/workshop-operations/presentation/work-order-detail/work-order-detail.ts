@@ -8,13 +8,14 @@
  * Main functionalities:
  * - Visualization of order and vehicle data
  * - Task management (add, change status)
- * - Edición del precio de la orden
- * - Cálculo automático de progreso
+ * - Price editing of the order
+ * - Automatic progress calculation
  * 
  * @component
  * @selector app-work-order-detail
  * @standalone true
  */
+
 import { CommonModule } from '@angular/common';
 import { Component, computed, inject, OnInit, signal } from '@angular/core';
 import { FormsModule } from '@angular/forms';
@@ -25,11 +26,13 @@ import { MatIconModule } from '@angular/material/icon';
 import { MatInputModule } from '@angular/material/input';
 import { MatProgressBarModule } from '@angular/material/progress-bar';
 import { MatSelectModule } from '@angular/material/select';
+import { MatCheckboxModule } from '@angular/material/checkbox';
 
 import { VehicleStore } from '../../../fleet-management/application/vehicle.store';
 import { MechanicStore } from '../../../staff-coordination/application/mechanic.store';
 import { TaskStore } from '../../application/task.store';
 import { WorkOrderStore } from '../../application/work-order.store';
+
 import { Task, WorkOrder } from '../../domain/models/work-order.model';
 
 @Component({
@@ -43,12 +46,14 @@ import { Task, WorkOrder } from '../../domain/models/work-order.model';
     MatIconModule,
     MatInputModule,
     MatProgressBarModule,
+    MatCheckboxModule,
     MatSelectModule
   ],
   templateUrl: './work-order-detail.html',
   styleUrl: './work-order-detail.css'
 })
 export class WorkOrderDetailComponent implements OnInit {
+
   private readonly route = inject(ActivatedRoute);
   private readonly router = inject(Router);
 
@@ -69,6 +74,63 @@ export class WorkOrderDetailComponent implements OnInit {
     'Completada'
   ];
 
+  protected readonly finalEvidenceRegistered = signal(false);
+
+  protected readonly supervisorApproved = signal(false);
+
+  protected readonly allTasksCompleted = computed(() => {
+    const tasks = this.orderTasks();
+
+    return tasks.length > 0 &&
+      tasks.every((task) => task.status === 'Completada');
+  });
+
+  protected readonly costsValidated = computed(() => {
+    const order = this.order();
+
+    return Number(order?.price || this.localPrice || 0) > 0;
+  });
+
+  protected readonly diagnosticRegistered = computed(() => {
+    const order = this.order();
+
+    return !!order?.description &&
+      order.description.trim().length > 0;
+  });
+
+  protected readonly canMarkReadyForDelivery = computed(() =>
+    this.allTasksCompleted() &&
+    this.finalEvidenceRegistered() &&
+    this.costsValidated() &&
+    this.diagnosticRegistered() &&
+    this.supervisorApproved()
+  );
+
+  protected toggleFinalEvidence(value: boolean): void {
+    this.finalEvidenceRegistered.set(value);
+  }
+
+  protected toggleSupervisorApproval(value: boolean): void {
+    this.supervisorApproved.set(value);
+  }
+
+  protected markOrderAsReadyForDelivery(): void {
+
+    const order = this.order();
+
+    if (!order?.id || !this.canMarkReadyForDelivery()) {
+      return;
+    }
+
+    const updatedOrder: WorkOrder = {
+      ...order,
+      status: 'Finalizado',
+      price: Number(this.localPrice || order.price || 0)
+    };
+
+    this.workOrderStore.updateWorkOrder(order.id, updatedOrder);
+  }
+
   /** Editable price locally */
   protected localPrice = 0;
 
@@ -84,6 +146,7 @@ export class WorkOrderDetailComponent implements OnInit {
 
   /** Vehicle associated with the order */
   protected readonly vehicle = computed(() => {
+
     const order = this.order();
 
     if (!order) {
@@ -95,7 +158,7 @@ export class WorkOrderDetailComponent implements OnInit {
       .find((item) => String(item.id) === String(order.vehicleId));
   });
 
-  /** Tareas pertenecientes a esta orden */
+  /** Tasks belonging to this order */
   protected readonly orderTasks = computed<Task[]>(() =>
     this.taskStore
       .tasks()
@@ -104,11 +167,13 @@ export class WorkOrderDetailComponent implements OnInit {
 
   /** Number of completed tasks */
   protected readonly completedTasks = computed(() =>
-    this.orderTasks().filter((task) => task.status === 'Completada').length
+    this.orderTasks()
+      .filter((task) => task.status === 'Completada').length
   );
 
   /** Percentage of order progress */
   protected readonly progress = computed(() => {
+
     const tasks = this.orderTasks();
 
     if (!tasks.length) {
@@ -119,12 +184,13 @@ export class WorkOrderDetailComponent implements OnInit {
   });
 
   ngOnInit(): void {
+
     this.workOrderStore.loadWorkOrders();
     this.taskStore.loadAllTasks();
     this.mechanicStore.loadMechanics();
     this.vehicleStore.loadVehicles();
 
-    // A slight delay to ensure the order has been loaded
+    // Slight delay to ensure the order has been loaded
     setTimeout(() => {
       this.localPrice = Number(this.order()?.price || 0);
     }, 250);
@@ -146,11 +212,13 @@ export class WorkOrderDetailComponent implements OnInit {
 
   /** Saves a new task associated with this order */
   protected saveTask(): void {
+
     if (!this.newTask.description || !this.newTask.mechanicId) {
       return;
     }
 
     this.taskStore.addTask(this.newTask);
+
     this.closeTaskDialog();
   }
 
@@ -158,6 +226,7 @@ export class WorkOrderDetailComponent implements OnInit {
    * Updates the status of a specific task.
    */
   protected updateTaskStatus(task: Task, status: Task['status']): void {
+
     if (!task.id) {
       return;
     }
@@ -167,6 +236,7 @@ export class WorkOrderDetailComponent implements OnInit {
 
   /** Saves the modified price of the order */
   protected savePrice(): void {
+
     const order = this.order();
 
     if (!order?.id) {
@@ -182,6 +252,7 @@ export class WorkOrderDetailComponent implements OnInit {
   }
 
   protected getMechanicName(mechanicId: string): string {
+
     if (!mechanicId) {
       return 'Sin asignar';
     }
@@ -194,6 +265,7 @@ export class WorkOrderDetailComponent implements OnInit {
   }
 
   protected getVehicleName(): string {
+
     const vehicle = this.vehicle();
 
     if (!vehicle) {
@@ -204,6 +276,7 @@ export class WorkOrderDetailComponent implements OnInit {
   }
 
   protected getTaskIcon(status: Task['status']): string {
+
     if (status === 'Completada') {
       return 'check_circle';
     }
@@ -216,6 +289,7 @@ export class WorkOrderDetailComponent implements OnInit {
   }
 
   protected getTaskClass(status: Task['status']): string {
+
     if (status === 'Completada') {
       return 'task-completed';
     }

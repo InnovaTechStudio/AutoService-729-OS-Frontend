@@ -50,7 +50,24 @@
 ::ng-deep .active-menu-item .mat-mdc-list-item-icon {
   color: #00BFA5 !important;
 }
+::ng-deep .mat-mdc-list-item,
+::ng-deep .mdc-list-item__primary-text {
+  color: #ffffff !important;
+  opacity: 1 !important;
 
+}
+::ng-deep .mat-mdc-list-item-icon {
+  color: #ffffff !important;
+  opacity: 0.9 !important;
+}
+::ng-deep .mat-mdc-list-item:hover {
+  background-color: #334155 !important;
+}
+
+::ng-deep .active-menu-item {
+  background-color: #475569 !important;
+  color: #ffffff !important;
+}
 .topbar {
   background: white;
   border-bottom: 1px solid #e2e8f0;
@@ -78,4 +95,48 @@
   padding: 2rem;
   height: calc(100vh - 64px); /* 64px es el alto del toolbar */
   overflow-y: auto;
+}
+/* RESPONSIVE */
+
+@media (max-width: 768px) {
+
+  .sidebar {
+    width: 240px;
+  }
+  .content-area {
+    padding: 1rem;
+  }
+  .topbar {
+    padding: 0 8px;
+  }
+  .welcome-msg {
+    font-size: 0.9rem;
+    margin-left: 8px;
+  }
+
+}
+.logo-area {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+
+  padding: 1.2rem;
+  border-bottom: 1px solid #334155;
+}
+
+.logo-img {
+  width: 40px;
+  height: 40px;
+  object-fit: contain;
+}
+
+.logo-text h2 {
+  margin: 0;
+  color: white;
+  font-size: 1.4rem;
+  line-height: 1.2;
+}
+.subtitle {
+  font-size: 0.8rem;
+  color: #cbd5e1;
 }

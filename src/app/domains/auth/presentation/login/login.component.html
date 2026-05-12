@@ -2,17 +2,46 @@
   <div class="hero-section">
     <div class="hero-content">
       <h1>AutoService</h1>
-      <p>Gestión integral para talleres automotrices.</p>
+
+      <p>
+        Gestión integral para talleres automotrices
+        de forma rápida y segura.
+      </p>
+
+      <div class="hero-features">
+
+        <div class="feature-item">
+          <mat-icon>build</mat-icon>
+          Gestión eficiente
+        </div>
+
+        <div class="feature-item">
+          <mat-icon>verified_user</mat-icon>
+          Acceso seguro
+        </div>
+
+        <div class="feature-item">
+          <mat-icon>speed</mat-icon>
+          Control en tiempo real
+        </div>
+
+      </div>
     </div>
   </div>
 
   <div class="form-section">
     <div class="login-box">
       <div class="login-header">
+
+        <div class="form-logo">
+          <img src="/AutoService-logo.jpg" alt="AutoService Logo" />
+          <span>AutoService</span>
+        </div>
         <h2>Bienvenido</h2>
         <span class="badge">Modo Admin</span>
         <p>Ingresa tus credenciales para continuar</p>
       </div>
+
 
       <form (ngSubmit)="handleLogin()" class="login-form">
 
@@ -30,7 +59,14 @@
             <button mat-icon-button matSuffix (click)="hidePassword = !hidePassword" type="button">
               <mat-icon>{{hidePassword ? 'visibility_off' : 'visibility'}}</mat-icon>
             </button>
+
           </mat-form-field>
+          <div class="form-options">
+            <a href="#" class="forgot-link">
+              ¿Has olvidado tu contraseña?
+            </a>
+
+          </div>
         </div>
 
         @if (errorMessage) {
@@ -43,6 +79,10 @@
         <button mat-flat-button color="primary" type="submit" [disabled]="isLoading" class="w-full mt-3 submit-btn">
           {{ isLoading ? 'Iniciando...' : 'Iniciar Sesión' }}
         </button>
+        <div class="register-link">
+          ¿No tienes una cuenta?
+          <a href="#">Solicita acceso</a>
+        </div>
       </form>
     </div>
   </div>

@@ -1,54 +1,152 @@
 <div class="tracking-layout">
+
   <div class="tracking-header">
-    <mat-icon class="hero-icon">directions_car</mat-icon>
+    <mat-icon class="header-icon">directions_car</mat-icon>
     <h1>Rastrea tu Vehículo</h1>
-    <p>Ingresa el código AS-XXXXX para ver el estado de tu servicio.</p>
+    <p>Ingresa el código que te proporcionó el taller para ver el estado de tu servicio en tiempo real.</p>
   </div>
 
   <div class="tracking-content">
-    <mat-card class="search-card">
-      <mat-form-field appearance="outline" class="w-full">
-        <mat-label>Código de Servicio</mat-label>
-        <input matInput [(ngModel)]="trackingCode" placeholder="Ej: AS-1001A" (keyup.enter)="handleSearch()">
-        <button mat-icon-button matSuffix (click)="handleSearch()" [disabled]="trackingStore.isLoading()">
-          <mat-icon>search</mat-icon>
-        </button>
-      </mat-form-field>
 
+    <div class="search-box">
+      <label for="code">Código de Servicio</label>
+      <div class="search-input-group">
+        <input
+            id="code"
+            [(ngModel)]="trackingCode"
+            placeholder="Ej: AS-1001A"
+            (keyup.enter)="handleSearch()"
+            class="code-input"
+        />
+        <button class="btn-search" (click)="handleSearch()" [disabled]="trackingStore.isLoading()">
+          <mat-icon>search</mat-icon> Buscar
+        </button>
+      </div>
       @if (trackingStore.error()) {
-        <div class="error-msg">{{ trackingStore.error() }}</div>
+        <div class="error-message mt-3">
+          <mat-icon>error_outline</mat-icon> {{ trackingStore.error() }}
+        </div>
       }
-    </mat-card>
+    </div>
 
     @if (trackingStore.order()) {
-      <div class="results-container fade-in">
-        <mat-card class="info-card">
-          <div class="vehicle-info">
-            <span class="label">Vehículo</span>
-            <h2>{{ trackingStore.vehicle()?.brand }} {{ trackingStore.vehicle()?.model }}</h2>
-            <span class="plate-badge">{{ trackingStore.vehicle()?.plate }}</span>
-          </div>
-          <div class="dates">
-            <div><small>Ingreso:</small> {{ trackingStore.order()?.startDate }}</div>
-            <div><small>Estimado:</small> {{ trackingStore.order()?.estimatedDate }}</div>
-          </div>
-        </mat-card>
+      <div class="results-box fade-in">
+        <div class="vehicle-info">
+          
+          <div class="dashboard-grid">
+            <!-- LEFT -->
+            <div class="left-section">
+              <!-- TASKS -->
+              <div class="service-card">
+                <div class="card-header">
+                  <h3>Tareas de Servicio</h3>
+                </div>
 
-        <mat-card class="timeline-card">
-          <h3>Progreso del Servicio</h3>
-          <mat-vertical-stepper [linear]="false" #stepper>
-            @for (task of trackingStore.tasks(); track task.id) {
-              <mat-step [completed]="task.status === 'Completada'" [editable]="false">
-                <ng-template matStepLabel>
-                  <div class="step-label">
-                    <strong>{{ task.description }}</strong>
-                    <span class="status-text" [ngClass]="task.status">{{ task.status }}</span>
+                @for (task of trackingStore.tasks(); track task.id) {
+                  <div
+                      class="task-item"
+                      [class.active]="selectedTask?.id === task.id"
+                      (click)="selectTask(task)"
+                  >
+                    <div class="task-left">
+                      <div class="task-icon" [ngClass]="getTaskTagSeverity(task.status)">
+                        <mat-icon *ngIf="task.status === 'Completada'">check_circle</mat-icon>
+                        <mat-icon *ngIf="task.status === 'En Proceso'">settings</mat-icon>
+                        <mat-icon *ngIf="task.status === 'Pendiente'">schedule</mat-icon>
+                        <mat-icon *ngIf="task.status !== 'Completada' && task.status !== 'En Proceso' && task.status !== 'Pendiente'">circle</mat-icon>
+                      </div>
+
+                      <div>
+                        <strong>{{ task.description }}</strong>
+                        <p>{{ task.status }}</p>
+                      </div>
+                    </div>
+
+                    <div class="tag" [ngClass]="'tag-' + getTaskTagSeverity(task.status)">
+                      {{ task.status }}
+                    </div>
                   </div>
-                </ng-template>
-              </mat-step>
-            }
-          </mat-vertical-stepper>
-        </mat-card>
+                }
+              </div>
+
+              <!-- EVIDENCE -->
+              <div class="evidence-card">
+                @if (selectedTask?.photo) {
+                  <img [src]="selectedTask!.photo" alt="evidence" />
+                } @else {
+                  <div class="no-image">
+                    <mat-icon>image</mat-icon>
+                    <p>No hay evidencia visual</p>
+                  </div>
+                }
+
+                <div class="evidence-info">
+                  <span>EVIDENCIA VISUAL</span>
+                  <strong>{{ selectedTask?.description }}</strong>
+                </div>
+              </div>
+
+            </div>
+
+            <!-- RIGHT -->
+            <div class="right-section">
+
+              <!-- COST -->
+              <div class="cost-card">
+                <span class="mini-title">COSTO ESTIMADO TOTAL</span>
+                <h2>${{ trackingStore.order()?.price }}</h2>
+                <p>Sujeto a cambios según diagnóstico.</p>
+                <button class="btn-pay pay-now-btn" (click)="openPaymentModal()">
+                  <mat-icon>credit_card</mat-icon> Realizar Pago
+                </button>
+              </div>
+              
+              <!-- DATES -->
+              <div class="dates-card">
+                <span class="mini-title">TIEMPOS DE SERVICIO</span>
+
+                <div class="date-box">
+                  <div class="date-icon"><mat-icon>calendar_today</mat-icon></div>
+                  <div>
+                    <small>FECHA DE INGRESO</small>
+                    <strong>{{ trackingStore.order()?.startDate }}</strong>
+                  </div>
+                </div>
+
+                <div class="date-box">
+                  <div class="date-icon"><mat-icon>schedule</mat-icon></div>
+                  <div>
+                    <small>ENTREGA ESTIMADA</small>
+                    <strong>{{ trackingStore.order()?.estimatedDate }}</strong>
+                  </div>
+                </div>
+              </div>
+
+            </div>
+          </div>
+          
+          <div class="vehicle-header">
+            <div class="vehicle-details">
+              <span class="label">Vehículo Ingresado</span>
+              <h2>{{ trackingStore.vehicle()?.brand }} {{ trackingStore.vehicle()?.model }} <span>{{ trackingStore.vehicle()?.plate }}</span></h2>
+            </div>
+            <div class="tag status-tag" [ngClass]="'tag-' + getStatusSeverity(trackingStore.order()!.status)">
+              {{ trackingStore.order()?.status }}
+            </div>
+          </div>
+
+          <div class="dates-grid">
+            <div class="date-item">
+              <span class="label">Fecha de Ingreso</span>
+              <strong><mat-icon class="text-blue-500">event</mat-icon> {{ trackingStore.order()?.startDate }}</strong>
+            </div>
+            <div class="date-item right-align">
+              <span class="label">Entrega Estimada</span>
+              <strong><mat-icon class="text-orange-500">event_available</mat-icon> {{ trackingStore.order()?.estimatedDate }}</strong>
+            </div>
+          </div>
+          
+        </div>
       </div>
     }
   </div>

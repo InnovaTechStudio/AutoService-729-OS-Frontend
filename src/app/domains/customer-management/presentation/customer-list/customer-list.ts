@@ -114,6 +114,14 @@ export class CustomerListComponent implements OnInit {
       this.closeDialog();
     }
   }
+  protected deleteCustomer(id: string): void {
+
+    const confirmed = window.confirm(
+      '¿Deseas eliminar este cliente?'
+    );
+    if (!confirmed) return;
+    this.customerStore.deleteCustomer(id);
+  }
 
   /**
  *

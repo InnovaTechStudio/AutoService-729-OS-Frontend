@@ -13,12 +13,12 @@ import { HttpClient } from '@angular/common/http';
 import { map } from 'rxjs/operators';
 import { WorkOrder, Task } from '../../../workshop-operations/domain/models/work-order.model';
 import { Vehicle } from '../../../fleet-management/domain/models/vehicle.model';
+import { environment } from '../../../../../environments/environment';
 
 @Injectable({ providedIn: 'root' })
 export class TrackingService {
   private http = inject(HttpClient);
-  /** Base URL of the simulated API */
-  private apiUrl = 'http://localhost:3000';
+  private apiUrl = environment.apiUrl;
 
   /**
    * Searches for a work order by its tracking code.

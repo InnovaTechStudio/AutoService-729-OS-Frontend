@@ -141,6 +141,74 @@
       }
     </section>
 
+    <section class="qa-card">
+      <div class="section-header">
+        <div>
+          <h2>Checklist de calidad antes de entrega</h2>
+          <p>
+            Valida condiciones mínimas antes de cerrar la reparación y entregar el vehículo.
+          </p>
+        </div>
+
+        <span
+          class="qa-status"
+          [class.approved]="canMarkReadyForDelivery()">
+      {{ canMarkReadyForDelivery() ? 'QA aprobado' : 'QA pendiente' }}
+    </span>
+      </div>
+
+      <div class="qa-list">
+        <article class="qa-item" [class.completed]="allTasksCompleted()">
+          <mat-icon>{{ allTasksCompleted() ? 'check_circle' : 'radio_button_unchecked' }}</mat-icon>
+          <div>
+            <strong>Tareas completadas</strong>
+            <span>Todas las tareas técnicas deben estar completadas.</span>
+          </div>
+        </article>
+
+        <article class="qa-item" [class.completed]="diagnosticRegistered()">
+          <mat-icon>{{ diagnosticRegistered() ? 'check_circle' : 'radio_button_unchecked' }}</mat-icon>
+          <div>
+            <strong>Diagnóstico registrado</strong>
+            <span>La orden debe contar con descripción o diagnóstico técnico.</span>
+          </div>
+        </article>
+
+        <article class="qa-item" [class.completed]="costsValidated()">
+          <mat-icon>{{ costsValidated() ? 'check_circle' : 'radio_button_unchecked' }}</mat-icon>
+          <div>
+            <strong>Costos validados</strong>
+            <span>El servicio debe tener un precio total registrado.</span>
+          </div>
+        </article>
+
+        <mat-checkbox
+          [checked]="finalEvidenceRegistered()"
+          (change)="toggleFinalEvidence($event.checked)">
+          Evidencia final registrada
+        </mat-checkbox>
+
+        <mat-checkbox
+          [checked]="supervisorApproved()"
+          (change)="toggleSupervisorApproval($event.checked)">
+          Revisión aprobada por el administrador
+        </mat-checkbox>
+      </div>
+
+      <button
+        mat-flat-button
+        color="primary"
+        type="button"
+        class="ready-button"
+        [disabled]="!canMarkReadyForDelivery()"
+        (click)="markOrderAsReadyForDelivery()">
+        <mat-icon>verified</mat-icon>
+        Marcar como listo para entrega
+      </button>
+    </section>
+
+
+
     @if (taskDialog()) {
       <div class="dialog-backdrop">
         <section class="task-dialog">

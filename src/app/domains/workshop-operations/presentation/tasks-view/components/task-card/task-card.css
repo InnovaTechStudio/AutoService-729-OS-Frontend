@@ -121,3 +121,15 @@ p mat-icon,
   min-width: 48px;
   border-radius: 14px;
 }
+.task-image{
+  width:100%;
+  margin-bottom:1rem;
+}
+
+.task-image img{
+  width:100%;
+  height:220px;
+  object-fit:cover;
+  border-radius:18px;
+  border:1px solid #e2e8f0;
+}

@@ -96,7 +96,7 @@
                 <span class="mini-title">COSTO ESTIMADO TOTAL</span>
                 <h2>${{ trackingStore.order()?.price }}</h2>
                 <p>Sujeto a cambios según diagnóstico.</p>
-                <button class="btn-pay pay-now-btn">
+                <button class="btn-pay pay-now-btn" (click)="openPaymentModal()">
                   <mat-icon>credit_card</mat-icon> Realizar Pago
                 </button>
               </div>

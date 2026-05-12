@@ -1,3 +1,15 @@
+/**
+ * TrackingViewComponent
+ * 
+ * Component that allows users to search and view the current status
+ * of a work order using its tracking code.
+ * Displays information about the vehicle, the order, and the progress of the tasks.
+ * 
+ * @component
+ * @selector app-tracking-view
+ * @standalone true
+ */
+
 import { Component, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
@@ -17,14 +29,25 @@ import { TrackingStore } from '../../application/tracking.store';
 })
 export class TrackingViewComponent {
   trackingStore = inject(TrackingStore);
+
+  /** Tracking code entered by the user */
   trackingCode = '';
 
+  /**
+   * Performs the search for a work order using the entered code.
+   */
   handleSearch() {
     if (this.trackingCode) {
       this.trackingStore.searchOrder(this.trackingCode);
     }
   }
 
+  /**
+   * Returns the icon corresponding to the status of a task.
+   * 
+   * @param status - Status of the task
+   * @returns Name of the Material Icons icon
+   */
   getTaskIcon(status: string): string {
     if (status === 'Completada') return 'check_circle';
     if (status === 'En Proceso') return 'settings';

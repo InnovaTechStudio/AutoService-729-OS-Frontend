@@ -1,3 +1,13 @@
+/**
+ * WorkOrderCardComponent
+ * 
+ * Reusable card component for displaying a visual summary
+ * of a Work Order. It is primarily used in lists and general views.
+ * 
+ * @component
+ * @selector app-work-order-card
+ * @standalone true
+ */
 import { CommonModule, CurrencyPipe } from '@angular/common';
 import { Component, EventEmitter, Input, Output } from '@angular/core';
 
@@ -36,14 +46,19 @@ export interface WorkOrderCardView {
   styleUrl: './work-order-card.css'
 })
 export class WorkOrderCardComponent {
+  /** Data for the order in an enriched format for the view */
   @Input({ required: true }) order!: WorkOrderCardView;
 
+  /** Event emitted when clicking "View Details" */
   @Output() viewDetail = new EventEmitter<WorkOrder>();
 
   protected onViewDetail(): void {
     this.viewDetail.emit(this.order.raw);
   }
 
+  /**
+   * Returns the CSS class based on the order's status.
+   */
   protected getStatusClass(status: WorkOrder['status']): string {
     if (status === 'Finalizado') {
       return 'status-success';

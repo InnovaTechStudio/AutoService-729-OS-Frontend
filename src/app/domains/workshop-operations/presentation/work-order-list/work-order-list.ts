@@ -1,3 +1,16 @@
+/**
+ * WorkOrderListComponent
+ * 
+ * Main component that displays the list of all work orders
+ * in the workshop. Includes filtering, statistics and navigation to the detail
+ * or creation of new orders.
+ * 
+ * Uses Signals and `computed()` for a reactive and efficient experience.
+ * 
+ * @component
+ * @selector app-work-order-list
+ * @standalone true
+ */
 import { CommonModule } from '@angular/common';
 import { Component, computed, inject, OnInit, signal } from '@angular/core';
 import { Router } from '@angular/router';
@@ -33,6 +46,7 @@ export class WorkOrderListComponent implements OnInit {
   protected readonly taskStore = inject(TaskStore);
   private readonly router = inject(Router);
 
+  // Reactive filters
   protected readonly search = signal('');
   protected readonly selectedStatus = signal<WorkOrder['status'] | null>(null);
 
@@ -41,6 +55,7 @@ export class WorkOrderListComponent implements OnInit {
     'Finalizado'
   ];
 
+  /** Enriched view of the orders for display in cards */
   protected readonly ordersView = computed<WorkOrderCardView[]>(() =>
     this.workOrderStore.workOrders().map((order) => ({
       id: String(order.id),
@@ -58,6 +73,7 @@ export class WorkOrderListComponent implements OnInit {
     }))
   );
 
+  /** Filtered orders based on search and status */
   protected readonly filteredOrders = computed(() => {
     const term = this.search().toLowerCase().trim();
     const selectedStatus = this.selectedStatus();

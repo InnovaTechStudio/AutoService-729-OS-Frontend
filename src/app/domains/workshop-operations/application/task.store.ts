@@ -1,3 +1,12 @@
+/**
+ * TaskStore
+ * 
+ * Reactive store based on Signals that manages the state of tasks
+ * techniques within the work orders.
+ * 
+ * @service
+ * @providedIn 'root'
+ */
 import { Injectable, inject, signal } from '@angular/core';
 import { WorkOrderService } from '../infrastructure/services/work-order.service';
 import { Task } from '../domain/models/work-order.model';
@@ -6,9 +15,15 @@ import { Task } from '../domain/models/work-order.model';
 export class TaskStore {
   private readonly service = inject(WorkOrderService);
 
+  /** Reactive list of all tasks */
   readonly tasks = signal<Task[]>([]);
+
+  /** Indicates if information is being loaded */
   readonly isLoading = signal<boolean>(false);
 
+  /**
+   * Loads all tasks from the backend.
+   */
   loadAllTasks(): void {
     this.isLoading.set(true);
 
@@ -18,12 +33,16 @@ export class TaskStore {
         this.isLoading.set(false);
       },
       error: (err) => {
-        console.error('Error cargando tareas:', err);
+        console.error('Error loading tasks:', err);
         this.isLoading.set(false);
       }
     });
   }
 
+  /**
+   * Adds a new task.
+   * @param task - Data of the task to create
+   */
   addTask(task: Task): void {
     this.service.createTask(task).subscribe({
       next: (newTask) => this.tasks.update((list) => [...list, newTask]),
@@ -31,6 +50,9 @@ export class TaskStore {
     });
   }
 
+  /**
+   * Updates a task completely.
+   */
   updateTask(id: string, task: Task): void {
     this.service.updateTask(id, task).subscribe({
       next: (updatedTask) => {
@@ -38,10 +60,13 @@ export class TaskStore {
           list.map((item) => String(item.id) === String(id) ? updatedTask : item)
         );
       },
-      error: (err) => console.error('Error actualizando tarea:', err)
+      error: (err) => console.error('Error updating task:', err)
     });
   }
 
+  /**
+   * Updates only the status of a task.
+   */
   updateTaskStatus(id: string, status: Task['status']): void {
     this.service.updateTaskStatus(id, status).subscribe({
       next: (updatedTask) => {
@@ -49,10 +74,14 @@ export class TaskStore {
           list.map((item) => String(item.id) === String(id) ? updatedTask : item)
         );
       },
-      error: (err) => console.error('Error actualizando estado:', err)
+      error: (err) => console.error('Error updating task status:', err)
     });
   }
 
+  /**
+   * Deletes a task.
+   * @param id - ID of the task to delete
+   */
   deleteTask(id: string): void {
     this.service.deleteTask(id).subscribe({
       next: () => {

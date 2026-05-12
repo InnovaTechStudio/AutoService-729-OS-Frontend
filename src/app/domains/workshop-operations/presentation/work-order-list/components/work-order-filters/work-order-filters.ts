@@ -1,3 +1,13 @@
+/**
+ * WorkOrderFiltersComponent
+ * 
+ * Reusable filter component for the work order list.
+ * Allows filtering by text search and order status.
+ * 
+ * @component
+ * @selector app-work-order-filters
+ * @standalone true
+ */
 import { CommonModule } from '@angular/common';
 import { Component, EventEmitter, Input, Output } from '@angular/core';
 import { FormsModule } from '@angular/forms';
@@ -24,11 +34,19 @@ import { WorkOrder } from '../../../../domain/models/work-order.model';
   styleUrl: './work-order-filters.css'
 })
 export class WorkOrderFiltersComponent {
+  /** Current search term */
   @Input() search = '';
+
+  /** Selected status for filtering */
   @Input() status: WorkOrder['status'] | null = null;
+
+  /** Available status options */
   @Input() statusOptions: WorkOrder['status'][] = [];
 
+  /** Emits when the search term changes */
   @Output() searchChange = new EventEmitter<string>();
+
+  /** Emits when the status filter changes */
   @Output() statusChange = new EventEmitter<WorkOrder['status'] | null>();
 
   protected onSearchChange(value: string): void {

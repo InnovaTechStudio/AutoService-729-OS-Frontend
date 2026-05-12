@@ -1,3 +1,16 @@
+/**
+ * TaskDialogComponent
+ * 
+ * Reusable dialog component for creating or editing a task.
+ * It is used within a MatDialog or as an inline modal.
+ * 
+ * It receives the task data and selection options (work orders,
+ * mechanics, statuses, and priorities).
+ * 
+ * @component
+ * @selector app-task-dialog
+ * @standalone true
+ */
 import { CommonModule } from '@angular/common';
 import { Component, EventEmitter, Input, Output } from '@angular/core';
 import { FormsModule } from '@angular/forms';
@@ -25,19 +38,33 @@ import { Task, WorkOrder } from '../../../../domain/models/work-order.model';
   styleUrl: './task-dialog.css'
 })
 export class TaskDialogComponent {
+  /** Task to create or edit */
   @Input({ required: true }) task!: Task;
+
+  /** List of available work orders for assignment */
   @Input() workOrderOptions: WorkOrder[] = [];
+  
+  /** List of available mechanics for assignment */
   @Input() mechanicOptions: Mechanic[] = [];
+
+  /** Available status options */
   @Input() statusOptions: Task['status'][] = [];
+
+  /** Available priority options */
   @Input() priorityOptions: Array<'Baja' | 'Media' | 'Alta' | 'Crítica'> = [];
 
+  /** Event emitted when saving changes */
   @Output() save = new EventEmitter<void>();
+
+  /** Event emitted when canceling */
   @Output() cancel = new EventEmitter<void>();
 
+  /** Emits the save event */
   protected onSave(): void {
     this.save.emit();
   }
 
+  /** Emits the cancel event */
   protected onCancel(): void {
     this.cancel.emit();
   }

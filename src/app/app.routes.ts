@@ -1,17 +1,47 @@
+/**
+ *
+ *
+ *
+ * Main route definitions for the application.
+ *
+ * Configures the routing for the entire AutoService-729 application, separating:
+ * - Public routes (login and tracking for customers)
+ * - Protected routes for the admin panel with a shared layout
+ *
+ * @file app.routes.ts
+ * @version 1.0
+ *
+ *
+ *
+ */
 import { Routes } from '@angular/router';
+// Auth
 import { LoginComponent } from './domains/auth/presentation/login/login.component';
+
+// Layout
 import { AdminLayoutComponent } from './shared/presentation/admin-layout/admin-layout.component';
+
+// Dashboard
 import { DashboardComponent } from './domains/workshop-operations/presentation/dashboard/dashboard.component';
+
+// Customer Management
 import { CustomerListComponent } from './domains/customer-management/presentation/customer-list/customer-list';
+
+// Fleet Management
 import { VehicleListComponent } from './domains/fleet-management/presentation/vehicle-list/vehicle-list';
+import { VehicleDetailComponent } from './domains/fleet-management/presentation/vehicle-detail/vehicle-detail';
+
+// Staff Coordination
 import { MechanicsViewComponent } from './domains/staff-coordination/presentation/mechanics-view/mechanics-view';
-import {TasksViewComponent} from './domains/workshop-operations/presentation/tasks-view/tasks-view';
+
+// Workshop Operations
+import { TasksViewComponent } from './domains/workshop-operations/presentation/tasks-view/tasks-view';
 import { WorkOrderListComponent } from './domains/workshop-operations/presentation/work-order-list/work-order-list';
 import { CreateWorkOrderComponent } from './domains/workshop-operations/presentation/create-work-order/create-work-order';
 import { WorkOrderDetailComponent } from './domains/workshop-operations/presentation/work-order-detail/work-order-detail';
-import {TrackingViewComponent} from './domains/customer-trust/presentation/tracking-view/tracking-view';
-import { VehicleDetailComponent } from './domains/fleet-management/presentation/vehicle-detail/vehicle-detail';
 
+// Customer Trust
+import { TrackingViewComponent } from './domains/customer-trust/presentation/tracking-view/tracking-view';
 
 
 export const routes: Routes = [

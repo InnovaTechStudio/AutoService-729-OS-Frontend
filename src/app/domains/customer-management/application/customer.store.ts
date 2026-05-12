@@ -1,3 +1,17 @@
+/**
+ *
+ * CustomerStore (Customer Warehouse)
+ *
+ * Signals-based reactive status service that manages information
+ * about the customers of the workshop. It acts as an intermediate layer between the components
+ * and the CustomerService (infrastructure layer).
+ *
+ * Uses Signals for modern, lightweight and reactive state management.
+ *
+ * @service
+ * @providedIn 'root'
+ *
+ */
 import { Injectable, inject, signal } from '@angular/core';
 import { CustomerService } from '../infrastructure/services/customer.service';
 import { Customer } from '../domain/models/customer.model';
@@ -6,11 +20,27 @@ import { Customer } from '../domain/models/customer.model';
 export class CustomerStore {
   private customerService = inject(CustomerService);
 
-  // Equivalente al state: () => ({ ... }) en Pinia
+  /**
+ *
+ * Equivalent to state: () => ({ ... }) in Pinia
+ * Reactive list of all customers
+ *
+ */
   readonly customers = signal<Customer[]>([]);
+  /**
+ * Indicates if information about customers is being loaded
+ */
   readonly isLoading = signal<boolean>(false);
 
-  // Equivalente a fetchCustomers() en Pinia
+  /**
+ *
+ * Equivalent to fetchCustomers() in Pinia
+ *
+ * Loads all customers from the backend and updates the `customers` signal.
+ *
+ * Automatically updates the loading state (`isLoading`).
+ *
+ */
   loadCustomers() {
     this.isLoading.set(true);
     this.customerService.getAll().subscribe({
@@ -25,22 +55,37 @@ export class CustomerStore {
     });
   }
 
-  // Equivalente a addCustomer() en Pinia
+  /**
+ *
+ * Add a new client to the system.
+ *
+ * @param customer - Customer data to be created
+ *
+ */
   addCustomer(customer: Customer) {
     this.customerService.create(customer).subscribe({
       next: (newCustomer) => {
-        // Actualizamos la lista local agregando el nuevo cliente
+        // We updated the local list by adding the new client.
         this.customers.update(list => [...list, newCustomer]);
       },
       error: (err) => console.error('Error al crear cliente:', err)
     });
   }
 
-  // Equivalente a updateCustomer() en Pinia
+  /**
+ *
+ * Updates the information of an existing customer.
+ *
+ * @param id - ID of the customer to update
+ * @param customerData - Partial customer data (Partial<Customer>)
+ *
+ */
   updateCustomer(id: string, customerData: Partial<Customer>) {
     this.customerService.update(id, customerData).subscribe({
       next: (updatedCustomer) => {
-        // Buscamos el cliente en la lista y lo reemplazamos con la nueva data
+        /**
+ * We search for the customer in the list and replace it with the new data
+ */
         this.customers.update(list => {
           const index = list.findIndex(c => String(c.id) === String(id));
           if (index !== -1) {

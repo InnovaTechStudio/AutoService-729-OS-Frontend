@@ -1,3 +1,19 @@
+/**
+ * TasksViewComponent
+ * 
+ * Main view of workshop task management.
+ * Allows viewing, filtering, creating, editing and deleting tasks.
+ * 
+ * Includes:
+ * - Advanced filters (search, status, mechanic)
+ * - Task cards (`TaskCardComponent`)
+ * - Dialog for creating/editing tasks (`TaskDialogComponent`)
+ * - Real-time statistics
+ * 
+ * @component
+ * @selector app-tasks-view
+ * @standalone true
+ */
 import { CommonModule } from '@angular/common';
 import { Component, computed, inject, OnInit, signal } from '@angular/core';
 import { Router } from '@angular/router';
@@ -35,11 +51,13 @@ export class TasksViewComponent implements OnInit {
   protected readonly mechanicStore = inject(MechanicStore);
   private readonly router = inject(Router);
 
+  // Reactive filters
   protected readonly search = signal('');
   protected readonly selectedStatus = signal<Task['status'] | null>(null);
   protected readonly selectedMechanicId = signal<string | null>(null);
   protected readonly displayDialog = signal(false);
 
+  /** Task being created or edited in the dialog */
   protected taskForm: Task = this.getEmptyTask();
 
   protected readonly statusOptions: Task['status'][] = [
@@ -55,6 +73,7 @@ export class TasksViewComponent implements OnInit {
     'Crítica'
   ];
 
+  /** Enriched view of tasks for display in cards */
   protected readonly tasksView = computed<TaskCardView[]>(() =>
     this.taskStore.tasks().map((task) => ({
       id: String(task.id ?? crypto.randomUUID()),
@@ -70,6 +89,7 @@ export class TasksViewComponent implements OnInit {
     }))
   );
 
+  /** Filtered tasks based on current criteria */
   protected readonly filteredTasks = computed(() => {
     const term = this.search().toLowerCase().trim();
     const selectedStatus = this.selectedStatus();
@@ -108,6 +128,7 @@ export class TasksViewComponent implements OnInit {
     this.loadAllData();
   }
 
+  /** Loads initial data needed */
   protected loadAllData(): void {
     this.taskStore.loadAllTasks();
 
@@ -119,7 +140,7 @@ export class TasksViewComponent implements OnInit {
       this.mechanicStore.loadMechanics();
     }
   }
-
+  // MMethods for filters
   protected onSearchChange(value: string): void {
     this.search.set(value);
   }
@@ -131,12 +152,12 @@ export class TasksViewComponent implements OnInit {
   protected onMechanicFilterChange(value: string | null): void {
     this.selectedMechanicId.set(value);
   }
-
+  /** Opens the dialog to create a new task */
   protected openDialog(): void {
     this.taskForm = this.getEmptyTask();
     this.displayDialog.set(true);
   }
-
+  /** Opens the dialog to edit an existing task */
   protected editTask(task: Task): void {
     this.taskForm = {
       ...task,
@@ -150,7 +171,7 @@ export class TasksViewComponent implements OnInit {
     this.displayDialog.set(false);
     this.taskForm = this.getEmptyTask();
   }
-
+  /** Saves or updates the task based on whether it has an ID */
   protected saveTask(): void {
     if (!this.taskForm.description || !this.taskForm.workOrderId) {
       return;
@@ -191,6 +212,7 @@ export class TasksViewComponent implements OnInit {
     }
   }
 
+  // MMethods for auxiliary functionality
   protected getWorkOrderCode(workOrderId: string): string {
     if (!workOrderId) {
       return 'N/A';

@@ -1,3 +1,18 @@
+/**
+ * CreateWorkOrderComponent
+ * 
+ * Component for creating a new complete Work Order.
+ * Allows:
+ * - Selecting a vehicle (and auto-completing the customer)
+ * - Entering general order data (description, price, estimated date)
+ * - Adding multiple tasks dynamically
+ * - Saving the order and all its associated tasks in a single operation
+ * 
+ * @component
+ * @selector app-create-work-order
+ * @standalone true
+ */
+
 import { Component, inject, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
@@ -43,10 +58,13 @@ export class CreateWorkOrderComponent implements OnInit {
   customerStore = inject(CustomerStore);
   mechanicStore = inject(MechanicStore);
 
+  /** Indicates if the order is being saved */
   isSaving = false;
+
+  /** Name of the selected customer (for display purposes only) */
   selectedCustomerName = '';
 
-  // Estado del formulario
+  /** Data of the new work order */
   newWO: Partial<WorkOrder> = {
     vehicleId: '',
     customerId: '',
@@ -56,20 +74,25 @@ export class CreateWorkOrderComponent implements OnInit {
     status: 'En Proceso'
   };
 
-  // Array dinámico de tareas
+  /** Array of tasks to create along with the order */
   tasks: Partial<Task>[] = [];
 
   ngOnInit() {
-    // Cargar dependencias necesarias
+    // Load necessary dependencies
     if (this.vehicleStore.vehicles().length === 0) this.vehicleStore.loadVehicles();
     if (this.customerStore.customers().length === 0) this.customerStore.loadCustomers();
     if (this.mechanicStore.mechanics().length === 0) this.mechanicStore.loadMechanics();
   }
 
+  /** Returns to the list of work orders */
   goBack() {
     this.router.navigate(['/admin/work-orders']);
   }
 
+  /**
+   * Called when the selected vehicle changes.
+   * Auto-completes the owner customer.
+   */
   onVehicleChange(vehicleId: string) {
     const vehicle = this.vehicleStore.vehicles().find(v => String(v.id) === String(vehicleId));
     if (vehicle) {
@@ -79,14 +102,23 @@ export class CreateWorkOrderComponent implements OnInit {
     }
   }
 
+  /** Add a new empty task row */
   addTaskRow() {
     this.tasks.push({ description: '', mechanicId: '', status: 'Pendiente' });
   }
 
+  /**
+   * Removes a task row.
+   * @param index - Index of the task to remove
+   */
   removeTaskRow(index: number) {
     this.tasks.splice(index, 1);
   }
 
+  /**
+   * Saves the complete work order along with all its tasks.
+   * First creates the order and then the associated tasks.
+   */
   saveFullWorkOrder() {
     if (!this.newWO.vehicleId || this.tasks.length === 0) {
       alert("Debes seleccionar un vehículo y añadir al menos una tarea.");
@@ -95,7 +127,7 @@ export class CreateWorkOrderComponent implements OnInit {
 
     this.isSaving = true;
 
-    // SOLUCIÓN AL TS2358: Usamos 'any' temporalmente para evaluar lo que inyectó el Datepicker
+    // SOLUTION TO TS2358: We temporarily use 'any' to evaluate what the Datepicker injected
     const rawDate: any = this.newWO.estimatedDate;
     let formattedDate = this.newWO.estimatedDate;
 
@@ -110,10 +142,10 @@ export class CreateWorkOrderComponent implements OnInit {
       estimatedDate: formattedDate as string
     };
 
-    // 1. Crear la orden principal
+    // 1. Create the main order
     this.workOrderStore.addWorkOrder(payloadWO).subscribe({
       next: (createdOrder) => {
-        // 2. Recorrer y crear todas las tareas asociadas al ID de la orden
+        // 2. Iterate through and create all tasks associated with the order ID
         this.tasks.forEach(task => {
           if (task.description) {
             this.taskStore.addTask({

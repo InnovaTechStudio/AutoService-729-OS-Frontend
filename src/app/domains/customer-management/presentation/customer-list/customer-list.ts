@@ -1,3 +1,17 @@
+/**
+ *
+ * CustomerListComponent
+ *
+ * Component responsible for displaying the customer list in a table
+ * Using Angular Material. Allows you to create new clients and edit
+ * existing ones through a modal.
+ *
+ * @component
+ * @selector app-customer-list
+ * @standalone true
+ *
+ */
+
 import { Component, inject, OnInit, TemplateRef, ViewChild } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
@@ -24,41 +38,72 @@ import { Customer } from '../../domain/models/customer.model';
   styleUrl: './customer-list.css'
 })
 export class CustomerListComponent implements OnInit {
-  // Inyectamos el Store y el servicio de Modales de Material
+  /**
+ * We injected the Store and the Material Modals service
+ */
   customerStore = inject(CustomerStore);
   private dialog = inject(MatDialog);
 
-  // Columnas que se mostrarán en la tabla
+  /**
+ * Columns that will be displayed in the Material table
+ */
   displayedColumns: string[] = ['fullName', 'dni', 'email', 'phone', 'actions'];
 
-  // Referencia al template del modal en el HTML
+  /**
+ * Reference to the modal template defined in the HTML
+ */
   @ViewChild('customerDialog') customerDialogTemplate!: TemplateRef<any>;
 
-  // Estado del formulario
+  /**
+ * Customer currently being edited or created
+ */
   currentCustomer: Customer = this.getEmptyCustomer();
+  /**
+ * Indicates if an existing customer is being edited
+ */
   isEditing = false;
 
   ngOnInit() {
-    // Al cargar el componente, le decimos al store que traiga los datos
+    // When loading the component, we tell the store to fetch the data
     this.customerStore.loadCustomers();
   }
 
+  /**
+* 
+ * Opens the modal to create a new customer.
+ *
+ */
   openNewCustomerDialog() {
     this.currentCustomer = this.getEmptyCustomer();
     this.isEditing = false;
     this.dialog.open(this.customerDialogTemplate, { width: '450px' });
   }
 
+  /**
+ * Opens the modal to edit an existing customer.
+ * @param customer - Customer to edit
+ *
+ */
   editCustomer(customer: Customer) {
     this.currentCustomer = { ...customer }; // Clonamos para no editar directamente
     this.isEditing = true;
     this.dialog.open(this.customerDialogTemplate, { width: '450px' });
   }
 
+  /**
+ *
+ * Closes all open modals.
+ *
+ */
   closeDialog() {
     this.dialog.closeAll();
   }
 
+  /**
+ *
+ * Saves or updates the customer based on the mode (create/edit).
+ *
+ */
   saveCustomer() {
     if (this.currentCustomer.fullName && this.currentCustomer.dni) {
       if (this.isEditing && this.currentCustomer.id) {
@@ -70,6 +115,12 @@ export class CustomerListComponent implements OnInit {
     }
   }
 
+  /**
+ *
+ * Returns an empty Customer object for new records.
+ * @returns Empty Customer
+ *
+ */
   private getEmptyCustomer(): Customer {
     return { fullName: '', dni: '', email: '', phone: '' };
   }

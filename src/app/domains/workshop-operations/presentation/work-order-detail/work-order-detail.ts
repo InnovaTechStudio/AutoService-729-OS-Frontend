@@ -1,3 +1,20 @@
+/**
+ * WorkOrderDetailComponent
+ * 
+ * Complete detail component of a Work Order.
+ * Displays all the information of the order, the associated vehicle,
+ * the overall progress and allows managing the related tasks.
+ * 
+ * Main functionalities:
+ * - Visualization of order and vehicle data
+ * - Task management (add, change status)
+ * - Edición del precio de la orden
+ * - Cálculo automático de progreso
+ * 
+ * @component
+ * @selector app-work-order-detail
+ * @standalone true
+ */
 import { CommonModule } from '@angular/common';
 import { Component, computed, inject, OnInit, signal } from '@angular/core';
 import { FormsModule } from '@angular/forms';
@@ -40,7 +57,10 @@ export class WorkOrderDetailComponent implements OnInit {
   protected readonly mechanicStore = inject(MechanicStore);
   protected readonly vehicleStore = inject(VehicleStore);
 
+  /** ID of the order obtained from the URL */
   protected readonly orderId = this.route.snapshot.paramMap.get('id') ?? '';
+
+  /** Controls the visibility of the new task dialog */
   protected readonly taskDialog = signal(false);
 
   protected readonly taskStatusOptions: Task['status'][] = [
@@ -49,16 +69,20 @@ export class WorkOrderDetailComponent implements OnInit {
     'Completada'
   ];
 
+  /** Editable price locally */
   protected localPrice = 0;
 
+  /** New task being created */
   protected newTask: Task = this.getEmptyTask();
 
+  /** Current work order */
   protected readonly order = computed<WorkOrder | undefined>(() =>
     this.workOrderStore
       .workOrders()
       .find((item) => String(item.id) === String(this.orderId))
   );
 
+  /** Vehicle associated with the order */
   protected readonly vehicle = computed(() => {
     const order = this.order();
 
@@ -71,16 +95,19 @@ export class WorkOrderDetailComponent implements OnInit {
       .find((item) => String(item.id) === String(order.vehicleId));
   });
 
+  /** Tareas pertenecientes a esta orden */
   protected readonly orderTasks = computed<Task[]>(() =>
     this.taskStore
       .tasks()
       .filter((task) => String(task.workOrderId) === String(this.orderId))
   );
 
+  /** Number of completed tasks */
   protected readonly completedTasks = computed(() =>
     this.orderTasks().filter((task) => task.status === 'Completada').length
   );
 
+  /** Percentage of order progress */
   protected readonly progress = computed(() => {
     const tasks = this.orderTasks();
 
@@ -97,6 +124,7 @@ export class WorkOrderDetailComponent implements OnInit {
     this.mechanicStore.loadMechanics();
     this.vehicleStore.loadVehicles();
 
+    // A slight delay to ensure the order has been loaded
     setTimeout(() => {
       this.localPrice = Number(this.order()?.price || 0);
     }, 250);
@@ -106,6 +134,7 @@ export class WorkOrderDetailComponent implements OnInit {
     this.router.navigate(['/admin/work-orders']);
   }
 
+  /** Opens the dialog to add a new task */
   protected openTaskDialog(): void {
     this.newTask = this.getEmptyTask();
     this.taskDialog.set(true);
@@ -115,6 +144,7 @@ export class WorkOrderDetailComponent implements OnInit {
     this.taskDialog.set(false);
   }
 
+  /** Saves a new task associated with this order */
   protected saveTask(): void {
     if (!this.newTask.description || !this.newTask.mechanicId) {
       return;
@@ -124,6 +154,9 @@ export class WorkOrderDetailComponent implements OnInit {
     this.closeTaskDialog();
   }
 
+  /**
+   * Updates the status of a specific task.
+   */
   protected updateTaskStatus(task: Task, status: Task['status']): void {
     if (!task.id) {
       return;
@@ -132,6 +165,7 @@ export class WorkOrderDetailComponent implements OnInit {
     this.taskStore.updateTaskStatus(task.id, status);
   }
 
+  /** Saves the modified price of the order */
   protected savePrice(): void {
     const order = this.order();
 

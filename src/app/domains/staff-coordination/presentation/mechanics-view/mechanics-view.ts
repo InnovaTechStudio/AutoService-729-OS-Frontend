@@ -12,6 +12,19 @@ import { MechanicCardComponent, MechanicCardView } from './components/mechanic-c
 import { MechanicDialogComponent } from './components/mechanic-dialog/mechanic-dialog';
 import { MechanicFiltersComponent } from './components/mechanic-filters/mechanic-filters';
 
+/**
+ * MechanicsViewComponent
+ *
+ * Main standalone view for managing workshop mechanics.
+ *
+ * It connects the mechanic and task stores with the UI, providing mechanic
+ * listing, filtering, workload calculation, effectiveness metrics, and dialog
+ * actions for creating, editing, and deleting mechanics.
+ *
+ * @component
+ * @standalone
+ * @selector app-mechanics-view
+ */
 @Component({
   selector: 'app-mechanics-view',
   standalone: true,
@@ -27,15 +40,28 @@ import { MechanicFiltersComponent } from './components/mechanic-filters/mechanic
   styleUrl: './mechanics-view.css'
 })
 export class MechanicsViewComponent implements OnInit {
+  /**
+   * Store responsible for managing mechanic data.
+   */
   protected readonly mechanicStore = inject(MechanicStore);
+
+  /**
+   * Store responsible for managing workshop task data.
+   */
   protected readonly taskStore = inject(TaskStore);
 
   protected readonly displayDialog = signal(false);
   protected readonly search = signal('');
   protected readonly selectedSpecialty = signal<string | null>(null);
 
+  /**
+   * Mechanic model used by the create and edit dialog form.
+   */
   protected mechanicForm: Mechanic = this.getEmptyMechanic();
 
+  /**
+   * Available mechanic specialties displayed in the filter and form controls.
+   */
   protected readonly specialtyOptions = [
     'Mecánica General',
     'Electricidad',
@@ -45,6 +71,9 @@ export class MechanicsViewComponent implements OnInit {
     'Motor y Transmisión'
   ];
 
+  /**
+   * Computed mechanic view models enriched with workload and effectiveness data.
+   */
   protected readonly mechanicsView = computed<MechanicCardView[]>(() =>
     this.mechanicStore.mechanics().map((mechanic) => {
       const maxCapacity = Number(mechanic.maxCapacity || 5);
@@ -66,6 +95,9 @@ export class MechanicsViewComponent implements OnInit {
     })
   );
 
+  /**
+   * Computed list of mechanics filtered by search term and selected specialty.
+   */
   protected readonly filteredMechanics = computed(() => {
     const term = this.search().toLowerCase().trim();
     const selectedSpecialty = this.selectedSpecialty();
@@ -83,14 +115,23 @@ export class MechanicsViewComponent implements OnInit {
     });
   });
 
+  /**
+   * Number of mechanics with available workload capacity.
+   */
   protected readonly availableMechanics = computed(() =>
     this.mechanicsView().filter((mechanic) => mechanic.loadPercentage < 70).length
   );
 
+  /**
+   * Number of mechanics with high workload.
+   */
   protected readonly highLoadMechanics = computed(() =>
     this.mechanicsView().filter((mechanic) => mechanic.loadPercentage >= 70).length
   );
 
+  /**
+   * Loads mechanics and tasks when the view is initialized.
+   */
   ngOnInit(): void {
     this.mechanicStore.loadMechanics();
 
@@ -107,11 +148,19 @@ export class MechanicsViewComponent implements OnInit {
     this.selectedSpecialty.set(value);
   }
 
+  /**
+   * Opens the dialog with an empty mechanic form.
+   */
   protected openDialog(): void {
     this.mechanicForm = this.getEmptyMechanic();
     this.displayDialog.set(true);
   }
 
+  /**
+   * Opens the dialog with the selected mechanic data.
+   *
+   * @param mechanic - Mechanic selected for editing.
+   */
   protected editMechanic(mechanic: Mechanic): void {
     this.mechanicForm = {
       ...mechanic,
@@ -121,11 +170,17 @@ export class MechanicsViewComponent implements OnInit {
     this.displayDialog.set(true);
   }
 
+  /**
+   * Closes the dialog and resets the mechanic form.
+   */
   protected hideDialog(): void {
     this.displayDialog.set(false);
     this.mechanicForm = this.getEmptyMechanic();
   }
 
+  /**
+   * Saves the mechanic form by creating a new mechanic or updating an existing one.
+   */
   protected saveMechanic(): void {
     if (!this.mechanicForm.fullName || !this.mechanicForm.specialty) {
       return;
@@ -140,6 +195,11 @@ export class MechanicsViewComponent implements OnInit {
     this.hideDialog();
   }
 
+  /**
+   * Deletes the selected mechanic after user confirmation.
+   *
+   * @param mechanic - Mechanic selected for deletion.
+   */
   protected deleteMechanic(mechanic: Mechanic): void {
     if (!mechanic.id) {
       return;
@@ -154,6 +214,12 @@ export class MechanicsViewComponent implements OnInit {
     this.mechanicStore.deleteMechanic(mechanic.id);
   }
 
+  /**
+   * Gets the number of active tasks assigned to a mechanic.
+   *
+   * @param mechanicId - Identifier of the mechanic.
+   * @returns Number of assigned tasks that are not completed.
+   */
   private getActiveTasksCount(mechanicId: string): number {
     return this.taskStore
       .tasks()
@@ -163,6 +229,13 @@ export class MechanicsViewComponent implements OnInit {
       ).length;
   }
 
+  /**
+   * Calculates the mechanic workload percentage based on active tasks and capacity.
+   *
+   * @param mechanicId - Identifier of the mechanic.
+   * @param maxCapacity - Maximum task capacity of the mechanic.
+   * @returns Workload percentage limited to a maximum of 100.
+   */
   private calculateLoadPercentage(mechanicId: string, maxCapacity: number): number {
     const max = Number(maxCapacity) || 1;
     const count = this.getActiveTasksCount(mechanicId);
@@ -182,6 +255,12 @@ export class MechanicsViewComponent implements OnInit {
     return 'load-low';
   }
 
+  /**
+   * Calculates the effectiveness percentage of a mechanic.
+   *
+   * @param mechanicId - Identifier of the mechanic.
+   * @returns Percentage of completed tasks assigned to the mechanic.
+   */
   private calculateEffectiveness(mechanicId: string): number {
     const mechanicTasks: Task[] = this.taskStore
       .tasks()
@@ -196,6 +275,11 @@ export class MechanicsViewComponent implements OnInit {
     return Math.round((completed / mechanicTasks.length) * 100);
   }
 
+  /**
+   * Creates an empty mechanic model with default values.
+   *
+   * @returns Default mechanic object used by the dialog form.
+   */
   private getEmptyMechanic(): Mechanic {
     return {
       fullName: '',

@@ -19,4 +19,5 @@ export interface Task {
   mechanicId: string;
   priority?: 'Baja' | 'Media' | 'Alta' | 'Crítica';
   estimatedTime?: number;
+  photo?: string;
 }

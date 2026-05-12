@@ -1,11 +1,12 @@
 import { Injectable, inject } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { WorkOrder, Task } from '../../domain/models/work-order.model';
+import { environment } from '../../../../../environments/environment';
 
 @Injectable({ providedIn: 'root' })
 export class WorkOrderService {
   private http = inject(HttpClient);
-  private apiUrl = 'http://localhost:3000';
+  private apiUrl = environment.apiUrl;
 
   // Work Orders
   getAllOrders() { return this.http.get<WorkOrder[]>(`${this.apiUrl}/work-orders`); }

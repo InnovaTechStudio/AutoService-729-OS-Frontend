@@ -1,11 +1,14 @@
 import { Injectable, inject } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Mechanic } from '../../domain/models/mechanic.model';
+import { environment } from '../../../../../environments/environment';
 
 @Injectable({ providedIn: 'root' })
 export class MechanicService {
+
   private readonly http = inject(HttpClient);
-  private readonly apiUrl = 'http://localhost:3000/mechanics';
+
+  private readonly apiUrl = `${environment.apiUrl}/mechanics`;
 
   getMechanics() {
     return this.http.get<Mechanic[]>(this.apiUrl);

@@ -157,6 +157,48 @@
           </div>
         </div>
 
+        <div class="workflow-actions">
+          <button
+            mat-stroked-button
+            type="button"
+            [disabled]="task.status === 'Completada'"
+            (click)="startSelectedTask()">
+            <mat-icon>play_arrow</mat-icon>
+            Iniciar tarea
+          </button>
+
+          <button
+            mat-flat-button
+            color="primary"
+            type="button"
+            [disabled]="!canCompleteSelectedTask() || task.status === 'Completada'"
+            (click)="completeSelectedTask()">
+            <mat-icon>task_alt</mat-icon>
+            Completar tarea
+          </button>
+        </div>
+
+        <div class="sync-status-grid">
+          <div class="sync-chip" [ngClass]="getAdminSyncClass(task)">
+            <mat-icon>sync</mat-icon>
+            {{ task.adminReviewStatus }}
+          </div>
+
+          <div class="sync-chip" [ngClass]="getCustomerReportClass(task)">
+            <mat-icon>visibility</mat-icon>
+            {{ task.customerReportStatus }}
+          </div>
+        </div>
+
+        @if (task.completedAt) {
+          <div class="completed-box">
+            <mat-icon>event_available</mat-icon>
+            <span>Completada el {{ task.completedAt }}</span>
+          </div>
+        }
+
+
+
         <mat-form-field appearance="outline" class="full-width">
           <mat-label>Estado de la tarea</mat-label>
           <mat-select
@@ -178,6 +220,14 @@
           </textarea>
         </mat-form-field>
 
+        <button
+          mat-stroked-button
+          type="button"
+          class="generate-button"
+          (click)="generateCustomerExplanation()">
+          <mat-icon>auto_fix_high</mat-icon>
+          Generar explicación entendible para el Cliente
+        </button>
         <mat-form-field appearance="outline" class="full-width">
           <mat-label>Explicación simple para el Cliente</mat-label>
           <textarea
@@ -209,12 +259,42 @@
         </button>
 
         <div class="sync-preview">
-          <h3>Vista que se enviará al Cliente</h3>
-          <p>
-            {{ task.customerExplanation || 'Todavía no se registró una explicación para el Cliente.' }}
+          <h3>Informe visible para el Cliente</h3>
+
+          <div class="client-report-card">
+            <span>Servicio: {{ task.taskName }}</span>
+            <strong>{{ task.vehicle }} · {{ task.plate }}</strong>
+
+            <p>
+              {{ task.customerExplanation || 'Todavía no se registró una explicación para el Cliente.' }}
+            </p>
+
+            @if (task.evidenceRegistered) {
+              <small>
+                <mat-icon>image</mat-icon>
+                Evidencia técnica registrada por el Mecánico.
+              </small>
+            }
+          </div>
+        </div>
+        <div class="completion-rules">
+          <h3>Condiciones para completar la tarea</h3>
+
+          <p [class.ready]="task.technicalDiagnosis.trim()">
+            <mat-icon>{{ task.technicalDiagnosis.trim() ? 'check_circle' : 'radio_button_unchecked' }}</mat-icon>
+            Diagnóstico técnico registrado
+          </p>
+
+          <p [class.ready]="task.customerExplanation.trim()">
+            <mat-icon>{{ task.customerExplanation.trim() ? 'check_circle' : 'radio_button_unchecked' }}</mat-icon>
+            Explicación para Cliente registrada
+          </p>
+
+          <p [class.ready]="task.evidenceRegistered">
+            <mat-icon>{{ task.evidenceRegistered ? 'check_circle' : 'radio_button_unchecked' }}</mat-icon>
+            Evidencia simulada registrada
           </p>
         </div>
-
         <button
           mat-flat-button
           color="primary"

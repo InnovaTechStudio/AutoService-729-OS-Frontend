@@ -29,6 +29,9 @@ interface MechanicTask {
   customerExplanation: string;
   internalObservation: string;
   evidenceRegistered: boolean;
+  adminReviewStatus: 'Sin enviar' | 'Enviado al Administrador';
+  customerReportStatus: 'No visible' | 'Visible para Cliente';
+  completedAt?: string;
 }
 
 @Component({
@@ -78,7 +81,10 @@ export class MechanicWorkspaceComponent {
       technicalDiagnosis: 'Se observa desgaste irregular en pastillas delanteras y ligera vibración al frenar.',
       customerExplanation: 'Los frenos delanteros presentan desgaste y deben revisarse para evitar pérdida de seguridad al manejar.',
       internalObservation: 'Revisar discos antes de aprobar cambio de pastillas.',
-      evidenceRegistered: true
+      evidenceRegistered: true,
+      adminReviewStatus: 'Sin enviar',
+      customerReportStatus: 'No visible',
+      completedAt: ''
     },
     {
       id: 'T-002',
@@ -94,7 +100,10 @@ export class MechanicWorkspaceComponent {
       technicalDiagnosis: '',
       customerExplanation: '',
       internalObservation: '',
-      evidenceRegistered: false
+      evidenceRegistered: false,
+      adminReviewStatus: 'Sin enviar',
+      customerReportStatus: 'No visible',
+      completedAt: ''
     },
     {
       id: 'T-003',
@@ -110,9 +119,120 @@ export class MechanicWorkspaceComponent {
       technicalDiagnosis: 'Aceite degradado por kilometraje. Filtro de aceite con saturación normal.',
       customerExplanation: 'Se realizó el cambio de aceite y filtro para mantener el motor protegido.',
       internalObservation: 'Próximo cambio recomendado en 5,000 km.',
-      evidenceRegistered: true
+      evidenceRegistered: true,
+      adminReviewStatus: 'Sin enviar',
+      customerReportStatus: 'No visible',
+      completedAt: ''
     }
   ]);
+  protected startSelectedTask(): void {
+    const current = this.selectedTask();
+
+    if (!current) {
+      return;
+    }
+
+    const updatedTask: MechanicTask = {
+      ...current,
+      status: 'En Proceso',
+      adminReviewStatus: 'Enviado al Administrador'
+    };
+
+    this.updateTaskInList(updatedTask);
+    this.selectedTask.set(updatedTask);
+  }
+
+  protected generateCustomerExplanation(): void {
+    const current = this.selectedTask();
+
+    if (!current) {
+      return;
+    }
+
+    const explanation = this.buildCustomerExplanation(current);
+
+    this.selectedTask.set({
+      ...current,
+      customerExplanation: explanation
+    });
+  }
+
+  protected canCompleteSelectedTask(): boolean {
+    const current = this.selectedTask();
+
+    if (!current) {
+      return false;
+    }
+
+    return !!current.technicalDiagnosis.trim() &&
+      !!current.customerExplanation.trim() &&
+      current.evidenceRegistered;
+  }
+
+  protected completeSelectedTask(): void {
+    const current = this.selectedTask();
+
+    if (!current || !this.canCompleteSelectedTask()) {
+      return;
+    }
+
+    const updatedTask: MechanicTask = {
+      ...current,
+      status: 'Completada',
+      adminReviewStatus: 'Enviado al Administrador',
+      customerReportStatus: 'Visible para Cliente',
+      completedAt: new Date().toLocaleString('es-PE')
+    };
+
+    this.updateTaskInList(updatedTask);
+    this.selectedTask.set(updatedTask);
+  }
+
+  protected getAdminSyncClass(task: MechanicTask): string {
+    return task.adminReviewStatus === 'Enviado al Administrador'
+      ? 'sync-sent'
+      : 'sync-pending';
+  }
+
+  protected getCustomerReportClass(task: MechanicTask): string {
+    return task.customerReportStatus === 'Visible para Cliente'
+      ? 'customer-visible'
+      : 'customer-hidden';
+  }
+
+  private updateTaskInList(updatedTask: MechanicTask): void {
+    this.tasks.update((tasks) =>
+      tasks.map((task) =>
+        task.id === updatedTask.id ? { ...updatedTask } : task
+      )
+    );
+  }
+
+  private buildCustomerExplanation(task: MechanicTask): string {
+    const diagnosis = task.technicalDiagnosis.toLowerCase();
+
+    if (!task.technicalDiagnosis.trim()) {
+      return 'El Mecánico aún está revisando el vehículo. Cuando termine el diagnóstico, se mostrará una explicación clara del trabajo recomendado.';
+    }
+
+    if (diagnosis.includes('freno') || diagnosis.includes('pastilla') || diagnosis.includes('disco')) {
+      return 'Se detectó desgaste en el sistema de frenos. Se recomienda atenderlo para mantener la seguridad del vehículo al manejar.';
+    }
+
+    if (diagnosis.includes('motor') || diagnosis.includes('potencia') || diagnosis.includes('arranque')) {
+      return 'Se detectó una condición que puede afectar el funcionamiento del motor. El taller revisará la causa para evitar fallas mayores.';
+    }
+
+    if (diagnosis.includes('aceite') || diagnosis.includes('filtro')) {
+      return 'Se realizará mantenimiento preventivo para proteger el motor y mantener el vehículo en buen estado.';
+    }
+
+    if (diagnosis.includes('llanta') || diagnosis.includes('neumático') || diagnosis.includes('alineación')) {
+      return 'Se detectó una condición relacionada con las llantas o alineación. Se recomienda corregirla para mejorar estabilidad y seguridad.';
+    }
+
+    return 'El Mecánico registró una observación técnica del vehículo. Esta información será revisada por el taller para explicar el trabajo necesario de forma clara.';
+  }
 
   protected readonly filteredTasks = computed(() => {
     const status = this.selectedStatus();
@@ -179,13 +299,13 @@ export class MechanicWorkspaceComponent {
       return;
     }
 
-    this.tasks.update((tasks) =>
-      tasks.map((task) =>
-        task.id === editedTask.id ? { ...editedTask } : task
-      )
-    );
+    const updatedTask: MechanicTask = {
+      ...editedTask,
+      adminReviewStatus: 'Enviado al Administrador'
+    };
 
-    this.selectedTask.set({ ...editedTask });
+    this.updateTaskInList(updatedTask);
+    this.selectedTask.set(updatedTask);
   }
 
   protected toggleEvidence(): void {

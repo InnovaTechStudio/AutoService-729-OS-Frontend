@@ -10,21 +10,29 @@
 
     <div class="search-box">
       <label for="code">Código de Servicio</label>
+
       <div class="search-input-group">
         <input
-            id="code"
-            [(ngModel)]="trackingCode"
-            placeholder="Ej: AS-1001A"
-            (keyup.enter)="handleSearch()"
-            class="code-input"
+          id="code"
+          [(ngModel)]="trackingCode"
+          placeholder="Ej: AS-1001A"
+          (keyup.enter)="handleSearch()"
+          class="code-input"
         />
-        <button class="btn-search" (click)="handleSearch()" [disabled]="trackingStore.isLoading()">
-          <mat-icon>search</mat-icon> Buscar
+
+        <button
+          class="btn-search"
+          (click)="handleSearch()"
+          [disabled]="trackingStore.isLoading()">
+          <mat-icon>search</mat-icon>
+          Buscar
         </button>
       </div>
+
       @if (trackingStore.error()) {
         <div class="error-message mt-3">
-          <mat-icon>error_outline</mat-icon> {{ trackingStore.error() }}
+          <mat-icon>error_outline</mat-icon>
+          {{ trackingStore.error() }}
         </div>
       }
     </div>
@@ -32,21 +40,59 @@
     @if (trackingStore.order()) {
       <div class="results-box fade-in">
         <div class="vehicle-info">
-          
+
+          <div class="vehicle-header">
+            <div class="vehicle-details">
+              <span class="label">Vehículo Ingresado</span>
+              <h2>
+                {{ trackingStore.vehicle()?.brand }}
+                {{ trackingStore.vehicle()?.model }}
+                <span>{{ trackingStore.vehicle()?.plate }}</span>
+              </h2>
+            </div>
+
+            <div
+              class="tag status-tag"
+              [ngClass]="'tag-' + getStatusSeverity(trackingStore.order()!.status)">
+              {{ trackingStore.order()?.status }}
+            </div>
+          </div>
+
+          <div class="dates-grid">
+            <div class="date-item">
+              <span class="label">Fecha de Ingreso</span>
+              <strong>
+                <mat-icon class="text-blue-500">event</mat-icon>
+                {{ trackingStore.order()?.startDate }}
+              </strong>
+            </div>
+
+            <div class="date-item right-align">
+              <span class="label">Entrega Estimada</span>
+              <strong>
+                <mat-icon class="text-orange-500">event_available</mat-icon>
+                {{ trackingStore.order()?.estimatedDate }}
+              </strong>
+            </div>
+          </div>
+
           <div class="dashboard-grid">
+
             <!-- LEFT -->
             <div class="left-section">
+
               <!-- TASKS -->
               <div class="service-card">
                 <div class="card-header">
                   <h3>Tareas de Servicio</h3>
+                  <p>Selecciona una tarea para revisar su explicación y evidencia.</p>
                 </div>
 
                 @for (task of trackingStore.tasks(); track task.id) {
                   <div
-                      class="task-item"
-                      [class.active]="selectedTask?.id === task.id"
-                      (click)="selectTask(task)"
+                    class="task-item"
+                    [class.active]="selectedTask?.id === task.id"
+                    (click)="selectTask(task)"
                   >
                     <div class="task-left">
                       <div class="task-icon" [ngClass]="getTaskTagSeverity(task.status)">
@@ -69,10 +115,51 @@
                 }
               </div>
 
+              <!-- MECHANIC CUSTOMER REPORT -->
+              <div class="mechanic-report-card">
+                <div class="card-header">
+                  <h3>Informe del Mecánico para el Cliente</h3>
+                  <p>Explicación simple del trabajo realizado o recomendado.</p>
+                </div>
+
+                @if (selectedTask) {
+                  <div class="report-box">
+                    <span>Servicio seleccionado</span>
+                    <strong>{{ selectedTask.description }}</strong>
+
+                    <p>
+                      {{ getSelectedTaskCustomerExplanation() }}
+                    </p>
+
+                    @if (hasSelectedTaskEvidence()) {
+                      <small class="evidence-ok">
+                        <mat-icon>image</mat-icon>
+                        Evidencia técnica registrada por el Mecánico.
+                      </small>
+                    } @else {
+                      <small class="evidence-pending">
+                        <mat-icon>image_not_supported</mat-icon>
+                        Todavía no hay evidencia visible para esta tarea.
+                      </small>
+                    }
+                  </div>
+                } @else {
+                  <div class="no-report">
+                    <mat-icon>engineering</mat-icon>
+                    <p>Selecciona una tarea para ver el informe del Mecánico.</p>
+                  </div>
+                }
+              </div>
+
               <!-- EVIDENCE -->
               <div class="evidence-card">
                 @if (selectedTask?.photo) {
                   <img [src]="selectedTask!.photo" alt="evidence" />
+                } @else if (selectedTask?.evidenceRegistered) {
+                  <div class="simulated-evidence">
+                    <mat-icon>verified</mat-icon>
+                    <p>Evidencia técnica simulada registrada por el Mecánico.</p>
+                  </div>
                 } @else {
                   <div class="no-image">
                     <mat-icon>image</mat-icon>
@@ -94,19 +181,24 @@
               <!-- COST -->
               <div class="cost-card">
                 <span class="mini-title">COSTO ESTIMADO TOTAL</span>
-                <h2>${{ trackingStore.order()?.price }}</h2>
+                <h2>S/. {{ trackingStore.order()?.price }}</h2>
                 <p>Sujeto a cambios según diagnóstico.</p>
+
                 <button class="btn-pay pay-now-btn" (click)="openPaymentModal()">
-                  <mat-icon>credit_card</mat-icon> Realizar Pago
+                  <mat-icon>credit_card</mat-icon>
+                  Realizar Pago
                 </button>
               </div>
-              
+
               <!-- DATES -->
               <div class="dates-card">
                 <span class="mini-title">TIEMPOS DE SERVICIO</span>
 
                 <div class="date-box">
-                  <div class="date-icon"><mat-icon>calendar_today</mat-icon></div>
+                  <div class="date-icon">
+                    <mat-icon>calendar_today</mat-icon>
+                  </div>
+
                   <div>
                     <small>FECHA DE INGRESO</small>
                     <strong>{{ trackingStore.order()?.startDate }}</strong>
@@ -114,7 +206,10 @@
                 </div>
 
                 <div class="date-box">
-                  <div class="date-icon"><mat-icon>schedule</mat-icon></div>
+                  <div class="date-icon">
+                    <mat-icon>schedule</mat-icon>
+                  </div>
+
                   <div>
                     <small>ENTREGA ESTIMADA</small>
                     <strong>{{ trackingStore.order()?.estimatedDate }}</strong>
@@ -122,30 +217,83 @@
                 </div>
               </div>
 
-            </div>
-          </div>
-          
-          <div class="vehicle-header">
-            <div class="vehicle-details">
-              <span class="label">Vehículo Ingresado</span>
-              <h2>{{ trackingStore.vehicle()?.brand }} {{ trackingStore.vehicle()?.model }} <span>{{ trackingStore.vehicle()?.plate }}</span></h2>
-            </div>
-            <div class="tag status-tag" [ngClass]="'tag-' + getStatusSeverity(trackingStore.order()!.status)">
-              {{ trackingStore.order()?.status }}
+              <!-- VEHICLE HISTORY -->
+              <div class="vehicle-history-card">
+                <div class="card-header">
+                  <h3>Historial técnico del vehículo</h3>
+                  <p>
+                    Servicios anteriores asociados a la placa
+                    <strong>{{ trackingStore.vehicle()?.plate }}</strong>.
+                  </p>
+                </div>
+
+                @if (vehicleHistoryStore.isLoading()) {
+                  <div class="history-empty">
+                    <mat-icon>sync</mat-icon>
+                    <p>Cargando historial...</p>
+                  </div>
+                } @else if (vehicleHistoryStore.history().length) {
+                  <div class="history-list">
+                    @for (record of vehicleHistoryStore.history(); track record.id) {
+                      <article class="history-item">
+                        <div class="history-top">
+                          <div>
+                            <span>{{ record.serviceDate }}</span>
+                            <h4>{{ record.serviceTitle }}</h4>
+                          </div>
+
+                          <mat-icon>history</mat-icon>
+                        </div>
+
+                        <p class="history-summary">
+                          {{ record.customerSummary }}
+                        </p>
+
+                        <div class="history-meta">
+                          <span>
+                            <mat-icon>store</mat-icon>
+                            {{ record.workshopName }}
+                          </span>
+
+                          <span>
+                            <mat-icon>engineering</mat-icon>
+                            {{ record.mechanicName }}
+                          </span>
+                        </div>
+
+                        @if (record.tasksCompleted.length) {
+                          <div class="history-tasks">
+                            <strong>Trabajos realizados:</strong>
+
+                            @for (taskName of record.tasksCompleted; track taskName) {
+                              <small>
+                                <mat-icon>check_circle</mat-icon>
+                                {{ taskName }}
+                              </small>
+                            }
+                          </div>
+                        }
+
+                        <div class="recommendation-box">
+                          <strong>Recomendación:</strong>
+                          <p>{{ record.recommendation }}</p>
+                        </div>
+                      </article>
+                    }
+                  </div>
+                } @else {
+                  <div class="history-empty">
+                    <mat-icon>history_toggle_off</mat-icon>
+                    <p>
+                      Aún no hay servicios anteriores registrados para este vehículo.
+                    </p>
+                  </div>
+                }
+              </div>
+
             </div>
           </div>
 
-          <div class="dates-grid">
-            <div class="date-item">
-              <span class="label">Fecha de Ingreso</span>
-              <strong><mat-icon class="text-blue-500">event</mat-icon> {{ trackingStore.order()?.startDate }}</strong>
-            </div>
-            <div class="date-item right-align">
-              <span class="label">Entrega Estimada</span>
-              <strong><mat-icon class="text-orange-500">event_available</mat-icon> {{ trackingStore.order()?.estimatedDate }}</strong>
-            </div>
-          </div>
-          
         </div>
       </div>
     }

@@ -14,9 +14,9 @@
       </div>
 
       <div>
-        <strong>{{ mechanicName }}</strong>
-        <span>{{ mechanicSpecialty }}</span>
-        <small>{{ mechanicStatus }}</small>
+        <strong>{{ mechanicName() }}</strong>
+        <span>{{ mechanicSpecialty() }}</span>
+        <small>{{ mechanicStatus() }}</small>
       </div>
     </div>
   </header>
@@ -82,53 +82,61 @@
         </mat-form-field>
       </div>
 
-      <div class="tasks-grid">
-        @for (task of filteredTasks(); track task.id) {
-          <article class="task-card" [class.selected]="selectedTask()?.id === task.id">
-            <div class="task-top">
-              <div class="task-icon" [ngClass]="getStatusClass(task.status)">
-                <mat-icon>{{ getStatusIcon(task.status) }}</mat-icon>
+      @if (filteredTasks().length) {
+        <div class="tasks-grid">
+          @for (task of filteredTasks(); track task.id) {
+            <article class="task-card" [class.selected]="selectedTask()?.id === task.id">
+              <div class="task-top">
+                <div class="task-icon" [ngClass]="getStatusClass(task.status)">
+                  <mat-icon>{{ getStatusIcon(task.status) }}</mat-icon>
+                </div>
+
+                <div class="task-title">
+                  <span>{{ getOrderCode(task) }}</span>
+                  <h3>{{ task.description }}</h3>
+                  <p>{{ getVehicleName(task) }} · {{ getVehiclePlate(task) }}</p>
+                </div>
               </div>
 
-              <div class="task-title">
-                <span>{{ task.orderCode }}</span>
-                <h3>{{ task.taskName }}</h3>
-                <p>{{ task.vehicle }} · {{ task.plate }}</p>
+              <div class="task-meta">
+                <span [ngClass]="getPriorityClass(task.priority)">
+                  <mat-icon>flag</mat-icon>
+                  {{ task.priority || 'Media' }}
+                </span>
+
+                <span>
+                  <mat-icon>schedule</mat-icon>
+                  {{ task.estimatedTime || 2 }} h estimadas
+                </span>
               </div>
-            </div>
 
-            <div class="task-meta">
-              <span [ngClass]="getPriorityClass(task.priority)">
-                <mat-icon>flag</mat-icon>
-                {{ task.priority }}
-              </span>
+              <p class="task-description">
+                Orden asociada al servicio técnico del vehículo.
+              </p>
 
-              <span>
-                <mat-icon>schedule</mat-icon>
-                {{ task.estimatedTime }} h estimadas
-              </span>
-            </div>
+              <div class="task-footer">
+                <span class="status-badge" [ngClass]="getStatusClass(task.status)">
+                  {{ task.status }}
+                </span>
 
-            <p class="task-description">
-              {{ task.description }}
-            </p>
-
-            <div class="task-footer">
-              <span class="status-badge" [ngClass]="getStatusClass(task.status)">
-                {{ task.status }}
-              </span>
-
-              <button
-                mat-stroked-button
-                type="button"
-                (click)="openTask(task)">
-                Trabajar
-                <mat-icon>arrow_forward</mat-icon>
-              </button>
-            </div>
-          </article>
-        }
-      </div>
+                <button
+                  mat-stroked-button
+                  type="button"
+                  (click)="openTask(task)">
+                  Trabajar
+                  <mat-icon>arrow_forward</mat-icon>
+                </button>
+              </div>
+            </article>
+          }
+        </div>
+      } @else {
+        <div class="empty-panel compact">
+          <mat-icon>task_alt</mat-icon>
+          <h2>No tienes tareas asignadas</h2>
+          <p>Cuando el Administrador asigne una tarea a tu perfil, aparecerá en este espacio.</p>
+        </div>
+      }
     </div>
 
     <aside class="technical-panel">
@@ -136,8 +144,8 @@
         <div class="panel-header">
           <div>
             <span class="eyebrow">Registro técnico</span>
-            <h2>{{ task.taskName }}</h2>
-            <p>{{ task.vehicle }} · {{ task.plate }}</p>
+            <h2>{{ task.description }}</h2>
+            <p>{{ getVehicleName(task) }} · {{ getVehiclePlate(task) }}</p>
           </div>
 
           <button
@@ -153,7 +161,7 @@
           <mat-icon>person</mat-icon>
           <div>
             <span>Cliente</span>
-            <strong>{{ task.customerName }}</strong>
+            <strong>{{ getCustomerName(task) }}</strong>
           </div>
         </div>
 
@@ -181,12 +189,12 @@
         <div class="sync-status-grid">
           <div class="sync-chip" [ngClass]="getAdminSyncClass(task)">
             <mat-icon>sync</mat-icon>
-            {{ task.adminReviewStatus }}
+            {{ task.adminReviewStatus || 'Sin enviar' }}
           </div>
 
           <div class="sync-chip" [ngClass]="getCustomerReportClass(task)">
             <mat-icon>visibility</mat-icon>
-            {{ task.customerReportStatus }}
+            {{ task.customerReportStatus || 'No visible' }}
           </div>
         </div>
 
@@ -196,8 +204,6 @@
             <span>Completada el {{ task.completedAt }}</span>
           </div>
         }
-
-
 
         <mat-form-field appearance="outline" class="full-width">
           <mat-label>Estado de la tarea</mat-label>
@@ -228,6 +234,7 @@
           <mat-icon>auto_fix_high</mat-icon>
           Generar explicación entendible para el Cliente
         </button>
+
         <mat-form-field appearance="outline" class="full-width">
           <mat-label>Explicación simple para el Cliente</mat-label>
           <textarea
@@ -262,8 +269,8 @@
           <h3>Informe visible para el Cliente</h3>
 
           <div class="client-report-card">
-            <span>Servicio: {{ task.taskName }}</span>
-            <strong>{{ task.vehicle }} · {{ task.plate }}</strong>
+            <span>Servicio: {{ task.description }}</span>
+            <strong>{{ getVehicleName(task) }} · {{ getVehiclePlate(task) }}</strong>
 
             <p>
               {{ task.customerExplanation || 'Todavía no se registró una explicación para el Cliente.' }}
@@ -277,16 +284,17 @@
             }
           </div>
         </div>
+
         <div class="completion-rules">
           <h3>Condiciones para completar la tarea</h3>
 
-          <p [class.ready]="task.technicalDiagnosis.trim()">
-            <mat-icon>{{ task.technicalDiagnosis.trim() ? 'check_circle' : 'radio_button_unchecked' }}</mat-icon>
+          <p [class.ready]="task.technicalDiagnosis?.trim()">
+            <mat-icon>{{ task.technicalDiagnosis?.trim() ? 'check_circle' : 'radio_button_unchecked' }}</mat-icon>
             Diagnóstico técnico registrado
           </p>
 
-          <p [class.ready]="task.customerExplanation.trim()">
-            <mat-icon>{{ task.customerExplanation.trim() ? 'check_circle' : 'radio_button_unchecked' }}</mat-icon>
+          <p [class.ready]="task.customerExplanation?.trim()">
+            <mat-icon>{{ task.customerExplanation?.trim() ? 'check_circle' : 'radio_button_unchecked' }}</mat-icon>
             Explicación para Cliente registrada
           </p>
 
@@ -295,6 +303,7 @@
             Evidencia simulada registrada
           </p>
         </div>
+
         <button
           mat-flat-button
           color="primary"

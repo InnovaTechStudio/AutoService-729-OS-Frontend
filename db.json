@@ -600,5 +600,54 @@
       "id": "-pRLa5ma8ck"
     }
   ],
+  "vehicle-history": [
+    {
+      "id": "VH-1",
+      "vehicleId": "V-1",
+      "plate": "ABC-123",
+      "customerId": "C-1",
+      "workshopId": "WS-1",
+      "workshopName": "AutoTaller Surco",
+      "workOrderId": "WO-1",
+      "trackingCode": "AS-1001A",
+      "serviceDate": "2026-05-12",
+      "serviceTitle": "Mantenimiento 10k y frenos",
+      "mechanicName": "Roberto Sánchez",
+      "technicalSummary": "Se realizó revisión de frenos delanteros, cambio de aceite y ajuste general del sistema.",
+      "customerSummary": "Se revisaron los frenos delanteros y se realizó mantenimiento preventivo para mantener el vehículo seguro y en buen estado.",
+      "tasksCompleted": [
+        "Cambio de aceite",
+        "Ajuste de pastillas de freno",
+        "Revisión de frenos delanteros"
+      ],
+      "recommendation": "Revisar nuevamente el sistema de frenos en el próximo mantenimiento preventivo.",
+      "evidenceRegistered": true,
+      "createdFromAdminValidation": true
+    },
+    {
+      "id": "VH-2",
+      "vehicleId": "V-1",
+      "plate": "ABC-123",
+      "customerId": "C-1",
+      "workshopId": "WS-2",
+      "workshopName": "Taller Los Rápidos",
+      "workOrderId": "WO-HIST-2",
+      "trackingCode": "TR-HIST-002",
+      "serviceDate": "2026-04-18",
+      "serviceTitle": "Revisión de llantas y alineación",
+      "mechanicName": "Miguel Ángel",
+      "technicalSummary": "Se detectó desgaste irregular en neumático delantero y se realizó corrección de alineación.",
+      "customerSummary": "Se corrigió la alineación del vehículo para mejorar estabilidad y evitar desgaste prematuro de las llantas.",
+      "tasksCompleted": [
+        "Revisión de llantas",
+        "Alineación de dirección",
+        "Verificación de presión"
+      ],
+      "recommendation": "Controlar presión de neumáticos cada 30 días.",
+      "evidenceRegistered": true,
+      "createdFromAdminValidation": true
+    }
+  ],
+
   "$schema": "./node_modules/json-server/schema.json"
 }

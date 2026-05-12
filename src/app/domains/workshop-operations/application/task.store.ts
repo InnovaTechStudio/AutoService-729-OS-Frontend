@@ -1,9 +1,9 @@
 /**
  * TaskStore
- * 
+ *
  * Reactive store based on Signals that manages the state of tasks
  * techniques within the work orders.
- * 
+ *
  * @service
  * @providedIn 'root'
  */
@@ -105,4 +105,50 @@ export class TaskStore {
       error: (err) => console.error('Error eliminando tarea:', err),
     });
   }
+  /**
+   * Updates the mechanic technical report fields for a task.
+   * This simulates the communication from Mechanic to Administrator and Client.
+   */
+  updateMechanicTechnicalReport(id: string, task: Task): void {
+    const updatedTask: Task = {
+      ...task,
+      adminReviewStatus: 'Enviado al Administrador'
+    };
+
+    this.service.updateTask(id, updatedTask).subscribe({
+      next: (savedTask) => {
+        this.tasks.update((list) =>
+          list.map((item) =>
+            String(item.id) === String(id) ? savedTask : item
+          )
+        );
+      },
+      error: (err) => console.error('Error updating mechanic report:', err)
+    });
+  }
+
+  /**
+   * Marks a task as completed by the mechanic and makes the customer explanation visible.
+   */
+  completeTaskFromMechanic(id: string, task: Task): void {
+    const completedTask: Task = {
+      ...task,
+      status: 'Completada',
+      adminReviewStatus: 'Enviado al Administrador',
+      customerReportStatus: 'Visible para Cliente',
+      completedAt: new Date().toLocaleString('es-PE')
+    };
+
+    this.service.updateTask(id, completedTask).subscribe({
+      next: (savedTask) => {
+        this.tasks.update((list) =>
+          list.map((item) =>
+            String(item.id) === String(id) ? savedTask : item
+          )
+        );
+      },
+      error: (err) => console.error('Error completing mechanic task:', err)
+    });
+  }
+
 }

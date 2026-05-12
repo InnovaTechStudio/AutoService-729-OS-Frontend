@@ -1,3 +1,18 @@
+/**
+ * DashboardComponent
+ * 
+ * Main component of the workshop's administrative dashboard.
+ * Displays an executive summary with:
+ * - Key statistics (vehicles in workshop, active orders, pending tasks)
+ * - Quick view of active vehicles
+ * - Recent orders
+ * - Most frequent services
+ * - Simple weekly income charts
+ * 
+ * @component
+ * @selector app-dashboard
+ * @standalone true
+ */
 import { CommonModule, CurrencyPipe } from '@angular/common';
 import { Component, OnInit, computed, inject } from '@angular/core';
 import { Router, RouterModule } from '@angular/router';
@@ -57,6 +72,7 @@ export class DashboardComponent implements OnInit {
     'https://images.unsplash.com/photo-1503376780353-7e6692767b70?w=300&auto=format&fit=crop'
   ];
 
+  // Signals directos de los stores
   protected readonly vehicles = this.vehicleStore.vehicles;
   protected readonly workOrders = this.workOrderStore.workOrders;
   protected readonly tasks = this.taskStore.tasks;
@@ -141,7 +157,7 @@ export class DashboardComponent implements OnInit {
     this.workOrderStore.loadWorkOrders();
     this.taskStore.loadAllTasks();
   }
-
+  // MMethods for navigation
   protected goToVehicles(): void {
     this.router.navigate(['/admin/vehicles']);
   }
@@ -149,7 +165,7 @@ export class DashboardComponent implements OnInit {
   protected goToOrders(): void {
     this.router.navigate(['/admin/work-orders']);
   }
-
+  // Auxiliary formatting methods
   protected goToCreateOrder(): void {
     this.router.navigate(['/admin/work-orders/new']);
   }

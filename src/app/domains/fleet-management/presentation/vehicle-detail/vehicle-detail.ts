@@ -1,3 +1,21 @@
+/**
+ * VehicleDetailComponent
+ * 
+ * Component for displaying detailed information about a vehicle. Shows all relevant information
+ * about a vehicle within the workshop, including:
+ * - Basic vehicle data
+ * - Owner information
+ * - Active work order
+ * - Progress of technical tasks
+ * - Diagnosis and reported problems
+ * 
+ * Uses Signals and `computed()` for efficient reactivity and automatic updates
+ * without the need for manual subscriptions.
+ * 
+ * @component
+ * @selector app-vehicle-detail
+ * @standalone true
+ */
 import { CommonModule } from '@angular/common';
 import { Component, computed, inject, OnInit } from '@angular/core';
 import { ActivatedRoute, Router, RouterModule } from '@angular/router';
@@ -37,14 +55,17 @@ export class VehicleDetailComponent implements OnInit {
   private readonly workOrderStore = inject(WorkOrderStore);
   private readonly taskStore = inject(TaskStore);
 
+  /** ID of the vehicle obtained from the URL */
   protected readonly vehicleId = this.route.snapshot.paramMap.get('id') ?? '';
 
+  /** Current vehicle obtained from the store */
   protected readonly vehicle = computed<Vehicle | undefined>(() =>
     this.vehicleStore
       .vehicles()
       .find((item) => String(item.id) === String(this.vehicleId))
   );
 
+  /** Name of the vehicle owner */
   protected readonly ownerName = computed(() => {
     const currentVehicle = this.vehicle();
 
@@ -59,6 +80,7 @@ export class VehicleDetailComponent implements OnInit {
     return customer?.fullName ?? 'No asignado';
   });
 
+  /** Active work order associated with the vehicle */
   protected readonly activeWorkOrder = computed<WorkOrder | undefined>(() => {
     const currentVehicle = this.vehicle();
 
@@ -71,6 +93,7 @@ export class VehicleDetailComponent implements OnInit {
       .find((order) => String(order.vehicleId) === String(currentVehicle.id));
   });
 
+  /** List of tasks associated with the active work order */
   protected readonly vehicleTasks = computed<Task[]>(() => {
     const currentOrder = this.activeWorkOrder();
 
@@ -83,10 +106,12 @@ export class VehicleDetailComponent implements OnInit {
       .filter((task) => String(task.workOrderId) === String(currentOrder.id));
   });
 
+  /** Number of completed tasks */
   protected readonly completedTasks = computed(() =>
     this.vehicleTasks().filter((task) => task.status === 'Completada').length
   );
 
+  /** Overall progress percentage of the vehicle (based on tasks or status) */
   protected readonly progress = computed(() => {
     const tasks = this.vehicleTasks();
 
@@ -107,11 +132,13 @@ export class VehicleDetailComponent implements OnInit {
     return currentVehicle.status === 'En Taller' ? 65 : 10;
   });
 
+  /** Problem reported by the client (description of the order) */
   protected readonly problemReported = computed(() =>
     this.activeWorkOrder()?.description ??
     'Ruido en el motor al acelerar en frío y pérdida leve de potencia.'
   );
 
+  /** Current technical diagnosis based on the available information */
   protected readonly technicalDiagnosis = computed(() => {
     const order = this.activeWorkOrder();
 
@@ -133,10 +160,16 @@ export class VehicleDetailComponent implements OnInit {
     this.taskStore.loadAllTasks();
   }
 
+  /**
+   * Navigate back to the vehicle list.
+   */
   protected goBack(): void {
     this.router.navigate(['/admin/vehicles']);
   }
 
+  /**
+   * Navigate to the creation or management of tasks for this vehicle.
+   */
   protected goToNewTask(): void {
     const order = this.activeWorkOrder();
 
@@ -154,6 +187,9 @@ export class VehicleDetailComponent implements OnInit {
     this.router.navigate(['/admin/tasks']);
   }
 
+  /**
+   * Navigate to the work order associated with the vehicle.
+   */
   protected goToWorkOrder(): void {
     const order = this.activeWorkOrder();
 
@@ -165,10 +201,17 @@ export class VehicleDetailComponent implements OnInit {
     this.router.navigate(['/admin/work-orders']);
   }
 
+  /**
+   * Returns the full name of the vehicle (Brand + Model).
+   * @param vehicle - Vehicle for which to get the name
+   */
   protected getVehicleName(vehicle: Vehicle): string {
     return `${vehicle.brand} ${vehicle.model}`;
   }
 
+  /**
+   * Returns a friendly label based on the vehicle's status.
+   */
   protected getStatusLabel(status: Vehicle['status']): string {
     if (status === 'En Taller') {
       return 'En curso';
@@ -181,6 +224,9 @@ export class VehicleDetailComponent implements OnInit {
     return 'Entregado';
   }
 
+  /**
+   * Returns a friendly label for the status of a task.
+   */
   protected getTaskStatusLabel(status: Task['status']): string {
     if (status === 'En Proceso') {
       return 'En curso';
@@ -189,6 +235,9 @@ export class VehicleDetailComponent implements OnInit {
     return status;
   }
 
+  /**
+   * Returns the CSS class corresponding to the status of a task.
+   */
   protected getTaskStatusClass(status: Task['status']): string {
     if (status === 'Completada') {
       return 'task-completed';
@@ -201,6 +250,9 @@ export class VehicleDetailComponent implements OnInit {
     return 'task-pending';
   }
 
+  /**
+   * Returns the name of the Material icon for the status of a task.
+   */
   protected getTaskIcon(status: Task['status']): string {
     if (status === 'Completada') {
       return 'check_circle';

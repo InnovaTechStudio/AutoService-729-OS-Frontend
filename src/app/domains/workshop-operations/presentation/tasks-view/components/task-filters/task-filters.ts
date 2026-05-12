@@ -1,3 +1,16 @@
+/**
+ * TaskFiltersComponent
+ * 
+ * Component for filtering the tasks view.
+ * Allows filtering by:
+ * - Textual search (description, work order code, mechanic)
+ * - Task status
+ * - Assigned mechanic
+ * 
+ * @component
+ * @selector app-task-filters
+ * @standalone true
+ */
 import { CommonModule } from '@angular/common';
 import { Component, EventEmitter, Input, Output } from '@angular/core';
 import { FormsModule } from '@angular/forms';
@@ -25,14 +38,28 @@ import { Task } from '../../../../domain/models/work-order.model';
   styleUrl: './task-filters.css'
 })
 export class TaskFiltersComponent {
+  /** Current search term */
   @Input() search = '';
+
+  /** Selected status */
   @Input() status: Task['status'] | null = null;
+
+  /** ID of the selected mechanic */
   @Input() mechanicId: string | null = null;
+
+  /** Available status options */
   @Input() statusOptions: Task['status'][] = [];
+
+  /** Available mechanic options */
   @Input() mechanicOptions: Mechanic[] = [];
 
+  /** Emits when the search term changes */
   @Output() searchChange = new EventEmitter<string>();
+
+  /** Emits when the selected status changes */
   @Output() statusChange = new EventEmitter<Task['status'] | null>();
+  
+  /** Emits when the selected mechanic changes */
   @Output() mechanicIdChange = new EventEmitter<string | null>();
 
   protected onSearchChange(value: string): void {

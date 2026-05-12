@@ -1,3 +1,13 @@
+/**
+ * TaskCardComponent
+ * 
+ * Reusable card component for displaying and managing an individual task.
+ * Allows changing the status, editing, and deleting the task directly from the view.
+ * 
+ * @component
+ * @selector app-task-card
+ * @standalone true
+ */
 import { CommonModule } from '@angular/common';
 import { Component, EventEmitter, Input, Output } from '@angular/core';
 import { FormsModule } from '@angular/forms';
@@ -37,10 +47,14 @@ export interface TaskCardView {
   templateUrl: './task-card.html',
   styleUrl: './task-card.css'
 })
-export class TaskCardComponent {
+export class TaskCardComponent { 
+  /** Task to display in an enriched format */
   @Input({ required: true }) task!: TaskCardView;
+
+  /** Available options for changing the status */
   @Input() statusOptions: Task['status'][] = [];
 
+  /** Emits when the task status is changed */
   @Output() statusChange = new EventEmitter<{
     task: Task;
     status: Task['status'];
@@ -50,6 +64,9 @@ export class TaskCardComponent {
   @Output() delete = new EventEmitter<Task>();
   @Output() goOrder = new EventEmitter<string>();
 
+  /**
+   * Emits an event when the user changes the status of the task.
+   */
   protected onStatusChange(status: Task['status']): void {
     this.statusChange.emit({
       task: this.task.raw,
@@ -69,12 +86,18 @@ export class TaskCardComponent {
     this.goOrder.emit(this.task.workOrderId);
   }
 
+  /**
+   * Returns the CSS class based on the task status.
+   */
   protected getStatusClass(status: Task['status']): string {
     if (status === 'Completada') return 'chip-success';
     if (status === 'En Proceso') return 'chip-info';
     return 'chip-warning';
   }
 
+  /**
+   * Returns the CSS class based on the task priority.
+   */
   protected getPriorityClass(priority: string): string {
     if (priority === 'Crítica' || priority === 'Alta') return 'priority-high';
     if (priority === 'Media') return 'priority-medium';

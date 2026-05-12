@@ -78,6 +78,24 @@
         <span matTextSuffix>h</span>
       </mat-form-field>
 
+      <div class="image-upload-section">
+        <label class="upload-label">
+          Evidencia visual
+        </label>
+        <input
+          type="file"
+          accept="image/*"
+          (change)="onImageSelected($event)"
+        />
+        @if (task.photo) {
+          <div class="image-preview">
+            <img
+              [src]="task.photo"
+              alt="preview"
+            />
+          </div>}
+
+      </div>
       <div class="technical-note">
         <mat-icon>info</mat-icon>
         <p>

@@ -1,4 +1,14 @@
 <article class="task-card">
+
+    <div class="task-image">
+      <img
+        *ngIf="task.raw.photo"
+        [src]="task.raw.photo"
+        alt="task-image"
+        class="task-image"
+      />
+    </div>
+
   <div class="task-top">
     <div>
       <mat-chip class="order-chip">
@@ -6,7 +16,6 @@
       </mat-chip>
 
       <h3>{{ task.description }}</h3>
-
       <p>
         <mat-icon>person</mat-icon>
         {{ task.mechanicName }}

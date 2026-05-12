@@ -20,6 +20,7 @@ export interface TaskCardView {
   status: Task['status'];
   priority: 'Baja' | 'Media' | 'Alta' | 'Crítica';
   estimatedTime: number;
+  photo?: string;
 }
 
 @Component({

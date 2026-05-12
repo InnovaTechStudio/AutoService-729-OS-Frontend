@@ -1,3 +1,17 @@
+/**
+ *
+ * Login component for mechanical workshops.
+ *
+ * Allows users (workshops) to authenticate in the system
+ * using email and password. Includes handling of loading states,
+ * error messages, and redirection after successful login.
+ *
+ * @component
+ * @selector app-login
+ * @standalone true
+ *
+ */
+
 import { Component, inject } from '@angular/core';
 import { Router } from '@angular/router';
 import { FormsModule } from '@angular/forms';
@@ -9,7 +23,9 @@ import { AuthService } from '../../infrastructure/auth.service';
 @Component({
   selector: 'app-login',
   standalone: true,
-  // Importamos los módulos de Angular Material que usaremos en el HTML
+  /**
+ * We import the Angular Material modules that we will use in the HTML
+ */
   imports: [FormsModule, MatInputModule, MatButtonModule, MatIconModule],
   templateUrl: './login.component.html',
   styleUrl: './login.component.css'
@@ -18,25 +34,54 @@ export class LoginComponent {
   private router = inject(Router);
   private authService = inject(AuthService);
 
-  // Equivalente a los ref() de Vue
+  /**
+ * User email (default value for testing purposes)
+ */
   email = 'admin@autoservice.com';
+  /**
+ * User password (default value for testing purposes)
+ */
   password = 'admin';
-  hidePassword = true; // Para alternar la visibilidad de la contraseña
+  /**
+ * Controls the visibility of the password in the input field
+ */
+  hidePassword = true;
+  /**
+ * Indicates if the login is being processed
+ */
   isLoading = false;
+  /**
+ * Error message displayed to the user in case of login failure
+ */
   errorMessage = '';
 
+
+  /**
+ *
+ * Manages the user authentication process.
+ *
+ * Validates that the fields are not empty, calls the authentication service
+ * and manages the redirection or error messages based on the result.
+ *
+ */
   handleLogin() {
     if (!this.email || !this.password) return;
 
     this.isLoading = true;
     this.errorMessage = '';
 
-    // En Angular usamos RxJS (subscribe) en lugar de async/await para las peticiones
+    /**
+ * In Angular we use RxJS (subscribe) instead of async/await for HTTP requests
+ */
     this.authService.login(this.email, this.password).subscribe({
       next: (success) => {
         this.isLoading = false;
         if (success) {
-          this.router.navigate(['/admin/dashboard']); // Ajusta la ruta según tu app.routes.ts
+          
+        /**
+        * Adjust the route according to your app.routes.ts
+        */
+          this.router.navigate(['/admin/dashboard']); 
         } else {
           this.errorMessage = 'Credenciales incorrectas';
         }

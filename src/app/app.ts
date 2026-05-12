@@ -1,4 +1,18 @@
-// src/app/app.ts
+/**
+ *
+ *
+ * AppComponent (Componente Raíz)
+ *
+ * Main component and entry point of the entire application.
+ * Contains only the `RouterOutlet` to render the views
+ * according to the route configuration defined in `app.routes.ts`.
+ *
+ * @component
+ * @selector app-root
+ * @standalone true
+ *
+ *
+ */
 import { Component, signal } from '@angular/core';
 import { RouterOutlet } from '@angular/router';
 
@@ -6,9 +20,20 @@ import { RouterOutlet } from '@angular/router';
   selector: 'app-root',
   standalone: true,
   imports: [RouterOutlet],
-  templateUrl: './app.html', // Verifica que el archivo sea app.html
+  /**
+ *
+ * Verify that the file is app.html
+ *
+ */
+  templateUrl: './app.html',
   styleUrl: './app.css'
 })
-export class App { // <--- El nombre aquí debe ser "App"
+
+/**
+ *
+ * Application title (used mainly for debugging)
+ *
+ */
+export class App { 
   protected readonly title = signal('autoservice-front');
 }

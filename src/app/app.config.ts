@@ -1,3 +1,19 @@
+/**
+ *
+ *
+ *
+ * Main configuration of the Angular application.
+ *
+ * Define the global providers:
+ * - Routing with debug tracing
+ * - HTTP client with workshop interceptor
+ * - Animations
+ *
+ * @config
+ *
+ *
+ *
+ */
 import { ApplicationConfig } from '@angular/core';
 import { provideRouter, withDebugTracing } from '@angular/router'; // Añade withDebugTracing
 import { provideHttpClient, withInterceptors } from '@angular/common/http';
@@ -8,9 +24,14 @@ import { workshopInterceptor } from './shared/infrastructure/interceptors/worksh
 
 export const appConfig: ApplicationConfig = {
   providers: [
-    // Activa el tracing aquí 👇
+    
+    // Routing with debug tracing (useful in development)
     provideRouter(routes, withDebugTracing()),
+
+    // HTTP client with custom interceptor
     provideHttpClient(withInterceptors([workshopInterceptor])),
+
+    // Animations of Angular Material
     provideAnimationsAsync()
   ]
 };

@@ -1,0 +1,26 @@
+.mechanic-filters {
+  display: flex;
+  gap: 1rem;
+  margin-bottom: 1.5rem;
+  flex-wrap: wrap;
+}
+
+.search-box {
+  flex: 1;
+  min-width: 280px;
+}
+
+.specialty-filter {
+  min-width: 240px;
+}
+
+@media (max-width: 720px) {
+  .mechanic-filters {
+    flex-direction: column;
+  }
+
+  .search-box,
+  .specialty-filter {
+    width: 100%;
+  }
+}

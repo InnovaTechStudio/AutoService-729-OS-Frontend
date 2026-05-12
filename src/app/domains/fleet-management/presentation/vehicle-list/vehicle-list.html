@@ -1,106 +1,105 @@
-<div class="vehicle-list-container">
+<section class="vehicle-page">
+  <div class="vehicle-header">
+    <div>
+      <span class="eyebrow">Gestión de flota</span>
+      <h1>Vehículos registrados</h1>
+      <p>
+        Consulta, filtra y administra los vehículos vinculados a servicios activos del taller.
+      </p>
+    </div>
 
-  <div class="header-actions">
-    <h1>Flota de Vehículos</h1>
-    <button mat-raised-button color="primary" (click)="openNewDialog()">
+    <button
+      mat-flat-button
+      color="primary"
+      type="button"
+      class="add-button"
+      (click)="openNewDialog()">
       <mat-icon>add</mat-icon>
-      Registrar Vehículo
+      Agregar vehículo
     </button>
   </div>
 
-  <div class="mat-elevation-z2 table-container">
-    @if (vehicleStore.isLoading()) {
-      <div class="loading-shade">Cargando flota...</div>
-    }
+  <div class="summary-row">
+    <div class="summary-card">
+      <span>Total registrados</span>
+      <strong>{{ vehicleStore.vehicles().length }}</strong>
+    </div>
 
-    <table mat-table [dataSource]="vehicleStore.vehicles()">
+    <div class="summary-card">
+      <span>En taller</span>
+      <strong>{{ vehiclesInWorkshop() }}</strong>
+    </div>
 
-      <ng-container matColumnDef="plate">
-        <th mat-header-cell *matHeaderCellDef> Placa </th>
-        <td mat-cell *matCellDef="let element" class="fw-bold"> {{element.plate}} </td>
-      </ng-container>
-
-      <ng-container matColumnDef="brand">
-        <th mat-header-cell *matHeaderCellDef> Marca </th>
-        <td mat-cell *matCellDef="let element"> {{element.brand}} </td>
-      </ng-container>
-
-      <ng-container matColumnDef="model">
-        <th mat-header-cell *matHeaderCellDef> Modelo </th>
-        <td mat-cell *matCellDef="let element"> {{element.model}} </td>
-      </ng-container>
-
-      <ng-container matColumnDef="year">
-        <th mat-header-cell *matHeaderCellDef> Año </th>
-        <td mat-cell *matCellDef="let element"> {{element.year}} </td>
-      </ng-container>
-
-      <ng-container matColumnDef="color">
-        <th mat-header-cell *matHeaderCellDef> Color </th>
-        <td mat-cell *matCellDef="let element"> {{element.color}} </td>
-      </ng-container>
-
-      <ng-container matColumnDef="owner">
-        <th mat-header-cell *matHeaderCellDef> Dueño </th>
-        <td mat-cell *matCellDef="let element">
-          <mat-icon class="sm-icon">person</mat-icon>
-          {{getCustomerName(element.customerId)}}
-        </td>
-      </ng-container>
-
-      <ng-container matColumnDef="status">
-        <th mat-header-cell *matHeaderCellDef> Estado </th>
-        <td mat-cell *matCellDef="let element">
-          <span class="custom-badge" [ngClass]="getStatusClass(element.status)">
-            {{element.status}}
-          </span>
-        </td>
-      </ng-container>
-
-      <ng-container matColumnDef="actions">
-        <th mat-header-cell *matHeaderCellDef> Acciones </th>
-        <td mat-cell *matCellDef="let element">
-          <button mat-icon-button color="accent" (click)="editVehicle(element)">
-            <mat-icon>edit</mat-icon>
-          </button>
-        </td>
-      </ng-container>
-
-      <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
-      <tr mat-row *matRowDef="let row; columns: displayedColumns;"></tr>
-    </table>
-
-    @if (vehicleStore.vehicles().length === 0 && !vehicleStore.isLoading()) {
-      <div class="empty-state">No hay vehículos registrados.</div>
-    }
+    <div class="summary-card">
+      <span>Listos</span>
+      <strong>{{ readyVehicles() }}</strong>
+    </div>
   </div>
 
+  <app-vehicle-filters
+    [search]="search()"
+    [status]="selectedStatus()"
+    [statusOptions]="statusOptions"
+    (searchChange)="onSearchChange($event)"
+    (statusChange)="onStatusChange($event)">
+  </app-vehicle-filters>
+
+  @if (vehicleStore.isLoading()) {
+    <div class="empty-state">
+      <mat-icon class="spin">sync</mat-icon>
+      <p>Cargando vehículos...</p>
+    </div>
+  } @else if (filteredVehicles().length) {
+    <div class="vehicles-grid">
+      @for (item of filteredVehicles(); track item.id) {
+        <app-vehicle-card
+          [vehicle]="item"
+          (edit)="editVehicle($event)"
+          (viewDetails)="goToVehicleDetails($event)">
+        </app-vehicle-card>
+      }
+    </div>
+  } @else {
+    <div class="empty-state">
+      <mat-icon>directions_car</mat-icon>
+      <h3>No se encontraron vehículos</h3>
+      <p>Prueba cambiando el filtro o registra un nuevo vehículo.</p>
+    </div>
+  }
+
   <ng-template #vehicleDialog>
-    <h2 mat-dialog-title>{{ isEditing ? 'Editar Vehículo' : 'Nuevo Vehículo' }}</h2>
+    <h2 mat-dialog-title>{{ isEditing ? 'Editar vehículo' : 'Nuevo vehículo' }}</h2>
 
     <mat-dialog-content>
       <div class="form-container">
-
         <mat-form-field appearance="outline" class="full-width">
-          <mat-label>Cliente (Dueño)</mat-label>
+          <mat-label>Usuario propietario</mat-label>
           <mat-select [(ngModel)]="currentVehicle.customerId" required>
             @for (customer of customerStore.customers(); track customer.id) {
-              <mat-option [value]="customer.id">{{ customer.fullName }}</mat-option>
+              <mat-option [value]="customer.id">
+                {{ customer.fullName }}
+              </mat-option>
             }
           </mat-select>
         </mat-form-field>
 
         <div class="form-row">
           <mat-form-field appearance="outline">
-            <mat-label>Placa</mat-label>
-            <input matInput [(ngModel)]="currentVehicle.plate" required placeholder="ABC-123">
+            <mat-label>Matrícula</mat-label>
+            <input
+              matInput
+              [(ngModel)]="currentVehicle.plate"
+              required
+              placeholder="ABC-123" />
           </mat-form-field>
 
           <mat-form-field appearance="outline">
             <mat-label>Estado</mat-label>
             <mat-select [(ngModel)]="currentVehicle.status">
               @for (status of statusOptions; track status) {
-                <mat-option [value]="status">{{ status }}</mat-option>
+                <mat-option [value]="status">
+                  {{ status }}
+                </mat-option>
               }
             </mat-select>
           </mat-form-field>
@@ -109,37 +108,40 @@
         <div class="form-row">
           <mat-form-field appearance="outline">
             <mat-label>Marca</mat-label>
-            <input matInput [(ngModel)]="currentVehicle.brand">
+            <input matInput [(ngModel)]="currentVehicle.brand" placeholder="Toyota" />
           </mat-form-field>
 
           <mat-form-field appearance="outline">
             <mat-label>Modelo</mat-label>
-            <input matInput [(ngModel)]="currentVehicle.model">
+            <input matInput [(ngModel)]="currentVehicle.model" placeholder="Corolla" />
           </mat-form-field>
         </div>
 
         <div class="form-row">
           <mat-form-field appearance="outline">
             <mat-label>Año</mat-label>
-            <input matInput [(ngModel)]="currentVehicle.year">
+            <input matInput [(ngModel)]="currentVehicle.year" placeholder="2024" />
           </mat-form-field>
 
           <mat-form-field appearance="outline">
             <mat-label>Color</mat-label>
-            <input matInput [(ngModel)]="currentVehicle.color">
+            <input matInput [(ngModel)]="currentVehicle.color" placeholder="Negro" />
           </mat-form-field>
         </div>
-
       </div>
     </mat-dialog-content>
 
     <mat-dialog-actions align="end">
-      <button mat-button (click)="closeDialog()">Cancelar</button>
-      <button mat-flat-button color="primary" (click)="saveVehicle()"
-              [disabled]="!currentVehicle.plate || !currentVehicle.customerId">
+      <button mat-button type="button" (click)="closeDialog()">Cancelar</button>
+
+      <button
+        mat-flat-button
+        color="primary"
+        type="button"
+        (click)="saveVehicle()"
+        [disabled]="!currentVehicle.plate || !currentVehicle.customerId">
         Guardar
       </button>
     </mat-dialog-actions>
   </ng-template>
-
-</div>
+</section>

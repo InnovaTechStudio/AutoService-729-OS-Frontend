@@ -1,67 +1,183 @@
-import { Component, inject, OnInit } from '@angular/core';
+/**
+ * WorkOrderListComponent
+ * 
+ * Main component that displays the list of all work orders
+ * in the workshop. Includes filtering, statistics and navigation to the detail
+ * or creation of new orders.
+ * 
+ * Uses Signals and `computed()` for a reactive and efficient experience.
+ * 
+ * @component
+ * @selector app-work-order-list
+ * @standalone true
+ */
 import { CommonModule } from '@angular/common';
+import { Component, computed, inject, OnInit, signal } from '@angular/core';
 import { Router } from '@angular/router';
 
-import { MatTableModule } from '@angular/material/table';
 import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
-import { MatProgressBarModule } from '@angular/material/progress-bar';
-import { MatChipsModule } from '@angular/material/chips';
 
-import { WorkOrderStore } from '../../application/work-order.store';
-import { VehicleStore } from '../../../fleet-management/application/vehicle.store';
 import { CustomerStore } from '../../../customer-management/application/customer.store';
+import { VehicleStore } from '../../../fleet-management/application/vehicle.store';
+import { TaskStore } from '../../application/task.store';
+import { WorkOrderStore } from '../../application/work-order.store';
 import { WorkOrder } from '../../domain/models/work-order.model';
+import { WorkOrderCardComponent, WorkOrderCardView } from './components/work-order-card/work-order-card';
+import { WorkOrderFiltersComponent } from './components/work-order-filters/work-order-filters';
 
 @Component({
   selector: 'app-work-order-list',
   standalone: true,
   imports: [
-    CommonModule, MatTableModule, MatButtonModule, MatIconModule,
-    MatProgressBarModule, MatChipsModule
+    CommonModule,
+    MatButtonModule,
+    MatIconModule,
+    WorkOrderCardComponent,
+    WorkOrderFiltersComponent
   ],
   templateUrl: './work-order-list.html',
   styleUrl: './work-order-list.css'
 })
 export class WorkOrderListComponent implements OnInit {
-  workOrderStore = inject(WorkOrderStore);
-  vehicleStore = inject(VehicleStore);
-  customerStore = inject(CustomerStore);
-  router = inject(Router);
+  protected readonly workOrderStore = inject(WorkOrderStore);
+  protected readonly vehicleStore = inject(VehicleStore);
+  protected readonly customerStore = inject(CustomerStore);
+  protected readonly taskStore = inject(TaskStore);
+  private readonly router = inject(Router);
 
-  displayedColumns: string[] = [
-    'trackingCode', 'vehicle', 'customer', 'progress',
-    'startDate', 'estimatedDate', 'status', 'actions'
+  // Reactive filters
+  protected readonly search = signal('');
+  protected readonly selectedStatus = signal<WorkOrder['status'] | null>(null);
+
+  protected readonly statusOptions: WorkOrder['status'][] = [
+    'En Proceso',
+    'Finalizado'
   ];
 
-  ngOnInit() {
+  /** Enriched view of the orders for display in cards */
+  protected readonly ordersView = computed<WorkOrderCardView[]>(() =>
+    this.workOrderStore.workOrders().map((order) => ({
+      id: String(order.id),
+      raw: order,
+      trackingCode: order.trackingCode || `WO-${order.id}`,
+      vehicleName: this.getVehicleName(order.vehicleId),
+      plateOnly: this.getVehiclePlate(order.vehicleId),
+      customerName: this.getCustomerName(order.customerId),
+      progress: this.calculateProgress(String(order.id)),
+      startDate: order.startDate,
+      estimatedDate: order.estimatedDate,
+      status: order.status,
+      price: Number(order.price || 0),
+      isRisk: this.isRiskOrder(order)
+    }))
+  );
+
+  /** Filtered orders based on search and status */
+  protected readonly filteredOrders = computed(() => {
+    const term = this.search().toLowerCase().trim();
+    const selectedStatus = this.selectedStatus();
+
+    return this.ordersView().filter((order) => {
+      const matchesSearch =
+        !term ||
+        order.trackingCode.toLowerCase().includes(term) ||
+        order.vehicleName.toLowerCase().includes(term) ||
+        order.plateOnly.toLowerCase().includes(term) ||
+        order.customerName.toLowerCase().includes(term);
+
+      const matchesStatus =
+        !selectedStatus || order.status === selectedStatus;
+
+      return matchesSearch && matchesStatus;
+    });
+  });
+
+  protected readonly activeOrders = computed(() =>
+    this.workOrderStore.workOrders().filter((order) => order.status === 'En Proceso').length
+  );
+
+  protected readonly completedOrders = computed(() =>
+    this.workOrderStore.workOrders().filter((order) => order.status === 'Finalizado').length
+  );
+
+  protected readonly riskOrders = computed(() =>
+    this.ordersView().filter((order) => order.isRisk).length
+  );
+
+  ngOnInit(): void {
     this.workOrderStore.loadWorkOrders();
-    // Cargamos dependencias si están vacías
-    if (this.vehicleStore.vehicles().length === 0) this.vehicleStore.loadVehicles();
-    if (this.customerStore.customers().length === 0) this.customerStore.loadCustomers();
+
+    if (this.vehicleStore.vehicles().length === 0) {
+      this.vehicleStore.loadVehicles();
+    }
+
+    if (this.customerStore.customers().length === 0) {
+      this.customerStore.loadCustomers();
+    }
+
+    if (this.taskStore.tasks().length === 0) {
+      this.taskStore.loadAllTasks();
+    }
   }
 
-  getVehiclePlate(id: string): string {
-    const vehicle = this.vehicleStore.vehicles().find(v => String(v.id) === String(id));
-    return vehicle?.plate || '---';
+  protected onSearchChange(value: string): void {
+    this.search.set(value);
   }
 
-  getCustomerName(id: string): string {
-    if (!id) return '---';
-    const customer = this.customerStore.customers().find(c => String(c.id) === String(id));
-    return customer ? customer.fullName : 'Cliente no encontrado';
+  protected onStatusChange(value: WorkOrder['status'] | null): void {
+    this.selectedStatus.set(value);
   }
 
-  // Mantenemos tu lógica original que retorna 0 por ahora [cite: 297]
-  calculateProgress(orderId: string | undefined): number {
-    return 0;
+  protected goToCreateOrder(): void {
+    this.router.navigate(['/admin/work-orders/new']);
   }
 
-  viewDetail(order: WorkOrder) {
+  protected viewDetail(order: WorkOrder): void {
     this.router.navigate(['/admin/work-orders', order.id]);
   }
 
-  goToNewOrder() {
-    this.router.navigate(['/admin/work-orders/new']);
+  private getVehiclePlate(vehicleId: string): string {
+    return this.vehicleStore
+      .vehicles()
+      .find((vehicle) => String(vehicle.id) === String(vehicleId))
+      ?.plate ?? '---';
+  }
+
+  private getVehicleName(vehicleId: string): string {
+    const vehicle = this.vehicleStore
+      .vehicles()
+      .find((item) => String(item.id) === String(vehicleId));
+
+    return vehicle
+      ? `${vehicle.brand || 'Vehículo'} ${vehicle.model || ''} - ${vehicle.plate}`
+      : 'Vehículo no encontrado';
+  }
+
+  private getCustomerName(customerId: string): string {
+    const customer = this.customerStore
+      .customers()
+      .find((item) => String(item.id) === String(customerId));
+
+    return customer?.fullName ?? 'Usuario no encontrado';
+  }
+
+  private calculateProgress(orderId: string): number {
+    const tasks = this.taskStore
+      .tasks()
+      .filter((task) => String(task.workOrderId) === String(orderId));
+
+    if (!tasks.length) {
+      return 0;
+    }
+
+    const completed = tasks.filter((task) => task.status === 'Completada').length;
+
+    return Math.round((completed / tasks.length) * 100);
+  }
+
+  private isRiskOrder(order: WorkOrder): boolean {
+    const progress = this.calculateProgress(String(order.id));
+    return order.status === 'En Proceso' && progress < 50;
   }
 }

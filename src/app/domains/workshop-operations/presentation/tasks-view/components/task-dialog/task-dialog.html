@@ -1,0 +1,106 @@
+<div class="dialog-backdrop">
+  <section class="task-dialog">
+    <header>
+      <div>
+        <p class="eyebrow">Configuración de servicio</p>
+        <h2>{{ task.id ? 'Editar tarea' : 'Nueva tarea' }}</h2>
+      </div>
+
+      <button
+        mat-icon-button
+        type="button"
+        aria-label="Cerrar"
+        (click)="onCancel()">
+        <mat-icon>close</mat-icon>
+      </button>
+    </header>
+
+    <div class="form-grid">
+      <mat-form-field appearance="outline" class="full-width">
+        <mat-label>Orden de trabajo</mat-label>
+        <mat-select [(ngModel)]="task.workOrderId" required>
+          @for (order of workOrderOptions; track order.id) {
+            <mat-option [value]="order.id">
+              {{ order.trackingCode || order.id }} - {{ order.description }}
+            </mat-option>
+          }
+        </mat-select>
+      </mat-form-field>
+
+      <mat-form-field appearance="outline" class="full-width">
+        <mat-label>Descripción</mat-label>
+        <input
+          matInput
+          [(ngModel)]="task.description"
+          placeholder="Ej: Cambio de aceite" />
+      </mat-form-field>
+
+      <mat-form-field appearance="outline" class="full-width">
+        <mat-label>Mecánico asignado</mat-label>
+        <mat-select [(ngModel)]="task.mechanicId">
+          @for (mechanic of mechanicOptions; track mechanic.id) {
+            <mat-option [value]="mechanic.id">
+              {{ mechanic.fullName }} - {{ mechanic.specialty }}
+            </mat-option>
+          }
+        </mat-select>
+      </mat-form-field>
+
+      <div class="form-row">
+        <mat-form-field appearance="outline">
+          <mat-label>Estado</mat-label>
+          <mat-select [(ngModel)]="task.status">
+            @for (status of statusOptions; track status) {
+              <mat-option [value]="status">{{ status }}</mat-option>
+            }
+          </mat-select>
+        </mat-form-field>
+
+        <mat-form-field appearance="outline">
+          <mat-label>Prioridad</mat-label>
+          <mat-select [(ngModel)]="task.priority">
+            @for (priority of priorityOptions; track priority) {
+              <mat-option [value]="priority">{{ priority }}</mat-option>
+            }
+          </mat-select>
+        </mat-form-field>
+      </div>
+
+      <mat-form-field appearance="outline" class="full-width">
+        <mat-label>Tiempo estimado</mat-label>
+        <input
+          matInput
+          type="number"
+          min="1"
+          max="24"
+          [(ngModel)]="task.estimatedTime"
+          placeholder="Ej: 2" />
+        <span matTextSuffix>h</span>
+      </mat-form-field>
+
+      <div class="technical-note">
+        <mat-icon>info</mat-icon>
+        <p>
+          Las tareas guardadas se asignarán automáticamente al historial técnico
+          de la orden seleccionada para mantener trazabilidad del servicio.
+        </p>
+      </div>
+    </div>
+
+    <footer>
+      <button mat-button type="button" (click)="onCancel()">
+        Cancelar
+      </button>
+
+      <button
+        mat-flat-button
+        color="primary"
+        type="button"
+        [disabled]="!task.description || !task.workOrderId"
+        (click)="onSave()">
+        <mat-icon>save</mat-icon>
+        Guardar
+      </button>
+    </footer>
+  </section>
+</div>

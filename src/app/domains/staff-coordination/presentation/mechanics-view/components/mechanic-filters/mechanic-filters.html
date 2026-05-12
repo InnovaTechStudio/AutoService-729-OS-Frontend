@@ -1,0 +1,28 @@
+<div class="mechanic-filters">
+  <mat-form-field appearance="outline" class="search-box">
+    <mat-label>Buscar mecánico</mat-label>
+    <mat-icon matPrefix>search</mat-icon>
+
+    <input
+      matInput
+      [ngModel]="search"
+      placeholder="Buscar por nombre o especialidad..."
+      (ngModelChange)="onSearchChange($event)" />
+  </mat-form-field>
+
+  <mat-form-field appearance="outline" class="specialty-filter">
+    <mat-label>Filtrar por especialidad</mat-label>
+
+    <mat-select
+      [ngModel]="specialty"
+      (ngModelChange)="onSpecialtyChange($event)">
+      <mat-option [value]="null">Todas</mat-option>
+
+      @for (option of specialtyOptions; track option) {
+        <mat-option [value]="option">
+          {{ option }}
+        </mat-option>
+      }
+    </mat-select>
+  </mat-form-field>
+</div>

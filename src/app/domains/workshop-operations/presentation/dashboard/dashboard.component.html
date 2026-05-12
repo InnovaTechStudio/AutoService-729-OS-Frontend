@@ -1,0 +1,201 @@
+<section class="admin-dashboard">
+  <header class="dashboard-header">
+    <div>
+      <p class="eyebrow">Gestión operativa</p>
+      <h1>Panel de control</h1>
+      <span>Supervisa vehículos, órdenes, tareas e ingresos del taller.</span>
+    </div>
+
+    <div class="header-actions">
+      <button mat-stroked-button type="button" (click)="goToOrders()">
+        <mat-icon>assignment</mat-icon>
+        Ver órdenes
+      </button>
+
+      <button mat-flat-button color="primary" type="button" (click)="goToCreateOrder()">
+        <mat-icon>add</mat-icon>
+        Nueva orden
+      </button>
+    </div>
+  </header>
+
+  <div class="kpi-grid">
+    <mat-card class="kpi-card">
+      <mat-card-content>
+        <div class="kpi-info">
+          <span>Vehículos activos</span>
+          <strong>{{ vehiclesInWorkshop() }}</strong>
+          <small>En atención actualmente</small>
+        </div>
+        <div class="kpi-icon blue">
+          <mat-icon>directions_car</mat-icon>
+        </div>
+      </mat-card-content>
+    </mat-card>
+
+    <mat-card class="kpi-card">
+      <mat-card-content>
+        <div class="kpi-info">
+          <span>Órdenes activas</span>
+          <strong>{{ activeOrders() }}</strong>
+          <small>Servicios en proceso</small>
+        </div>
+        <div class="kpi-icon indigo">
+          <mat-icon>build</mat-icon>
+        </div>
+      </mat-card-content>
+    </mat-card>
+
+    <mat-card class="kpi-card">
+      <mat-card-content>
+        <div class="kpi-info">
+          <span>Completados</span>
+          <strong>{{ completedOrders() }}</strong>
+          <small>Órdenes finalizadas</small>
+        </div>
+        <div class="kpi-icon green">
+          <mat-icon>check_circle</mat-icon>
+        </div>
+      </mat-card-content>
+    </mat-card>
+
+    <mat-card class="kpi-card">
+      <mat-card-content>
+        <div class="kpi-info">
+          <span>Ingresos proyectados</span>
+          <strong>{{ projectedIncome() | currency:'PEN':'symbol':'1.0-0' }}</strong>
+          <small>Según órdenes registradas</small>
+        </div>
+        <div class="kpi-icon violet">
+          <mat-icon>account_balance_wallet</mat-icon>
+        </div>
+      </mat-card-content>
+    </mat-card>
+  </div>
+
+  <div class="dashboard-grid">
+    <mat-card class="panel-card active-vehicles-card">
+      <mat-card-header>
+        <mat-card-title>Vehículos activos</mat-card-title>
+        <button mat-button type="button" (click)="goToVehicles()">Ver todos</button>
+      </mat-card-header>
+
+      <mat-card-content>
+        <div class="vehicle-list">
+          @for (vehicle of activeVehiclePreview(); track vehicle.id) {
+            <article class="vehicle-item">
+              <img [src]="vehicle.image" [alt]="vehicle.name" />
+
+              <div class="vehicle-body">
+                <div class="vehicle-head">
+                  <div>
+                    <strong>{{ vehicle.name }}</strong>
+                    <span [class]="getStatusClass(vehicle.status)">
+                      {{ vehicle.status }}
+                    </span>
+                  </div>
+                  <b>{{ vehicle.progress }}%</b>
+                </div>
+
+                <div class="progress-track">
+                  <div
+                    class="progress-fill"
+                    [style.width]="getProgressWidth(vehicle.progress)">
+                  </div>
+                </div>
+              </div>
+            </article>
+          }
+        </div>
+      </mat-card-content>
+    </mat-card>
+
+    <mat-card class="panel-card income-card">
+      <mat-card-header>
+        <mat-card-title>Ingresos semanales</mat-card-title>
+        <mat-card-subtitle>
+          Total acumulado esta semana:
+          {{ projectedIncome() | currency:'PEN':'symbol':'1.0-0' }}
+        </mat-card-subtitle>
+      </mat-card-header>
+
+      <mat-card-content>
+        <div class="bar-chart">
+          @for (bar of weeklyIncomeBars; track bar.day) {
+            <div class="bar-column">
+              <div
+                class="bar"
+                [class.highlight]="bar.day === 'Vie'"
+                [style.height]="getBarHeight(bar.value)">
+              </div>
+              <span>{{ bar.day }}</span>
+            </div>
+          }
+        </div>
+      </mat-card-content>
+    </mat-card>
+
+    <mat-card class="panel-card orders-card">
+      <mat-card-header>
+        <mat-card-title>Órdenes recientes</mat-card-title>
+        <button mat-button type="button" (click)="goToOrders()">Ver órdenes</button>
+      </mat-card-header>
+
+      <mat-card-content>
+        @if (recentOrders().length > 0) {
+          <div class="order-list">
+            @for (order of recentOrders(); track order.id) {
+              <article class="order-item">
+                <div>
+                  <strong>{{ order.description }}</strong>
+                  <span>{{ order.startDate }}</span>
+                </div>
+                <span [class]="getStatusClass(order.status)">
+                  {{ order.status }}
+                </span>
+              </article>
+            }
+          </div>
+        } @else {
+          <p class="empty-message">Todavía no hay órdenes registradas.</p>
+        }
+      </mat-card-content>
+    </mat-card>
+
+    <mat-card class="panel-card services-card">
+      <mat-card-header>
+        <mat-card-title>Servicios más frecuentes</mat-card-title>
+        <mat-card-subtitle>Rendimiento de servicios por tipo</mat-card-subtitle>
+      </mat-card-header>
+
+      <mat-card-content>
+        <div class="service-list">
+          @for (service of frequentServices; track service.name) {
+            <article class="service-item">
+              <div class="service-icon">
+                <mat-icon>{{ service.icon }}</mat-icon>
+              </div>
+
+              <div class="service-body">
+                <div class="service-head">
+                  <div>
+                    <strong>{{ service.name }}</strong>
+                    <span>{{ service.count }} servicios realizados</span>
+                  </div>
+                  <b>{{ service.amount | currency:'PEN':'symbol':'1.0-0' }}</b>
+                </div>
+
+                <div class="progress-track small">
+                  <div
+                    class="progress-fill"
+                    [style.width]="getProgressWidth(service.progress)">
+                  </div>
+                </div>
+              </div>
+            </article>
+          }
+        </div>
+      </mat-card-content>
+    </mat-card>
+  </div>
+</section>

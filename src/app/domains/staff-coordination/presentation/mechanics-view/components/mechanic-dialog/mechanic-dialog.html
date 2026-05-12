@@ -1,0 +1,89 @@
+<div class="dialog-backdrop">
+  <section class="mechanic-dialog">
+    <header>
+      <div>
+        <p class="eyebrow">Coordinación de staff</p>
+        <h2>{{ mechanic.id ? 'Editar mecánico' : 'Registrar mecánico' }}</h2>
+      </div>
+
+      <button
+        mat-icon-button
+        type="button"
+        aria-label="Cerrar"
+        (click)="onCancel()">
+        <mat-icon>close</mat-icon>
+      </button>
+    </header>
+
+    <div class="form-grid">
+      <mat-form-field appearance="outline" class="full-width">
+        <mat-label>Nombre completo</mat-label>
+        <input
+          matInput
+          [(ngModel)]="mechanic.fullName"
+          placeholder="Ej. Juan Pérez" />
+      </mat-form-field>
+
+      <mat-form-field appearance="outline" class="full-width">
+        <mat-label>Especialidad</mat-label>
+        <mat-select [(ngModel)]="mechanic.specialty">
+          @for (specialty of specialtyOptions; track specialty) {
+            <mat-option [value]="specialty">
+              {{ specialty }}
+            </mat-option>
+          }
+        </mat-select>
+      </mat-form-field>
+
+      <mat-form-field appearance="outline" class="full-width">
+        <mat-label>Número de teléfono</mat-label>
+        <input
+          matInput
+          [(ngModel)]="mechanic.phone"
+          placeholder="+51 990 842 000" />
+      </mat-form-field>
+
+      <mat-form-field appearance="outline" class="full-width">
+        <mat-label>Capacidad máxima de tareas</mat-label>
+        <input
+          matInput
+          type="number"
+          min="1"
+          max="10"
+          [(ngModel)]="mechanic.maxCapacity" />
+      </mat-form-field>
+
+      <mat-form-field appearance="outline" class="full-width">
+        <mat-label>Estado inicial</mat-label>
+        <mat-select [(ngModel)]="mechanic.status">
+          <mat-option value="Disponible">Disponible</mat-option>
+          <mat-option value="Ocupado">Ocupado</mat-option>
+        </mat-select>
+      </mat-form-field>
+
+      <div class="technical-note">
+        <mat-icon>info</mat-icon>
+        <p>
+          La capacidad máxima permite calcular la carga laboral del mecánico y evitar
+          asignaciones que generen retrasos en el taller.
+        </p>
+      </div>
+    </div>
+
+    <footer>
+      <button mat-button type="button" (click)="onCancel()">
+        Cancelar
+      </button>
+
+      <button
+        mat-flat-button
+        color="primary"
+        type="button"
+        [disabled]="!mechanic.fullName || !mechanic.specialty"
+        (click)="onSave()">
+        <mat-icon>save</mat-icon>
+        Guardar
+      </button>
+    </footer>
+  </section>
+</div>

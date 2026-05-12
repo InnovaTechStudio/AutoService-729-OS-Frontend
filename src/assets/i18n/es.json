@@ -1,0 +1,52 @@
+{
+    "COMMON": {
+        "WELCOME": "Bienvenido al Taller,",
+        "LOGOUT": "Cerrar Sesión",
+        "SAVE": "Guardar",
+        "CANCEL": "Cancelar",
+        "DELETE": "Eliminar",
+        "EDIT": "Editar",
+        "SEARCH": "Buscar",
+        "ACTIONS": "Acciones",
+        "VIEW_ALL": "Ver Todos"
+    },
+    "MENU": {
+        "ADMIN_PANEL": "Panel Administrador",
+        "DASHBOARD": "Panel de Control",
+        "CUSTOMERS": "Clientes",
+        "VEHICLES": "Vehículos",
+        "WORK_ORDERS": "Órdenes de Trabajo",
+        "TASKS": "Tareas",
+        "MECHANICS": "Mecánicos"
+    },
+    "LOGIN": {
+        "WELCOME": "Bienvenido",
+        "ADMIN_MODE": "Modo Admin",
+        "ENTER_CREDENTIALS": "Ingresa tus credenciales para continuar",
+        "EMAIL": "Correo Electrónico",
+        "PASSWORD": "Contraseña",
+        "LOGIN_BUTTON": "Iniciar Sesión",
+        "LOADING": "Iniciando sesión...",
+        "HERO_DESCRIPTION": "Gestión integral para talleres automotrices de forma rápida y segura.",
+        "FEATURE_EFFICIENT": "Gestión Eficiente",
+        "FEATURE_SECURE": "Acceso Seguro",
+        "FEATURE_REALTIME": "Control en Tiempo Real",
+        "NO_ACCOUNT": "¿No tienes una cuenta?",
+        "REQUEST_ACCESS": "Solicita acceso"
+    },
+    "DASHBOARD": {
+        "OPERATIONAL_MANAGEMENT": "Gestión Operativa",
+        "TITLE": "Panel de Control",
+        "SUBTITLE": "Supervisa vehículos, órdenes, tareas e ingresos del taller.",
+        "VIEW_ORDERS": "Ver Órdenes",
+        "NEW_ORDER": "Nueva Orden",
+        "ACTIVE_VEHICLES": "Vehículos Activos",
+        "CURRENTLY_ATTENDED": "En atención actualmente",
+        "ACTIVE_ORDERS": "Órdenes Activas",
+        "SERVICES_IN_PROGRESS": "Servicios en proceso",
+        "COMPLETED": "Completados",
+        "COMPLETED_ORDERS": "Órdenes Finalizadas",
+        "PROJECTED_INCOME": "Ingresos Proyectados",
+        "BASED_ON_ORDERS": "Según órdenes registradas"
+    }
+}

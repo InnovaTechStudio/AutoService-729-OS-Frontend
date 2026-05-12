@@ -1,0 +1,52 @@
+{
+    "COMMON": {
+        "WELCOME": "Welcome to the Workshop,",
+        "LOGOUT": "Logout",
+        "SAVE": "Save",
+        "CANCEL": "Cancel",
+        "DELETE": "Delete",
+        "EDIT": "Edit",
+        "SEARCH": "Search",
+        "ACTIONS": "Actions",
+        "VIEW_ALL": "View All"
+    },
+    "MENU": {
+        "ADMIN_PANEL": "Admin Panel",
+        "DASHBOARD": "Dashboard",
+        "CUSTOMERS": "Customers",
+        "VEHICLES": "Vehicles",
+        "WORK_ORDERS": "Work Orders",
+        "TASKS": "Tasks",
+        "MECHANICS": "Mechanics"
+    },
+    "LOGIN": {
+        "WELCOME": "Welcome",
+        "ADMIN_MODE": "Admin Mode",
+        "ENTER_CREDENTIALS": "Enter your credentials to continue",
+        "EMAIL": "Email",
+        "PASSWORD": "Password",
+        "LOGIN_BUTTON": "Sign In",
+        "LOADING": "Signing in...",
+        "HERO_DESCRIPTION": "Comprehensive management for automotive workshops, fast and secure.",
+        "FEATURE_EFFICIENT": "Efficient Management",
+        "FEATURE_SECURE": "Secure Access",
+        "FEATURE_REALTIME": "Real-time Control",
+        "NO_ACCOUNT": "Don't have an account?",
+        "REQUEST_ACCESS": "Request access"
+    },
+    "DASHBOARD": {
+        "OPERATIONAL_MANAGEMENT": "Operational Management",
+        "TITLE": "Control Panel",
+        "SUBTITLE": "Monitor vehicles, orders, tasks and workshop income.",
+        "VIEW_ORDERS": "View Orders",
+        "NEW_ORDER": "New Order",
+        "ACTIVE_VEHICLES": "Active Vehicles",
+        "CURRENTLY_ATTENDED": "Currently being attended",
+        "ACTIVE_ORDERS": "Active Orders",
+        "SERVICES_IN_PROGRESS": "Services in progress",
+        "COMPLETED": "Completed",
+        "COMPLETED_ORDERS": "Completed Orders",
+        "PROJECTED_INCOME": "Projected Income",
+        "BASED_ON_ORDERS": "Based on registered orders"
+    }
+}

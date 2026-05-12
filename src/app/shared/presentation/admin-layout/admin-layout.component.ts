@@ -11,14 +11,19 @@
  */
 import { Component, HostListener, inject, OnInit } from '@angular/core';
 import { RouterModule } from '@angular/router';
+import { CommonModule } from '@angular/common';
 
 import { MatSidenav, MatSidenavModule } from '@angular/material/sidenav';
 import { MatToolbarModule } from '@angular/material/toolbar';
 import { MatListModule } from '@angular/material/list';
 import { MatIconModule } from '@angular/material/icon';
 import { MatButtonModule } from '@angular/material/button';
-import { CommonModule } from '@angular/common';
+
+// ngx-translate
+import { TranslateModule } from '@ngx-translate/core';
+
 import { AuthService } from '../../../domains/auth/infrastructure/auth.service';
+import { AppTranslateService } from '../../../shared/application/services/translate.service';
 
 @Component({
   selector: 'app-admin-layout',
@@ -30,7 +35,8 @@ import { AuthService } from '../../../domains/auth/infrastructure/auth.service';
     MatListModule,
     MatIconModule,
     MatButtonModule,
-    CommonModule
+    CommonModule,
+    TranslateModule
   ],
   templateUrl: './admin-layout.component.html',
   styleUrl: './admin-layout.component.css',
@@ -38,8 +44,8 @@ import { AuthService } from '../../../domains/auth/infrastructure/auth.service';
 export class AdminLayoutComponent implements OnInit {
 
   private authService = inject(AuthService);
+  protected translateService = inject(AppTranslateService);
 
-  /** Indicates if the app is currently on a mobile screen */
   isMobile = false;
 
   ngOnInit(): void {
@@ -51,11 +57,6 @@ export class AdminLayoutComponent implements OnInit {
     this.isMobile = window.innerWidth < 768;
   }
 
-  /**
-   * Closes the sidebar automatically on mobile devices.
-   * 
-   * @param drawer - Reference to the sidenav component
-   */
   closeSidebarIfMobile(drawer: MatSidenav) {
     if (this.isMobile) {
       drawer.close();
@@ -63,15 +64,16 @@ export class AdminLayoutComponent implements OnInit {
   }
 
   /**
-   * Name of the currently authenticated user (workshop).
+   * Cambia el idioma de la aplicación
    */
-  get userName(): string {
-    return this.authService.currentUser?.name || 'Administrador';
+  switchLanguage(lang: 'en' | 'es'): void {
+    this.translateService.switchLanguage(lang);
   }
 
-  /**
-   * Close the current session and redirect to the login.
-   */
+  get userName(): string {
+    return this.authService.currentUser?.name || 'Administrator';
+  }
+
   logout() {
     this.authService.logout();
   }

@@ -25,7 +25,6 @@ import { WorkOrderStore } from '../../application/work-order.store';
 import { WorkOrder } from '../../domain/models/work-order.model';
 import { WorkOrderCardComponent, WorkOrderCardView } from './components/work-order-card/work-order-card';
 import { WorkOrderFiltersComponent } from './components/work-order-filters/work-order-filters';
-import { MatLabel } from '@angular/material/input';
 import { TranslatePipe } from '@ngx-translate/core';
 
 @Component({
@@ -37,7 +36,6 @@ import { TranslatePipe } from '@ngx-translate/core';
     MatIconModule,
     WorkOrderCardComponent,
     WorkOrderFiltersComponent,
-    MatLabel,
     TranslatePipe,
   ],
   templateUrl: './work-order-list.html',

@@ -37,12 +37,12 @@ export class LoginComponent {
   /**
    * User email (default value for testing purposes)
    */
-  email = 'admin@autoservice.com';
+  email = '';
 
   /**
    * User password (default value for testing purposes)
    */
-  password = 'admin';
+  password = '';
 
   /**
    * Controls the visibility of the password in the input field
@@ -93,10 +93,16 @@ export class LoginComponent {
       normalizedEmail === this.mechanicDemoEmail &&
       normalizedPassword === this.mechanicDemoPassword
     ) {
-      localStorage.setItem('auth_role', 'Mecanico');
-      localStorage.setItem('auth_email', normalizedEmail);
-      localStorage.setItem('auth_mechanic_id', 'M-1');
-      localStorage.setItem('auth_workshop_id', 'WS-1');
+      const mechanicSession = {
+        id: 'M-1',
+        name: 'Mecánico de Turno',
+        email: normalizedEmail,
+        role: 'Mecanico',
+        workshopId: 'WS-1'
+      };
+
+      // 2. Guardamos TODO bajo la clave 'user' que es la que lee el AuthGuard
+      localStorage.setItem('user', JSON.stringify(mechanicSession));
 
       this.isLoading = false;
       this.router.navigate(['/mechanic/workspace']);

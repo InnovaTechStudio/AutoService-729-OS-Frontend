@@ -17,6 +17,7 @@
 import { Routes } from '@angular/router';
 // Auth
 import { LoginComponent } from './domains/auth/presentation/login/login.component';
+import { authGuard } from './domains/auth/infrastructure/auth.guard';
 
 // Layout
 import { AdminLayoutComponent } from './shared/presentation/admin-layout/admin-layout.component';
@@ -50,6 +51,7 @@ export const routes: Routes = [
   {
     path: 'admin',
     component: AdminLayoutComponent,
+    canActivate: [authGuard],
     children: [
       { path: 'dashboard', component: DashboardComponent },
       { path: 'customers', component: CustomerListComponent },
@@ -66,7 +68,8 @@ export const routes: Routes = [
 
   {
     path: 'mechanic/workspace',
-    component: MechanicWorkspaceComponent
+    component: MechanicWorkspaceComponent,
+    canActivate: [authGuard]
   },
 
   { path: '', redirectTo: '/admin/dashboard', pathMatch: 'full' },

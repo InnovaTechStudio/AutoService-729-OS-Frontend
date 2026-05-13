@@ -12,6 +12,7 @@
  */
 
 import { Component, inject, effect, computed } from '@angular/core';
+import { Router } from '@angular/router';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 
@@ -43,6 +44,7 @@ export class TrackingViewComponent {
   trackingStore = inject(TrackingStore);
   vehicleHistoryStore = inject(VehicleHistoryStore);
   dialog = inject(MatDialog);
+  private readonly router = inject(Router);
 
   /** Tracking code entered by the customer */
   trackingCode = '';
@@ -184,5 +186,12 @@ export class TrackingViewComponent {
    */
   hasSelectedTaskEvidence(): boolean {
     return !!this.selectedTask?.photo || !!this.selectedTask?.evidenceRegistered;
+  }
+
+  goToFullHistory(): void {
+    const plate = this.trackingStore.vehicle()?.plate;
+    if (plate) {
+      this.router.navigate(['/tracking/history', plate]);
+    }
   }
 }

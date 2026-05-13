@@ -227,6 +227,15 @@
                   </p>
                 </div>
 
+                <button
+                  mat-flat-button
+                  color="primary"
+                  style="width: 100%; padding: 1.5rem; border-radius: 14px; font-weight: 800; font-size: 1rem; margin-top: 1rem; display: flex; align-items: center; justify-content: center; gap: 8px;"
+                  (click)="goToFullHistory()">
+                  <mat-icon>history</mat-icon>
+                  Ver historial completo y descargar PDF
+                </button>
+
                 @if (vehicleHistoryStore.isLoading()) {
                   <div class="history-empty">
                     <mat-icon>sync</mat-icon>

@@ -1,11 +1,11 @@
 /**
  * Workshop Interceptor
- * 
+ *
  * Interceptor HTTP that automatically injects the `workshopId` of the authenticated workshop
  * into all requests to the backend.
- * 
+ *
  * This allows a single backend to serve multiple workshops, filtering data based on the workshop of the logged-in user.
- * 
+ *
  * @interceptor
  */
 
@@ -14,7 +14,12 @@ import { HttpInterceptorFn } from '@angular/common/http';
 
 export const workshopInterceptor: HttpInterceptorFn = (req, next) => {
   const userJson = localStorage.getItem('user');
-  const workshopId = userJson ? JSON.parse(userJson).id : null;
+  let workshopId = null;
+
+  if (userJson) {
+    const user = JSON.parse(userJson);
+    workshopId = user.workshopId || user.id;
+  }
 
   // Do not modify requests to /workshops (login) even if there is no workshopId
   if (!workshopId || req.url.includes('/workshops')) {

@@ -1,24 +1,22 @@
 /**
  * CreateWorkOrderComponent
- * 
- * Component for creating a new complete Work Order.
- * Allows:
- * - Selecting a vehicle (and auto-completing the customer)
- * - Entering general order data (description, price, estimated date)
- * - Adding multiple tasks dynamically
- * - Saving the order and all its associated tasks in a single operation
- * 
+ *
+ * Component responsible for creating a complete work order.
+ * It allows the user to select a vehicle, automatically identify
+ * the owner customer, enter general order information, add multiple
+ * task rows dynamically and save the work order together with all
+ * associated tasks.
+ *
  * @component
  * @selector app-create-work-order
  * @standalone true
  */
-
 import { Component, inject, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { Router } from '@angular/router';
 
-// Material Modules
+// Angular Material Modules
 import { MatCardModule } from '@angular/material/card';
 import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
@@ -27,6 +25,9 @@ import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatSelectModule } from '@angular/material/select';
 import { MatDatepickerModule } from '@angular/material/datepicker';
 import { provideNativeDateAdapter } from '@angular/material/core';
+
+// ngx-translate
+import { TranslateModule, TranslateService } from '@ngx-translate/core';
 
 // Stores
 import { WorkOrderStore } from '../../application/work-order.store';
@@ -41,30 +42,65 @@ import { WorkOrder, Task } from '../../domain/models/work-order.model';
 @Component({
   selector: 'app-create-work-order',
   standalone: true,
-  providers: [provideNativeDateAdapter()], // Necesario para el MatDatepicker
+  providers: [provideNativeDateAdapter()],
   imports: [
-    CommonModule, FormsModule, MatCardModule, MatButtonModule, MatIconModule,
-    MatInputModule, MatFormFieldModule, MatSelectModule, MatDatepickerModule
+    CommonModule,
+    FormsModule,
+    MatCardModule,
+    MatButtonModule,
+    MatIconModule,
+    MatInputModule,
+    MatFormFieldModule,
+    MatSelectModule,
+    MatDatepickerModule,
+    TranslateModule
   ],
   templateUrl: './create-work-order.html',
   styleUrl: './create-work-order.css'
 })
 export class CreateWorkOrderComponent implements OnInit {
-  private router = inject(Router);
 
+  private router = inject(Router);
+  private translate = inject(TranslateService);
+
+  /**
+   * Store responsible for managing work orders.
+   */
   workOrderStore = inject(WorkOrderStore);
+
+  /**
+   * Store responsible for managing tasks.
+   */
   taskStore = inject(TaskStore);
+
+  /**
+   * Store responsible for managing vehicles.
+   */
   vehicleStore = inject(VehicleStore);
+
+  /**
+   * Store responsible for managing customers.
+   */
   customerStore = inject(CustomerStore);
+
+  /**
+   * Store responsible for managing mechanics.
+   */
   mechanicStore = inject(MechanicStore);
 
-  /** Indicates if the order is being saved */
+  /**
+   * Indicates whether the complete work order is being saved.
+   */
   isSaving = false;
 
-  /** Name of the selected customer (for display purposes only) */
+  /**
+   * Name of the customer associated with the selected vehicle.
+   */
   selectedCustomerName = '';
 
-  /** Data of the new work order */
+  /**
+   * Partial work order data bound to the form.
+   */
   newWO: Partial<WorkOrder> = {
     vehicleId: '',
     customerId: '',
@@ -74,60 +110,92 @@ export class CreateWorkOrderComponent implements OnInit {
     status: 'En Proceso'
   };
 
-  /** Array of tasks to create along with the order */
+  /**
+   * Task rows that will be created together with the work order.
+   */
   tasks: Partial<Task>[] = [];
 
-  ngOnInit() {
-    // Load necessary dependencies
-    if (this.vehicleStore.vehicles().length === 0) this.vehicleStore.loadVehicles();
-    if (this.customerStore.customers().length === 0) this.customerStore.loadCustomers();
-    if (this.mechanicStore.mechanics().length === 0) this.mechanicStore.loadMechanics();
+  /**
+   * Loads vehicles, customers and mechanics required by the form.
+   */
+  ngOnInit(): void {
+    if (this.vehicleStore.vehicles().length === 0) {
+      this.vehicleStore.loadVehicles();
+    }
+
+    if (this.customerStore.customers().length === 0) {
+      this.customerStore.loadCustomers();
+    }
+
+    if (this.mechanicStore.mechanics().length === 0) {
+      this.mechanicStore.loadMechanics();
+    }
   }
 
-  /** Returns to the list of work orders */
-  goBack() {
+  /**
+   * Navigates back to the work order list.
+   */
+  goBack(): void {
     this.router.navigate(['/admin/work-orders']);
   }
 
   /**
-   * Called when the selected vehicle changes.
-   * Auto-completes the owner customer.
+   * Handles vehicle selection and automatically assigns the owner customer
+   * to the work order form.
+   *
+   * @param vehicleId Selected vehicle identifier.
    */
-  onVehicleChange(vehicleId: string) {
-    const vehicle = this.vehicleStore.vehicles().find(v => String(v.id) === String(vehicleId));
+  onVehicleChange(vehicleId: string): void {
+    const vehicle = this.vehicleStore
+      .vehicles()
+      .find(vehicleItem => String(vehicleItem.id) === String(vehicleId));
+
     if (vehicle) {
       this.newWO.customerId = vehicle.customerId;
-      const customer = this.customerStore.customers().find(c => String(c.id) === String(vehicle.customerId));
-      this.selectedCustomerName = customer ? customer.fullName : 'No encontrado';
+
+      const customer = this.customerStore
+        .customers()
+        .find(customerItem => String(customerItem.id) === String(vehicle.customerId));
+
+      this.selectedCustomerName = customer
+        ? customer.fullName
+        : this.translate.instant('CREATE_WORK_ORDER.NOT_FOUND');
     }
   }
 
-  /** Add a new empty task row */
-  addTaskRow() {
-    this.tasks.push({ description: '', mechanicId: '', status: 'Pendiente' });
+  /**
+   * Adds a new empty task row to the form.
+   */
+  addTaskRow(): void {
+    this.tasks.push({
+      description: '',
+      mechanicId: '',
+      status: 'Pendiente'
+    });
   }
 
   /**
-   * Removes a task row.
-   * @param index - Index of the task to remove
+   * Removes a task row from the form.
+   *
+   * @param index Index of the task row to remove.
    */
-  removeTaskRow(index: number) {
+  removeTaskRow(index: number): void {
     this.tasks.splice(index, 1);
   }
 
   /**
-   * Saves the complete work order along with all its tasks.
-   * First creates the order and then the associated tasks.
+   * Saves the complete work order and all associated tasks.
+   * The work order is created first, then each valid task is created
+   * using the generated work order ID.
    */
-  saveFullWorkOrder() {
+  saveFullWorkOrder(): void {
     if (!this.newWO.vehicleId || this.tasks.length === 0) {
-      alert("Debes seleccionar un vehículo y añadir al menos una tarea.");
+      alert(this.translate.instant('CREATE_WORK_ORDER.VALIDATION_MESSAGE'));
       return;
     }
 
     this.isSaving = true;
 
-    // SOLUTION TO TS2358: We temporarily use 'any' to evaluate what the Datepicker injected
     const rawDate: any = this.newWO.estimatedDate;
     let formattedDate = this.newWO.estimatedDate;
 
@@ -142,10 +210,8 @@ export class CreateWorkOrderComponent implements OnInit {
       estimatedDate: formattedDate as string
     };
 
-    // 1. Create the main order
     this.workOrderStore.addWorkOrder(payloadWO).subscribe({
       next: (createdOrder) => {
-        // 2. Iterate through and create all tasks associated with the order ID
         this.tasks.forEach(task => {
           if (task.description) {
             this.taskStore.addTask({
@@ -159,7 +225,7 @@ export class CreateWorkOrderComponent implements OnInit {
         this.router.navigate(['/admin/work-orders']);
       },
       error: (err) => {
-        console.error("Error al guardar la orden completa:", err);
+        console.error(this.translate.instant('CREATE_WORK_ORDER.SAVE_ERROR'), err);
         this.isSaving = false;
       }
     });

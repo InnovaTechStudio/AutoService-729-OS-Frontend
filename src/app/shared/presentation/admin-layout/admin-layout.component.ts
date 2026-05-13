@@ -1,10 +1,10 @@
 /**
  * AdminLayoutComponent
- * 
+ *
  * Main layout for all pages in the admin panel.
- * Contains the navigation sidebar, top toolbar and general structure
- * of the application.
- * 
+ * It contains the navigation sidebar, the top toolbar,
+ * the language switcher and the main router outlet.
+ *
  * @component
  * @selector app-admin-layout
  * @standalone true
@@ -29,13 +29,13 @@ import { AppTranslateService } from '../../../shared/application/services/transl
   selector: 'app-admin-layout',
   standalone: true,
   imports: [
+    CommonModule,
     RouterModule,
     MatSidenavModule,
     MatToolbarModule,
     MatListModule,
     MatIconModule,
     MatButtonModule,
-    CommonModule,
     TranslateModule
   ],
   templateUrl: './admin-layout.component.html',
@@ -52,29 +52,45 @@ export class AdminLayoutComponent implements OnInit {
     this.checkScreenSize();
   }
 
+  /**
+   * Updates the sidebar behavior depending on the current screen width.
+   */
   @HostListener('window:resize')
-  checkScreenSize() {
+  checkScreenSize(): void {
     this.isMobile = window.innerWidth < 768;
   }
 
-  closeSidebarIfMobile(drawer: MatSidenav) {
+  /**
+   * Closes the sidebar automatically on mobile devices after selecting an option.
+   *
+   * @param drawer Angular Material sidebar instance.
+   */
+  closeSidebarIfMobile(drawer: MatSidenav): void {
     if (this.isMobile) {
       drawer.close();
     }
   }
 
   /**
-   * Cambia el idioma de la aplicación
+   * Changes the current application language.
+   *
+   * @param lang Language code. It can be English or Spanish.
    */
   switchLanguage(lang: 'en' | 'es'): void {
     this.translateService.switchLanguage(lang);
   }
 
+  /**
+   * Returns the current logged user name.
+   */
   get userName(): string {
     return this.authService.currentUser?.name || 'Administrator';
   }
 
-  logout() {
+  /**
+   * Logs out the current user.
+   */
+  logout(): void {
     this.authService.logout();
   }
 }

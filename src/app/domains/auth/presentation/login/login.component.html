@@ -1,28 +1,28 @@
 <div class="login-layout">
+
   <div class="hero-section">
     <div class="hero-content">
       <h1>AutoService</h1>
 
       <p>
-        Gestión integral para talleres automotrices
-        de forma rápida y segura.
+        {{ 'LOGIN.HERO_DESCRIPTION' | translate }}
       </p>
 
       <div class="hero-features">
 
         <div class="feature-item">
           <mat-icon>build</mat-icon>
-          Gestión eficiente
+          {{ 'LOGIN.FEATURE_EFFICIENT' | translate }}
         </div>
 
         <div class="feature-item">
           <mat-icon>verified_user</mat-icon>
-          Acceso seguro
+          {{ 'LOGIN.FEATURE_SECURE' | translate }}
         </div>
 
         <div class="feature-item">
           <mat-icon>speed</mat-icon>
-          Control en tiempo real
+          {{ 'LOGIN.FEATURE_REALTIME' | translate }}
         </div>
 
       </div>
@@ -31,59 +31,119 @@
 
   <div class="form-section">
     <div class="login-box">
+
       <div class="login-header">
 
         <div class="form-logo">
           <img src="/AutoService-logo.jpg" alt="AutoService Logo" />
           <span>AutoService</span>
         </div>
-        <h2>Bienvenido</h2>
-        <span class="badge">Modo Admin</span>
-        <p>Ingresa tus credenciales para continuar</p>
-      </div>
 
+        <div class="language-actions">
+          <button
+            mat-icon-button
+            type="button"
+            (click)="switchLanguage('en')"
+            [class.active-lang]="translateService.getCurrentLang() === 'en'"
+            title="English">
+            🇬🇧
+          </button>
+
+          <button
+            mat-icon-button
+            type="button"
+            (click)="switchLanguage('es')"
+            [class.active-lang]="translateService.getCurrentLang() === 'es'"
+            title="Español">
+            🇪🇸
+          </button>
+        </div>
+
+        <h2>{{ 'LOGIN.WELCOME' | translate }}</h2>
+
+        <span class="badge">
+          {{ 'LOGIN.ADMIN_MODE' | translate }}
+        </span>
+
+        <p>
+          {{ 'LOGIN.ENTER_CREDENTIALS' | translate }}
+        </p>
+      </div>
 
       <form (ngSubmit)="handleLogin()" class="login-form">
 
         <div class="input-group">
           <mat-form-field appearance="outline" class="w-full">
-            <mat-label>Correo Electrónico</mat-label>
-            <input matInput type="email" [(ngModel)]="email" name="email" placeholder="admin@autoservice.com" required>
+            <mat-label>{{ 'LOGIN.EMAIL' | translate }}</mat-label>
+
+            <input
+              matInput
+              type="email"
+              [(ngModel)]="email"
+              name="email"
+              placeholder="admin@autoservice.com"
+              required>
           </mat-form-field>
         </div>
 
         <div class="input-group">
           <mat-form-field appearance="outline" class="w-full">
-            <mat-label>Contraseña</mat-label>
-            <input matInput [type]="hidePassword ? 'password' : 'text'" [(ngModel)]="password" name="password" placeholder="••••••••" required>
-            <button mat-icon-button matSuffix (click)="hidePassword = !hidePassword" type="button">
-              <mat-icon>{{hidePassword ? 'visibility_off' : 'visibility'}}</mat-icon>
-            </button>
+            <mat-label>{{ 'LOGIN.PASSWORD' | translate }}</mat-label>
 
+            <input
+              matInput
+              [type]="hidePassword ? 'password' : 'text'"
+              [(ngModel)]="password"
+              name="password"
+              placeholder="••••••••"
+              required>
+
+            <button
+              mat-icon-button
+              matSuffix
+              type="button"
+              (click)="hidePassword = !hidePassword">
+
+              <mat-icon>
+                {{ hidePassword ? 'visibility_off' : 'visibility' }}
+              </mat-icon>
+            </button>
           </mat-form-field>
+
           <div class="form-options">
             <a href="#" class="forgot-link">
-              ¿Has olvidado tu contraseña?
+              {{ 'LOGIN.FORGOT_PASSWORD' | translate }}
             </a>
-
           </div>
         </div>
 
-        @if (errorMessage) {
+        @if (errorMessageKey) {
           <div class="error-message">
-            <mat-icon style="font-size: 18px; width: 18px; height: 18px;">error_outline</mat-icon>
-            {{ errorMessage }}
+            <mat-icon style="font-size: 18px; width: 18px; height: 18px;">
+              error_outline
+            </mat-icon>
+
+            {{ errorMessageKey | translate }}
           </div>
         }
 
-        <button mat-flat-button color="primary" type="submit" [disabled]="isLoading" class="w-full mt-3 submit-btn">
-          {{ isLoading ? 'Iniciando...' : 'Iniciar Sesión' }}
+        <button
+          mat-flat-button
+          color="primary"
+          type="submit"
+          [disabled]="isLoading"
+          class="w-full mt-3 submit-btn">
+
+          {{ isLoading ? ('LOGIN.LOADING' | translate) : ('LOGIN.LOGIN_BUTTON' | translate) }}
         </button>
+
         <div class="register-link">
-          ¿No tienes una cuenta?
-          <a href="#">Solicita acceso</a>
+          {{ 'LOGIN.NO_ACCOUNT' | translate }}
+          <a href="#">{{ 'LOGIN.REQUEST_ACCESS' | translate }}</a>
         </div>
+
       </form>
     </div>
   </div>
+
 </div>

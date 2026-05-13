@@ -1,11 +1,16 @@
 <section class="mechanics-page">
   <div class="mechanics-header">
     <div>
-      <span class="eyebrow">Coordinación de staff</span>
-      <h1>Gestión de mecánicos</h1>
+      <span class="eyebrow">
+        {{ 'MECHANICS_VIEW.STAFF_COORDINATION' | translate }}
+      </span>
+
+      <h1>
+        {{ 'MECHANICS_VIEW.TITLE' | translate }}
+      </h1>
+
       <p>
-        Administra especialidades, disponibilidad y carga laboral para asignar tareas
-        con mayor precisión.
+        {{ 'MECHANICS_VIEW.DESCRIPTION' | translate }}
       </p>
     </div>
 
@@ -15,24 +20,25 @@
       type="button"
       class="add-button"
       (click)="openDialog()">
+
       <mat-icon>person_add</mat-icon>
-      Registrar mecánico
+      {{ 'MECHANICS_VIEW.REGISTER_MECHANIC' | translate }}
     </button>
   </div>
 
   <div class="summary-row">
     <div class="summary-card">
-      <span>Total mecánicos</span>
+      <span>{{ 'MECHANICS_VIEW.TOTAL_MECHANICS' | translate }}</span>
       <strong>{{ mechanicStore.mechanics().length }}</strong>
     </div>
 
     <div class="summary-card">
-      <span>Disponibles</span>
+      <span>{{ 'MECHANICS_VIEW.AVAILABLE' | translate }}</span>
       <strong>{{ availableMechanics() }}</strong>
     </div>
 
     <div class="summary-card warning">
-      <span>Carga alta</span>
+      <span>{{ 'MECHANICS_VIEW.HIGH_LOAD' | translate }}</span>
       <strong>{{ highLoadMechanics() }}</strong>
     </div>
   </div>
@@ -48,7 +54,7 @@
   @if (mechanicStore.isLoading()) {
     <div class="empty-state">
       <mat-icon class="spin">sync</mat-icon>
-      <p>Cargando mecánicos...</p>
+      <p>{{ 'MECHANICS_VIEW.LOADING' | translate }}</p>
     </div>
   } @else if (filteredMechanics().length) {
     <div class="mechanics-grid">
@@ -63,8 +69,14 @@
   } @else {
     <div class="empty-state">
       <mat-icon>groups</mat-icon>
-      <h3>No se encontraron mecánicos</h3>
-      <p>Prueba cambiando el filtro o registra un nuevo integrante.</p>
+
+      <h3>
+        {{ 'MECHANICS_VIEW.NO_MECHANICS_FOUND' | translate }}
+      </h3>
+
+      <p>
+        {{ 'MECHANICS_VIEW.EMPTY_DESCRIPTION' | translate }}
+      </p>
     </div>
   }
 

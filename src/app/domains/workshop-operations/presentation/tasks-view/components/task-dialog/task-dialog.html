@@ -2,14 +2,14 @@
   <section class="task-dialog">
     <header>
       <div>
-        <p class="eyebrow">Configuración de servicio</p>
-        <h2>{{ task.id ? 'Editar tarea' : 'Nueva tarea' }}</h2>
+        <p class="eyebrow">{{ 'TASK_DIALOG.SERVICE_CONFIGURATION' | translate }}</p>
+        <h2>{{ task.id ? ('TASK_DIALOG.EDIT_TASK' | translate) : ('TASK_DIALOG.NEW_TASK' | translate) }}</h2>
       </div>
 
       <button
         mat-icon-button
         type="button"
-        aria-label="Cerrar"
+        [attr.aria-label]="'TASK_DIALOG.CLOSE' | translate"
         (click)="onCancel()">
         <mat-icon>close</mat-icon>
       </button>
@@ -17,7 +17,7 @@
 
     <div class="form-grid">
       <mat-form-field appearance="outline" class="full-width">
-        <mat-label>Orden de trabajo</mat-label>
+        <mat-label>{{ 'TASK_DIALOG.WORK_ORDER' | translate }}</mat-label>
         <mat-select [(ngModel)]="task.workOrderId" required>
           @for (order of workOrderOptions; track order.id) {
             <mat-option [value]="order.id">
@@ -28,15 +28,15 @@
       </mat-form-field>
 
       <mat-form-field appearance="outline" class="full-width">
-        <mat-label>Descripción</mat-label>
+        <mat-label>{{ 'TASK_DIALOG.DESCRIPTION' | translate }}</mat-label>
         <input
           matInput
           [(ngModel)]="task.description"
-          placeholder="Ej: Cambio de aceite" />
+          [placeholder]="'TASK_DIALOG.DESCRIPTION_PLACEHOLDER' | translate" />
       </mat-form-field>
 
       <mat-form-field appearance="outline" class="full-width">
-        <mat-label>Mecánico asignado</mat-label>
+        <mat-label>{{ 'TASK_DIALOG.ASSIGNED_MECHANIC' | translate }}</mat-label>
         <mat-select [(ngModel)]="task.mechanicId">
           @for (mechanic of mechanicOptions; track mechanic.id) {
             <mat-option [value]="mechanic.id">
@@ -48,26 +48,26 @@
 
       <div class="form-row">
         <mat-form-field appearance="outline">
-          <mat-label>Estado</mat-label>
+          <mat-label>{{ 'TASK_DIALOG.STATUS' | translate }}</mat-label>
           <mat-select [(ngModel)]="task.status">
             @for (status of statusOptions; track status) {
-              <mat-option [value]="status">{{ status }}</mat-option>
+              <mat-option [value]="status">{{ getStatusTranslationKey(status) | translate }}</mat-option>
             }
           </mat-select>
         </mat-form-field>
 
         <mat-form-field appearance="outline">
-          <mat-label>Prioridad</mat-label>
+          <mat-label>{{ 'TASK_DIALOG.PRIORITY' | translate }}</mat-label>
           <mat-select [(ngModel)]="task.priority">
             @for (priority of priorityOptions; track priority) {
-              <mat-option [value]="priority">{{ priority }}</mat-option>
+              <mat-option [value]="priority">{{ getPriorityTranslationKey(priority) | translate }}</mat-option>
             }
           </mat-select>
         </mat-form-field>
       </div>
 
       <mat-form-field appearance="outline" class="full-width">
-        <mat-label>Tiempo estimado</mat-label>
+        <mat-label>{{ 'TASK_DIALOG.ESTIMATED_TIME' | translate }}</mat-label>
         <input
           matInput
           type="number"
@@ -80,7 +80,7 @@
 
       <div class="image-upload-section">
         <label class="upload-label">
-          Evidencia visual
+          {{ 'TASK_DIALOG.VISUAL_EVIDENCE' | translate }}
         </label>
         <input
           type="file"
@@ -91,7 +91,7 @@
           <div class="image-preview">
             <img
               [src]="task.photo"
-              alt="preview"
+              [alt]="'TASK_DIALOG.PREVIEW_ALT' | translate"
             />
           </div>}
 
@@ -99,15 +99,14 @@
       <div class="technical-note">
         <mat-icon>info</mat-icon>
         <p>
-          Las tareas guardadas se asignarán automáticamente al historial técnico
-          de la orden seleccionada para mantener trazabilidad del servicio.
+          {{ 'TASK_DIALOG.TECHNICAL_NOTE' | translate }}
         </p>
       </div>
     </div>
 
     <footer>
       <button mat-button type="button" (click)="onCancel()">
-        Cancelar
+        {{ 'TASK_DIALOG.CANCEL' | translate }}
       </button>
 
       <button
@@ -117,7 +116,7 @@
         [disabled]="!task.description || !task.workOrderId"
         (click)="onSave()">
         <mat-icon>save</mat-icon>
-        Guardar
+        {{ 'TASK_DIALOG.SAVE' | translate }}
       </button>
     </footer>
   </section>

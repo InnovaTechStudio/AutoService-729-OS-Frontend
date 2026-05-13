@@ -2,30 +2,42 @@
   <section class="mechanic-dialog">
     <header>
       <div>
-        <p class="eyebrow">Coordinación de staff</p>
-        <h2>{{ mechanic.id ? 'Editar mecánico' : 'Registrar mecánico' }}</h2>
+        <p class="eyebrow">
+          {{ 'MECHANIC_DIALOG.STAFF_COORDINATION' | translate }}
+        </p>
+
+        <h2>
+          {{ mechanic.id ? ('MECHANIC_DIALOG.EDIT_MECHANIC' | translate) : ('MECHANIC_DIALOG.REGISTER_MECHANIC' | translate) }}
+        </h2>
       </div>
 
       <button
         mat-icon-button
         type="button"
-        aria-label="Cerrar"
+        [attr.aria-label]="'MECHANIC_DIALOG.CLOSE' | translate"
         (click)="onCancel()">
+
         <mat-icon>close</mat-icon>
       </button>
     </header>
 
     <div class="form-grid">
       <mat-form-field appearance="outline" class="full-width">
-        <mat-label>Nombre completo</mat-label>
+        <mat-label>
+          {{ 'MECHANIC_DIALOG.FULL_NAME' | translate }}
+        </mat-label>
+
         <input
           matInput
           [(ngModel)]="mechanic.fullName"
-          placeholder="Ej. Juan Pérez" />
+          [placeholder]="'MECHANIC_DIALOG.FULL_NAME_PLACEHOLDER' | translate" />
       </mat-form-field>
 
       <mat-form-field appearance="outline" class="full-width">
-        <mat-label>Especialidad</mat-label>
+        <mat-label>
+          {{ 'MECHANIC_DIALOG.SPECIALTY' | translate }}
+        </mat-label>
+
         <mat-select [(ngModel)]="mechanic.specialty">
           @for (specialty of specialtyOptions; track specialty) {
             <mat-option [value]="specialty">
@@ -36,7 +48,10 @@
       </mat-form-field>
 
       <mat-form-field appearance="outline" class="full-width">
-        <mat-label>Número de teléfono</mat-label>
+        <mat-label>
+          {{ 'MECHANIC_DIALOG.PHONE_NUMBER' | translate }}
+        </mat-label>
+
         <input
           matInput
           [(ngModel)]="mechanic.phone"
@@ -44,7 +59,10 @@
       </mat-form-field>
 
       <mat-form-field appearance="outline" class="full-width">
-        <mat-label>Capacidad máxima de tareas</mat-label>
+        <mat-label>
+          {{ 'MECHANIC_DIALOG.MAX_TASK_CAPACITY' | translate }}
+        </mat-label>
+
         <input
           matInput
           type="number"
@@ -54,25 +72,37 @@
       </mat-form-field>
 
       <mat-form-field appearance="outline" class="full-width">
-        <mat-label>Estado inicial</mat-label>
+        <mat-label>
+          {{ 'MECHANIC_DIALOG.INITIAL_STATUS' | translate }}
+        </mat-label>
+
         <mat-select [(ngModel)]="mechanic.status">
-          <mat-option value="Disponible">Disponible</mat-option>
-          <mat-option value="Ocupado">Ocupado</mat-option>
+          <mat-option value="Disponible">
+            {{ 'MECHANIC_DIALOG.AVAILABLE' | translate }}
+          </mat-option>
+
+          <mat-option value="Ocupado">
+            {{ 'MECHANIC_DIALOG.BUSY' | translate }}
+          </mat-option>
         </mat-select>
       </mat-form-field>
 
       <div class="technical-note">
         <mat-icon>info</mat-icon>
+
         <p>
-          La capacidad máxima permite calcular la carga laboral del mecánico y evitar
-          asignaciones que generen retrasos en el taller.
+          {{ 'MECHANIC_DIALOG.TECHNICAL_NOTE' | translate }}
         </p>
       </div>
     </div>
 
     <footer>
-      <button mat-button type="button" (click)="onCancel()">
-        Cancelar
+      <button
+        mat-button
+        type="button"
+        (click)="onCancel()">
+
+        {{ 'MECHANIC_DIALOG.CANCEL' | translate }}
       </button>
 
       <button
@@ -81,8 +111,9 @@
         type="button"
         [disabled]="!mechanic.fullName || !mechanic.specialty"
         (click)="onSave()">
+
         <mat-icon>save</mat-icon>
-        Guardar
+        {{ 'MECHANIC_DIALOG.SAVE' | translate }}
       </button>
     </footer>
   </section>

@@ -7,7 +7,7 @@
         </button>
 
         <div>
-          <span class="eyebrow">Orden de trabajo</span>
+          <span class="eyebrow">{{ 'WORK_ORDER_DETAIL.WORK_ORDER' | translate }}</span>
           <h1>{{ currentOrder.trackingCode || ('WO-' + currentOrder.id) }}</h1>
           <p>{{ getVehicleName() }}</p>
         </div>
@@ -16,7 +16,7 @@
       <span
         class="order-status"
         [class.finalized]="currentOrder.status === 'Finalizado'">
-        {{ currentOrder.status }}
+        {{ getStatusTranslationKey(currentOrder.status) | translate }}
       </span>
     </header>
 
@@ -26,18 +26,23 @@
 
         <div class="summary-grid">
           <p>
-            <strong>Fecha ingreso</strong>
+            <strong>{{ 'WORK_ORDER_DETAIL.START_DATE' | translate }}</strong>
             <span>{{ currentOrder.startDate || '---' }}</span>
           </p>
 
           <p>
-            <strong>Fecha estimada</strong>
+            <strong>{{ 'WORK_ORDER_DETAIL.ESTIMATED_DATE' | translate }}</strong>
             <span>{{ currentOrder.estimatedDate || '---' }}</span>
           </p>
 
           <p>
-            <strong>Progreso</strong>
-            <span>{{ completedTasks() }} de {{ orderTasks().length }} tareas completadas</span>
+            <strong>{{ 'WORK_ORDER_DETAIL.PROGRESS' | translate }}</strong>
+            <span>
+              {{ completedTasks() }}
+              {{ 'WORK_ORDER_DETAIL.OF' | translate }}
+              {{ orderTasks().length }}
+              {{ 'WORK_ORDER_DETAIL.TASKS_COMPLETED' | translate }}
+            </span>
           </p>
         </div>
 
@@ -56,7 +61,7 @@
       </div>
 
       <div class="price-box">
-        <label>Precio total</label>
+        <label>{{ 'WORK_ORDER_DETAIL.TOTAL_PRICE' | translate }}</label>
 
         <div class="price-input">
           <span>S/.</span>
@@ -67,13 +72,13 @@
             (blur)="savePrice()" />
         </div>
 
-        <small>Se guarda al salir del campo.</small>
+        <small>{{ 'WORK_ORDER_DETAIL.PRICE_SAVE_NOTE' | translate }}</small>
       </div>
     </section>
 
     <section class="progress-card">
       <div>
-        <span>Avance de la orden</span>
+        <span>{{ 'WORK_ORDER_DETAIL.ORDER_PROGRESS' | translate }}</span>
         <strong>{{ progress() }}%</strong>
       </div>
 
@@ -86,8 +91,8 @@
     <section class="tasks-section">
       <div class="section-header">
         <div>
-          <h2>Tareas asignadas</h2>
-          <p>Actualiza estados para mantener trazabilidad del servicio.</p>
+          <h2>{{ 'WORK_ORDER_DETAIL.ASSIGNED_TASKS' | translate }}</h2>
+          <p>{{ 'WORK_ORDER_DETAIL.TASKS_DESCRIPTION' | translate }}</p>
         </div>
 
         <button
@@ -96,14 +101,14 @@
           type="button"
           (click)="openTaskDialog()">
           <mat-icon>add</mat-icon>
-          Agregar tarea
+          {{ 'WORK_ORDER_DETAIL.ADD_TASK' | translate }}
         </button>
       </div>
 
       @if (taskStore.isLoading()) {
         <div class="empty-state">
           <mat-icon class="spin">sync</mat-icon>
-          <p>Cargando tareas...</p>
+          <p>{{ 'WORK_ORDER_DETAIL.LOADING_TASKS' | translate }}</p>
         </div>
       } @else if (orderTasks().length) {
         <div class="task-list">
@@ -124,7 +129,7 @@
                   (selectionChange)="updateTaskStatus(task, $event.value)">
                   @for (status of taskStatusOptions; track status) {
                     <mat-option [value]="status">
-                      {{ status }}
+                      {{ getStatusTranslationKey(status) | translate }}
                     </mat-option>
                   }
                 </mat-select>
@@ -135,8 +140,8 @@
       } @else {
         <div class="empty-state">
           <mat-icon>assignment_late</mat-icon>
-          <h3>No hay tareas asignadas</h3>
-          <p>Agrega tareas para controlar el avance real de la orden.</p>
+          <h3>{{ 'WORK_ORDER_DETAIL.NO_ASSIGNED_TASKS' | translate }}</h3>
+          <p>{{ 'WORK_ORDER_DETAIL.NO_ASSIGNED_TASKS_DESCRIPTION' | translate }}</p>
         </div>
       }
     </section>
@@ -144,54 +149,54 @@
     <section class="qa-card">
       <div class="section-header">
         <div>
-          <h2>Checklist de calidad antes de entrega</h2>
+          <h2>{{ 'WORK_ORDER_DETAIL.QUALITY_CHECKLIST' | translate }}</h2>
           <p>
-            Valida condiciones mínimas antes de cerrar la reparación y entregar el vehículo.
+            {{ 'WORK_ORDER_DETAIL.QUALITY_DESCRIPTION' | translate }}
           </p>
         </div>
 
         <span
           class="qa-status"
           [class.approved]="canMarkReadyForDelivery()">
-      {{ canMarkReadyForDelivery() ? 'QA aprobado' : 'QA pendiente' }}
-    </span>
+          {{ canMarkReadyForDelivery() ? ('WORK_ORDER_DETAIL.QA_APPROVED' | translate) : ('WORK_ORDER_DETAIL.QA_PENDING' | translate) }}
+        </span>
       </div>
 
       <div class="qa-list">
         <article class="qa-item" [class.completed]="allTasksCompleted()">
           <mat-icon>{{ allTasksCompleted() ? 'check_circle' : 'radio_button_unchecked' }}</mat-icon>
           <div>
-            <strong>Tareas completadas</strong>
-            <span>Todas las tareas técnicas deben estar completadas.</span>
+            <strong>{{ 'WORK_ORDER_DETAIL.TASKS_COMPLETED_TITLE' | translate }}</strong>
+            <span>{{ 'WORK_ORDER_DETAIL.TASKS_COMPLETED_DESCRIPTION' | translate }}</span>
           </div>
         </article>
 
         <article class="qa-item" [class.completed]="diagnosticRegistered()">
           <mat-icon>{{ diagnosticRegistered() ? 'check_circle' : 'radio_button_unchecked' }}</mat-icon>
           <div>
-            <strong>Diagnóstico registrado</strong>
-            <span>La orden debe contar con descripción o diagnóstico técnico.</span>
+            <strong>{{ 'WORK_ORDER_DETAIL.DIAGNOSIS_REGISTERED' | translate }}</strong>
+            <span>{{ 'WORK_ORDER_DETAIL.DIAGNOSIS_DESCRIPTION' | translate }}</span>
           </div>
         </article>
 
         <article class="qa-item" [class.completed]="costsValidated()">
           <mat-icon>{{ costsValidated() ? 'check_circle' : 'radio_button_unchecked' }}</mat-icon>
           <div>
-            <strong>Costos validados</strong>
-            <span>El servicio debe tener un precio total registrado.</span>
+            <strong>{{ 'WORK_ORDER_DETAIL.COSTS_VALIDATED' | translate }}</strong>
+            <span>{{ 'WORK_ORDER_DETAIL.COSTS_DESCRIPTION' | translate }}</span>
           </div>
         </article>
 
         <mat-checkbox
           [checked]="finalEvidenceRegistered()"
           (change)="toggleFinalEvidence($event.checked)">
-          Evidencia final registrada
+          {{ 'WORK_ORDER_DETAIL.FINAL_EVIDENCE' | translate }}
         </mat-checkbox>
 
         <mat-checkbox
           [checked]="supervisorApproved()"
           (change)="toggleSupervisorApproval($event.checked)">
-          Revisión aprobada por el administrador
+          {{ 'WORK_ORDER_DETAIL.SUPERVISOR_APPROVED' | translate }}
         </mat-checkbox>
       </div>
 
@@ -203,19 +208,17 @@
         [disabled]="!canMarkReadyForDelivery()"
         (click)="markOrderAsReadyForDelivery()">
         <mat-icon>verified</mat-icon>
-        Marcar como listo para entrega
+        {{ 'WORK_ORDER_DETAIL.MARK_READY' | translate }}
       </button>
     </section>
-
-
 
     @if (taskDialog()) {
       <div class="dialog-backdrop">
         <section class="task-dialog">
           <header>
             <div>
-              <span class="eyebrow">Nueva tarea</span>
-              <h2>Agregar tarea a la orden</h2>
+              <span class="eyebrow">{{ 'WORK_ORDER_DETAIL.NEW_TASK' | translate }}</span>
+              <h2>{{ 'WORK_ORDER_DETAIL.ADD_TASK_TO_ORDER' | translate }}</h2>
             </div>
 
             <button mat-icon-button type="button" (click)="closeTaskDialog()">
@@ -224,15 +227,15 @@
           </header>
 
           <mat-form-field appearance="outline" class="full-width">
-            <mat-label>Descripción</mat-label>
+            <mat-label>{{ 'WORK_ORDER_DETAIL.DESCRIPTION' | translate }}</mat-label>
             <input
               matInput
               [(ngModel)]="newTask.description"
-              placeholder="Ej: Revisión de frenos" />
+              [placeholder]="'WORK_ORDER_DETAIL.DESCRIPTION_PLACEHOLDER' | translate" />
           </mat-form-field>
 
           <mat-form-field appearance="outline" class="full-width">
-            <mat-label>Asignar a mecánico</mat-label>
+            <mat-label>{{ 'WORK_ORDER_DETAIL.ASSIGN_MECHANIC' | translate }}</mat-label>
 
             <mat-select [(ngModel)]="newTask.mechanicId">
               @for (mechanic of mechanicStore.mechanics(); track mechanic.id) {
@@ -245,7 +248,7 @@
 
           <footer>
             <button mat-button type="button" (click)="closeTaskDialog()">
-              Cancelar
+              {{ 'WORK_ORDER_DETAIL.CANCEL' | translate }}
             </button>
 
             <button
@@ -254,7 +257,7 @@
               type="button"
               [disabled]="!newTask.description || !newTask.mechanicId"
               (click)="saveTask()">
-              Guardar
+              {{ 'WORK_ORDER_DETAIL.SAVE' | translate }}
             </button>
           </footer>
         </section>
@@ -263,7 +266,7 @@
   } @else {
     <div class="empty-state full">
       <mat-icon class="spin">sync</mat-icon>
-      <p>Cargando detalle de orden...</p>
+      <p>{{ 'WORK_ORDER_DETAIL.LOADING_DETAIL' | translate }}</p>
     </div>
   }
 </section>

@@ -1,10 +1,16 @@
 <section class="work-orders-page">
   <div class="work-orders-header">
     <div>
-      <span class="eyebrow">Operación del taller</span>
-      <h1>Órdenes de trabajo</h1>
+      <span class="eyebrow">
+        {{ 'WORK_ORDER_LIST.WORKSHOP_OPERATION' | translate }}
+      </span>
+
+      <h1>
+        {{ 'WORK_ORDER_LIST.TITLE' | translate }}
+      </h1>
+
       <p>
-        Consulta el avance de cada servicio, detecta retrasos y accede al detalle operativo de la orden.
+        {{ 'WORK_ORDER_LIST.DESCRIPTION' | translate }}
       </p>
     </div>
 
@@ -14,34 +20,36 @@
       type="button"
       class="add-button"
       (click)="goToCreateOrder()">
+
       <mat-icon>add</mat-icon>
-      Nueva orden
+      {{ 'WORK_ORDER_LIST.NEW_ORDER' | translate }}
     </button>
   </div>
 
   <div class="summary-row">
     <div class="summary-card">
-      <span>Total órdenes</span>
+      <span>{{ 'WORK_ORDER_LIST.TOTAL_ORDERS' | translate }}</span>
       <strong>{{ workOrderStore.workOrders().length }}</strong>
     </div>
 
     <div class="summary-card">
-      <span>En proceso</span>
+      <span>{{ 'WORK_ORDER_LIST.IN_PROGRESS' | translate }}</span>
       <strong>{{ activeOrders() }}</strong>
     </div>
 
     <div class="summary-card warning">
-      <span>Riesgo de retraso</span>
+      <span>{{ 'WORK_ORDER_LIST.DELAY_RISK' | translate }}</span>
       <strong>{{ riskOrders() }}</strong>
     </div>
 
     <div class="summary-card">
-      <span>Finalizadas</span>
+      <span>{{ 'WORK_ORDER_LIST.FINISHED' | translate }}</span>
       <strong>{{ completedOrders() }}</strong>
     </div>
   </div>
 
   <app-work-order-filters
+    class="filters-section"
     [search]="search()"
     [status]="selectedStatus()"
     [statusOptions]="statusOptions"
@@ -52,12 +60,13 @@
   @if (workOrderStore.isLoading()) {
     <div class="empty-state">
       <mat-icon class="spin">sync</mat-icon>
-      <p>Cargando órdenes...</p>
+      <p>{{ 'WORK_ORDER_LIST.LOADING' | translate }}</p>
     </div>
   } @else if (filteredOrders().length) {
     <div class="orders-grid">
       @for (order of filteredOrders(); track order.id) {
         <app-work-order-card
+          class="order-card-wrapper"
           [order]="order"
           (viewDetail)="viewDetail($event)">
         </app-work-order-card>
@@ -66,8 +75,14 @@
   } @else {
     <div class="empty-state">
       <mat-icon>assignment</mat-icon>
-      <h3>No se encontraron órdenes</h3>
-      <p>Prueba cambiando el filtro o crea una nueva orden.</p>
+
+      <h3>
+        {{ 'WORK_ORDER_LIST.NO_ORDERS_FOUND' | translate }}
+      </h3>
+
+      <p>
+        {{ 'WORK_ORDER_LIST.EMPTY_DESCRIPTION' | translate }}
+      </p>
     </div>
   }
 </section>

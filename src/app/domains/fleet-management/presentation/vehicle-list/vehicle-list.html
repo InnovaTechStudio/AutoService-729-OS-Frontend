@@ -1,10 +1,16 @@
 <section class="vehicle-page">
   <div class="vehicle-header">
     <div>
-      <span class="eyebrow">Gestión de flota</span>
-      <h1>Vehículos registrados</h1>
+      <span class="eyebrow">
+        {{ 'VEHICLE_LIST.FLEET_MANAGEMENT' | translate }}
+      </span>
+
+      <h1>
+        {{ 'VEHICLE_LIST.TITLE' | translate }}
+      </h1>
+
       <p>
-        Consulta, filtra y administra los vehículos vinculados a servicios activos del taller.
+        {{ 'VEHICLE_LIST.DESCRIPTION' | translate }}
       </p>
     </div>
 
@@ -14,24 +20,25 @@
       type="button"
       class="add-button"
       (click)="openNewDialog()">
+
       <mat-icon>add</mat-icon>
-      Agregar vehículo
+      {{ 'VEHICLE_LIST.ADD_VEHICLE' | translate }}
     </button>
   </div>
 
   <div class="summary-row">
     <div class="summary-card">
-      <span>Total registrados</span>
+      <span>{{ 'VEHICLE_LIST.TOTAL_REGISTERED' | translate }}</span>
       <strong>{{ vehicleStore.vehicles().length }}</strong>
     </div>
 
     <div class="summary-card">
-      <span>En taller</span>
+      <span>{{ 'VEHICLE_LIST.IN_WORKSHOP' | translate }}</span>
       <strong>{{ vehiclesInWorkshop() }}</strong>
     </div>
 
     <div class="summary-card">
-      <span>Listos</span>
+      <span>{{ 'VEHICLE_LIST.READY' | translate }}</span>
       <strong>{{ readyVehicles() }}</strong>
     </div>
   </div>
@@ -47,7 +54,7 @@
   @if (vehicleStore.isLoading()) {
     <div class="empty-state">
       <mat-icon class="spin">sync</mat-icon>
-      <p>Cargando vehículos...</p>
+      <p>{{ 'VEHICLE_LIST.LOADING' | translate }}</p>
     </div>
   } @else if (filteredVehicles().length) {
     <div class="vehicles-grid">
@@ -62,18 +69,28 @@
   } @else {
     <div class="empty-state">
       <mat-icon>directions_car</mat-icon>
-      <h3>No se encontraron vehículos</h3>
-      <p>Prueba cambiando el filtro o registra un nuevo vehículo.</p>
+
+      <h3>{{ 'VEHICLE_LIST.NO_VEHICLES_FOUND' | translate }}</h3>
+
+      <p>
+        {{ 'VEHICLE_LIST.EMPTY_DESCRIPTION' | translate }}
+      </p>
     </div>
   }
 
   <ng-template #vehicleDialog>
-    <h2 mat-dialog-title>{{ isEditing ? 'Editar vehículo' : 'Nuevo vehículo' }}</h2>
+    <h2 mat-dialog-title>
+      {{ isEditing ? ('VEHICLE_LIST.EDIT_VEHICLE' | translate) : ('VEHICLE_LIST.NEW_VEHICLE' | translate) }}
+    </h2>
 
     <mat-dialog-content>
       <div class="form-container">
+
         <mat-form-field appearance="outline" class="full-width">
-          <mat-label>Usuario propietario</mat-label>
+          <mat-label>
+            {{ 'VEHICLE_LIST.OWNER_USER' | translate }}
+          </mat-label>
+
           <mat-select [(ngModel)]="currentVehicle.customerId" required>
             @for (customer of customerStore.customers(); track customer.id) {
               <mat-option [value]="customer.id">
@@ -85,7 +102,10 @@
 
         <div class="form-row">
           <mat-form-field appearance="outline">
-            <mat-label>Matrícula</mat-label>
+            <mat-label>
+              {{ 'VEHICLE_LIST.PLATE' | translate }}
+            </mat-label>
+
             <input
               matInput
               [(ngModel)]="currentVehicle.plate"
@@ -94,11 +114,14 @@
           </mat-form-field>
 
           <mat-form-field appearance="outline">
-            <mat-label>Estado</mat-label>
+            <mat-label>
+              {{ 'VEHICLE_LIST.STATUS' | translate }}
+            </mat-label>
+
             <mat-select [(ngModel)]="currentVehicle.status">
               @for (status of statusOptions; track status) {
                 <mat-option [value]="status">
-                  {{ status }}
+                  {{ getStatusTranslationKey(status) | translate }}
                 </mat-option>
               }
             </mat-select>
@@ -107,32 +130,62 @@
 
         <div class="form-row">
           <mat-form-field appearance="outline">
-            <mat-label>Marca</mat-label>
-            <input matInput [(ngModel)]="currentVehicle.brand" placeholder="Toyota" />
+            <mat-label>
+              {{ 'VEHICLE_LIST.BRAND' | translate }}
+            </mat-label>
+
+            <input
+              matInput
+              [(ngModel)]="currentVehicle.brand"
+              placeholder="Toyota" />
           </mat-form-field>
 
           <mat-form-field appearance="outline">
-            <mat-label>Modelo</mat-label>
-            <input matInput [(ngModel)]="currentVehicle.model" placeholder="Corolla" />
+            <mat-label>
+              {{ 'VEHICLE_LIST.MODEL' | translate }}
+            </mat-label>
+
+            <input
+              matInput
+              [(ngModel)]="currentVehicle.model"
+              placeholder="Corolla" />
           </mat-form-field>
         </div>
 
         <div class="form-row">
           <mat-form-field appearance="outline">
-            <mat-label>Año</mat-label>
-            <input matInput [(ngModel)]="currentVehicle.year" placeholder="2024" />
+            <mat-label>
+              {{ 'VEHICLE_LIST.YEAR' | translate }}
+            </mat-label>
+
+            <input
+              matInput
+              [(ngModel)]="currentVehicle.year"
+              placeholder="2024" />
           </mat-form-field>
 
           <mat-form-field appearance="outline">
-            <mat-label>Color</mat-label>
-            <input matInput [(ngModel)]="currentVehicle.color" placeholder="Negro" />
+            <mat-label>
+              {{ 'VEHICLE_LIST.COLOR' | translate }}
+            </mat-label>
+
+            <input
+              matInput
+              [(ngModel)]="currentVehicle.color"
+              placeholder="Black" />
           </mat-form-field>
         </div>
       </div>
     </mat-dialog-content>
 
     <mat-dialog-actions align="end">
-      <button mat-button type="button" (click)="closeDialog()">Cancelar</button>
+      <button
+        mat-button
+        type="button"
+        (click)="closeDialog()">
+
+        {{ 'VEHICLE_LIST.CANCEL' | translate }}
+      </button>
 
       <button
         mat-flat-button
@@ -140,7 +193,8 @@
         type="button"
         (click)="saveVehicle()"
         [disabled]="!currentVehicle.plate || !currentVehicle.customerId">
-        Guardar
+
+        {{ 'VEHICLE_LIST.SAVE' | translate }}
       </button>
     </mat-dialog-actions>
   </ng-template>

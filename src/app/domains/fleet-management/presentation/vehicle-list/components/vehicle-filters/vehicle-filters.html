@@ -1,26 +1,39 @@
 <div class="vehicle-filters">
+
   <mat-form-field appearance="outline" class="search-box">
-    <mat-label>Buscar vehículo</mat-label>
+    <mat-label>
+      {{ 'VEHICLE_FILTERS.SEARCH_LABEL' | translate }}
+    </mat-label>
+
     <mat-icon matPrefix>search</mat-icon>
+
     <input
       matInput
       [ngModel]="search"
-      placeholder="Buscar por placa, dueño, marca o modelo..."
+      [placeholder]="'VEHICLE_FILTERS.SEARCH_PLACEHOLDER' | translate"
       (ngModelChange)="onSearchChange($event)" />
   </mat-form-field>
 
   <mat-form-field appearance="outline" class="status-filter">
-    <mat-label>Filtrar por estado</mat-label>
+    <mat-label>
+      {{ 'VEHICLE_FILTERS.STATUS_LABEL' | translate }}
+    </mat-label>
+
     <mat-select
       [ngModel]="status"
       (ngModelChange)="onStatusChange($event)">
-      <mat-option [value]="null">Todos</mat-option>
+
+      <mat-option [value]="null">
+        {{ 'VEHICLE_FILTERS.ALL' | translate }}
+      </mat-option>
 
       @for (option of statusOptions; track option) {
         <mat-option [value]="option">
-          {{ option }}
+          {{ getStatusTranslationKey(option) | translate }}
         </mat-option>
       }
+
     </mat-select>
   </mat-form-field>
+
 </div>

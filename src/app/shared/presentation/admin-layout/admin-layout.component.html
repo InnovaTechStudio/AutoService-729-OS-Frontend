@@ -9,41 +9,72 @@
 
     <div class="logo-area">
       <img src="/AutoService-logo.jpg" alt="Logo AutoService" class="logo-img">
+
       <div class="logo-text">
         <h2>AutoService</h2>
-        <span class="subtitle">Panel Administrador</span>
+        <span class="subtitle">{{ 'MENU.ADMIN_PANEL' | translate }}</span>
       </div>
     </div>
 
     <mat-nav-list class="menu">
-      <a mat-list-item routerLink="/admin/dashboard" routerLinkActive="active-menu-item" (click)="closeSidebarIfMobile(drawer)">
+      <a
+        mat-list-item
+        routerLink="/admin/dashboard"
+        routerLinkActive="active-menu-item"
+        (click)="closeSidebarIfMobile(drawer)">
+
         <mat-icon matListItemIcon>dashboard</mat-icon>
-        <span matListItemTitle>Dashboard</span>
+        <span matListItemTitle>{{ 'MENU.DASHBOARD' | translate }}</span>
       </a>
 
-      <a mat-list-item routerLink="/admin/customers" routerLinkActive="active-menu-item" (click)="closeSidebarIfMobile(drawer)">
+      <a
+        mat-list-item
+        routerLink="/admin/customers"
+        routerLinkActive="active-menu-item"
+        (click)="closeSidebarIfMobile(drawer)">
+
         <mat-icon matListItemIcon>people</mat-icon>
-        <span matListItemTitle>Clientes</span>
+        <span matListItemTitle>{{ 'MENU.CUSTOMERS' | translate }}</span>
       </a>
 
-      <a mat-list-item routerLink="/admin/vehicles" routerLinkActive="active-menu-item" (click)="closeSidebarIfMobile(drawer)">
+      <a
+        mat-list-item
+        routerLink="/admin/vehicles"
+        routerLinkActive="active-menu-item"
+        (click)="closeSidebarIfMobile(drawer)">
+
         <mat-icon matListItemIcon>directions_car</mat-icon>
-        <span matListItemTitle>Vehículos</span>
+        <span matListItemTitle>{{ 'MENU.VEHICLES' | translate }}</span>
       </a>
 
-      <a mat-list-item routerLink="/admin/work-orders" routerLinkActive="active-menu-item" (click)="closeSidebarIfMobile(drawer)">
+      <a
+        mat-list-item
+        routerLink="/admin/work-orders"
+        routerLinkActive="active-menu-item"
+        (click)="closeSidebarIfMobile(drawer)">
+
         <mat-icon matListItemIcon>assignment</mat-icon>
-        <span matListItemTitle>Órdenes de Trabajo</span>
+        <span matListItemTitle>{{ 'MENU.WORK_ORDERS' | translate }}</span>
       </a>
 
-      <a mat-list-item routerLink="/admin/tasks" routerLinkActive="active-menu-item" (click)="closeSidebarIfMobile(drawer)">
+      <a
+        mat-list-item
+        routerLink="/admin/tasks"
+        routerLinkActive="active-menu-item"
+        (click)="closeSidebarIfMobile(drawer)">
+
         <mat-icon matListItemIcon>checklist</mat-icon>
-        <span matListItemTitle>Tareas</span>
+        <span matListItemTitle>{{ 'MENU.TASKS' | translate }}</span>
       </a>
 
-      <a mat-list-item routerLink="/admin/mechanics" routerLinkActive="active-menu-item" (click)="closeSidebarIfMobile(drawer)">
+      <a
+        mat-list-item
+        routerLink="/admin/mechanics"
+        routerLinkActive="active-menu-item"
+        (click)="closeSidebarIfMobile(drawer)">
+
         <mat-icon matListItemIcon>engineering</mat-icon>
-        <span matListItemTitle>Mecánicos</span>
+        <span matListItemTitle>{{ 'MENU.MECHANICS' | translate }}</span>
       </a>
     </mat-nav-list>
 
@@ -52,36 +83,51 @@
   <mat-sidenav-content class="main-content">
 
     <mat-toolbar class="topbar">
-      <!-- Botón menú móvil -->
-      <button *ngIf="isMobile" mat-icon-button (click)="drawer.toggle()">
+
+      <!-- Mobile menu button -->
+      <button
+        *ngIf="isMobile"
+        mat-icon-button
+        (click)="drawer.toggle()">
+
         <mat-icon>menu</mat-icon>
       </button>
 
       <div class="welcome-msg">
-        <span class="text-gray">Bienvenido al Taller, </span>
+        <span class="text-gray">{{ 'COMMON.WELCOME' | translate }} </span>
         <span class="fw-bold">{{ userName }}</span>
       </div>
 
       <span class="spacer"></span>
 
-      <!-- Botón de cambio de idioma -->
-      <button mat-icon-button 
-              (click)="switchLanguage('en')"
-              [class.active-lang]="translateService.getCurrentLang() === 'en'"
-              title="English">
+      <!-- Language switcher -->
+      <button
+        mat-icon-button
+        (click)="switchLanguage('en')"
+        [class.active-lang]="translateService.getCurrentLang() === 'en'"
+        title="English">
+
         🇬🇧
       </button>
-      <button mat-icon-button 
-              (click)="switchLanguage('es')"
-              [class.active-lang]="translateService.getCurrentLang() === 'es'"
-              title="Español">
+
+      <button
+        mat-icon-button
+        (click)="switchLanguage('es')"
+        [class.active-lang]="translateService.getCurrentLang() === 'es'"
+        title="Español">
+
         🇪🇸
       </button>
 
-      <button mat-button color="warn" (click)="logout()">
+      <button
+        mat-button
+        color="warn"
+        (click)="logout()">
+
         <mat-icon>logout</mat-icon>
-        Cerrar Sesión
+        {{ 'COMMON.LOGOUT' | translate }}
       </button>
+
     </mat-toolbar>
 
     <div class="content-area">

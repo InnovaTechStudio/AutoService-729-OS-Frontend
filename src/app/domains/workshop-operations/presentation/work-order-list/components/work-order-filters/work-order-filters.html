@@ -1,26 +1,34 @@
 <div class="work-order-filters">
   <mat-form-field appearance="outline" class="search-box">
-    <mat-label>Buscar orden</mat-label>
+    <mat-label>
+      {{ 'WORK_ORDER_FILTERS.SEARCH_LABEL' | translate }}
+    </mat-label>
+
     <mat-icon matPrefix>search</mat-icon>
 
     <input
       matInput
       [ngModel]="search"
-      placeholder="Buscar por código, placa, vehículo o usuario..."
+      [placeholder]="'WORK_ORDER_FILTERS.SEARCH_PLACEHOLDER' | translate"
       (ngModelChange)="onSearchChange($event)" />
   </mat-form-field>
 
   <mat-form-field appearance="outline" class="status-filter">
-    <mat-label>Filtrar por estado</mat-label>
+    <mat-label>
+      {{ 'WORK_ORDER_FILTERS.STATUS_LABEL' | translate }}
+    </mat-label>
 
     <mat-select
       [ngModel]="status"
       (ngModelChange)="onStatusChange($event)">
-      <mat-option [value]="null">Todos</mat-option>
+
+      <mat-option [value]="null">
+        {{ 'WORK_ORDER_FILTERS.ALL' | translate }}
+      </mat-option>
 
       @for (option of statusOptions; track option) {
         <mat-option [value]="option">
-          {{ option }}
+          {{ getStatusTranslationKey(option) | translate }}
         </mat-option>
       }
     </mat-select>

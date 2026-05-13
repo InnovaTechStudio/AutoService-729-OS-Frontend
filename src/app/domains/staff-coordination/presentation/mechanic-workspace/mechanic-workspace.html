@@ -1,23 +1,34 @@
 <section class="mechanic-workspace">
   <header class="workspace-header">
     <div>
-      <span class="eyebrow">Espacio del mecánico</span>
-      <h1>Mis tareas asignadas</h1>
+      <span class="eyebrow">
+        {{ 'MECHANIC_WORKSPACE.EYEBROW' | translate }}
+      </span>
+
+      <h1>
+        {{ 'MECHANIC_WORKSPACE.TITLE' | translate }}
+      </h1>
+
       <p>
-        Consulta tus tareas activas, actualiza estados y mantén sincronizado el avance con el administrador.
+        {{ 'MECHANIC_WORKSPACE.DESCRIPTION' | translate }}
       </p>
     </div>
 
     <mat-form-field appearance="outline" class="mechanic-select">
-      <mat-label>Mecánico</mat-label>
+      <mat-label>
+        {{ 'MECHANIC_WORKSPACE.MECHANIC' | translate }}
+      </mat-label>
+
       <mat-select
         [value]="selectedMechanicId()"
         (selectionChange)="selectMechanic($event.value)">
+
         @for (mechanic of mechanicStore.mechanics(); track mechanic.id) {
           <mat-option [value]="mechanic.id">
             {{ mechanic.fullName }} - {{ mechanic.specialty }}
           </mat-option>
         }
+
       </mat-select>
     </mat-form-field>
   </header>
@@ -34,26 +45,33 @@
       </div>
 
       <div class="progress-box">
-        <span>Avance general</span>
+        <span>
+          {{ 'MECHANIC_WORKSPACE.GENERAL_PROGRESS' | translate }}
+        </span>
+
         <strong>{{ progress() }}%</strong>
-        <mat-progress-bar mode="determinate" [value]="progress()"></mat-progress-bar>
+
+        <mat-progress-bar
+          mode="determinate"
+          [value]="progress()">
+        </mat-progress-bar>
       </div>
     </section>
   }
 
   <section class="kpi-grid">
     <article>
-      <span>Pendientes</span>
+      <span>{{ 'MECHANIC_WORKSPACE.PENDING' | translate }}</span>
       <strong>{{ pendingTasks() }}</strong>
     </article>
 
     <article>
-      <span>En proceso</span>
+      <span>{{ 'MECHANIC_WORKSPACE.IN_PROGRESS' | translate }}</span>
       <strong>{{ inProgressTasks() }}</strong>
     </article>
 
     <article>
-      <span>Completadas</span>
+      <span>{{ 'MECHANIC_WORKSPACE.COMPLETED' | translate }}</span>
       <strong>{{ completedTasks() }}</strong>
     </article>
   </section>
@@ -63,13 +81,20 @@
       @for (task of assignedTasks(); track task.id) {
         <article class="task-card">
           <div class="task-top">
-            <div class="task-icon" [ngClass]="getTaskClass(task.status)">
+            <div
+              class="task-icon"
+              [ngClass]="getTaskClass(task.status)">
+
               <mat-icon>{{ getTaskIcon(task.status) }}</mat-icon>
             </div>
 
             <div>
-              <span class="order-code">{{ getWorkOrderCode(task.workOrderId) }}</span>
+              <span class="order-code">
+                {{ getWorkOrderCode(task.workOrderId) }}
+              </span>
+
               <h3>{{ task.description }}</h3>
+
               <p>{{ getVehicleName(task.workOrderId) }}</p>
             </div>
           </div>
@@ -77,25 +102,31 @@
           <div class="task-meta">
             <span>
               <mat-icon>flag</mat-icon>
-              {{ task.priority || 'Media' }}
+              {{ task.priority || ('MECHANIC_WORKSPACE.MEDIUM_PRIORITY' | translate) }}
             </span>
 
             <span>
               <mat-icon>schedule</mat-icon>
-              {{ task.estimatedTime || 2 }} h estimadas
+              {{ task.estimatedTime || 2 }}
+              {{ 'MECHANIC_WORKSPACE.ESTIMATED_HOURS' | translate }}
             </span>
           </div>
 
           <mat-form-field appearance="outline" class="full-width">
-            <mat-label>Actualizar estado</mat-label>
+            <mat-label>
+              {{ 'MECHANIC_WORKSPACE.UPDATE_STATUS' | translate }}
+            </mat-label>
+
             <mat-select
               [value]="task.status"
               (selectionChange)="updateTaskStatus(task, $event.value)">
+
               @for (status of statusOptions; track status) {
                 <mat-option [value]="status">
-                  {{ status }}
+                  {{ getTaskStatusTranslationKey(status) | translate }}
                 </mat-option>
               }
+
             </mat-select>
           </mat-form-field>
 
@@ -104,8 +135,9 @@
             type="button"
             class="order-button"
             (click)="goToOrder(task.workOrderId)">
+
             <mat-icon>open_in_new</mat-icon>
-            Ver orden
+            {{ 'MECHANIC_WORKSPACE.VIEW_ORDER' | translate }}
           </button>
         </article>
       }
@@ -113,8 +145,14 @@
   } @else {
     <div class="empty-state">
       <mat-icon>task_alt</mat-icon>
-      <h3>No tienes tareas asignadas</h3>
-      <p>Cuando el administrador asigne tareas, aparecerán en este espacio.</p>
+
+      <h3>
+        {{ 'MECHANIC_WORKSPACE.NO_TASKS_TITLE' | translate }}
+      </h3>
+
+      <p>
+        {{ 'MECHANIC_WORKSPACE.NO_TASKS_DESCRIPTION' | translate }}
+      </p>
     </div>
   }
 </section>

@@ -1,6 +1,9 @@
 <div class="dialog-header">
-  <h2 mat-dialog-title>Proceso de Pago</h2>
-  <button class="close-btn" (click)="closeModal()">
+  <h2 mat-dialog-title>
+    {{ 'PAYMENT.TITLE' | translate }}
+  </h2>
+
+  <button class="close-btn" type="button" (click)="closeModal()">
     <mat-icon>close</mat-icon>
   </button>
 </div>
@@ -10,7 +13,7 @@
 
     <!-- TOTAL -->
     <div class="payment-total">
-      <span>Total a pagar</span>
+      <span>{{ 'PAYMENT.TOTAL_TO_PAY' | translate }}</span>
       <h2>${{ amount }}</h2>
     </div>
 
@@ -18,62 +21,83 @@
     <div class="methods-grid">
 
       <div
-          class="method-card"
-          [class.active]="selectedMethod === 'Yape'"
-          (click)="selectedMethod = 'Yape'"
-      >
-        <img src="https://img.logo.dev/name/Yape?token=pk_N7BjeKbxQY2n_ta1Keni5Q&retina=true" alt="Yape"/>
+        class="method-card"
+        [class.active]="selectedMethod === 'Yape'"
+        (click)="selectedMethod = 'Yape'">
+
+        <img
+          src="https://img.logo.dev/name/Yape?token=pk_N7BjeKbxQY2n_ta1Keni5Q&retina=true"
+          alt="Yape" />
+
         <span>Yape</span>
       </div>
 
       <div
-          class="method-card"
-          [class.active]="selectedMethod === 'Plin'"
-          (click)="selectedMethod = 'Plin'"
-      >
-        <img src="https://thf.bing.com/th/id/OIP.CE4sOegvUrcoWtMDwQfGDQHaHa?w=179&h=180&c=7&r=0&o=7&cb=thfc1&pid=1.7&rm=3" alt="Plin"/>
+        class="method-card"
+        [class.active]="selectedMethod === 'Plin'"
+        (click)="selectedMethod = 'Plin'">
+
+        <img
+          src="https://thf.bing.com/th/id/OIP.CE4sOegvUrcoWtMDwQfGDQHaHa?w=179&h=180&c=7&r=0&o=7&cb=thfc1&pid=1.7&rm=3"
+          alt="Plin" />
+
         <span>Plin</span>
       </div>
 
       <div
-          class="method-card"
-          [class.active]="selectedMethod === 'Tarjeta'"
-          (click)="selectedMethod = 'Tarjeta'"
-      >
-        <img src="https://img.logo.dev/name/Bcp?token=pk_N7BjeKbxQY2n_ta1Keni5Q&retina=true" alt="Tarjeta" />
-        <span>Tarjeta</span>
+        class="method-card"
+        [class.active]="selectedMethod === 'Card'"
+        (click)="selectedMethod = 'Card'">
+
+        <img
+          src="https://img.logo.dev/name/Bcp?token=pk_N7BjeKbxQY2n_ta1Keni5Q&retina=true"
+          [alt]="'PAYMENT.CARD' | translate" />
+
+        <span>{{ 'PAYMENT.CARD' | translate }}</span>
       </div>
 
       <div
-          class="method-card"
-          [class.active]="selectedMethod === 'Efectivo'"
-          (click)="selectedMethod = 'Efectivo'"
-      >
+        class="method-card"
+        [class.active]="selectedMethod === 'Cash'"
+        (click)="selectedMethod = 'Cash'">
+
         <mat-icon class="method-icon">payments</mat-icon>
-        <span>Efectivo</span>
+
+        <span>{{ 'PAYMENT.CASH' | translate }}</span>
       </div>
 
     </div>
 
     <!-- CARD FORM -->
-    @if (selectedMethod === 'Tarjeta') {
+    @if (selectedMethod === 'Card') {
       <div class="card-form">
+
         <div class="form-group">
-          <label>Número de tarjeta</label>
-          <input type="text" class="custom-input" placeholder="1234 5678 9012 3456" />
+          <label>{{ 'PAYMENT.CARD_NUMBER' | translate }}</label>
+          <input
+            type="text"
+            class="custom-input"
+            placeholder="1234 5678 9012 3456" />
         </div>
 
         <div class="row">
           <div class="form-group">
-            <label>Fecha</label>
-            <input type="text" class="custom-input" placeholder="MM/YY" />
+            <label>{{ 'PAYMENT.DATE' | translate }}</label>
+            <input
+              type="text"
+              class="custom-input"
+              placeholder="MM/YY" />
           </div>
 
           <div class="form-group">
-            <label>CVV</label>
-            <input type="text" class="custom-input" placeholder="123" />
+            <label>{{ 'PAYMENT.CVV' | translate }}</label>
+            <input
+              type="text"
+              class="custom-input"
+              placeholder="123" />
           </div>
         </div>
+
       </div>
     }
 
@@ -81,7 +105,7 @@
     @if (selectedMethod === 'Yape' || selectedMethod === 'Plin') {
       <div class="qr-box">
         <mat-icon class="qr-icon">qr_code_2</mat-icon>
-        <p>Escanea el QR para pagar</p>
+        <p>{{ 'PAYMENT.SCAN_QR' | translate }}</p>
       </div>
     }
 
@@ -89,7 +113,8 @@
 </mat-dialog-content>
 
 <mat-dialog-actions class="dialog-actions">
-  <button class="pay-btn" (click)="processPayment()">
-    <mat-icon>check</mat-icon> Confirmar Pago
+  <button class="pay-btn" type="button" (click)="processPayment()">
+    <mat-icon>check</mat-icon>
+    {{ 'PAYMENT.CONFIRM_PAYMENT' | translate }}
   </button>
 </mat-dialog-actions>

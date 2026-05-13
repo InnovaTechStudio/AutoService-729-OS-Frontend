@@ -1,8 +1,26 @@
+/**
+ * MechanicsViewComponent
+ *
+ * Main standalone view for managing workshop mechanics.
+ *
+ * It connects the mechanic and task stores with the UI, providing mechanic
+ * listing, filtering, workload calculation, effectiveness metrics and dialog
+ * actions for creating, editing and deleting mechanics.
+ *
+ * The component uses Angular Signals and computed values to keep the mechanic
+ * list, filters and workload indicators updated reactively.
+ *
+ * @component
+ * @selector app-mechanics-view
+ * @standalone true
+ */
 import { CommonModule } from '@angular/common';
 import { Component, computed, inject, OnInit, signal } from '@angular/core';
 
 import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
+
+import { TranslateModule, TranslateService } from '@ngx-translate/core';
 
 import { TaskStore } from '../../../workshop-operations/application/task.store';
 import { Task } from '../../../workshop-operations/domain/models/work-order.model';
@@ -12,19 +30,6 @@ import { MechanicCardComponent, MechanicCardView } from './components/mechanic-c
 import { MechanicDialogComponent } from './components/mechanic-dialog/mechanic-dialog';
 import { MechanicFiltersComponent } from './components/mechanic-filters/mechanic-filters';
 
-/**
- * MechanicsViewComponent
- *
- * Main standalone view for managing workshop mechanics.
- *
- * It connects the mechanic and task stores with the UI, providing mechanic
- * listing, filtering, workload calculation, effectiveness metrics, and dialog
- * actions for creating, editing, and deleting mechanics.
- *
- * @component
- * @standalone
- * @selector app-mechanics-view
- */
 @Component({
   selector: 'app-mechanics-view',
   standalone: true,
@@ -32,6 +37,7 @@ import { MechanicFiltersComponent } from './components/mechanic-filters/mechanic
     CommonModule,
     MatButtonModule,
     MatIconModule,
+    TranslateModule,
     MechanicFiltersComponent,
     MechanicCardComponent,
     MechanicDialogComponent
@@ -40,6 +46,7 @@ import { MechanicFiltersComponent } from './components/mechanic-filters/mechanic
   styleUrl: './mechanics-view.css'
 })
 export class MechanicsViewComponent implements OnInit {
+
   /**
    * Store responsible for managing mechanic data.
    */
@@ -50,8 +57,24 @@ export class MechanicsViewComponent implements OnInit {
    */
   protected readonly taskStore = inject(TaskStore);
 
+  /**
+   * Translation service used for TypeScript-generated messages.
+   */
+  private readonly translate = inject(TranslateService);
+
+  /**
+   * Controls whether the mechanic dialog is visible.
+   */
   protected readonly displayDialog = signal(false);
+
+  /**
+   * Current search term used to filter mechanics.
+   */
   protected readonly search = signal('');
+
+  /**
+   * Current selected specialty used to filter mechanics.
+   */
   protected readonly selectedSpecialty = signal<string | null>(null);
 
   /**
@@ -60,7 +83,10 @@ export class MechanicsViewComponent implements OnInit {
   protected mechanicForm: Mechanic = this.getEmptyMechanic();
 
   /**
-   * Available mechanic specialties displayed in the filter and form controls.
+   * Available mechanic specialties displayed in filters and form controls.
+   *
+   * These values are kept in Spanish because they are used as internal
+   * domain values by the current data model.
    */
   protected readonly specialtyOptions = [
     'Mecánica General',
@@ -140,10 +166,20 @@ export class MechanicsViewComponent implements OnInit {
     }
   }
 
+  /**
+   * Updates the search term used to filter mechanics.
+   *
+   * @param value New search term.
+   */
   protected onSearchChange(value: string): void {
     this.search.set(value);
   }
 
+  /**
+   * Updates the selected specialty used to filter mechanics.
+   *
+   * @param value Selected specialty or null to show all specialties.
+   */
   protected onSpecialtyChange(value: string | null): void {
     this.selectedSpecialty.set(value);
   }
@@ -159,7 +195,7 @@ export class MechanicsViewComponent implements OnInit {
   /**
    * Opens the dialog with the selected mechanic data.
    *
-   * @param mechanic - Mechanic selected for editing.
+   * @param mechanic Mechanic selected for editing.
    */
   protected editMechanic(mechanic: Mechanic): void {
     this.mechanicForm = {
@@ -167,6 +203,7 @@ export class MechanicsViewComponent implements OnInit {
       maxCapacity: mechanic.maxCapacity || 5,
       status: mechanic.status || 'Disponible'
     };
+
     this.displayDialog.set(true);
   }
 
@@ -198,14 +235,16 @@ export class MechanicsViewComponent implements OnInit {
   /**
    * Deletes the selected mechanic after user confirmation.
    *
-   * @param mechanic - Mechanic selected for deletion.
+   * @param mechanic Mechanic selected for deletion.
    */
   protected deleteMechanic(mechanic: Mechanic): void {
     if (!mechanic.id) {
       return;
     }
 
-    const confirmed = window.confirm(`¿Eliminar a ${mechanic.fullName}?`);
+    const confirmed = window.confirm(
+      `${this.translate.instant('MECHANICS_VIEW.DELETE_CONFIRM')} ${mechanic.fullName}?`
+    );
 
     if (!confirmed) {
       return;
@@ -217,7 +256,7 @@ export class MechanicsViewComponent implements OnInit {
   /**
    * Gets the number of active tasks assigned to a mechanic.
    *
-   * @param mechanicId - Identifier of the mechanic.
+   * @param mechanicId Mechanic identifier.
    * @returns Number of assigned tasks that are not completed.
    */
   private getActiveTasksCount(mechanicId: string): number {
@@ -232,8 +271,8 @@ export class MechanicsViewComponent implements OnInit {
   /**
    * Calculates the mechanic workload percentage based on active tasks and capacity.
    *
-   * @param mechanicId - Identifier of the mechanic.
-   * @param maxCapacity - Maximum task capacity of the mechanic.
+   * @param mechanicId Mechanic identifier.
+   * @param maxCapacity Maximum task capacity of the mechanic.
    * @returns Workload percentage limited to a maximum of 100.
    */
   private calculateLoadPercentage(mechanicId: string, maxCapacity: number): number {
@@ -243,22 +282,36 @@ export class MechanicsViewComponent implements OnInit {
     return Math.min(Math.round((count / max) * 100), 100);
   }
 
+  /**
+   * Gets the internal workload status based on the workload percentage.
+   *
+   * @param loadPercentage Current workload percentage.
+   * @returns Internal workload status.
+   */
   private getWorkloadStatus(loadPercentage: number): string {
     if (loadPercentage >= 100) return 'Al máximo';
     if (loadPercentage >= 70) return 'Carga alta';
+
     return 'Disponible';
   }
 
+  /**
+   * Gets the CSS class used to style the workload indicator.
+   *
+   * @param loadPercentage Current workload percentage.
+   * @returns CSS class for the workload level.
+   */
   private getLoadClass(loadPercentage: number): string {
     if (loadPercentage >= 100) return 'load-high';
     if (loadPercentage >= 70) return 'load-medium';
+
     return 'load-low';
   }
 
   /**
    * Calculates the effectiveness percentage of a mechanic.
    *
-   * @param mechanicId - Identifier of the mechanic.
+   * @param mechanicId Mechanic identifier.
    * @returns Percentage of completed tasks assigned to the mechanic.
    */
   private calculateEffectiveness(mechanicId: string): number {

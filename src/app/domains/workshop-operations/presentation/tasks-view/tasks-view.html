@@ -1,10 +1,16 @@
 <section class="tasks-page">
   <div class="tasks-header">
     <div>
-      <span class="eyebrow">Control operativo</span>
-      <h1>Tablero de tareas</h1>
+      <span class="eyebrow">
+        {{ 'TASKS_VIEW.OPERATIONAL_CONTROL' | translate }}
+      </span>
+
+      <h1>
+        {{ 'TASKS_VIEW.TITLE' | translate }}
+      </h1>
+
       <p>
-        Gestiona tareas por orden, asigna mecánicos y actualiza el avance real del servicio.
+        {{ 'TASKS_VIEW.DESCRIPTION' | translate }}
       </p>
     </div>
 
@@ -24,29 +30,29 @@
         class="add-button"
         (click)="openDialog()">
         <mat-icon>add</mat-icon>
-        Nueva tarea
+        {{ 'TASKS_VIEW.NEW_TASK' | translate }}
       </button>
     </div>
   </div>
 
   <div class="summary-row">
     <div class="summary-card">
-      <span>Total tareas</span>
+      <span>{{ 'TASKS_VIEW.TOTAL_TASKS' | translate }}</span>
       <strong>{{ taskStore.tasks().length }}</strong>
     </div>
 
     <div class="summary-card">
-      <span>Pendientes</span>
+      <span>{{ 'TASKS_VIEW.PENDING' | translate }}</span>
       <strong>{{ pendingTasks() }}</strong>
     </div>
 
     <div class="summary-card">
-      <span>En proceso</span>
+      <span>{{ 'TASKS_VIEW.IN_PROGRESS' | translate }}</span>
       <strong>{{ inProgressTasks() }}</strong>
     </div>
 
     <div class="summary-card success">
-      <span>Completadas</span>
+      <span>{{ 'TASKS_VIEW.COMPLETED' | translate }}</span>
       <strong>{{ completedTasks() }}</strong>
     </div>
   </div>
@@ -65,7 +71,7 @@
   @if (taskStore.isLoading()) {
     <div class="empty-state">
       <mat-icon class="spin">sync</mat-icon>
-      <p>Cargando tareas...</p>
+      <p>{{ 'TASKS_VIEW.LOADING' | translate }}</p>
     </div>
   } @else if (filteredTasks().length) {
     <div class="tasks-grid">
@@ -83,8 +89,14 @@
   } @else {
     <div class="empty-state">
       <mat-icon>checklist</mat-icon>
-      <h3>No se encontraron tareas</h3>
-      <p>Prueba cambiando filtros o registra una nueva tarea.</p>
+
+      <h3>
+        {{ 'TASKS_VIEW.NO_TASKS_FOUND' | translate }}
+      </h3>
+
+      <p>
+        {{ 'TASKS_VIEW.EMPTY_DESCRIPTION' | translate }}
+      </p>
     </div>
   }
 

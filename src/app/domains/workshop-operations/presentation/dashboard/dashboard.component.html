@@ -1,20 +1,37 @@
 <section class="admin-dashboard">
   <header class="dashboard-header">
     <div>
-      <p class="eyebrow">Gestión operativa</p>
-      <h1>Panel de control</h1>
-      <span>Supervisa vehículos, órdenes, tareas e ingresos del taller.</span>
+      <p class="eyebrow">
+        {{ 'DASHBOARD.OPERATIONAL_MANAGEMENT' | translate }}
+      </p>
+
+      <h1>
+        {{ 'DASHBOARD.TITLE' | translate }}
+      </h1>
+
+      <span>
+        {{ 'DASHBOARD.SUBTITLE' | translate }}
+      </span>
     </div>
 
     <div class="header-actions">
-      <button mat-stroked-button type="button" (click)="goToOrders()">
+      <button
+        mat-stroked-button
+        type="button"
+        (click)="goToOrders()">
+
         <mat-icon>assignment</mat-icon>
-        Ver órdenes
+        {{ 'DASHBOARD.VIEW_ORDERS' | translate }}
       </button>
 
-      <button mat-flat-button color="primary" type="button" (click)="goToCreateOrder()">
+      <button
+        mat-flat-button
+        color="primary"
+        type="button"
+        (click)="goToCreateOrder()">
+
         <mat-icon>add</mat-icon>
-        Nueva orden
+        {{ 'DASHBOARD.NEW_ORDER' | translate }}
       </button>
     </div>
   </header>
@@ -23,10 +40,11 @@
     <mat-card class="kpi-card">
       <mat-card-content>
         <div class="kpi-info">
-          <span>Vehículos activos</span>
+          <span>{{ 'DASHBOARD.ACTIVE_VEHICLES' | translate }}</span>
           <strong>{{ vehiclesInWorkshop() }}</strong>
-          <small>En atención actualmente</small>
+          <small>{{ 'DASHBOARD.CURRENTLY_ATTENDED' | translate }}</small>
         </div>
+
         <div class="kpi-icon blue">
           <mat-icon>directions_car</mat-icon>
         </div>
@@ -36,10 +54,11 @@
     <mat-card class="kpi-card">
       <mat-card-content>
         <div class="kpi-info">
-          <span>Órdenes activas</span>
+          <span>{{ 'DASHBOARD.ACTIVE_ORDERS' | translate }}</span>
           <strong>{{ activeOrders() }}</strong>
-          <small>Servicios en proceso</small>
+          <small>{{ 'DASHBOARD.SERVICES_IN_PROGRESS' | translate }}</small>
         </div>
+
         <div class="kpi-icon indigo">
           <mat-icon>build</mat-icon>
         </div>
@@ -49,10 +68,11 @@
     <mat-card class="kpi-card">
       <mat-card-content>
         <div class="kpi-info">
-          <span>Completados</span>
+          <span>{{ 'DASHBOARD.COMPLETED' | translate }}</span>
           <strong>{{ completedOrders() }}</strong>
-          <small>Órdenes finalizadas</small>
+          <small>{{ 'DASHBOARD.COMPLETED_ORDERS' | translate }}</small>
         </div>
+
         <div class="kpi-icon green">
           <mat-icon>check_circle</mat-icon>
         </div>
@@ -62,10 +82,11 @@
     <mat-card class="kpi-card">
       <mat-card-content>
         <div class="kpi-info">
-          <span>Ingresos proyectados</span>
+          <span>{{ 'DASHBOARD.PROJECTED_INCOME' | translate }}</span>
           <strong>{{ projectedIncome() | currency:'PEN':'symbol':'1.0-0' }}</strong>
-          <small>Según órdenes registradas</small>
+          <small>{{ 'DASHBOARD.BASED_ON_ORDERS' | translate }}</small>
         </div>
+
         <div class="kpi-icon violet">
           <mat-icon>account_balance_wallet</mat-icon>
         </div>
@@ -76,24 +97,37 @@
   <div class="dashboard-grid">
     <mat-card class="panel-card active-vehicles-card">
       <mat-card-header>
-        <mat-card-title>Vehículos activos</mat-card-title>
-        <button mat-button type="button" (click)="goToVehicles()">Ver todos</button>
+        <mat-card-title>
+          {{ 'DASHBOARD.ACTIVE_VEHICLES' | translate }}
+        </mat-card-title>
+
+        <button
+          mat-button
+          type="button"
+          (click)="goToVehicles()">
+
+          {{ 'DASHBOARD.VIEW_ALL' | translate }}
+        </button>
       </mat-card-header>
 
       <mat-card-content>
         <div class="vehicle-list">
           @for (vehicle of activeVehiclePreview(); track vehicle.id) {
             <article class="vehicle-item">
-              <img [src]="vehicle.image" [alt]="vehicle.name" />
+              <img
+                [src]="vehicle.image"
+                [alt]="vehicle.name" />
 
               <div class="vehicle-body">
                 <div class="vehicle-head">
                   <div>
                     <strong>{{ vehicle.name }}</strong>
+
                     <span [class]="getStatusClass(vehicle.status)">
-                      {{ vehicle.status }}
+                      {{ vehicle.status | translate }}
                     </span>
                   </div>
+
                   <b>{{ vehicle.progress }}%</b>
                 </div>
 
@@ -112,23 +146,27 @@
 
     <mat-card class="panel-card income-card">
       <mat-card-header>
-        <mat-card-title>Ingresos semanales</mat-card-title>
+        <mat-card-title>
+          {{ 'DASHBOARD.WEEKLY_INCOME' | translate }}
+        </mat-card-title>
+
         <mat-card-subtitle>
-          Total acumulado esta semana:
+          {{ 'DASHBOARD.ACCUMULATED_THIS_WEEK' | translate }}
           {{ projectedIncome() | currency:'PEN':'symbol':'1.0-0' }}
         </mat-card-subtitle>
       </mat-card-header>
 
       <mat-card-content>
         <div class="bar-chart">
-          @for (bar of weeklyIncomeBars; track bar.day) {
+          @for (bar of weeklyIncomeBars; track bar.dayKey) {
             <div class="bar-column">
               <div
                 class="bar"
-                [class.highlight]="bar.day === 'Vie'"
+                [class.highlight]="bar.highlight"
                 [style.height]="getBarHeight(bar.value)">
               </div>
-              <span>{{ bar.day }}</span>
+
+              <span>{{ bar.dayKey | translate }}</span>
             </div>
           }
         </div>
@@ -137,8 +175,17 @@
 
     <mat-card class="panel-card orders-card">
       <mat-card-header>
-        <mat-card-title>Órdenes recientes</mat-card-title>
-        <button mat-button type="button" (click)="goToOrders()">Ver órdenes</button>
+        <mat-card-title>
+          {{ 'DASHBOARD.RECENT_ORDERS' | translate }}
+        </mat-card-title>
+
+        <button
+          mat-button
+          type="button"
+          (click)="goToOrders()">
+
+          {{ 'DASHBOARD.VIEW_ORDERS' | translate }}
+        </button>
       </mat-card-header>
 
       <mat-card-content>
@@ -150,27 +197,35 @@
                   <strong>{{ order.description }}</strong>
                   <span>{{ order.startDate }}</span>
                 </div>
+
                 <span [class]="getStatusClass(order.status)">
-                  {{ order.status }}
+                  {{ getOrderStatusTranslationKey(order.status) | translate }}
                 </span>
               </article>
             }
           </div>
         } @else {
-          <p class="empty-message">Todavía no hay órdenes registradas.</p>
+          <p class="empty-message">
+            {{ 'DASHBOARD.NO_ORDERS' | translate }}
+          </p>
         }
       </mat-card-content>
     </mat-card>
 
     <mat-card class="panel-card services-card">
       <mat-card-header>
-        <mat-card-title>Servicios más frecuentes</mat-card-title>
-        <mat-card-subtitle>Rendimiento de servicios por tipo</mat-card-subtitle>
+        <mat-card-title>
+          {{ 'DASHBOARD.FREQUENT_SERVICES' | translate }}
+        </mat-card-title>
+
+        <mat-card-subtitle>
+          {{ 'DASHBOARD.SERVICES_PERFORMANCE' | translate }}
+        </mat-card-subtitle>
       </mat-card-header>
 
       <mat-card-content>
         <div class="service-list">
-          @for (service of frequentServices; track service.name) {
+          @for (service of frequentServices; track service.nameKey) {
             <article class="service-item">
               <div class="service-icon">
                 <mat-icon>{{ service.icon }}</mat-icon>
@@ -179,9 +234,14 @@
               <div class="service-body">
                 <div class="service-head">
                   <div>
-                    <strong>{{ service.name }}</strong>
-                    <span>{{ service.count }} servicios realizados</span>
+                    <strong>{{ service.nameKey | translate }}</strong>
+
+                    <span>
+                      {{ service.count }}
+                      {{ 'DASHBOARD.SERVICES_DONE' | translate }}
+                    </span>
                   </div>
+
                   <b>{{ service.amount | currency:'PEN':'symbol':'1.0-0' }}</b>
                 </div>
 

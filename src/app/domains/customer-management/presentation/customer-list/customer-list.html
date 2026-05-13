@@ -1,19 +1,21 @@
 <div class="customer-list-container">
 
   <div class="header-actions">
-    <h1>Directorio de Clientes</h1>
+    <h1>{{ 'CUSTOMERS.TITLE' | translate }}</h1>
+
     <button mat-raised-button color="primary" (click)="openNewCustomerDialog()">
       <mat-icon>add</mat-icon>
-      Nuevo Cliente
+      {{ 'CUSTOMERS.NEW_CUSTOMER' | translate }}
     </button>
   </div>
+
   <div class="summary-cards">
 
     <div class="summary-card">
       <mat-icon>groups</mat-icon>
 
       <div>
-        <span>Total Clientes</span>
+        <span>{{ 'CUSTOMERS.TOTAL_CUSTOMERS' | translate }}</span>
         <h2>{{ customerStore.customers().length }}</h2>
       </div>
     </div>
@@ -22,7 +24,7 @@
       <mat-icon>verified_user</mat-icon>
 
       <div>
-        <span>Clientes Activos</span>
+        <span>{{ 'CUSTOMERS.ACTIVE_CUSTOMERS' | translate }}</span>
         <h2>{{ customerStore.customers().length }}</h2>
       </div>
     </div>
@@ -32,33 +34,54 @@
   <div class="mat-elevation-z2 table-container">
 
     @if (customerStore.isLoading()) {
-      <div class="loading-shade">Cargando...</div>
+      <div class="loading-shade">
+        {{ 'CUSTOMERS.LOADING' | translate }}
+      </div>
     }
 
     <table mat-table [dataSource]="customerStore.customers()">
 
       <ng-container matColumnDef="fullName">
-        <th mat-header-cell *matHeaderCellDef> Nombre Completo </th>
-        <td mat-cell *matCellDef="let element"> {{element.fullName}} </td>
+        <th mat-header-cell *matHeaderCellDef>
+          {{ 'CUSTOMERS.FULL_NAME' | translate }}
+        </th>
+        <td mat-cell *matCellDef="let element">
+          {{ element.fullName }}
+        </td>
       </ng-container>
 
       <ng-container matColumnDef="dni">
-        <th mat-header-cell *matHeaderCellDef> DNI </th>
-        <td mat-cell *matCellDef="let element"> {{element.dni}} </td>
+        <th mat-header-cell *matHeaderCellDef>
+          {{ 'CUSTOMERS.DNI' | translate }}
+        </th>
+        <td mat-cell *matCellDef="let element">
+          {{ element.dni }}
+        </td>
       </ng-container>
 
       <ng-container matColumnDef="email">
-        <th mat-header-cell *matHeaderCellDef> Correo </th>
-        <td mat-cell *matCellDef="let element"> {{element.email}} </td>
+        <th mat-header-cell *matHeaderCellDef>
+          {{ 'CUSTOMERS.EMAIL' | translate }}
+        </th>
+        <td mat-cell *matCellDef="let element">
+          {{ element.email }}
+        </td>
       </ng-container>
 
       <ng-container matColumnDef="phone">
-        <th mat-header-cell *matHeaderCellDef> Teléfono </th>
-        <td mat-cell *matCellDef="let element"> {{element.phone}} </td>
+        <th mat-header-cell *matHeaderCellDef>
+          {{ 'CUSTOMERS.PHONE' | translate }}
+        </th>
+        <td mat-cell *matCellDef="let element">
+          {{ element.phone }}
+        </td>
       </ng-container>
 
       <ng-container matColumnDef="actions">
-        <th mat-header-cell *matHeaderCellDef> Acciones </th>
+        <th mat-header-cell *matHeaderCellDef>
+          {{ 'CUSTOMERS.ACTIONS' | translate }}
+        </th>
+
         <td mat-cell *matCellDef="let element">
           <div class="action-buttons">
 
@@ -85,42 +108,56 @@
     </table>
 
     @if (customerStore.customers().length === 0 && !customerStore.isLoading()) {
-      <div class="empty-state">No hay clientes registrados en este taller.</div>
+      <div class="empty-state">
+        {{ 'CUSTOMERS.EMPTY_STATE' | translate }}
+      </div>
     }
+
   </div>
 
   <ng-template #customerDialog>
-    <h2 mat-dialog-title>{{ isEditing ? 'Editar Cliente' : 'Registrar Nuevo Cliente' }}</h2>
+    <h2 mat-dialog-title>
+      {{ isEditing ? ('CUSTOMERS.EDIT_CUSTOMER' | translate) : ('CUSTOMERS.REGISTER_CUSTOMER' | translate) }}
+    </h2>
 
     <mat-dialog-content>
       <div class="form-container">
+
         <mat-form-field appearance="outline">
-          <mat-label>Nombre Completo</mat-label>
+          <mat-label>{{ 'CUSTOMERS.FULL_NAME' | translate }}</mat-label>
           <input matInput [(ngModel)]="currentCustomer.fullName" required autofocus>
         </mat-form-field>
 
         <mat-form-field appearance="outline">
-          <mat-label>DNI</mat-label>
+          <mat-label>{{ 'CUSTOMERS.DNI' | translate }}</mat-label>
           <input matInput [(ngModel)]="currentCustomer.dni" required>
         </mat-form-field>
 
         <mat-form-field appearance="outline">
-          <mat-label>Correo Electrónico</mat-label>
+          <mat-label>{{ 'CUSTOMERS.EMAIL' | translate }}</mat-label>
           <input matInput [(ngModel)]="currentCustomer.email" type="email">
         </mat-form-field>
 
         <mat-form-field appearance="outline">
-          <mat-label>Teléfono de Contacto</mat-label>
+          <mat-label>{{ 'CUSTOMERS.CONTACT_PHONE' | translate }}</mat-label>
           <input matInput [(ngModel)]="currentCustomer.phone">
         </mat-form-field>
+
       </div>
     </mat-dialog-content>
 
     <mat-dialog-actions align="end">
-      <button mat-button (click)="closeDialog()">Cancelar</button>
-      <button mat-flat-button color="primary" (click)="saveCustomer()"
-              [disabled]="!currentCustomer.fullName || !currentCustomer.dni">
-        Guardar
+      <button mat-button (click)="closeDialog()">
+        {{ 'CUSTOMERS.CANCEL' | translate }}
+      </button>
+
+      <button
+        mat-flat-button
+        color="primary"
+        (click)="saveCustomer()"
+        [disabled]="!currentCustomer.fullName || !currentCustomer.dni">
+
+        {{ 'CUSTOMERS.SAVE' | translate }}
       </button>
     </mat-dialog-actions>
   </ng-template>

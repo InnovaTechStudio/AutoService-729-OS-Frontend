@@ -1,17 +1,14 @@
 /**
  * VehicleDetailComponent
- * 
- * Component for displaying detailed information about a vehicle. Shows all relevant information
- * about a vehicle within the workshop, including:
- * - Basic vehicle data
- * - Owner information
- * - Active work order
- * - Progress of technical tasks
- * - Diagnosis and reported problems
- * 
- * Uses Signals and `computed()` for efficient reactivity and automatic updates
- * without the need for manual subscriptions.
- * 
+ *
+ * Component responsible for displaying detailed information about a vehicle
+ * registered in the workshop. It shows the vehicle identity, owner information,
+ * current service status, work order details, technical diagnosis and associated
+ * maintenance tasks.
+ *
+ * This component uses Angular Signals and computed values to keep the UI updated
+ * automatically when vehicle, customer, work order or task data changes.
+ *
  * @component
  * @selector app-vehicle-detail
  * @standalone true
@@ -24,6 +21,8 @@ import { MatButtonModule } from '@angular/material/button';
 import { MatCardModule } from '@angular/material/card';
 import { MatIconModule } from '@angular/material/icon';
 import { MatProgressBarModule } from '@angular/material/progress-bar';
+
+import { TranslateModule, TranslateService } from '@ngx-translate/core';
 
 import { CustomerStore } from '../../../customer-management/application/customer.store';
 import { Vehicle } from '../../domain/models/vehicle.model';
@@ -41,12 +40,14 @@ import { Task, WorkOrder } from '../../../workshop-operations/domain/models/work
     MatCardModule,
     MatIconModule,
     MatButtonModule,
-    MatProgressBarModule
+    MatProgressBarModule,
+    TranslateModule
   ],
   templateUrl: './vehicle-detail.html',
   styleUrl: './vehicle-detail.css'
 })
 export class VehicleDetailComponent implements OnInit {
+
   private readonly route = inject(ActivatedRoute);
   private readonly router = inject(Router);
 
@@ -54,33 +55,42 @@ export class VehicleDetailComponent implements OnInit {
   private readonly customerStore = inject(CustomerStore);
   private readonly workOrderStore = inject(WorkOrderStore);
   private readonly taskStore = inject(TaskStore);
+  private readonly translate = inject(TranslateService);
 
-  /** ID of the vehicle obtained from the URL */
+  /**
+   * Vehicle ID obtained from the current route parameters.
+   */
   protected readonly vehicleId = this.route.snapshot.paramMap.get('id') ?? '';
 
-  /** Current vehicle obtained from the store */
+  /**
+   * Current vehicle selected from the vehicle store.
+   */
   protected readonly vehicle = computed<Vehicle | undefined>(() =>
     this.vehicleStore
       .vehicles()
       .find((item) => String(item.id) === String(this.vehicleId))
   );
 
-  /** Name of the vehicle owner */
+  /**
+   * Name of the owner assigned to the current vehicle.
+   */
   protected readonly ownerName = computed(() => {
     const currentVehicle = this.vehicle();
 
     if (!currentVehicle) {
-      return 'No asignado';
+      return this.translate.instant('VEHICLE_DETAIL.UNASSIGNED');
     }
 
     const customer = this.customerStore
       .customers()
       .find((item) => String(item.id) === String(currentVehicle.customerId));
 
-    return customer?.fullName ?? 'No asignado';
+    return customer?.fullName ?? this.translate.instant('VEHICLE_DETAIL.UNASSIGNED');
   });
 
-  /** Active work order associated with the vehicle */
+  /**
+   * Active work order associated with the current vehicle.
+   */
   protected readonly activeWorkOrder = computed<WorkOrder | undefined>(() => {
     const currentVehicle = this.vehicle();
 
@@ -93,7 +103,9 @@ export class VehicleDetailComponent implements OnInit {
       .find((order) => String(order.vehicleId) === String(currentVehicle.id));
   });
 
-  /** List of tasks associated with the active work order */
+  /**
+   * List of maintenance tasks associated with the active work order.
+   */
   protected readonly vehicleTasks = computed<Task[]>(() => {
     const currentOrder = this.activeWorkOrder();
 
@@ -106,12 +118,16 @@ export class VehicleDetailComponent implements OnInit {
       .filter((task) => String(task.workOrderId) === String(currentOrder.id));
   });
 
-  /** Number of completed tasks */
+  /**
+   * Number of completed maintenance tasks.
+   */
   protected readonly completedTasks = computed(() =>
     this.vehicleTasks().filter((task) => task.status === 'Completada').length
   );
 
-  /** Overall progress percentage of the vehicle (based on tasks or status) */
+  /**
+   * Overall progress percentage based on completed tasks or vehicle status.
+   */
   protected readonly progress = computed(() => {
     const tasks = this.vehicleTasks();
 
@@ -132,27 +148,34 @@ export class VehicleDetailComponent implements OnInit {
     return currentVehicle.status === 'En Taller' ? 65 : 10;
   });
 
-  /** Problem reported by the client (description of the order) */
+  /**
+   * Problem reported by the customer in the active work order.
+   */
   protected readonly problemReported = computed(() =>
     this.activeWorkOrder()?.description ??
-    'Ruido en el motor al acelerar en frío y pérdida leve de potencia.'
+    this.translate.instant('VEHICLE_DETAIL.DEFAULT_PROBLEM')
   );
 
-  /** Current technical diagnosis based on the available information */
+  /**
+   * Technical diagnosis generated according to the current work order and tasks.
+   */
   protected readonly technicalDiagnosis = computed(() => {
     const order = this.activeWorkOrder();
 
     if (!order) {
-      return 'Diagnóstico pendiente de registro técnico.';
+      return this.translate.instant('VEHICLE_DETAIL.DIAGNOSIS_PENDING');
     }
 
     if (this.vehicleTasks().length === 0) {
-      return 'Se requiere registrar tareas técnicas para completar el diagnóstico operativo.';
+      return this.translate.instant('VEHICLE_DETAIL.DIAGNOSIS_REQUIRES_TASKS');
     }
 
-    return 'Revisión técnica registrada. Se identificaron tareas asociadas al mantenimiento del vehículo.';
+    return this.translate.instant('VEHICLE_DETAIL.DIAGNOSIS_REGISTERED');
   });
 
+  /**
+   * Loads all data required by the vehicle detail view.
+   */
   ngOnInit(): void {
     this.vehicleStore.loadVehicles();
     this.customerStore.loadCustomers();
@@ -161,14 +184,16 @@ export class VehicleDetailComponent implements OnInit {
   }
 
   /**
-   * Navigate back to the vehicle list.
+   * Navigates back to the vehicle list.
    */
   protected goBack(): void {
     this.router.navigate(['/admin/vehicles']);
   }
 
   /**
-   * Navigate to the creation or management of tasks for this vehicle.
+   * Navigates to the task management page.
+   * If an active work order exists, the work order and vehicle IDs are passed
+   * as query parameters.
    */
   protected goToNewTask(): void {
     const order = this.activeWorkOrder();
@@ -188,7 +213,7 @@ export class VehicleDetailComponent implements OnInit {
   }
 
   /**
-   * Navigate to the work order associated with the vehicle.
+   * Navigates to the work order associated with the current vehicle.
    */
   protected goToWorkOrder(): void {
     const order = this.activeWorkOrder();
@@ -202,41 +227,60 @@ export class VehicleDetailComponent implements OnInit {
   }
 
   /**
-   * Returns the full name of the vehicle (Brand + Model).
-   * @param vehicle - Vehicle for which to get the name
+   * Returns the full vehicle name using brand and model.
+   *
+   * @param vehicle Vehicle entity used to build the display name.
+   * @returns Vehicle brand and model.
    */
   protected getVehicleName(vehicle: Vehicle): string {
     return `${vehicle.brand} ${vehicle.model}`;
   }
 
   /**
-   * Returns a friendly label based on the vehicle's status.
+   * Returns the translation key for the current vehicle status.
+   *
+   * @param status Vehicle status received from the store.
+   * @returns Translation key for the vehicle status.
    */
-  protected getStatusLabel(status: Vehicle['status']): string {
+  protected getStatusTranslationKey(status: Vehicle['status']): string {
     if (status === 'En Taller') {
-      return 'En curso';
+      return 'VEHICLE_DETAIL.STATUS.IN_PROGRESS';
     }
 
     if (status === 'Listo') {
-      return 'Completado';
+      return 'VEHICLE_DETAIL.STATUS.COMPLETED';
     }
 
-    return 'Entregado';
+    if (status === 'Entregado') {
+      return 'VEHICLE_DETAIL.STATUS.DELIVERED';
+    }
+
+    return 'VEHICLE_DETAIL.STATUS.PENDING';
   }
 
   /**
-   * Returns a friendly label for the status of a task.
+   * Returns the translation key for the current task status.
+   *
+   * @param status Task status received from the store.
+   * @returns Translation key for the task status.
    */
-  protected getTaskStatusLabel(status: Task['status']): string {
-    if (status === 'En Proceso') {
-      return 'En curso';
+  protected getTaskStatusTranslationKey(status: Task['status']): string {
+    if (status === 'Completada') {
+      return 'VEHICLE_DETAIL.STATUS.COMPLETED';
     }
 
-    return status;
+    if (status === 'En Proceso') {
+      return 'VEHICLE_DETAIL.STATUS.IN_PROGRESS';
+    }
+
+    return 'VEHICLE_DETAIL.STATUS.PENDING';
   }
 
   /**
-   * Returns the CSS class corresponding to the status of a task.
+   * Returns the CSS class corresponding to the current task status.
+   *
+   * @param status Task status received from the store.
+   * @returns CSS class for the task status.
    */
   protected getTaskStatusClass(status: Task['status']): string {
     if (status === 'Completada') {
@@ -251,7 +295,10 @@ export class VehicleDetailComponent implements OnInit {
   }
 
   /**
-   * Returns the name of the Material icon for the status of a task.
+   * Returns the Material icon name corresponding to the current task status.
+   *
+   * @param status Task status received from the store.
+   * @returns Material icon name.
    */
   protected getTaskIcon(status: Task['status']): string {
     if (status === 'Completada') {

@@ -5,6 +5,7 @@
   font-family: system-ui, -apple-system, sans-serif;
   background: #f8fafc;
 }
+
 .hero-section {
   flex: 1;
   position: relative;
@@ -14,12 +15,10 @@
   overflow: hidden;
 
   background:
-    linear-gradient(
-      90deg,
+    linear-gradient(90deg,
       rgba(2, 6, 23, 0.92) 0%,
       rgba(15, 23, 42, 0.82) 45%,
-      rgba(15, 23, 42, 0.55) 100%
-    ),
+      rgba(15, 23, 42, 0.55) 100%),
     url('https://thf.bing.com/th/id/OIP.elm-wEnUxAYF4S4UaEkJ8AHaEK?w=325&h=182&c=7&r=0&o=7&cb=thfc1&pid=1.7&rm=3');
 
   background-size: cover;
@@ -92,13 +91,13 @@
   max-width: 440px;
 
   min-height: 520px;
-  background: rgba(255,255,255,0.98);
+  background: rgba(255, 255, 255, 0.98);
   backdrop-filter: blur(10px);
   padding: 3.5rem;
   border-radius: 22px;
-  border: 1px solid rgba(255,255,255,0.2);
+  border: 1px solid rgba(255, 255, 255, 0.2);
   box-shadow:
-    0 20px 45px rgba(0,0,0,0.08);
+    0 20px 45px rgba(0, 0, 0, 0.08);
   transition: all 0.25s ease;
 }
 
@@ -111,7 +110,26 @@
   margin-bottom: 2rem;
   text-align: center;
 }
-.form-logo { display: flex; align-items: center; justify-content: center; gap: 10px; margin-bottom: 1.5rem; } .form-logo img { width: 38px; height: 38px; object-fit: contain; } .form-logo span { font-size: 1rem; font-weight: 700; color: #0f172a; }
+
+.form-logo {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  margin-bottom: 1.5rem;
+}
+
+.form-logo img {
+  width: 38px;
+  height: 38px;
+  object-fit: contain;
+}
+
+.form-logo span {
+  font-size: 1rem;
+  font-weight: 700;
+  color: #0f172a;
+}
 
 /* Títulos */
 
@@ -162,6 +180,7 @@
 .w-full {
   width: 100%;
 }
+
 .mat-mdc-form-field {
   width: 100%;
 }
@@ -216,7 +235,7 @@
   transform: translateY(-2px);
 
   box-shadow:
-    0 10px 20px rgba(37,99,235,0.3);
+    0 10px 20px rgba(37, 99, 235, 0.3);
 }
 
 .register-link {
@@ -225,6 +244,7 @@
   font-size: 0.92rem;
   color: #64748b;
 }
+
 .register-link a {
   color: #2563eb;
   text-decoration: none;
@@ -234,6 +254,7 @@
 .register-link a:hover {
   text-decoration: underline;
 }
+
 .error-message {
   color: #dc2626;
 
@@ -252,6 +273,41 @@
   border: 1px solid #fecaca;
 
   margin-bottom: 1rem;
+}
+
+/* =========================================================
+   LANGUAGE SWITCHER
+========================================================= */
+
+.language-actions {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 8px;
+
+  margin: 0.5rem 0 1.2rem;
+}
+
+.language-actions button {
+  width: 38px;
+  height: 38px;
+
+  opacity: 0.55;
+  border-radius: 50%;
+
+  transition: all 0.2s ease;
+}
+
+.language-actions button:hover {
+  opacity: 1;
+  transform: translateY(-1px) scale(1.05);
+  background: #eff6ff;
+}
+
+.language-actions button.active-lang {
+  opacity: 1;
+  background: #dbeafe;
+  box-shadow: 0 0 0 2px rgba(37, 99, 235, 0.18);
 }
 
 /* =========================================================
@@ -280,6 +336,7 @@
     padding: 2rem;
     align-items: flex-end;
   }
+
   .hero-content {
     width: 100%;
   }
@@ -320,9 +377,18 @@
   .login-header h2 {
     font-size: 1.7rem;
   }
+
   .form-logo img {
     width: 56px;
     height: 56px;
   }
 
+  .language-actions {
+    margin: 0.4rem 0 1rem;
+  }
+
+  .language-actions button {
+    width: 36px;
+    height: 36px;
+  }
 }

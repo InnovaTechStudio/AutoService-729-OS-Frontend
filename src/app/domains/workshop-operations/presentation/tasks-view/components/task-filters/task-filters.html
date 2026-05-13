@@ -1,36 +1,44 @@
 <div class="task-filters">
   <mat-form-field appearance="outline" class="search-box">
-    <mat-label>Buscar tarea</mat-label>
+    <mat-label>{{ 'TASK_FILTERS.SEARCH_LABEL' | translate }}</mat-label>
     <mat-icon matPrefix>search</mat-icon>
 
     <input
       matInput
       [ngModel]="search"
-      placeholder="Buscar por descripción, orden o mecánico..."
+      [placeholder]="'TASK_FILTERS.SEARCH_PLACEHOLDER' | translate"
       (ngModelChange)="onSearchChange($event)" />
   </mat-form-field>
 
   <mat-form-field appearance="outline" class="filter-select">
-    <mat-label>Estado</mat-label>
+    <mat-label>{{ 'TASK_FILTERS.STATUS' | translate }}</mat-label>
 
     <mat-select
       [ngModel]="status"
       (ngModelChange)="onStatusChange($event)">
-      <mat-option [value]="null">Todos</mat-option>
+
+      <mat-option [value]="null">
+        {{ 'TASK_FILTERS.ALL' | translate }}
+      </mat-option>
 
       @for (option of statusOptions; track option) {
-        <mat-option [value]="option">{{ option }}</mat-option>
+        <mat-option [value]="option">
+          {{ getStatusTranslationKey(option) | translate }}
+        </mat-option>
       }
     </mat-select>
   </mat-form-field>
 
   <mat-form-field appearance="outline" class="filter-select">
-    <mat-label>Mecánico</mat-label>
+    <mat-label>{{ 'TASK_FILTERS.MECHANIC' | translate }}</mat-label>
 
     <mat-select
       [ngModel]="mechanicId"
       (ngModelChange)="onMechanicChange($event)">
-      <mat-option [value]="null">Todos</mat-option>
+
+      <mat-option [value]="null">
+        {{ 'TASK_FILTERS.ALL' | translate }}
+      </mat-option>
 
       @for (mechanic of mechanicOptions; track mechanic.id) {
         <mat-option [value]="mechanic.id">

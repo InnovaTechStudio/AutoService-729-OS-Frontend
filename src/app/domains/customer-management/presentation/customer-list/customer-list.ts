@@ -1,17 +1,14 @@
 /**
- *
  * CustomerListComponent
  *
  * Component responsible for displaying the customer list in a table
- * Using Angular Material. Allows you to create new clients and edit
- * existing ones through a modal.
+ * using Angular Material. It allows users to create, edit and delete
+ * customers through a modal dialog.
  *
  * @component
  * @selector app-customer-list
  * @standalone true
- *
  */
-
 import { Component, inject, OnInit, TemplateRef, ViewChild } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
@@ -24,6 +21,9 @@ import { MatDialog, MatDialogModule } from '@angular/material/dialog';
 import { MatInputModule } from '@angular/material/input';
 import { MatFormFieldModule } from '@angular/material/form-field';
 
+// ngx-translate
+import { TranslateModule, TranslateService } from '@ngx-translate/core';
+
 import { CustomerStore } from '../../application/customer.store';
 import { Customer } from '../../domain/models/customer.model';
 
@@ -31,104 +31,125 @@ import { Customer } from '../../domain/models/customer.model';
   selector: 'app-customer-list',
   standalone: true,
   imports: [
-    CommonModule, FormsModule, MatTableModule, MatButtonModule,
-    MatIconModule, MatDialogModule, MatInputModule, MatFormFieldModule
+    CommonModule,
+    FormsModule,
+    MatTableModule,
+    MatButtonModule,
+    MatIconModule,
+    MatDialogModule,
+    MatInputModule,
+    MatFormFieldModule,
+    TranslateModule
   ],
   templateUrl: './customer-list.html',
   styleUrl: './customer-list.css'
 })
 export class CustomerListComponent implements OnInit {
+
   /**
- * We injected the Store and the Material Modals service
- */
+   * Store used to manage customer data.
+   */
   customerStore = inject(CustomerStore);
+
+  /**
+   * Angular Material dialog service.
+   */
   private dialog = inject(MatDialog);
 
   /**
- * Columns that will be displayed in the Material table
- */
+   * Translation service used for messages generated from TypeScript.
+   */
+  private translate = inject(TranslateService);
+
+  /**
+   * Columns displayed in the Angular Material table.
+   */
   displayedColumns: string[] = ['fullName', 'dni', 'email', 'phone', 'actions'];
 
   /**
- * Reference to the modal template defined in the HTML
- */
+   * Reference to the modal template defined in the HTML.
+   */
   @ViewChild('customerDialog') customerDialogTemplate!: TemplateRef<any>;
 
   /**
- * Customer currently being edited or created
- */
+   * Customer currently being created or edited.
+   */
   currentCustomer: Customer = this.getEmptyCustomer();
+
   /**
- * Indicates if an existing customer is being edited
- */
+   * Indicates whether an existing customer is being edited.
+   */
   isEditing = false;
 
-  ngOnInit() {
-    // When loading the component, we tell the store to fetch the data
+  /**
+   * Loads the customer data when the component is initialized.
+   */
+  ngOnInit(): void {
     this.customerStore.loadCustomers();
   }
 
   /**
-* 
- * Opens the modal to create a new customer.
- *
- */
-  openNewCustomerDialog() {
+   * Opens the modal to create a new customer.
+   */
+  openNewCustomerDialog(): void {
     this.currentCustomer = this.getEmptyCustomer();
     this.isEditing = false;
     this.dialog.open(this.customerDialogTemplate, { width: '450px' });
   }
 
   /**
- * Opens the modal to edit an existing customer.
- * @param customer - Customer to edit
- *
- */
-  editCustomer(customer: Customer) {
-    this.currentCustomer = { ...customer }; // Clonamos para no editar directamente
+   * Opens the modal to edit an existing customer.
+   *
+   * @param customer Customer selected for editing.
+   */
+  editCustomer(customer: Customer): void {
+    this.currentCustomer = { ...customer };
     this.isEditing = true;
     this.dialog.open(this.customerDialogTemplate, { width: '450px' });
   }
 
   /**
- *
- * Closes all open modals.
- *
- */
-  closeDialog() {
+   * Closes all open dialogs.
+   */
+  closeDialog(): void {
     this.dialog.closeAll();
   }
 
   /**
- *
- * Saves or updates the customer based on the mode (create/edit).
- *
- */
-  saveCustomer() {
+   * Saves a new customer or updates an existing one.
+   */
+  saveCustomer(): void {
     if (this.currentCustomer.fullName && this.currentCustomer.dni) {
       if (this.isEditing && this.currentCustomer.id) {
         this.customerStore.updateCustomer(this.currentCustomer.id, this.currentCustomer);
       } else {
         this.customerStore.addCustomer(this.currentCustomer);
       }
+
       this.closeDialog();
     }
   }
-  protected deleteCustomer(id: string): void {
 
+  /**
+   * Deletes a customer after user confirmation.
+   *
+   * @param id Customer identifier.
+   */
+  protected deleteCustomer(id: string): void {
     const confirmed = window.confirm(
-      '¿Deseas eliminar este cliente?'
+      this.translate.instant('CUSTOMERS.DELETE_CONFIRM')
     );
+
     if (!confirmed) return;
+
     this.customerStore.deleteCustomer(id);
   }
 
   /**
- *
- * Returns an empty Customer object for new records.
- * @returns Empty Customer
- *
- */
+   * Returns an empty customer object for new records.
+   *
+   * @returns Empty customer object.
+   */
   private getEmptyCustomer(): Customer {
     return { fullName: '', dni: '', email: '', phone: '' };
   }

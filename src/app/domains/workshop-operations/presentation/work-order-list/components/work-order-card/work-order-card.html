@@ -1,36 +1,67 @@
 <article class="work-order-card">
-  <div class="order-top">
-    <div>
-      <span class="order-code">{{ order.trackingCode }}</span>
+
+  <div class="card-accent" [ngClass]="getStatusClass(order.status)"></div>
+
+  <header class="card-header">
+    <div class="order-main-info">
+
+      <div class="tracking-row">
+        <span class="tracking-code">
+          {{ order.trackingCode }}
+        </span>
+
+        <span
+          class="status-chip"
+          [ngClass]="getStatusClass(order.status)">
+          {{ getStatusTranslationKey(order.status) | translate }}
+        </span>
+      </div>
+
       <h3>{{ order.vehicleName }}</h3>
-      <p>{{ order.customerName }}</p>
+
+      <div class="plate-row">
+        <mat-icon>directions_car</mat-icon>
+        <span>{{ order.plateOnly }}</span>
+      </div>
+
+    </div>
+  </header>
+
+  <section class="info-grid">
+
+    <div class="info-item customer-item">
+      <mat-icon>person</mat-icon>
+
+      <div>
+        <span>{{ 'WORK_ORDER_CARD.CUSTOMER' | translate }}</span>
+        <strong>{{ order.customerName }}</strong>
+      </div>
     </div>
 
-    <span class="status-chip" [ngClass]="getStatusClass(order.status)">
-      {{ order.status }}
-    </span>
-  </div>
+    <div class="info-item">
+      <mat-icon>event</mat-icon>
 
-  <div class="order-meta">
-    <span>
-      <mat-icon>calendar_month</mat-icon>
-      Ingreso: {{ order.startDate || '---' }}
-    </span>
+      <div>
+        <span>{{ 'WORK_ORDER_CARD.START_DATE' | translate }}</span>
+        <strong>{{ order.startDate || '---' }}</strong>
+      </div>
+    </div>
 
-    <span>
-      <mat-icon>schedule</mat-icon>
-      Entrega: {{ order.estimatedDate || '---' }}
-    </span>
+    <div class="info-item">
+      <mat-icon>event_available</mat-icon>
 
-    <span>
-      <mat-icon>account_balance_wallet</mat-icon>
-      {{ order.price | currency:'PEN':'symbol':'1.0-0' }}
-    </span>
-  </div>
+      <div>
+        <span>{{ 'WORK_ORDER_CARD.ESTIMATED_DATE' | translate }}</span>
+        <strong>{{ order.estimatedDate || '---' }}</strong>
+      </div>
+    </div>
 
-  <div class="progress-area">
+  </section>
+
+  <section class="progress-section">
+
     <div class="progress-label">
-      <span>Progreso de tareas</span>
+      <span>{{ 'WORK_ORDER_CARD.PROGRESS' | translate }}</span>
       <strong>{{ order.progress }}%</strong>
     </div>
 
@@ -38,25 +69,39 @@
       mode="determinate"
       [value]="order.progress">
     </mat-progress-bar>
-  </div>
 
-  <div class="order-footer">
-    @if (order.isRisk) {
-      <div class="risk-badge" [ngClass]="order.riskClass">
-        <mat-icon>
-          {{ order.isRisk ? 'warning_amber' : 'verified' }}
-        </mat-icon>
-        {{ order.riskStatus }}
-      </div>
-    }
+  </section>
 
-    <button
-      mat-stroked-button
-      type="button"
-      class="detail-button"
-      (click)="onViewDetail()">
-      Ver detalle
-      <mat-icon>arrow_forward</mat-icon>
-    </button>
-  </div>
+  <footer class="card-footer">
+
+    <div class="price-box">
+      <span>{{ 'WORK_ORDER_CARD.TOTAL_PRICE' | translate }}</span>
+      <strong>{{ order.price | currency:'PEN':'symbol':'1.0-0' }}</strong>
+    </div>
+
+    <div
+      class="risk-chip"
+      [ngClass]="order.riskClass">
+
+      <mat-icon>
+        {{ order.isRisk ? 'warning_amber' : 'verified' }}
+      </mat-icon>
+
+      <span>
+        {{ getRiskStatusTranslationKey(order.riskStatus) | translate }}
+      </span>
+    </div>
+
+  </footer>
+
+  <button
+    mat-flat-button
+    type="button"
+    class="details-button"
+    (click)="onViewDetail()">
+
+    {{ 'WORK_ORDER_CARD.VIEW_DETAILS' | translate }}
+    <mat-icon>arrow_forward</mat-icon>
+  </button>
+
 </article>

@@ -1,5 +1,8 @@
 <article class="vehicle-card">
-  <img [src]="vehicle.image" [alt]="vehicle.name" class="vehicle-image" />
+  <img
+    [src]="vehicle.image"
+    [alt]="vehicle.name"
+    class="vehicle-image" />
 
   <div class="vehicle-content">
     <div class="vehicle-header">
@@ -11,8 +14,9 @@
       <button
         mat-icon-button
         type="button"
-        aria-label="Editar vehículo"
+        [attr.aria-label]="'VEHICLE_CARD.EDIT_VEHICLE' | translate"
         (click)="onEdit()">
+
         <mat-icon>edit</mat-icon>
       </button>
     </div>
@@ -35,8 +39,11 @@
     </div>
 
     <div class="vehicle-status">
-      <span class="custom-badge" [ngClass]="getStatusClass(vehicle.status)">
-        {{ vehicle.status }}
+      <span
+        class="custom-badge"
+        [ngClass]="getStatusClass(vehicle.status)">
+
+        {{ getStatusTranslationKey(vehicle.status) | translate }}
       </span>
 
       <strong>{{ vehicle.progress }}%</strong>
@@ -53,7 +60,8 @@
       type="button"
       class="details-button"
       (click)="onViewDetails()">
-      Ver detalles
+
+      {{ 'VEHICLE_CARD.VIEW_DETAILS' | translate }}
       <mat-icon>arrow_forward</mat-icon>
     </button>
   </div>

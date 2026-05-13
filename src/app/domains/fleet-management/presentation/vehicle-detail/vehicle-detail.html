@@ -1,13 +1,26 @@
 <section class="vehicle-detail-page">
   <header class="page-header">
-    <button mat-icon-button type="button" aria-label="Volver a vehículos" (click)="goBack()">
+    <button
+      mat-icon-button
+      type="button"
+      [attr.aria-label]="'VEHICLE_DETAIL.BACK_TO_VEHICLES' | translate"
+      (click)="goBack()">
+
       <mat-icon>arrow_back</mat-icon>
     </button>
 
     <div>
-      <p class="eyebrow">Gestión de flota</p>
-      <h1>Detalles del vehículo</h1>
-      <span>Consulta trazabilidad, diagnóstico y tareas asociadas al servicio.</span>
+      <p class="eyebrow">
+        {{ 'VEHICLE_DETAIL.FLEET_MANAGEMENT' | translate }}
+      </p>
+
+      <h1>
+        {{ 'VEHICLE_DETAIL.TITLE' | translate }}
+      </h1>
+
+      <span>
+        {{ 'VEHICLE_DETAIL.DESCRIPTION' | translate }}
+      </span>
     </div>
   </header>
 
@@ -17,8 +30,12 @@
         <mat-card-content>
           <div class="identity-head">
             <div>
-              <span class="label">Identificación</span>
+              <span class="label">
+                {{ 'VEHICLE_DETAIL.IDENTIFICATION' | translate }}
+              </span>
+
               <h2>{{ getVehicleName(currentVehicle) }}</h2>
+
               <p class="plate">{{ currentVehicle.plate }}</p>
             </div>
 
@@ -29,8 +46,12 @@
 
           <div class="owner-row">
             <mat-icon>person</mat-icon>
+
             <div>
-              <span>Propietario</span>
+              <span>
+                {{ 'VEHICLE_DETAIL.OWNER' | translate }}
+              </span>
+
               <strong>{{ ownerName() }}</strong>
             </div>
           </div>
@@ -51,10 +72,15 @@
 
       <mat-card class="status-card">
         <mat-card-content>
-          <span class="label">Estado actual</span>
+          <span class="label">
+            {{ 'VEHICLE_DETAIL.CURRENT_STATUS' | translate }}
+          </span>
 
           <div class="status-head">
-            <h2>{{ getStatusLabel(currentVehicle.status) }}</h2>
+            <h2>
+              {{ getStatusTranslationKey(currentVehicle.status) | translate }}
+            </h2>
+
             <strong>{{ progress() }}%</strong>
           </div>
 
@@ -64,7 +90,7 @@
           </mat-progress-bar>
 
           <p>
-            Avance calculado según tareas completadas y estado operativo del servicio.
+            {{ 'VEHICLE_DETAIL.PROGRESS_DESCRIPTION' | translate }}
           </p>
         </mat-card-content>
       </mat-card>
@@ -74,7 +100,10 @@
           <section class="info-block">
             <div class="section-title">
               <mat-icon>warning_amber</mat-icon>
-              <h3>Problema reportado</h3>
+
+              <h3>
+                {{ 'VEHICLE_DETAIL.REPORTED_PROBLEM' | translate }}
+              </h3>
             </div>
 
             <p class="note-box">
@@ -85,7 +114,10 @@
           <section class="info-block">
             <div class="section-title">
               <mat-icon>engineering</mat-icon>
-              <h3>Diagnóstico técnico</h3>
+
+              <h3>
+                {{ 'VEHICLE_DETAIL.TECHNICAL_DIAGNOSIS' | translate }}
+              </h3>
             </div>
 
             <p class="note-box">
@@ -99,11 +131,12 @@
         <mat-card-header>
           <mat-card-title>
             <mat-icon>assignment</mat-icon>
-            Tareas de mantenimiento
+            {{ 'VEHICLE_DETAIL.MAINTENANCE_TASKS' | translate }}
           </mat-card-title>
 
           <mat-card-subtitle>
-            {{ vehicleTasks().length }} tareas registradas
+            {{ vehicleTasks().length }}
+            {{ 'VEHICLE_DETAIL.REGISTERED_TASKS' | translate }}
           </mat-card-subtitle>
         </mat-card-header>
 
@@ -112,22 +145,27 @@
             <div class="task-list">
               @for (task of vehicleTasks(); track task.id) {
                 <article class="task-item">
-                  <div class="task-icon" [ngClass]="getTaskStatusClass(task.status)">
+                  <div
+                    class="task-icon"
+                    [ngClass]="getTaskStatusClass(task.status)">
+
                     <mat-icon>{{ getTaskIcon(task.status) }}</mat-icon>
                   </div>
 
                   <div class="task-body">
                     <strong>{{ task.description }}</strong>
+
                     <span [ngClass]="getTaskStatusClass(task.status)">
-                      {{ getTaskStatusLabel(task.status) }}
+                      {{ getTaskStatusTranslationKey(task.status) | translate }}
                     </span>
                   </div>
 
                   <button
                     mat-icon-button
                     type="button"
-                    aria-label="Editar tarea"
+                    [attr.aria-label]="'VEHICLE_DETAIL.EDIT_TASK' | translate"
                     (click)="goToWorkOrder()">
+
                     <mat-icon>edit</mat-icon>
                   </button>
                 </article>
@@ -136,7 +174,10 @@
           } @else {
             <div class="empty-tasks">
               <mat-icon>assignment_late</mat-icon>
-              <p>No hay tareas registradas para este vehículo.</p>
+
+              <p>
+                {{ 'VEHICLE_DETAIL.NO_TASKS' | translate }}
+              </p>
             </div>
           }
 
@@ -146,8 +187,9 @@
             type="button"
             class="add-task-button"
             (click)="goToNewTask()">
+
             <mat-icon>add</mat-icon>
-            Agregar tarea
+            {{ 'VEHICLE_DETAIL.ADD_TASK' | translate }}
           </button>
         </mat-card-content>
       </mat-card>
@@ -156,11 +198,22 @@
     <mat-card class="not-found-card">
       <mat-card-content>
         <mat-icon>directions_car</mat-icon>
-        <h2>Vehículo no encontrado</h2>
-        <p>No se encontró información para el vehículo seleccionado.</p>
 
-        <button mat-flat-button color="primary" type="button" (click)="goBack()">
-          Volver a vehículos
+        <h2>
+          {{ 'VEHICLE_DETAIL.VEHICLE_NOT_FOUND' | translate }}
+        </h2>
+
+        <p>
+          {{ 'VEHICLE_DETAIL.VEHICLE_NOT_FOUND_DESCRIPTION' | translate }}
+        </p>
+
+        <button
+          mat-flat-button
+          color="primary"
+          type="button"
+          (click)="goBack()">
+
+          {{ 'VEHICLE_DETAIL.BACK_TO_VEHICLES' | translate }}
         </button>
       </mat-card-content>
     </mat-card>

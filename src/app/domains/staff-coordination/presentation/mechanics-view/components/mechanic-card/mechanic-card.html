@@ -14,25 +14,25 @@
     </div>
 
     <span class="workload-chip" [ngClass]="getWorkloadClass()">
-      {{ mechanic.workloadStatus }}
+      {{ getWorkloadStatusTranslationKey() | translate }}
     </span>
   </div>
 
   <div class="mechanic-stats">
     <div>
-      <span>Tareas activas</span>
+      <span>{{ 'MECHANIC_CARD.ACTIVE_TASKS' | translate }}</span>
       <strong>{{ mechanic.activeTasks }} / {{ mechanic.maxCapacity }}</strong>
     </div>
 
     <div>
-      <span>Efectividad</span>
+      <span>{{ 'MECHANIC_CARD.EFFECTIVENESS' | translate }}</span>
       <strong>{{ mechanic.effectiveness }}%</strong>
     </div>
   </div>
 
   <div class="load-section">
     <div class="load-label">
-      <span>Carga laboral</span>
+      <span>{{ 'MECHANIC_CARD.WORKLOAD' | translate }}</span>
       <strong>{{ mechanic.loadPercentage }}%</strong>
     </div>
 
@@ -49,8 +49,9 @@
       type="button"
       class="action-button"
       (click)="onEdit()">
+
       <mat-icon>edit</mat-icon>
-      Editar
+      {{ 'MECHANIC_CARD.EDIT' | translate }}
     </button>
 
     <button
@@ -58,7 +59,9 @@
       color="warn"
       type="button"
       class="delete-button"
+      [attr.aria-label]="'MECHANIC_CARD.DELETE' | translate"
       (click)="onDelete()">
+
       <mat-icon>delete</mat-icon>
     </button>
   </div>

@@ -1,13 +1,13 @@
 <article class="task-card">
 
-    <div class="task-image">
-      <img
-        *ngIf="task.raw.photo"
-        [src]="task.raw.photo"
-        alt="task-image"
-        class="task-image"
-      />
-    </div>
+  <div class="task-image">
+    <img
+      *ngIf="task.raw.photo"
+      [src]="task.raw.photo"
+      [alt]="'TASK_CARD.IMAGE_ALT' | translate"
+      class="task-image"
+    />
+  </div>
 
   <div class="task-top">
     <div>
@@ -16,41 +16,50 @@
       </mat-chip>
 
       <h3>{{ task.description }}</h3>
+
       <p>
         <mat-icon>person</mat-icon>
         {{ task.mechanicName }}
       </p>
     </div>
 
-    <span class="status-chip" [ngClass]="getStatusClass(task.status)">
-      {{ task.status }}
+    <span
+      class="status-chip"
+      [ngClass]="getStatusClass(task.status)">
+
+      {{ getStatusTranslationKey(task.status) | translate }}
     </span>
   </div>
 
   <div class="task-meta">
     <span>
       <mat-icon>schedule</mat-icon>
-      {{ task.estimatedTime }} h estimadas
+      {{ task.estimatedTime }}
+      {{ 'TASK_CARD.ESTIMATED_HOURS' | translate }}
     </span>
 
     <span [ngClass]="getPriorityClass(task.priority)">
       <mat-icon>flag</mat-icon>
-      {{ task.priority }}
+      {{ getPriorityTranslationKey(task.priority) | translate }}
     </span>
   </div>
 
   <div class="task-status">
-    <label>Actualizar estado</label>
+    <label>
+      {{ 'TASK_CARD.UPDATE_STATUS' | translate }}
+    </label>
 
     <mat-form-field appearance="outline" subscriptSizing="dynamic">
       <mat-select
         [ngModel]="task.status"
         (ngModelChange)="onStatusChange($event)">
+
         @for (status of statusOptions; track status) {
           <mat-option [value]="status">
-            {{ status }}
+            {{ getStatusTranslationKey(status) | translate }}
           </mat-option>
         }
+
       </mat-select>
     </mat-form-field>
   </div>
@@ -61,15 +70,18 @@
       type="button"
       class="action-button"
       (click)="onGoOrder()">
+
       <mat-icon>open_in_new</mat-icon>
-      Orden
+      {{ 'TASK_CARD.ORDER' | translate }}
     </button>
 
     <button
       mat-stroked-button
       type="button"
       class="icon-button"
+      [attr.aria-label]="'TASK_CARD.EDIT' | translate"
       (click)="onEdit()">
+
       <mat-icon>edit</mat-icon>
     </button>
 
@@ -78,7 +90,9 @@
       color="warn"
       type="button"
       class="icon-button"
+      [attr.aria-label]="'TASK_CARD.DELETE' | translate"
       (click)="onDelete()">
+
       <mat-icon>delete</mat-icon>
     </button>
   </div>

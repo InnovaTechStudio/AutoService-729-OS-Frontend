@@ -1,17 +1,16 @@
 /**
  * AppTranslateService
- * 
+ *
  * Servicio central de internacionalización (i18n) de la aplicación.
- * 
+ *
  * Funcionalidades:
- * - Idioma por defecto: Inglés ('en')
  * - Persistencia de la preferencia del usuario en localStorage
  * - Detección automática del idioma del navegador
  * - Soporte para cambio dinámico entre Inglés y Español
  * - Métodos seguros y con fallback
- * 
+ *
  * @service
- * @providedIn 'root'
+ * @providedIn root
  */
 import { Injectable, inject } from '@angular/core';
 import { TranslateService } from '@ngx-translate/core';
@@ -43,12 +42,10 @@ export class AppTranslateService {
 
         if (savedLang && this.SUPPORTED_LANGUAGES.includes(savedLang as 'en' | 'es')) {
             initialLang = savedLang as 'en' | 'es';
-        }
-        else if (browserLang === 'es') {
+        } else if (browserLang === 'es') {
             initialLang = 'es';
         }
 
-        this.translate.setDefaultLang('en');
         this.translate.use(initialLang);
     }
 

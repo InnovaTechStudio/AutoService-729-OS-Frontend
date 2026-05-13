@@ -7,24 +7,24 @@ import { MatIconModule } from '@angular/material/icon';
 import { MatInputModule } from '@angular/material/input';
 import { MatSelectModule } from '@angular/material/select';
 
+import { TranslateModule } from '@ngx-translate/core';
+
 import { Mechanic } from '../../../../domain/models/mechanic.model';
 
 /**
  * MechanicDialogComponent
  *
- * Standalone component that displays a dialog form for creating or editing
- * workshop mechanic information.
+ * Standalone dialog component used to create or edit workshop mechanic data.
+ * It displays a form with mechanic information such as full name, specialty,
+ * phone number, maximum task capacity and initial status.
  *
- * It receives a Mechanic domain model as input and provides a list of available
- * specialty options for the form. The component emits events when the user
- * confirms the save action or cancels the dialog.
- *
- * This component is mainly used as a presentation layer for mechanic form data,
- * delegating the save and cancel handling to the parent component.
+ * The component works as a presentational form. It receives the mechanic model
+ * and specialty options from the parent component, then emits events when the
+ * user saves or cancels the operation.
  *
  * @component
- * @standalone
  * @selector app-mechanic-dialog
+ * @standalone true
  */
 @Component({
   selector: 'app-mechanic-dialog',
@@ -35,7 +35,8 @@ import { Mechanic } from '../../../../domain/models/mechanic.model';
     MatButtonModule,
     MatIconModule,
     MatInputModule,
-    MatSelectModule
+    MatSelectModule,
+    TranslateModule
   ],
   templateUrl: './mechanic-dialog.html',
   styleUrl: './mechanic-dialog.css'
@@ -43,26 +44,36 @@ import { Mechanic } from '../../../../domain/models/mechanic.model';
 export class MechanicDialogComponent {
 
   /**
-   * Mechanic
-   *
    * Mechanic domain model used by the dialog form.
-   *
-   * This input contains the mechanic information that will be displayed,
-   * created, or edited through the dialog fields.
-   *
-   * @input
-   * @required
+   * It contains the data to be created or edited.
    */
   @Input({ required: true }) mechanic!: Mechanic;
+
+  /**
+   * List of available mechanic specialties displayed in the specialty selector.
+   */
   @Input() specialtyOptions: string[] = [];
 
+  /**
+   * Event emitted when the user confirms the save action.
+   */
   @Output() save = new EventEmitter<void>();
+
+  /**
+   * Event emitted when the user cancels or closes the dialog.
+   */
   @Output() cancel = new EventEmitter<void>();
 
+  /**
+   * Emits the save event to notify the parent component.
+   */
   protected onSave(): void {
     this.save.emit();
   }
 
+  /**
+   * Emits the cancel event to notify the parent component.
+   */
   protected onCancel(): void {
     this.cancel.emit();
   }

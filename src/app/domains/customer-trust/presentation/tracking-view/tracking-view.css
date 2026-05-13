@@ -628,3 +628,27 @@ app-language-switcher * {
   color: #ffffff !important;
   border-color: rgba(255,255,255,0.4) !important;
 }
+
+@media print {
+  @page { margin: 10mm; }
+
+  /* Ocultar elementos que no van en el documento PDF */
+  .search-section,
+  .no-print,
+  nav,
+  button {
+    display: none !important;
+  }
+
+  /* Quitar sombras y fondos oscuros para ahorrar tinta/verse profesional */
+  body, .tracking-wrapper, .vehicle-card, .task-detail-panel {
+    background: white !important;
+    box-shadow: none !important;
+    border: 1px solid #e2e8f0;
+  }
+
+  /* Asegurar que las columnas se mantengan alineadas */
+  .tracking-layout {
+    display: block; /* O flex si tu diseño lo permite en A4 */
+  }
+}

@@ -193,4 +193,8 @@ export class TrackingViewComponent {
       this.router.navigate(['/tracking/history', plate]);
     }
   }
+
+  downloadActiveOrderPDF(): void {
+    window.print();
+  }
 }

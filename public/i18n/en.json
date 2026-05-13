@@ -337,26 +337,31 @@
     "subtitle": "Enter the code provided by the workshop to view your service status in real time.",
     "serviceCode": "Service Code",
     "search": "Search",
-
-    "serviceTasks": "Service Tasks",
-    "visualEvidence": "Visual Evidence",
-
-    "estimatedTotalCost": "Estimated Total Cost",
-    "costDisclaimer": "Subject to changes according to diagnosis.",
-    "makePayment": "Make Payment",
-
-    "serviceTimes": "Service Times",
+    "vehicleReceived": "Vehicle Received",
     "entryDate": "Entry Date",
     "estimatedDelivery": "Estimated Delivery",
-
-    "vehicleReceived": "Vehicle Received",
-
-    "statuses": {
-      "completed": "Completed",
-      "inProgress": "In Progress",
-      "pending": "Pending"
-    },
-
+    "serviceTasks": "Service Tasks",
+    "taskInstructions": "Click on a task to view the details and the mechanic's report.",
+    "mechanicReport": "Mechanic's Report",
+    "mechanicReportSubtitle": "Detailed explanation of the work performed on this task.",
+    "selectedService": "Selected Service",
+    "evidenceRegistered": "Evidence registered",
+    "noEvidenceYet": "No evidence yet",
+    "selectTaskInstruction": "Select a task on the left to view its technical report.",
+    "simulatedEvidence": "Simulated technical evidence registered by the mechanic.",
+    "noVisualEvidence": "No visual evidence registered yet.",
+    "visualEvidence": "Visual evidence",
+    "estimatedTotalCost": "Estimated Total Cost",
+    "costDisclaimer": "Subject to changes based on diagnosis.",
+    "makePayment": "Make Payment",
+    "serviceTimes": "Service Times",
+    "vehicleHistory": "Vehicle History",
+    "vehicleHistorySubtitle": "Previous services associated with plate",
+    "loadingHistory": "Loading history...",
+    "completedTasks": "Completed tasks:",
+    "recommendation": "Workshop recommendation:",
+    "noHistory": "No previous services found for this vehicle."
+  },
     "tasks": {
       "oilChange": "Oil Change",
       "brakePadAdjustment": "Brake Pad Adjustment",
@@ -364,4 +369,4 @@
       "windowReplacement": "Window Replacement"
     }
   }
-}
+

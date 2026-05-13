@@ -1,15 +1,15 @@
 /**
  * TasksViewComponent
- * 
+ *
  * Main view of workshop task management.
  * Allows viewing, filtering, creating, editing and deleting tasks.
- * 
+ *
  * Includes:
  * - Advanced filters (search, status, mechanic)
  * - Task cards (`TaskCardComponent`)
  * - Dialog for creating/editing tasks (`TaskDialogComponent`)
  * - Real-time statistics
- * 
+ *
  * @component
  * @selector app-tasks-view
  * @standalone true
@@ -28,6 +28,7 @@ import { Task } from '../../domain/models/work-order.model';
 import { TaskCardComponent, TaskCardView } from './components/task-card/task-card';
 import { TaskDialogComponent } from './components/task-dialog/task-dialog';
 import { TaskFiltersComponent } from './components/task-filters/task-filters';
+import { TranslatePipe } from '@ngx-translate/core';
 
 type TaskPriority = 'Baja' | 'Media' | 'Alta' | 'Crítica';
 
@@ -40,10 +41,11 @@ type TaskPriority = 'Baja' | 'Media' | 'Alta' | 'Crítica';
     MatIconModule,
     TaskFiltersComponent,
     TaskCardComponent,
-    TaskDialogComponent
+    TaskDialogComponent,
+    TranslatePipe,
   ],
   templateUrl: './tasks-view.html',
-  styleUrl: './tasks-view.css'
+  styleUrl: './tasks-view.css',
 })
 export class TasksViewComponent implements OnInit {
   protected readonly taskStore = inject(TaskStore);
@@ -60,18 +62,9 @@ export class TasksViewComponent implements OnInit {
   /** Task being created or edited in the dialog */
   protected taskForm: Task = this.getEmptyTask();
 
-  protected readonly statusOptions: Task['status'][] = [
-    'Pendiente',
-    'En Proceso',
-    'Completada'
-  ];
+  protected readonly statusOptions: Task['status'][] = ['Pendiente', 'En Proceso', 'Completada'];
 
-  protected readonly priorityOptions: TaskPriority[] = [
-    'Baja',
-    'Media',
-    'Alta',
-    'Crítica'
-  ];
+  protected readonly priorityOptions: TaskPriority[] = ['Baja', 'Media', 'Alta', 'Crítica'];
 
   /** Enriched view of tasks for display in cards */
   protected readonly tasksView = computed<TaskCardView[]>(() =>
@@ -87,7 +80,7 @@ export class TasksViewComponent implements OnInit {
       priority: task.priority || 'Media',
       estimatedTime: task.estimatedTime || 2,
       photo: task.photo,
-    }))
+    })),
   );
 
   /** Filtered tasks based on current criteria */
@@ -103,8 +96,7 @@ export class TasksViewComponent implements OnInit {
         task.workOrderCode.toLowerCase().includes(term) ||
         task.mechanicName.toLowerCase().includes(term);
 
-      const matchesStatus =
-        !selectedStatus || task.status === selectedStatus;
+      const matchesStatus = !selectedStatus || task.status === selectedStatus;
 
       const matchesMechanic =
         !selectedMechanicId || String(task.mechanicId) === String(selectedMechanicId);
@@ -113,16 +105,16 @@ export class TasksViewComponent implements OnInit {
     });
   });
 
-  protected readonly pendingTasks = computed(() =>
-    this.taskStore.tasks().filter((task) => task.status === 'Pendiente').length
+  protected readonly pendingTasks = computed(
+    () => this.taskStore.tasks().filter((task) => task.status === 'Pendiente').length,
   );
 
-  protected readonly inProgressTasks = computed(() =>
-    this.taskStore.tasks().filter((task) => task.status === 'En Proceso').length
+  protected readonly inProgressTasks = computed(
+    () => this.taskStore.tasks().filter((task) => task.status === 'En Proceso').length,
   );
 
-  protected readonly completedTasks = computed(() =>
-    this.taskStore.tasks().filter((task) => task.status === 'Completada').length
+  protected readonly completedTasks = computed(
+    () => this.taskStore.tasks().filter((task) => task.status === 'Completada').length,
   );
 
   ngOnInit(): void {
@@ -163,7 +155,7 @@ export class TasksViewComponent implements OnInit {
     this.taskForm = {
       ...task,
       priority: task.priority || 'Media',
-      estimatedTime: task.estimatedTime || 2
+      estimatedTime: task.estimatedTime || 2,
     };
     this.displayDialog.set(true);
   }
@@ -248,7 +240,7 @@ export class TasksViewComponent implements OnInit {
       mechanicId: String(defaultMechanicId),
       status: 'Pendiente',
       priority: 'Media',
-      estimatedTime: 2
+      estimatedTime: 2,
     };
   }
 }

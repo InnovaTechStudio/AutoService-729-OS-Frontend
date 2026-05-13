@@ -30,7 +30,6 @@ import { CustomerListComponent } from './domains/customer-management/presentatio
 // Fleet Management
 import { VehicleListComponent } from './domains/fleet-management/presentation/vehicle-list/vehicle-list';
 
-
 // Staff Coordination
 import { MechanicsViewComponent } from './domains/staff-coordination/presentation/mechanics-view/mechanics-view';
 

@@ -19,6 +19,8 @@ import { MatInputModule } from '@angular/material/input';
 import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
 import { AuthService } from '../../infrastructure/auth.service';
+import { TranslatePipe } from '@ngx-translate/core';
+import { LanguageSwitcher } from '../../../../shared/presentation/language-switcher/language-switcher';
 
 @Component({
   selector: 'app-login',
@@ -26,9 +28,11 @@ import { AuthService } from '../../infrastructure/auth.service';
   /**
    * We import the Angular Material modules that we will use in the HTML
    */
-  imports: [FormsModule, MatInputModule, MatButtonModule, MatIconModule],
+
+  imports: [FormsModule, MatInputModule, MatButtonModule, MatIconModule, TranslatePipe, LanguageSwitcher],
+
   templateUrl: './login.component.html',
-  styleUrl: './login.component.css'
+  styleUrl: './login.component.css',
 })
 export class LoginComponent {
   private router = inject(Router);
@@ -71,12 +75,16 @@ export class LoginComponent {
    *
    * Manages the user authentication process.
    *
-   * The mechanic demo user is handled locally to test the mechanic workspace.
-   * The administrator and the rest of the current users continue using AuthService
-   * and db.json as before.
+<<<<<<< HEAD
+   * Validates that the fields are not empty, calls the authentication service
+   * and manages the redirection or error messages based on the result.
    *
    */
+
+
+
   handleLogin(): void {
+
     if (!this.email || !this.password) return;
 
     this.isLoading = true;
@@ -86,6 +94,9 @@ export class LoginComponent {
     const normalizedPassword = this.password.trim();
 
     /**
+<<<<<<< HEAD
+     * In Angular we use RxJS (subscribe) instead of async/await for HTTP requests
+=======
      * Temporary mechanic access.
      * It does not modify the existing administrator login flow.
      */
@@ -106,11 +117,16 @@ export class LoginComponent {
     /**
      * Current authentication flow.
      * Keep this for admin and other users working with db.json.
+>>>>>>> origin/develop
      */
     this.authService.login(this.email, this.password).subscribe({
       next: (success) => {
         this.isLoading = false;
         if (success) {
+
+          /**
+           * Adjust the route according to your app.routes.ts
+           */
           this.router.navigate(['/admin/dashboard']);
         } else {
           this.errorMessage = 'Credenciales incorrectas';
@@ -119,7 +135,7 @@ export class LoginComponent {
       error: () => {
         this.isLoading = false;
         this.errorMessage = 'Error al conectar con el servidor';
-      }
+      },
     });
   }
 }

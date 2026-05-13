@@ -1,10 +1,10 @@
 /**
  * AdminLayoutComponent
- * 
+ *
  * Main layout for all pages in the admin panel.
  * Contains the navigation sidebar, top toolbar and general structure
  * of the application.
- * 
+ *
  * @component
  * @selector app-admin-layout
  * @standalone true
@@ -19,6 +19,8 @@ import { MatIconModule } from '@angular/material/icon';
 import { MatButtonModule } from '@angular/material/button';
 import { CommonModule } from '@angular/common';
 import { AuthService } from '../../../domains/auth/infrastructure/auth.service';
+import { LanguageSwitcher } from '../language-switcher/language-switcher';
+import { TranslatePipe } from '@ngx-translate/core';
 
 @Component({
   selector: 'app-admin-layout',
@@ -30,13 +32,14 @@ import { AuthService } from '../../../domains/auth/infrastructure/auth.service';
     MatListModule,
     MatIconModule,
     MatButtonModule,
-    CommonModule
+    CommonModule,
+    LanguageSwitcher,
+    TranslatePipe,
   ],
   templateUrl: './admin-layout.component.html',
   styleUrl: './admin-layout.component.css',
 })
 export class AdminLayoutComponent implements OnInit {
-
   private authService = inject(AuthService);
 
   /** Indicates if the app is currently on a mobile screen */
@@ -53,7 +56,7 @@ export class AdminLayoutComponent implements OnInit {
 
   /**
    * Closes the sidebar automatically on mobile devices.
-   * 
+   *
    * @param drawer - Reference to the sidenav component
    */
   closeSidebarIfMobile(drawer: MatSidenav) {

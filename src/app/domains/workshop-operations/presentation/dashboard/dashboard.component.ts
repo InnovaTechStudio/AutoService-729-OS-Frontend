@@ -1,6 +1,6 @@
 /**
  * DashboardComponent
- * 
+ *
  * Main component of the workshop's administrative dashboard.
  * Displays an executive summary with:
  * - Key statistics (vehicles in workshop, active orders, pending tasks)
@@ -8,7 +8,7 @@
  * - Recent orders
  * - Most frequent services
  * - Simple weekly income charts
- * 
+ *
  * @component
  * @selector app-dashboard
  * @standalone true
@@ -27,6 +27,7 @@ import { WorkOrderStore } from '../../application/work-order.store';
 import { TaskStore } from '../../application/task.store';
 import { Vehicle } from '../../../fleet-management/domain/models/vehicle.model';
 import { WorkOrder } from '../../domain/models/work-order.model';
+import { TranslatePipe } from '@ngx-translate/core';
 
 interface DashboardVehiclePreview {
   id: string;
@@ -54,10 +55,11 @@ interface FrequentService {
     MatCardModule,
     MatIconModule,
     MatButtonModule,
-    MatProgressBarModule
+    MatProgressBarModule,
+    TranslatePipe,
   ],
   templateUrl: './dashboard.component.html',
-  styleUrl: './dashboard.component.css'
+  styleUrl: './dashboard.component.css',
 })
 export class DashboardComponent implements OnInit {
   private readonly router = inject(Router);
@@ -69,7 +71,7 @@ export class DashboardComponent implements OnInit {
     'https://images.unsplash.com/photo-1552519507-da3b142c6e3d?w=300&auto=format&fit=crop',
     'https://images.unsplash.com/photo-1542362567-b07e54358753?w=300&auto=format&fit=crop',
     'https://images.unsplash.com/photo-1492144534655-ae79c964c9d7?w=300&auto=format&fit=crop',
-    'https://images.unsplash.com/photo-1503376780353-7e6692767b70?w=300&auto=format&fit=crop'
+    'https://images.unsplash.com/photo-1503376780353-7e6692767b70?w=300&auto=format&fit=crop',
   ];
 
   // Signals directos de los stores
@@ -77,31 +79,28 @@ export class DashboardComponent implements OnInit {
   protected readonly workOrders = this.workOrderStore.workOrders;
   protected readonly tasks = this.taskStore.tasks;
 
-  protected readonly vehiclesInWorkshop = computed(() =>
-    this.vehicles().filter((vehicle) => vehicle.status !== 'Entregado').length
+  protected readonly vehiclesInWorkshop = computed(
+    () => this.vehicles().filter((vehicle) => vehicle.status !== 'Entregado').length,
   );
 
-  protected readonly activeOrders = computed(() =>
-    this.workOrders().filter((order) => order.status === 'En Proceso').length
+  protected readonly activeOrders = computed(
+    () => this.workOrders().filter((order) => order.status === 'En Proceso').length,
   );
 
-  protected readonly completedOrders = computed(() =>
-    this.workOrders().filter((order) => order.status === 'Finalizado').length
+  protected readonly completedOrders = computed(
+    () => this.workOrders().filter((order) => order.status === 'Finalizado').length,
   );
 
-  protected readonly pendingTasks = computed(() =>
-    this.tasks().filter((task) => task.status === 'Pendiente').length
+  protected readonly pendingTasks = computed(
+    () => this.tasks().filter((task) => task.status === 'Pendiente').length,
   );
 
   protected readonly projectedIncome = computed(() =>
-    this.workOrders()
-      .reduce((total, order) => total + Number(order.price || 0), 0)
+    this.workOrders().reduce((total, order) => total + Number(order.price || 0), 0),
   );
 
   protected readonly activeVehiclePreview = computed<DashboardVehiclePreview[]>(() => {
-    const sourceVehicles = this.vehicles().length
-      ? this.vehicles()
-      : this.getFallbackVehicles();
+    const sourceVehicles = this.vehicles().length ? this.vehicles() : this.getFallbackVehicles();
 
     return sourceVehicles
       .filter((vehicle) => vehicle.status !== 'Entregado')
@@ -111,13 +110,11 @@ export class DashboardComponent implements OnInit {
         name: `${vehicle.brand} ${vehicle.model}`,
         status: this.getReadableVehicleStatus(vehicle.status),
         progress: this.getProgressByStatus(vehicle.status),
-        image: this.fallbackVehicleImages[index % this.fallbackVehicleImages.length]
+        image: this.fallbackVehicleImages[index % this.fallbackVehicleImages.length],
       }));
   });
 
-  protected readonly recentOrders = computed(() =>
-    [...this.workOrders()].reverse().slice(0, 5)
-  );
+  protected readonly recentOrders = computed(() => [...this.workOrders()].reverse().slice(0, 5));
 
   protected readonly frequentServices: FrequentService[] = [
     {
@@ -125,22 +122,22 @@ export class DashboardComponent implements OnInit {
       count: 12,
       amount: 540,
       progress: 86,
-      icon: 'settings'
+      icon: 'settings',
     },
     {
       name: 'Reparación de frenos',
       count: 8,
       amount: 820,
       progress: 68,
-      icon: 'build'
+      icon: 'build',
     },
     {
       name: 'Rotación de neumáticos',
       count: 5,
       amount: 140,
       progress: 44,
-      icon: 'sync'
-    }
+      icon: 'sync',
+    },
   ];
 
   protected readonly weeklyIncomeBars = [
@@ -149,7 +146,7 @@ export class DashboardComponent implements OnInit {
     { day: 'Mié', value: 460 },
     { day: 'Jue', value: 610 },
     { day: 'Vie', value: 900 },
-    { day: 'Sáb', value: 300 }
+    { day: 'Sáb', value: 300 },
   ];
 
   ngOnInit(): void {
@@ -222,7 +219,7 @@ export class DashboardComponent implements OnInit {
         year: '2024',
         color: 'Negro',
         status: 'En Taller',
-        customerId: '1'
+        customerId: '1',
       },
       {
         id: '2',
@@ -232,7 +229,7 @@ export class DashboardComponent implements OnInit {
         year: '2023',
         color: 'Azul',
         status: 'En Taller',
-        customerId: '2'
+        customerId: '2',
       },
       {
         id: '3',
@@ -242,8 +239,8 @@ export class DashboardComponent implements OnInit {
         year: '2024',
         color: 'Gris',
         status: 'Listo',
-        customerId: '3'
-      }
+        customerId: '3',
+      },
     ];
   }
 }

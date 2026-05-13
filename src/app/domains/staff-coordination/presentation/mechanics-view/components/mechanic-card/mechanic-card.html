@@ -20,19 +20,19 @@
 
   <div class="mechanic-stats">
     <div>
-      <span>Tareas activas</span>
+      <span>{{ 'staffManagement.labels.activeTasks' | translate}}</span>
       <strong>{{ mechanic.activeTasks }} / {{ mechanic.maxCapacity }}</strong>
     </div>
 
     <div>
-      <span>Efectividad</span>
+      <span>{{ 'staffManagement.labels.effectiveness' | translate}}</span>
       <strong>{{ mechanic.effectiveness }}%</strong>
     </div>
   </div>
 
   <div class="load-section">
     <div class="load-label">
-      <span>Carga laboral</span>
+      <span>{{ 'staffManagement.labels.workload' | translate}}</span>
       <strong>{{ mechanic.loadPercentage }}%</strong>
     </div>
 
@@ -50,7 +50,7 @@
       class="action-button"
       (click)="onEdit()">
       <mat-icon>edit</mat-icon>
-      Editar
+      {{ 'staffManagement.actions.edit' | translate}}
     </button>
 
     <button

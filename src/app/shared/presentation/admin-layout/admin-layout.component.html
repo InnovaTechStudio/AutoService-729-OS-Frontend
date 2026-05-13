@@ -16,7 +16,7 @@
 
       <div class="logo-text">
         <h2>AutoService</h2>
-        <span class="subtitle">Panel Administrador</span>
+        <span class="subtitle">{{ ('dashboard.title') | translate }}</span>
       </div>
 
     </div>
@@ -28,42 +28,42 @@
          routerLinkActive="active-menu-item"
          (click)="closeSidebarIfMobile(drawer)">
         <mat-icon matListItemIcon>dashboard</mat-icon>
-        <span matListItemTitle>Dashboard</span>
+        <span matListItemTitle>{{ ('sidebar.dashboard') | translate }}</span>
       </a>
 
       <a mat-list-item routerLink="/admin/customers"
          routerLinkActive="active-menu-item"
          (click)="closeSidebarIfMobile(drawer)">
         <mat-icon matListItemIcon>people</mat-icon>
-        <span matListItemTitle>Clientes</span>
+        <span matListItemTitle>{{ ('sidebar.clients') | translate }}</span>
       </a>
 
       <a mat-list-item routerLink="/admin/vehicles"
          routerLinkActive="active-menu-item"
          (click)="closeSidebarIfMobile(drawer)">
         <mat-icon matListItemIcon>directions_car</mat-icon>
-        <span matListItemTitle>Vehículos</span>
+        <span matListItemTitle>{{ ('sidebar.vehicles') | translate }}</span>
       </a>
 
       <a mat-list-item routerLink="/admin/work-orders"
          routerLinkActive="active-menu-item"
          (click)="closeSidebarIfMobile(drawer)">
         <mat-icon matListItemIcon>assignment</mat-icon>
-        <span matListItemTitle>Órdenes de Trabajo</span>
+        <span matListItemTitle>{{ ('sidebar.workOrders') | translate }}</span>
       </a>
 
       <a mat-list-item routerLink="/admin/tasks"
          routerLinkActive="active-menu-item"
          (click)="closeSidebarIfMobile(drawer)">
         <mat-icon matListItemIcon>checklist</mat-icon>
-        <span matListItemTitle>Tareas</span>
+        <span matListItemTitle>{{ ('sidebar.tasks') | translate }}</span>
       </a>
 
       <a mat-list-item routerLink="/admin/mechanics"
          routerLinkActive="active-menu-item"
          (click)="closeSidebarIfMobile(drawer)">
         <mat-icon matListItemIcon>engineering</mat-icon>
-        <span matListItemTitle>Mecánicos</span>
+        <span matListItemTitle>{{ ('sidebar.mechanics') | translate }}</span>
       </a>
 
     </mat-nav-list>
@@ -83,15 +83,16 @@
       </button>
 
       <div class="welcome-msg">
-        <span class="text-gray">Bienvenido al Taller, </span>
+        <span class="text-gray">{{ 'toolbar.title' | translate}}</span>
         <span class="fw-bold">{{ userName }}</span>
       </div>
 
       <span class="spacer"></span>
+      <app-language-switcher />
 
       <button mat-button color="warn" (click)="logout()">
         <mat-icon>logout</mat-icon>
-        Cerrar Sesión
+        {{('toolbar.logout') | translate }}
       </button>
 
     </mat-toolbar>

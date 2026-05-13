@@ -1,6 +1,6 @@
 <div class="work-order-filters">
   <mat-form-field appearance="outline" class="search-box">
-    <mat-label>Buscar orden</mat-label>
+    <mat-label>{{ ('workOrder.searchOrder') | translate}}</mat-label>
     <mat-icon matPrefix>search</mat-icon>
 
     <input
@@ -11,7 +11,7 @@
   </mat-form-field>
 
   <mat-form-field appearance="outline" class="status-filter">
-    <mat-label>Filtrar por estado</mat-label>
+    <mat-label>{{ ('workOrder.filterByStatus') | translate}}</mat-label>
 
     <mat-select
       [ngModel]="status"

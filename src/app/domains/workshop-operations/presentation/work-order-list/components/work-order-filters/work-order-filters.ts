@@ -1,9 +1,9 @@
 /**
  * WorkOrderFiltersComponent
- * 
+ *
  * Reusable filter component for the work order list.
  * Allows filtering by text search and order status.
- * 
+ *
  * @component
  * @selector app-work-order-filters
  * @standalone true
@@ -18,6 +18,7 @@ import { MatInputModule } from '@angular/material/input';
 import { MatSelectModule } from '@angular/material/select';
 
 import { WorkOrder } from '../../../../domain/models/work-order.model';
+import { TranslatePipe } from '@ngx-translate/core';
 
 @Component({
   selector: 'app-work-order-filters',
@@ -28,10 +29,11 @@ import { WorkOrder } from '../../../../domain/models/work-order.model';
     MatFormFieldModule,
     MatIconModule,
     MatInputModule,
-    MatSelectModule
+    MatSelectModule,
+    TranslatePipe,
   ],
   templateUrl: './work-order-filters.html',
-  styleUrl: './work-order-filters.css'
+  styleUrl: './work-order-filters.css',
 })
 export class WorkOrderFiltersComponent {
   /** Current search term */

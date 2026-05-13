@@ -6,6 +6,7 @@ import { MatIconModule } from '@angular/material/icon';
 import { MatProgressBarModule } from '@angular/material/progress-bar';
 
 import { Mechanic } from '../../../../domain/models/mechanic.model';
+import { TranslatePipe } from '@ngx-translate/core';
 
 /**
  * MechanicCardView
@@ -86,7 +87,8 @@ export interface MechanicCardView {
     CommonModule,
     MatButtonModule,
     MatIconModule,
-    MatProgressBarModule
+    MatProgressBarModule,
+    TranslatePipe
   ],
   templateUrl: './mechanic-card.html',
   styleUrl: './mechanic-card.css'

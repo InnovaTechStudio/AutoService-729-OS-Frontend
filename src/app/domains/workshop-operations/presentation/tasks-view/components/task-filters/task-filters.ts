@@ -1,12 +1,12 @@
 /**
  * TaskFiltersComponent
- * 
+ *
  * Component for filtering the tasks view.
  * Allows filtering by:
  * - Textual search (description, work order code, mechanic)
  * - Task status
  * - Assigned mechanic
- * 
+ *
  * @component
  * @selector app-task-filters
  * @standalone true
@@ -22,6 +22,7 @@ import { MatSelectModule } from '@angular/material/select';
 
 import { Mechanic } from '../../../../../staff-coordination/domain/models/mechanic.model';
 import { Task } from '../../../../domain/models/work-order.model';
+import { TranslatePipe } from '@ngx-translate/core';
 
 @Component({
   selector: 'app-task-filters',
@@ -32,10 +33,11 @@ import { Task } from '../../../../domain/models/work-order.model';
     MatFormFieldModule,
     MatInputModule,
     MatSelectModule,
-    MatIconModule
+    MatIconModule,
+    TranslatePipe,
   ],
   templateUrl: './task-filters.html',
-  styleUrl: './task-filters.css'
+  styleUrl: './task-filters.css',
 })
 export class TaskFiltersComponent {
   /** Current search term */
@@ -58,7 +60,7 @@ export class TaskFiltersComponent {
 
   /** Emits when the selected status changes */
   @Output() statusChange = new EventEmitter<Task['status'] | null>();
-  
+
   /** Emits when the selected mechanic changes */
   @Output() mechanicIdChange = new EventEmitter<string | null>();
 

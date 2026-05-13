@@ -1,13 +1,13 @@
 /**
  * CreateWorkOrderComponent
- * 
+ *
  * Component for creating a new complete Work Order.
  * Allows:
  * - Selecting a vehicle (and auto-completing the customer)
  * - Entering general order data (description, price, estimated date)
  * - Adding multiple tasks dynamically
  * - Saving the order and all its associated tasks in a single operation
- * 
+ *
  * @component
  * @selector app-create-work-order
  * @standalone true
@@ -37,17 +37,26 @@ import { MechanicStore } from '../../../staff-coordination/application/mechanic.
 
 // Models
 import { WorkOrder, Task } from '../../domain/models/work-order.model';
+import { TranslatePipe } from '@ngx-translate/core';
 
 @Component({
   selector: 'app-create-work-order',
   standalone: true,
   providers: [provideNativeDateAdapter()], // Necesario para el MatDatepicker
   imports: [
-    CommonModule, FormsModule, MatCardModule, MatButtonModule, MatIconModule,
-    MatInputModule, MatFormFieldModule, MatSelectModule, MatDatepickerModule
+    CommonModule,
+    FormsModule,
+    MatCardModule,
+    MatButtonModule,
+    MatIconModule,
+    MatInputModule,
+    MatFormFieldModule,
+    MatSelectModule,
+    MatDatepickerModule,
+    TranslatePipe,
   ],
   templateUrl: './create-work-order.html',
-  styleUrl: './create-work-order.css'
+  styleUrl: './create-work-order.css',
 })
 export class CreateWorkOrderComponent implements OnInit {
   private router = inject(Router);
@@ -71,7 +80,7 @@ export class CreateWorkOrderComponent implements OnInit {
     description: '',
     estimatedDate: '',
     price: 0,
-    status: 'En Proceso'
+    status: 'En Proceso',
   };
 
   /** Array of tasks to create along with the order */
@@ -94,10 +103,12 @@ export class CreateWorkOrderComponent implements OnInit {
    * Auto-completes the owner customer.
    */
   onVehicleChange(vehicleId: string) {
-    const vehicle = this.vehicleStore.vehicles().find(v => String(v.id) === String(vehicleId));
+    const vehicle = this.vehicleStore.vehicles().find((v) => String(v.id) === String(vehicleId));
     if (vehicle) {
       this.newWO.customerId = vehicle.customerId;
-      const customer = this.customerStore.customers().find(c => String(c.id) === String(vehicle.customerId));
+      const customer = this.customerStore
+        .customers()
+        .find((c) => String(c.id) === String(vehicle.customerId));
       this.selectedCustomerName = customer ? customer.fullName : 'No encontrado';
     }
   }
@@ -121,7 +132,7 @@ export class CreateWorkOrderComponent implements OnInit {
    */
   saveFullWorkOrder() {
     if (!this.newWO.vehicleId || this.tasks.length === 0) {
-      alert("Debes seleccionar un vehículo y añadir al menos una tarea.");
+      alert('Debes seleccionar un vehículo y añadir al menos una tarea.');
       return;
     }
 
@@ -139,18 +150,18 @@ export class CreateWorkOrderComponent implements OnInit {
       ...(this.newWO as WorkOrder),
       trackingCode: `AS-${Math.random().toString(36).substring(2, 7).toUpperCase()}`,
       startDate: new Date().toISOString().split('T')[0],
-      estimatedDate: formattedDate as string
+      estimatedDate: formattedDate as string,
     };
 
     // 1. Create the main order
     this.workOrderStore.addWorkOrder(payloadWO).subscribe({
       next: (createdOrder) => {
         // 2. Iterate through and create all tasks associated with the order ID
-        this.tasks.forEach(task => {
+        this.tasks.forEach((task) => {
           if (task.description) {
             this.taskStore.addTask({
               ...(task as Task),
-              workOrderId: createdOrder.id!
+              workOrderId: createdOrder.id!,
             });
           }
         });
@@ -159,9 +170,9 @@ export class CreateWorkOrderComponent implements OnInit {
         this.router.navigate(['/admin/work-orders']);
       },
       error: (err) => {
-        console.error("Error al guardar la orden completa:", err);
+        console.error('Error al guardar la orden completa:', err);
         this.isSaving = false;
-      }
+      },
     });
   }
 }

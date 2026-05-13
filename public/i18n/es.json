@@ -1,0 +1,338 @@
+{
+  "app": {
+    "name": "AutoService",
+    "description": "Gestión integral para talleres automotrices de forma rápida y segura."
+  },
+  "features": {
+    "efficientManagement": "Gestión eficiente",
+    "secureAccess": "Acceso seguro",
+    "realTimeControl": "Control en tiempo real"
+  },
+  "auth": {
+    "welcome": "Bienvenido",
+    "adminMode": "Modo Admin",
+    "loginSubtitle": "Ingresa tus credenciales para continuar",
+    "email": "Correo Electrónico",
+    "password": "Contraseña",
+    "forgotPassword": "¿Has olvidado tu contraseña?",
+    "loginButton": "Iniciar Sesión",
+    "noAccount": "¿No tienes una cuenta?",
+    "requestAccess": "Solicita acceso"
+  },
+  "toolbar": {
+    "title": "Bienvenido al taller",
+    "logout": "Cerrar sesión"
+  },
+  "sidebar": {
+    "dashboard": "Tablero",
+    "clients": "Clientes",
+    "vehicles": "Vehículos",
+    "workOrders": "Órdenes de Trabajo",
+    "tasks": "Tareas",
+    "mechanics": "Mecánicos"
+  },
+  "dashboard": {
+    "h1": "Gestión operativa",
+    "title": "Panel de control",
+    "subtitle": "Supervisa vehículos, órdenes, tareas e ingresos del taller.",
+    "viewOrders": "Ver órdenes",
+    "newOrder": "Nueva orden"
+  },
+  "stats": {
+    "activeVehicles": "Vehículos activos",
+    "currentlyAttended": "En atención actualmente",
+    "activeOrders": "Órdenes activas",
+    "servicesInProgress": "Servicios en proceso",
+    "completed": "Completados",
+    "finishedOrders": "Órdenes finalizadas",
+    "projectedIncome": "Ingresos proyectados",
+    "accordingToOrders": "Según órdenes registradas"
+  },
+  "vehicles": {
+    "title": "Vehículos activos",
+    "viewAll": "Ver todos",
+    "inProgress": "En proceso",
+    "completed": "Completado"
+  },
+  "income": {
+    "title": "Ingresos semanales",
+    "weeklyTotal": "Total acumulado esta semana",
+    "days": {
+      "mon": "Lun",
+      "tue": "Mar",
+      "wed": "Mié",
+      "thu": "Jue",
+      "fri": "Vie",
+      "sat": "Sáb",
+      "sun": "Dom"
+    }
+  },
+  "recentOrders": {
+    "title": "Órdenes recientes",
+    "viewOrders": "Ver órdenes"
+  },
+  "services": {
+    "title": "Servicios más frecuentes",
+    "subtitle": "Rendimiento de servicios por tipo"
+  },
+  "clients": {
+    "title": "Directorio de Clientes",
+    "newClient": "Nuevo Cliente",
+
+    "stats": {
+      "totalClients": "Total Clientes",
+      "activeClients": "Clientes Activos"
+    },
+
+    "table": {
+      "fullName": "Nombre Completo",
+      "dni": "DNI",
+      "email": "Correo",
+      "phone": "Teléfono",
+      "actions": "Acciones"
+    },
+
+    "actions": {
+      "cancel": "Cancelar",
+      "save": "Guardar"
+    },
+    "dialog": {
+      "editTitle": "Editar Cliente",
+      "createTitle": "Registrar Nuevo Cliente"
+    }
+  },
+  "vehicles1": {
+    "h5": "Gestion de flota",
+    "title": "Vehículos registrados",
+    "subtitle": "Consulta, filtra y administra los vehículos vinculados a servicios activos del taller.",
+    "addVehicle": "Agregar vehículo",
+
+    "stats": {
+      "totalRegistered": "Total registrados",
+      "inWorkshop": "En taller",
+      "ready": "Listos"
+    },
+
+    "search": {
+      "placeholder": "Buscar vehículo",
+      "filterByStatus": "Filtrar por estado"
+    },
+
+    "card": {
+      "viewDetails": "Ver detalles",
+
+      "status": {
+        "inWorkshop": "En taller",
+        "ready": "Listo",
+        "delivered": "Entregado",
+        "inProgress": "En proceso"
+      }
+    }
+  },
+  "detailsVehicle": {
+    "fleetManagement": "GESTIÓN DE FLOTA",
+    "vehicleDetails": "Detalles del vehículo",
+    "vehicleSubtitle": "Consulta trazabilidad, diagnóstico y tareas asociadas al servicio.",
+
+    "identification": "IDENTIFICACIÓN",
+    "owner": "Propietario",
+
+    "currentStatus": "ESTADO ACTUAL",
+    "inProgress": "En curso",
+    "progressDescription": "Avance calculado según tareas completadas y estado operativo del servicio.",
+    "reportedProblem": "Problema reportado",
+    "technicalDiagnosis": "Diagnóstico técnico",
+    "technicalDiagnosisDescription": "Revisión técnica registrada. Se identificaron tareas asociadas al mantenimiento del vehículo.",
+
+    "maintenanceTasks": "Tareas de mantenimiento",
+    "registeredTasks": "{{count}} tareas registradas",
+    "noTasksRegistered": "No hay tareas registradas para este vehículo.",
+    "addTask": "Agregar tarea",
+
+    "vehicleNotFound": "Vehículo no encontrado",
+    "vehicleNotFoundDescription": "No se encontró información para el vehículo seleccionado.",
+    "backToVehicles": "Volver a vehículos",
+    "ownerUser": "Usuario propietario*",
+
+    "licensePlate": "Matrícula*",
+    "status": "Estado",
+    "inWorkshop": "En Taller",
+
+    "brand": "Marca",
+    "model": "Modelo",
+
+    "year": "Año",
+    "color": "Color",
+
+    "cancel": "Cancelar",
+    "save": "Guardar",
+    "editVehicle": "Editar vehículo",
+    "newVehicle": "Nuevo vehículo"
+  },
+  "workOrder": {
+    "workshopOperation": "OPERACIÓN DEL TALLER",
+    "workOrders": "Órdenes de trabajo",
+    "workOrdersSubtitle": "Consulta el avance de cada servicio, detecta retrasos y accede al detalle operativo de la orden.",
+
+    "newOrder": "Nueva orden",
+
+    "totalOrders": "Total órdenes",
+    "inProgress": "En proceso",
+    "delayRisk": "Riesgo de retraso",
+    "completed": "Finalizadas",
+
+    "searchOrder": "Buscar orden",
+    "filterByStatus": "Filtrar por estado",
+
+    "entryDate": "Ingreso",
+    "deliveryDate": "Entrega",
+
+    "taskProgress": "Progreso de tareas",
+    "viewDetail": "Ver detalle",
+
+    "delayed": "Retrasada",
+    "finished": "FINALIZADO",
+    "inProcess": "EN PROCESO"
+  },
+  "newWorkOrder": {
+    "title": "Registrar Nueva Orden de Trabajo",
+    "generalData": "Datos Generales",
+    "assignedTasks": "Tareas Asignadas",
+    "addTask": "Añadir Tarea",
+    "vehicle": "Vehículo (Placa)",
+    "problemDescription": "Descripción del Problema",
+    "estimatedDate": "Fecha Estimada",
+    "totalPrice": "Precio Total (S/.)",
+    "emptyTasksMessage": "No has agregado tareas. Añade al menos una para guardar la orden.",
+    "cancel": "Cancelar",
+    "saveCompleteOrder": "Guardar Orden Completa"
+  },
+  "taskBoard": {
+    "section": "CONTROL OPERATIVO",
+    "title": "Tablero de tareas",
+    "description": "Gestiona tareas por orden, asigna mecánicos y actualiza el avance real del servicio.",
+    "newTask": "Nueva tarea",
+    "stats": {
+      "totalTasks": "Total tareas",
+      "pending": "Pendientes",
+      "inProgress": "En proceso",
+      "completed": "Completadas"
+    },
+    "filters": {
+      "searchPlaceholder": "Buscar tarea",
+      "status": "Estado",
+      "mechanic": "Mecánico"
+    },
+    "newTask1": {
+      "section": "CONFIGURACIÓN DE SERVICIO",
+      "title": "Nueva tarea",
+      "workOrder": "Orden de trabajo",
+      "description": "Descripción",
+      "assignedMechanic": "Mecánico asignado",
+      "status": "Estado",
+      "priority": "Prioridad",
+      "estimatedTime": "Tiempo estimado",
+      "hours": "h",
+      "visualEvidence": "Evidencia visual",
+      "uploadFile": "Elegir archivo",
+      "noFileSelected": "No se eligió ningún archivo",
+      "infoMessage": "Las tareas guardadas se asignarán automáticamente al historial técnico de la orden seleccionada para mantener trazabilidad del servicio.",
+      "cancel": "Cancelar",
+      "save": "Guardar",
+      "statuses": {
+        "pending": "Pendiente",
+        "inProgress": "En proceso",
+        "completed": "Completada"
+      }
+    }
+  },
+  "staffManagement": {
+    "section": "COORDINACIÓN DE STAFF",
+    "title": "Gestión de mecánicos",
+    "description": "Administra especialidades, disponibilidad y carga laboral para asignar tareas con mayor precisión.",
+
+    "stats": {
+      "totalMechanics": "Total mecánicos",
+      "available": "Disponibles",
+      "highLoad": "Carga alta"
+    },
+
+    "actions": {
+      "registerMechanic": "Registrar mecánico",
+      "searchMechanic": "Buscar mecánico",
+      "filterBySpecialty": "Filtrar por especialidad",
+      "edit": "Editar",
+      "delete": "Eliminar"
+    },
+
+    "status": {
+      "available": "DISPONIBLE",
+      "maxLoad": "AL MÁXIMO"
+    },
+
+    "labels": {
+      "activeTasks": "Tareas activas",
+      "effectiveness": "Efectividad",
+      "workload": "Carga laboral"
+    },
+
+    "specialties": {
+      "generalMechanics": "Mecánica General",
+      "electricity": "Electricidad",
+      "bodyAndPaint": "Planchado y Pintura"
+    }
+  },
+  "registerMechanicModal": {
+    "section": "COORDINACIÓN DE STAFF",
+    "title": "Registrar mecánico",
+
+    "fields": {
+      "fullName": "Nombre completo",
+      "specialty": "Especialidad",
+      "phoneNumber": "Número de teléfono",
+      "maxTasks": "Capacidad máxima de tareas",
+      "initialStatus": "Estado inicial"
+    },
+    "info": {
+      "maxTasksDescription": "La capacidad máxima permite calcular la carga laboral del mecánico y evitar asignaciones que generen retrasos en el taller."
+    },
+
+    "actions": {
+      "cancel": "Cancelar",
+      "save": "Guardar",
+      "close": "Cerrar"
+    }
+  },
+  "tracking": {
+    "title": "Rastrea tu Vehículo",
+    "subtitle": "Ingresa el código que te proporcionó el taller para ver el estado de tu servicio en tiempo real.",
+    "serviceCode": "Código de Servicio",
+    "search": "Buscar",
+
+    "serviceTasks": "Tareas de Servicio",
+    "visualEvidence": "Evidencia Visual",
+
+    "estimatedTotalCost": "Costo Estimado Total",
+    "costDisclaimer": "Sujeto a cambios según diagnóstico.",
+    "makePayment": "Realizar Pago",
+
+    "serviceTimes": "Tiempos de Servicio",
+    "entryDate": "Fecha de Ingreso",
+    "estimatedDelivery": "Entrega Estimada",
+
+    "vehicleReceived": "Vehículo Ingresado",
+
+    "statuses": {
+      "completed": "Completada",
+      "inProgress": "En Proceso",
+      "pending": "Pendiente"
+    },
+
+    "tasks": {
+      "oilChange": "Cambio de aceite",
+      "brakePadAdjustment": "Ajuste de pastillas de freno",
+      "engineReplacement": "Cambio de motor",
+      "windowReplacement": "Cambio de luna"
+    }
+  }
+}

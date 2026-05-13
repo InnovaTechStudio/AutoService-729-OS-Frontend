@@ -11,6 +11,7 @@ import { Mechanic } from '../../domain/models/mechanic.model';
 import { MechanicCardComponent, MechanicCardView } from './components/mechanic-card/mechanic-card';
 import { MechanicDialogComponent } from './components/mechanic-dialog/mechanic-dialog';
 import { MechanicFiltersComponent } from './components/mechanic-filters/mechanic-filters';
+import { TranslatePipe } from '@ngx-translate/core';
 
 /**
  * MechanicsViewComponent
@@ -34,10 +35,11 @@ import { MechanicFiltersComponent } from './components/mechanic-filters/mechanic
     MatIconModule,
     MechanicFiltersComponent,
     MechanicCardComponent,
-    MechanicDialogComponent
+    MechanicDialogComponent,
+    TranslatePipe,
   ],
   templateUrl: './mechanics-view.html',
-  styleUrl: './mechanics-view.css'
+  styleUrl: './mechanics-view.css',
 })
 export class MechanicsViewComponent implements OnInit {
   /**
@@ -68,7 +70,7 @@ export class MechanicsViewComponent implements OnInit {
     'Planchado y Pintura',
     'Electrónica',
     'Frenos y Suspensión',
-    'Motor y Transmisión'
+    'Motor y Transmisión',
   ];
 
   /**
@@ -90,9 +92,9 @@ export class MechanicsViewComponent implements OnInit {
         loadPercentage,
         workloadStatus: this.getWorkloadStatus(loadPercentage),
         loadClass: this.getLoadClass(loadPercentage),
-        effectiveness: this.calculateEffectiveness(String(mechanic.id))
+        effectiveness: this.calculateEffectiveness(String(mechanic.id)),
       };
-    })
+    }),
   );
 
   /**
@@ -108,8 +110,7 @@ export class MechanicsViewComponent implements OnInit {
         mechanic.fullName.toLowerCase().includes(term) ||
         mechanic.specialty.toLowerCase().includes(term);
 
-      const matchesSpecialty =
-        !selectedSpecialty || mechanic.specialty === selectedSpecialty;
+      const matchesSpecialty = !selectedSpecialty || mechanic.specialty === selectedSpecialty;
 
       return matchesSearch && matchesSpecialty;
     });
@@ -118,15 +119,15 @@ export class MechanicsViewComponent implements OnInit {
   /**
    * Number of mechanics with available workload capacity.
    */
-  protected readonly availableMechanics = computed(() =>
-    this.mechanicsView().filter((mechanic) => mechanic.loadPercentage < 70).length
+  protected readonly availableMechanics = computed(
+    () => this.mechanicsView().filter((mechanic) => mechanic.loadPercentage < 70).length,
   );
 
   /**
    * Number of mechanics with high workload.
    */
-  protected readonly highLoadMechanics = computed(() =>
-    this.mechanicsView().filter((mechanic) => mechanic.loadPercentage >= 70).length
+  protected readonly highLoadMechanics = computed(
+    () => this.mechanicsView().filter((mechanic) => mechanic.loadPercentage >= 70).length,
   );
 
   /**
@@ -165,7 +166,7 @@ export class MechanicsViewComponent implements OnInit {
     this.mechanicForm = {
       ...mechanic,
       maxCapacity: mechanic.maxCapacity || 5,
-      status: mechanic.status || 'Disponible'
+      status: mechanic.status || 'Disponible',
     };
     this.displayDialog.set(true);
   }
@@ -223,9 +224,8 @@ export class MechanicsViewComponent implements OnInit {
   private getActiveTasksCount(mechanicId: string): number {
     return this.taskStore
       .tasks()
-      .filter((task) =>
-        String(task.mechanicId) === String(mechanicId) &&
-        task.status !== 'Completada'
+      .filter(
+        (task) => String(task.mechanicId) === String(mechanicId) && task.status !== 'Completada',
       ).length;
   }
 
@@ -286,7 +286,7 @@ export class MechanicsViewComponent implements OnInit {
       specialty: 'Mecánica General',
       phone: '',
       status: 'Disponible',
-      maxCapacity: 5
+      maxCapacity: 5,
     };
   }
 }

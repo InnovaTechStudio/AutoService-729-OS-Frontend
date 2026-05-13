@@ -1,10 +1,16 @@
 /**
  * TrackingViewComponent
  *
+<<<<<<< HEAD
+ * Component that allows users to search and view the current status
+ * of a work order using its tracking code.
+ * Displays information about the vehicle, the order, and the progress of the tasks.
+=======
  * Component that allows customers to search and view the current status
  * of a work order using its tracking code.
  * Displays information about the vehicle, the order, current tasks,
  * mechanic explanations and the technical history of the vehicle.
+>>>>>>> origin/develop
  *
  * @component
  * @selector app-tracking-view
@@ -23,7 +29,12 @@ import { MatDialog, MatDialogModule } from '@angular/material/dialog';
 import { TrackingStore } from '../../application/tracking.store';
 import { Task } from '../../../workshop-operations/domain/models/work-order.model';
 import { PaymentModalComponent } from '../payment-modal/payment-modal';
+
+import { TranslatePipe } from '@ngx-translate/core';
+import { LanguageSwitcher } from '../../../../shared/presentation/language-switcher/language-switcher';
+
 import { VehicleHistoryStore } from '../../../vehicle-history/application/vehicle-history.store';
+
 
 @Component({
   selector: 'app-tracking-view',
@@ -34,10 +45,12 @@ import { VehicleHistoryStore } from '../../../vehicle-history/application/vehicl
     MatInputModule,
     MatButtonModule,
     MatIconModule,
-    MatDialogModule
+    MatDialogModule,
+    TranslatePipe,
+    LanguageSwitcher,
   ],
   templateUrl: './tracking-view.html',
-  styleUrl: './tracking-view.css'
+  styleUrl: './tracking-view.css',
 })
 export class TrackingViewComponent {
   trackingStore = inject(TrackingStore);
@@ -69,6 +82,7 @@ export class TrackingViewComponent {
       const tasks = this.trackingStore.tasks();
 
       if (tasks && tasks.length > 0) {
+
         const taskWithCustomerExplanation = tasks.find(
           (task) => task.customerExplanation && task.customerExplanation.trim().length > 0
         );
@@ -76,6 +90,7 @@ export class TrackingViewComponent {
         const taskWithPhoto = tasks.find((task) => task.photo);
 
         this.selectedTask = taskWithCustomerExplanation || taskWithPhoto || tasks[0];
+
       } else {
         this.selectedTask = null;
       }
@@ -102,9 +117,11 @@ export class TrackingViewComponent {
   /**
    * Performs the search for a work order using the entered code.
    */
+
   handleSearch(): void {
     if (!this.trackingCode.trim()) {
       return;
+
     }
 
     this.loadedHistoryPlate = '';
@@ -124,14 +141,16 @@ export class TrackingViewComponent {
   /**
    * Opens the payment modal for the current order.
    */
+
   openPaymentModal(): void {
+
     const order = this.trackingStore.order();
 
     if (order && order.price) {
       const dialogRef = this.dialog.open(PaymentModalComponent, {
         width: '500px',
         panelClass: 'payment-dialog-container',
-        data: { amount: order.price }
+        data: { amount: order.price },
       });
 
       dialogRef.afterClosed().subscribe((result) => {
@@ -156,6 +175,22 @@ export class TrackingViewComponent {
   }
 
   /**
+<<<<<<< HEAD
+   * Returns the icon corresponding to the status of a task.
+   *
+   * @param status Status of the task
+   * @returns Material icon name
+   */
+  getTaskIcon(status: string): string {
+    if (status === 'Completada') return 'pi pi-check';
+    if (status === 'En Proceso') return 'pi pi-cog pi-spin';
+
+    return 'pi pi-circle-fill';
+  }
+
+  /**
+=======
+>>>>>>> origin/develop
    * Returns the severity tag for a task.
    *
    * @param status Task status
@@ -185,4 +220,5 @@ export class TrackingViewComponent {
   hasSelectedTaskEvidence(): boolean {
     return !!this.selectedTask?.photo || !!this.selectedTask?.evidenceRegistered;
   }
+
 }

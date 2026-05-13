@@ -1,15 +1,14 @@
-/* Entorno oscuro (Tipo escritorio) */
 .history-wrapper {
   min-height: 100vh;
-  background: #94a3b8;
-  padding: 2rem;
+  /* Fondo elegante para contrastar con la hoja blanca */
+  background: linear-gradient(135deg, #0f172a 0%, #1e293b 100%);
+  padding: 3rem 2rem;
   font-family: system-ui, -apple-system, sans-serif;
   display: flex;
   flex-direction: column;
   align-items: center;
 }
 
-/* Barra de acciones */
 .action-bar {
   width: 100%;
   max-width: 800px;
@@ -22,19 +21,18 @@
   box-shadow: 0 4px 15px rgba(0,0,0,0.1);
 }
 
-/* La Hoja A4 de Papel */
 .a4-document {
   width: 100%;
   max-width: 800px;
   background: white;
   min-height: 1131px; /* Proporción A4 */
   padding: 3.5rem 4rem;
-  box-shadow: 0 25px 50px rgba(0,0,0,0.15);
+  border-radius: 8px;
+  box-shadow: 0 25px 50px rgba(0,0,0,0.25);
   color: #1e293b;
   position: relative;
 }
 
-/* Cabecera del PDF */
 .doc-header {
   display: flex;
   justify-content: space-between;
@@ -44,168 +42,86 @@
   margin-bottom: 2rem;
 }
 
-.doc-brand {
-  display: flex;
-  align-items: center;
-  gap: 0.75rem;
-}
-
-.brand-icon {
-  font-size: 2.8rem;
-  width: 2.8rem;
-  height: 2.8rem;
-  color: #2563eb;
-}
-
-.doc-brand h2 {
-  margin: 0;
-  font-size: 1.8rem;
-  color: #0f172a;
-}
-
-.doc-brand span {
-  font-size: 0.85rem;
-  color: #64748b;
-  text-transform: uppercase;
-  letter-spacing: 1px;
-  font-weight: 700;
-}
+.doc-brand { display: flex; align-items: center; gap: 0.75rem; }
+.brand-icon { font-size: 2.8rem; width: 2.8rem; height: 2.8rem; color: #2563eb; }
+.doc-brand h2 { margin: 0; font-size: 1.8rem; color: #0f172a; font-weight: 800; }
+.doc-brand span { font-size: 0.85rem; color: #64748b; text-transform: uppercase; letter-spacing: 1px; font-weight: 700; }
 
 .doc-meta { text-align: right; }
-.doc-meta h1 { margin: 0 0 0.5rem; color: #0f172a; font-size: 2rem; }
+.doc-meta h1 { margin: 0 0 0.5rem; color: #0f172a; font-size: 2rem; font-weight: 800;}
 .doc-meta p { margin: 0.2rem 0; color: #475569; }
 
-/* Cuerpo */
-.intro-text {
-  color: #475569;
-  font-size: 1.05rem;
-  line-height: 1.6;
-  margin-bottom: 2.5rem;
-}
-
-.timeline {
-  display: flex;
-  flex-direction: column;
-  gap: 2rem;
-}
-
+.intro-text { color: #475569; font-size: 1.05rem; line-height: 1.6; margin-bottom: 2.5rem; }
+.timeline { display: flex; flex-direction: column; gap: 2rem; }
 .history-record { display: flex; gap: 1.5rem; }
 .record-left { flex-shrink: 0; }
 
 .date-badge {
-  background: #f8fafc;
-  border: 1px solid #e2e8f0;
-  padding: 0.75rem;
-  border-radius: 12px;
-  text-align: center;
-  display: flex;
-  flex-direction: column;
-  min-width: 75px;
+  background: #f8fafc; border: 1px solid #e2e8f0; padding: 0.75rem;
+  border-radius: 12px; text-align: center; display: flex; flex-direction: column; min-width: 75px;
 }
-
-.date-badge strong { font-size: 1.6rem; color: #2563eb; line-height: 1; }
+.date-badge strong { font-size: 1.6rem; color: #2563eb; line-height: 1; font-weight: 800;}
 .date-badge span { font-size: 0.8rem; color: #64748b; margin-top: 0.2rem; font-weight: bold; }
 
-.record-content {
-  flex: 1;
-  padding-bottom: 2rem;
-  border-bottom: 1px dashed #cbd5e1;
-}
+.record-content { flex: 1; padding-bottom: 2rem; border-bottom: 1px dashed #cbd5e1; }
+.record-title { display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.5rem; }
+.record-title h3 { margin: 0; font-size: 1.35rem; color: #0f172a; font-weight: 800;}
 
-.record-title {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  margin-bottom: 0.5rem;
-}
-
-.record-title h3 { margin: 0; font-size: 1.35rem; color: #0f172a; }
-
-.workshop-tag {
-  display: flex;
-  align-items: center;
-  gap: 0.4rem;
-  background: #eff6ff;
-  color: #1d4ed8;
-  padding: 0.35rem 0.7rem;
-  border-radius: 999px;
-  font-size: 0.75rem;
-  font-weight: bold;
-}
+.workshop-tag { display: flex; align-items: center; gap: 0.4rem; background: #eff6ff; color: #1d4ed8; padding: 0.35rem 0.7rem; border-radius: 999px; font-size: 0.75rem; font-weight: bold; }
 .workshop-tag mat-icon { font-size: 1rem; width: 1rem; height: 1rem; }
 
 .summary-text { margin: 0 0 1rem; color: #334155; line-height: 1.5; }
 
-.tasks-box {
-  background: #f8fafc;
-  padding: 1.2rem;
-  border-radius: 12px;
-  margin-bottom: 1rem;
-}
+.tasks-box { background: #f8fafc; padding: 1.2rem; border-radius: 12px; margin-bottom: 1rem; border: 1px solid #e2e8f0; }
 .tasks-box strong { color: #0f172a; font-size: 0.95rem; }
 .tasks-box ul { margin: 0.5rem 0 0; padding-left: 1.2rem; color: #475569; }
 .tasks-box li { margin-bottom: 0.35rem; }
 
-.recommendation-box {
-  border-left: 4px solid #f59e0b;
-  padding: 1rem 1.2rem;
-  background: #fffbeb;
-  margin-bottom: 1rem;
-  border-radius: 0 8px 8px 0;
-}
+.recommendation-box { border-left: 4px solid #f59e0b; padding: 1rem 1.2rem; background: #fffbeb; margin-bottom: 1rem; border-radius: 0 8px 8px 0; }
 .recommendation-box strong { color: #92400e; font-size: 0.95rem; display: block; margin-bottom: 0.35rem; }
 .recommendation-box p { margin: 0; color: #92400e; font-size: 0.95rem; line-height: 1.5; }
 
-.mechanic-signature {
-  font-size: 0.85rem;
-  color: #64748b;
-  text-align: right;
-  margin-top: 1rem;
-}
+.mechanic-signature { font-size: 0.85rem; color: #64748b; text-align: right; margin-top: 1rem; }
+.doc-footer { margin-top: 3rem; padding-top: 1.5rem; border-top: 1px solid #e2e8f0; text-align: center; color: #94a3b8; font-size: 0.8rem; }
 
-.doc-footer {
-  margin-top: 3rem;
-  padding-top: 1.5rem;
-  border-top: 1px solid #e2e8f0;
-  text-align: center;
-  color: #94a3b8;
-  font-size: 0.8rem;
-}
 
 /* =========================================
-   LA MAGIA DEL PDF (@media print)
+   LA SOLUCIÓN DEFINITIVA PARA IMPRIMIR EN ANGULAR
 ========================================= */
 @media print {
   @page {
     size: A4 portrait;
-    margin: 0; /* Quitamos márgenes del navegador */
-  }
-
-  /* Ocultamos el fondo gris y todo lo que no sea el documento */
-  body * {
-    visibility: hidden;
-  }
-
-  .history-wrapper {
-    background: transparent;
-    padding: 0;
-  }
-
-  .a4-document, .a4-document * {
-    visibility: visible;
-  }
-
-  .a4-document {
-    position: absolute;
-    left: 0;
-    top: 0;
-    width: 100%;
     margin: 0;
-    padding: 20mm; /* Márgenes internos para la impresión PDF */
-    box-shadow: none;
   }
 
-  .no-print {
+  /* El ::ng-deep obliga a Angular a ocultar todo el menú lateral y superior de tu app */
+  ::ng-deep body * {
+    visibility: hidden !important;
+  }
+
+  /* Quitamos fondos oscuros de la web */
+  ::ng-deep html, ::ng-deep body, ::ng-deep .history-wrapper, ::ng-deep .admin-container {
+    background: white !important;
+    padding: 0 !important;
+    margin: 0 !important;
+    height: auto !important;
+  }
+
+  ::ng-deep .a4-document, ::ng-deep .a4-document * {
+    visibility: visible !important;
+  }
+
+  ::ng-deep .a4-document {
+    position: absolute !important;
+    left: 0 !important;
+    top: 0 !important;
+    width: 100% !important;
+    margin: 0 !important;
+    padding: 20mm !important;
+    box-shadow: none !important;
+  }
+
+  ::ng-deep .no-print, ::ng-deep .no-print * {
     display: none !important;
   }
 }

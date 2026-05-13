@@ -58,6 +58,8 @@ export class TrackingViewComponent {
   /** Selected task used to display evidence and mechanic explanation */
   selectedTask: Task | null = null;
 
+  currentDate: string = new Date().toLocaleDateString();
+
   /** Prevents unnecessary repeated history requests for the same plate */
   private loadedHistoryPlate = '';
 
@@ -192,5 +194,8 @@ export class TrackingViewComponent {
     if (plate) {
       this.router.navigate(['/tracking/history', plate]);
     }
+  }
+  downloadPDF(): void {
+    window.print();
   }
 }

@@ -60,7 +60,7 @@ export class MechanicWorkspaceComponent implements OnInit {
    * Later this can come from authenticated user data.
    */
   protected readonly currentMechanicId = signal<string>(
-    localStorage.getItem('auth_mechanic_id') ?? 'M-1'
+    JSON.parse(localStorage.getItem('user') || '{}')?.id ?? 'M-1'
   );
 
   protected readonly currentMechanic = computed(() =>
@@ -81,11 +81,19 @@ export class MechanicWorkspaceComponent implements OnInit {
     this.currentMechanic()?.status ?? 'Turno activo'
   );
 
-  protected readonly assignedTasks = computed(() =>
-    this.taskStore
-      .tasks()
-      .filter((task) => String(task.mechanicId) === String(this.currentMechanicId()))
-  );
+  protected readonly assignedTasks = computed(() => {
+    const allTasks = this.taskStore.tasks();
+    const currentId = this.currentMechanicId();
+
+    // Imprimimos en consola para ver la realidad de los datos
+    console.log('1. Todas las tareas en el Store:', allTasks);
+    console.log('2. Buscando tareas para el Mecánico ID:', currentId);
+
+    const filtered = allTasks.filter((task) => String(task.mechanicId) === String(currentId));
+    console.log('3. Tareas que pasaron el filtro:', filtered);
+
+    return filtered;
+  });
 
   protected readonly filteredTasks = computed(() => {
     const status = this.selectedStatus();

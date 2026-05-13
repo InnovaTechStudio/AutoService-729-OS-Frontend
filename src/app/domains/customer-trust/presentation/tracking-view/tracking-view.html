@@ -358,119 +358,123 @@
             <!-- VEHICLE HISTORY -->
             <div class="vehicle-history-card">
 
-              <div class="card-header">
+  <div class="card-header">
 
-                <h3>
-                  {{ ('tracking.vehicleHistory') | translate}}
-                </h3>
+    <h3>
+      {{ ('tracking.vehicleHistory') | translate}}
+    </h3>
 
-                <p>
-                  {{ ('tracking.vehicleHistorySubtitle') | translate}}
+    <p>
+      {{ ('tracking.vehicleHistorySubtitle') | translate}}
+      <strong>
+        {{ trackingStore.vehicle()?.plate }}
+      </strong>
+    </p>
 
-                  <strong>
-                    {{ trackingStore.vehicle()?.plate }}
-                  </strong>
-                </p>
+  </div>
 
-              </div>
+  @if (vehicleHistoryStore.isLoading()) {
 
-              @if (vehicleHistoryStore.isLoading()) {
+    <div class="history-empty">
+      <mat-icon>sync</mat-icon>
+      <p>{{ ('tracking.loadingHistory') | translate}}</p>
+    </div>
 
-                <div class="history-empty">
-                  <mat-icon>sync</mat-icon>
+  } @else if (vehicleHistoryStore.history().length) {
 
-                  <p>
-                    {{ ('tracking.loadingHistory') | translate}}
-                  </p>
-                </div>
+    <button
+      mat-flat-button
+      color="primary"
+      style="width: 100%; padding: 1.5rem; border-radius: 14px; font-weight: 800; font-size: 1rem; margin-top: 1rem; display: flex; align-items: center; justify-content: center; gap: 8px;"
+      (click)="goToFullHistory()"
+    >
+      <mat-icon>history</mat-icon>
+      Ver historial completo y descargar PDF
+    </button>
 
-              } @else if (vehicleHistoryStore.history().length) {
+    <div class="history-list">
 
-                <div class="history-list">
+      @for (record of vehicleHistoryStore.history(); track record.id) {
 
-                  @for (record of vehicleHistoryStore.history(); track record.id) {
+        <article class="history-item">
 
-                    <article class="history-item">
+          <div class="history-top">
 
-                      <div class="history-top">
+            <div>
+              <span>{{ record.serviceDate }}</span>
+              <h4>{{ record.serviceTitle }}</h4>
+            </div>
 
-                        <div>
-                          <span>{{ record.serviceDate }}</span>
-                          <h4>{{ record.serviceTitle }}</h4>
-                        </div>
+            <mat-icon>history</mat-icon>
 
-                        <mat-icon>history</mat-icon>
+          </div>
 
-                      </div>
+          <p class="history-summary">
+            {{ record.customerSummary }}
+          </p>
 
-                      <p class="history-summary">
-                        {{ record.customerSummary }}
-                      </p>
+          <div class="history-meta">
 
-                      <div class="history-meta">
+            <span>
+              <mat-icon>store</mat-icon>
+              {{ record.workshopName }}
+            </span>
 
-                        <span>
-                          <mat-icon>store</mat-icon>
-                          {{ record.workshopName }}
-                        </span>
+            <span>
+              <mat-icon>engineering</mat-icon>
+              {{ record.mechanicName }}
+            </span>
 
-                        <span>
-                          <mat-icon>engineering</mat-icon>
-                          {{ record.mechanicName }}
-                        </span>
+          </div>
 
-                      </div>
+          @if (record.tasksCompleted.length) {
 
-                      @if (record.tasksCompleted.length) {
+            <div class="history-tasks">
 
-                        <div class="history-tasks">
+              <strong>
+                {{ ('tracking.completedTasks') | translate}}
+              </strong>
 
-                          <strong>
-                            {{ ('tracking.completedTasks') | translate}}
-                          </strong>
+              @for (taskName of record.tasksCompleted; track taskName) {
 
-                          @for (taskName of record.tasksCompleted; track taskName) {
+                <small>
+                  <mat-icon>check_circle</mat-icon>
+                  {{ taskName }}
+                </small>
 
-                            <small>
-                              <mat-icon>check_circle</mat-icon>
-                              {{ taskName }}
-                            </small>
-
-                          }
-                        </div>
-                      }
-
-                      <div class="recommendation-box">
-
-                        <strong>
-                          {{ ('tracking.recommendation') | translate}}
-                        </strong>
-
-                        <p>
-                          {{ record.recommendation }}
-                        </p>
-
-                      </div>
-
-                    </article>
-                  }
-
-                </div>
-
-              } @else {
-
-                <div class="history-empty">
-
-                  <mat-icon>history_toggle_off</mat-icon>
-
-                  <p>
-                    {{ ('tracking.noHistory') | translate}}
-                  </p>
-
-                </div>
               }
 
             </div>
+          }
+
+          <div class="recommendation-box">
+
+            <strong>
+              {{ ('tracking.recommendation') | translate}}
+            </strong>
+
+            <p>
+              {{ record.recommendation }}
+            </p>
+
+          </div>
+
+        </article>
+
+      }
+
+    </div>
+
+  } @else {
+
+    <div class="history-empty">
+      <mat-icon>history_toggle_off</mat-icon>
+      <p>{{ ('tracking.noHistory') | translate}}</p>
+    </div>
+
+  }
+
+</div>
 
           </div>
         </div>

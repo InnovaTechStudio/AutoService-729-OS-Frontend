@@ -1,16 +1,10 @@
 /**
  * TrackingViewComponent
  *
-<<<<<<< HEAD
- * Component that allows users to search and view the current status
- * of a work order using its tracking code.
- * Displays information about the vehicle, the order, and the progress of the tasks.
-=======
  * Component that allows customers to search and view the current status
  * of a work order using its tracking code.
  * Displays information about the vehicle, the order, current tasks,
  * mechanic explanations and the technical history of the vehicle.
->>>>>>> origin/develop
  *
  * @component
  * @selector app-tracking-view
@@ -18,6 +12,7 @@
  */
 
 import { Component, inject, effect, computed } from '@angular/core';
+import { Router } from '@angular/router';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 
@@ -34,7 +29,6 @@ import { TranslatePipe } from '@ngx-translate/core';
 import { LanguageSwitcher } from '../../../../shared/presentation/language-switcher/language-switcher';
 
 import { VehicleHistoryStore } from '../../../vehicle-history/application/vehicle-history.store';
-
 
 @Component({
   selector: 'app-tracking-view',
@@ -56,6 +50,7 @@ export class TrackingViewComponent {
   trackingStore = inject(TrackingStore);
   vehicleHistoryStore = inject(VehicleHistoryStore);
   dialog = inject(MatDialog);
+  private readonly router = inject(Router);
 
   /** Tracking code entered by the customer */
   trackingCode = '';
@@ -68,12 +63,12 @@ export class TrackingViewComponent {
 
   /**
    * Customer-facing tasks.
-   * These are the tasks the customer can understand from the tracking view.
    */
   readonly customerVisibleTasks = computed(() =>
-    this.trackingStore.tasks().filter((task) =>
-      task.status === 'Completada' ||
-      task.customerReportStatus === 'Visible para Cliente'
+    this.trackingStore.tasks().filter(
+      (task) =>
+        task.status === 'Completada' ||
+        task.customerReportStatus === 'Visible para Cliente'
     )
   );
 
@@ -82,24 +77,23 @@ export class TrackingViewComponent {
       const tasks = this.trackingStore.tasks();
 
       if (tasks && tasks.length > 0) {
-
         const taskWithCustomerExplanation = tasks.find(
-          (task) => task.customerExplanation && task.customerExplanation.trim().length > 0
+          (task) =>
+            task.customerExplanation &&
+            task.customerExplanation.trim().length > 0
         );
 
         const taskWithPhoto = tasks.find((task) => task.photo);
 
-        this.selectedTask = taskWithCustomerExplanation || taskWithPhoto || tasks[0];
-
+        this.selectedTask =
+          taskWithCustomerExplanation || taskWithPhoto || tasks[0];
       } else {
         this.selectedTask = null;
       }
     });
 
     /**
-     * Loads the technical history using the vehicle plate.
-     * This supports the business logic where the same car keeps its history
-     * even if it is later attended by another workshop inside AutoService.
+     * Loads vehicle history by plate
      */
     effect(() => {
       const vehicle = this.trackingStore.vehicle();
@@ -115,14 +109,10 @@ export class TrackingViewComponent {
   }
 
   /**
-   * Performs the search for a work order using the entered code.
+   * Search work order
    */
-
   handleSearch(): void {
-    if (!this.trackingCode.trim()) {
-      return;
-
-    }
+    if (!this.trackingCode.trim()) return;
 
     this.loadedHistoryPlate = '';
     this.vehicleHistoryStore.history.set([]);
@@ -130,20 +120,16 @@ export class TrackingViewComponent {
   }
 
   /**
-   * Selects a task from the list.
-   *
-   * @param task Selected task
+   * Select task
    */
   selectTask(task: Task): void {
     this.selectedTask = task;
   }
 
   /**
-   * Opens the payment modal for the current order.
+   * Open payment modal
    */
-
   openPaymentModal(): void {
-
     const order = this.trackingStore.order();
 
     if (order && order.price) {
@@ -162,49 +148,25 @@ export class TrackingViewComponent {
   }
 
   /**
-   * Returns the severity level for the order status.
-   *
-   * @param status Order status
-   * @returns Severity string
+   * Order status severity
    */
   getStatusSeverity(status: string): string {
     if (status === 'Finalizado') return 'success';
     if (status === 'En Proceso') return 'info';
-
     return 'warning';
   }
 
   /**
-<<<<<<< HEAD
-   * Returns the icon corresponding to the status of a task.
-   *
-   * @param status Status of the task
-   * @returns Material icon name
-   */
-  getTaskIcon(status: string): string {
-    if (status === 'Completada') return 'pi pi-check';
-    if (status === 'En Proceso') return 'pi pi-cog pi-spin';
-
-    return 'pi pi-circle-fill';
-  }
-
-  /**
-=======
->>>>>>> origin/develop
-   * Returns the severity tag for a task.
-   *
-   * @param status Task status
-   * @returns Severity string
+   * Task severity tag
    */
   getTaskTagSeverity(status: string): string {
     if (status === 'Completada') return 'success';
     if (status === 'En Proceso') return 'info';
-
     return 'secondary';
   }
 
   /**
-   * Returns a friendly mechanic explanation for the selected task.
+   * Customer explanation fallback
    */
   getSelectedTaskCustomerExplanation(): string {
     if (!this.selectedTask?.customerExplanation) {
@@ -215,10 +177,20 @@ export class TrackingViewComponent {
   }
 
   /**
-   * Returns the visual label for task evidence.
+   * Evidence check
    */
   hasSelectedTaskEvidence(): boolean {
     return !!this.selectedTask?.photo || !!this.selectedTask?.evidenceRegistered;
   }
 
+  /**
+   * Navigate to full history view (feature)
+   */
+  goToFullHistory(): void {
+    const plate = this.trackingStore.vehicle()?.plate;
+
+    if (plate) {
+      this.router.navigate(['/tracking/history', plate]);
+    }
+  }
 }

@@ -30,7 +30,7 @@
 
   <div class="progress-area">
     <div class="progress-label">
-      <span>Progreso de tareas</span>
+      <span>{{ ('workOrder.taskProgress') | translate}}</span>
       <strong>{{ order.progress }}%</strong>
     </div>
 
@@ -55,7 +55,7 @@
       type="button"
       class="detail-button"
       (click)="onViewDetail()">
-      Ver detalle
+      {{ ('workOrder.viewDetail') | translate}}
       <mat-icon>arrow_forward</mat-icon>
     </button>
   </div>

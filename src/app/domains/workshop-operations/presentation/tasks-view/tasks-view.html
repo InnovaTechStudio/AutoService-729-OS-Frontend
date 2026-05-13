@@ -1,11 +1,10 @@
 <section class="tasks-page">
   <div class="tasks-header">
     <div>
-      <span class="eyebrow">Control operativo</span>
-      <h1>Tablero de tareas</h1>
+      <span class="eyebrow">{{ 'taskBoard.section' | translate}}</span>
+      <h1>{{ 'taskBoard.title' | translate}}</h1>
       <p>
-        Gestiona tareas por orden, asigna mecánicos y actualiza el avance real del servicio.
-      </p>
+        {{ 'taskBoard.description' | translate}}      </p>
     </div>
 
     <div class="header-actions">
@@ -24,29 +23,29 @@
         class="add-button"
         (click)="openDialog()">
         <mat-icon>add</mat-icon>
-        Nueva tarea
+        {{ 'taskBoard.newTask' | translate}}
       </button>
     </div>
   </div>
 
   <div class="summary-row">
     <div class="summary-card">
-      <span>Total tareas</span>
+      <span>{{ 'taskBoard.stats.totalTasks' | translate}}</span>
       <strong>{{ taskStore.tasks().length }}</strong>
     </div>
 
     <div class="summary-card">
-      <span>Pendientes</span>
+      <span>{{ 'taskBoard.stats.pending' | translate}}</span>
       <strong>{{ pendingTasks() }}</strong>
     </div>
 
     <div class="summary-card">
-      <span>En proceso</span>
+      <span>{{ 'taskBoard.stats.inProgress' | translate}}</span>
       <strong>{{ inProgressTasks() }}</strong>
     </div>
 
     <div class="summary-card success">
-      <span>Completadas</span>
+      <span>{{ 'taskBoard.stats.completed' | translate}}</span>
       <strong>{{ completedTasks() }}</strong>
     </div>
   </div>

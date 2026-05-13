@@ -1,11 +1,10 @@
 <section class="work-orders-page">
   <div class="work-orders-header">
     <div>
-      <span class="eyebrow">Operación del taller</span>
-      <h1>Órdenes de trabajo</h1>
+      <span class="eyebrow">{{ ('workOrder.workshopOperation') | translate}}</span>
+      <h1>{{ ('workOrder.workOrders') | translate}}</h1>
       <p>
-        Consulta el avance de cada servicio, detecta retrasos y accede al detalle operativo de la orden.
-      </p>
+        {{ ('workOrder.workOrdersSubtitle') | translate}}      </p>
     </div>
 
     <button
@@ -15,28 +14,28 @@
       class="add-button"
       (click)="goToCreateOrder()">
       <mat-icon>add</mat-icon>
-      Nueva orden
+      {{ ('workOrder.newOrder') | translate}}
     </button>
   </div>
 
   <div class="summary-row">
     <div class="summary-card">
-      <span>Total órdenes</span>
+      <span>{{ ('workOrder.totalOrders') | translate}}</span>
       <strong>{{ workOrderStore.workOrders().length }}</strong>
     </div>
 
     <div class="summary-card">
-      <span>En proceso</span>
+      <span>{{ ('workOrder.inProgress') | translate}}</span>
       <strong>{{ activeOrders() }}</strong>
     </div>
 
     <div class="summary-card warning">
-      <span>Riesgo de retraso</span>
+      <span>{{ ('workOrder.delayRisk') | translate}}</span>
       <strong>{{ riskOrders() }}</strong>
     </div>
 
     <div class="summary-card">
-      <span>Finalizadas</span>
+      <span>{{ ('workOrder.completed') | translate}}</span>
       <strong>{{ completedOrders() }}</strong>
     </div>
   </div>

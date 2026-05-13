@@ -28,6 +28,8 @@
   align-items: center;
   font-family: system-ui, -apple-system, sans-serif;
   padding: 4rem 1rem;
+
+  position: relative; /* IMPORTANTE */
 }
 .tracking-header {
   text-align: center;
@@ -609,4 +611,20 @@
   .dashboard-grid{
     grid-template-columns:1fr;
   }
+}
+app-language-switcher {
+  position: absolute;
+  top: 20px;
+  right: 20px;
+  z-index: 50;
+
+  padding: 4px;
+  border-radius: 999px;
+
+  background: #ffffff;
+  backdrop-filter: blur(6px);
+}
+app-language-switcher * {
+  color: #ffffff !important;
+  border-color: rgba(255,255,255,0.4) !important;
 }

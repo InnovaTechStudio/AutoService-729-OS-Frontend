@@ -1,6 +1,6 @@
 /**
  * VehicleListComponent
- * 
+ *
  * Main component for managing and displaying the vehicle list
  * from the workshop. It allows:
  * - Display all vehicles in card format (`VehicleCardComponent`)
@@ -8,10 +8,10 @@
  * - Create new vehicles
  * - Edit existing vehicles through a modal
  * - Navigate to the detail of each vehicle
- * 
+ *
  * Uses Signals and `computed()` to manage the state and filters in a
  * reactive and efficient manner.
- * 
+ *
  * @component
  * @selector app-vehicle-list
  * @standalone true
@@ -34,6 +34,7 @@ import { VehicleStore } from '../../application/vehicle.store';
 import { Vehicle } from '../../domain/models/vehicle.model';
 import { VehicleCardComponent, VehicleCardView } from './components/vehicle-card/vehicle-card';
 import { VehicleFiltersComponent } from './components/vehicle-filters/vehicle-filters';
+import { TranslatePipe } from '@ngx-translate/core';
 
 @Component({
   selector: 'app-vehicle-list',
@@ -48,10 +49,11 @@ import { VehicleFiltersComponent } from './components/vehicle-filters/vehicle-fi
     MatFormFieldModule,
     MatSelectModule,
     VehicleCardComponent,
-    VehicleFiltersComponent
+    VehicleFiltersComponent,
+    TranslatePipe,
   ],
   templateUrl: './vehicle-list.html',
-  styleUrl: './vehicle-list.css'
+  styleUrl: './vehicle-list.css',
 })
 export class VehicleListComponent implements OnInit {
   protected readonly vehicleStore = inject(VehicleStore);
@@ -80,7 +82,7 @@ export class VehicleListComponent implements OnInit {
     'https://images.unsplash.com/photo-1552519507-da3b142c6e3d?w=500&auto=format&fit=crop',
     'https://images.unsplash.com/photo-1542362567-b07e54358753?w=500&auto=format&fit=crop',
     'https://images.unsplash.com/photo-1492144534655-ae79c964c9d7?w=500&auto=format&fit=crop',
-    'https://images.unsplash.com/photo-1503376780353-7e6692767b70?w=500&auto=format&fit=crop'
+    'https://images.unsplash.com/photo-1503376780353-7e6692767b70?w=500&auto=format&fit=crop',
   ];
 
   /** Enriched view of the vehicles to display in the cards */
@@ -95,8 +97,8 @@ export class VehicleListComponent implements OnInit {
       progress: this.getProgress(item.status),
       year: item.year || 'N/A',
       color: item.color || 'N/A',
-      image: this.carImages[index % this.carImages.length]
-    }))
+      image: this.carImages[index % this.carImages.length],
+    })),
   );
 
   /** Filtered list of vehicles based on search and status */
@@ -111,21 +113,20 @@ export class VehicleListComponent implements OnInit {
         item.plate.toLowerCase().includes(term) ||
         item.owner.toLowerCase().includes(term);
 
-      const matchesStatus =
-        !selectedStatus || item.status === selectedStatus;
+      const matchesStatus = !selectedStatus || item.status === selectedStatus;
 
       return matchesSearch && matchesStatus;
     });
   });
 
   /** Count of vehicles currently in the workshop */
-  protected readonly vehiclesInWorkshop = computed(() =>
-    this.vehicleStore.vehicles().filter((vehicle) => vehicle.status === 'En Taller').length
+  protected readonly vehiclesInWorkshop = computed(
+    () => this.vehicleStore.vehicles().filter((vehicle) => vehicle.status === 'En Taller').length,
   );
 
   /** Count of vehicles ready for delivery */
-  protected readonly readyVehicles = computed(() =>
-    this.vehicleStore.vehicles().filter((vehicle) => vehicle.status === 'Listo').length
+  protected readonly readyVehicles = computed(
+    () => this.vehicleStore.vehicles().filter((vehicle) => vehicle.status === 'Listo').length,
   );
 
   ngOnInit(): void {
@@ -243,7 +244,7 @@ export class VehicleListComponent implements OnInit {
       year: '',
       color: '',
       status: 'En Taller',
-      customerId: ''
+      customerId: '',
     };
   }
 }

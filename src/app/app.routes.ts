@@ -31,7 +31,6 @@ import { CustomerListComponent } from './domains/customer-management/presentatio
 // Fleet Management
 import { VehicleListComponent } from './domains/fleet-management/presentation/vehicle-list/vehicle-list';
 
-
 // Staff Coordination
 import { MechanicsViewComponent } from './domains/staff-coordination/presentation/mechanics-view/mechanics-view';
 
@@ -41,7 +40,6 @@ import { WorkOrderListComponent } from './domains/workshop-operations/presentati
 import { CreateWorkOrderComponent } from './domains/workshop-operations/presentation/create-work-order/create-work-order';
 import { WorkOrderDetailComponent } from './domains/workshop-operations/presentation/work-order-detail/work-order-detail';
 import {TrackingViewComponent} from './domains/customer-trust/presentation/tracking-view/tracking-view';
-import { VehicleDetailComponent } from './domains/fleet-management/presentation/vehicle-detail/vehicle-detail';
 import { MechanicWorkspaceComponent } from './domains/staff-coordination/presentation/mechanic-workspace/mechanic-workspace';
 
 

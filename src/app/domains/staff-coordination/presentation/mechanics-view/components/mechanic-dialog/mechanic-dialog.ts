@@ -8,6 +8,7 @@ import { MatInputModule } from '@angular/material/input';
 import { MatSelectModule } from '@angular/material/select';
 
 import { Mechanic } from '../../../../domain/models/mechanic.model';
+import { TranslatePipe } from '@ngx-translate/core';
 
 /**
  * MechanicDialogComponent
@@ -35,13 +36,13 @@ import { Mechanic } from '../../../../domain/models/mechanic.model';
     MatButtonModule,
     MatIconModule,
     MatInputModule,
-    MatSelectModule
+    MatSelectModule,
+    TranslatePipe,
   ],
   templateUrl: './mechanic-dialog.html',
-  styleUrl: './mechanic-dialog.css'
+  styleUrl: './mechanic-dialog.css',
 })
 export class MechanicDialogComponent {
-
   /**
    * Mechanic
    *

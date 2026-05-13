@@ -2,8 +2,8 @@
   <section class="task-dialog">
     <header>
       <div>
-        <p class="eyebrow">Configuración de servicio</p>
-        <h2>{{ task.id ? 'Editar tarea' : 'Nueva tarea' }}</h2>
+        <p class="eyebrow">{{ 'taskBoard.newTask1.section' | translate}}</p>
+        <h2>{{ task.id ? 'Editar tarea' : ('taskBoard.newTask1.title' | translate) }}</h2>
       </div>
 
       <button
@@ -17,7 +17,7 @@
 
     <div class="form-grid">
       <mat-form-field appearance="outline" class="full-width">
-        <mat-label>Orden de trabajo</mat-label>
+        <mat-label>{{ 'taskBoard.newTask1.workOrder' | translate}}</mat-label>
         <mat-select [(ngModel)]="task.workOrderId" required>
           @for (order of workOrderOptions; track order.id) {
             <mat-option [value]="order.id">
@@ -28,7 +28,7 @@
       </mat-form-field>
 
       <mat-form-field appearance="outline" class="full-width">
-        <mat-label>Descripción</mat-label>
+        <mat-label>{{ 'taskBoard.newTask1.description' | translate}}</mat-label>
         <input
           matInput
           [(ngModel)]="task.description"
@@ -36,7 +36,7 @@
       </mat-form-field>
 
       <mat-form-field appearance="outline" class="full-width">
-        <mat-label>Mecánico asignado</mat-label>
+        <mat-label>{{ 'taskBoard.newTask1.assignedMechanic' | translate}}</mat-label>
         <mat-select [(ngModel)]="task.mechanicId">
           @for (mechanic of mechanicOptions; track mechanic.id) {
             <mat-option [value]="mechanic.id">
@@ -48,7 +48,7 @@
 
       <div class="form-row">
         <mat-form-field appearance="outline">
-          <mat-label>Estado</mat-label>
+          <mat-label>{{ 'taskBoard.newTask1.status' | translate}}</mat-label>
           <mat-select [(ngModel)]="task.status">
             @for (status of statusOptions; track status) {
               <mat-option [value]="status">{{ status }}</mat-option>
@@ -57,7 +57,7 @@
         </mat-form-field>
 
         <mat-form-field appearance="outline">
-          <mat-label>Prioridad</mat-label>
+          <mat-label>{{ 'taskBoard.newTask1.priority' | translate}}</mat-label>
           <mat-select [(ngModel)]="task.priority">
             @for (priority of priorityOptions; track priority) {
               <mat-option [value]="priority">{{ priority }}</mat-option>
@@ -67,7 +67,7 @@
       </div>
 
       <mat-form-field appearance="outline" class="full-width">
-        <mat-label>Tiempo estimado</mat-label>
+        <mat-label>{{ 'taskBoard.newTask1.estimatedTime' | translate}}</mat-label>
         <input
           matInput
           type="number"
@@ -80,7 +80,7 @@
 
       <div class="image-upload-section">
         <label class="upload-label">
-          Evidencia visual
+          {{ 'taskBoard.newTask1.visualEvidence' | translate}}
         </label>
         <input
           type="file"
@@ -99,15 +99,14 @@
       <div class="technical-note">
         <mat-icon>info</mat-icon>
         <p>
-          Las tareas guardadas se asignarán automáticamente al historial técnico
-          de la orden seleccionada para mantener trazabilidad del servicio.
+          {{ 'taskBoard.newTask1.infoMessage' | translate}}
         </p>
       </div>
     </div>
 
     <footer>
       <button mat-button type="button" (click)="onCancel()">
-        Cancelar
+        {{ 'taskBoard.newTask1.cancel' | translate}}
       </button>
 
       <button
@@ -117,7 +116,7 @@
         [disabled]="!task.description || !task.workOrderId"
         (click)="onSave()">
         <mat-icon>save</mat-icon>
-        Guardar
+        {{ 'taskBoard.newTask1.save' | translate}}
       </button>
     </footer>
   </section>

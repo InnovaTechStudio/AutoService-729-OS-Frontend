@@ -2,7 +2,7 @@
   <section class="mechanic-dialog">
     <header>
       <div>
-        <p class="eyebrow">Coordinación de staff</p>
+        <p class="eyebrow"> {{ 'registerMechanicModal.section' | translate}}</p>
         <h2>{{ mechanic.id ? 'Editar mecánico' : 'Registrar mecánico' }}</h2>
       </div>
 
@@ -17,7 +17,7 @@
 
     <div class="form-grid">
       <mat-form-field appearance="outline" class="full-width">
-        <mat-label>Nombre completo</mat-label>
+        <mat-label> {{ 'registerMechanicModal.fields.fullName' | translate}}</mat-label>
         <input
           matInput
           [(ngModel)]="mechanic.fullName"
@@ -25,7 +25,7 @@
       </mat-form-field>
 
       <mat-form-field appearance="outline" class="full-width">
-        <mat-label>Especialidad</mat-label>
+        <mat-label> {{ 'registerMechanicModal.fields.specialty' | translate}}</mat-label>
         <mat-select [(ngModel)]="mechanic.specialty">
           @for (specialty of specialtyOptions; track specialty) {
             <mat-option [value]="specialty">
@@ -36,7 +36,7 @@
       </mat-form-field>
 
       <mat-form-field appearance="outline" class="full-width">
-        <mat-label>Número de teléfono</mat-label>
+        <mat-label> {{ 'registerMechanicModal.fields.phoneNumber' | translate}}</mat-label>
         <input
           matInput
           [(ngModel)]="mechanic.phone"
@@ -44,7 +44,7 @@
       </mat-form-field>
 
       <mat-form-field appearance="outline" class="full-width">
-        <mat-label>Capacidad máxima de tareas</mat-label>
+        <mat-label> {{ 'registerMechanicModal.fields.maxTasks' | translate}}</mat-label>
         <input
           matInput
           type="number"
@@ -54,7 +54,7 @@
       </mat-form-field>
 
       <mat-form-field appearance="outline" class="full-width">
-        <mat-label>Estado inicial</mat-label>
+        <mat-label> {{ 'registerMechanicModal.fields.initialStatus' | translate}}</mat-label>
         <mat-select [(ngModel)]="mechanic.status">
           <mat-option value="Disponible">Disponible</mat-option>
           <mat-option value="Ocupado">Ocupado</mat-option>
@@ -64,15 +64,14 @@
       <div class="technical-note">
         <mat-icon>info</mat-icon>
         <p>
-          La capacidad máxima permite calcular la carga laboral del mecánico y evitar
-          asignaciones que generen retrasos en el taller.
+          {{ 'registerMechanicModal.info.maxTasksDescription' | translate}}
         </p>
       </div>
     </div>
 
     <footer>
       <button mat-button type="button" (click)="onCancel()">
-        Cancelar
+        {{ 'registerMechanicModal.actions.cancel' | translate}}
       </button>
 
       <button
@@ -82,7 +81,7 @@
         [disabled]="!mechanic.fullName || !mechanic.specialty"
         (click)="onSave()">
         <mat-icon>save</mat-icon>
-        Guardar
+        {{ 'registerMechanicModal.actions.save' | translate}}
       </button>
     </footer>
   </section>

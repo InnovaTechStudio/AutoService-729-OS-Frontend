@@ -5,7 +5,7 @@
       <button mat-icon-button (click)="goBack()">
         <mat-icon>arrow_back</mat-icon>
       </button>
-      <h1>Registrar Nueva Orden de Trabajo</h1>
+      <h1>{{ ('newWorkOrder.title') | translate}}</h1>
     </div>
   </div>
 
@@ -14,13 +14,13 @@
     <div class="left-column">
       <mat-card class="form-card">
         <mat-card-header>
-          <mat-card-title>Datos Generales</mat-card-title>
+          <mat-card-title>{{ ('newWorkOrder.generalData') | translate}}</mat-card-title>
         </mat-card-header>
 
         <mat-card-content class="pt-3">
 
           <mat-form-field appearance="outline" class="w-full">
-            <mat-label>Vehículo (Placa)</mat-label>
+            <mat-label>{{ ('newWorkOrder.vehicle') | translate}}</mat-label>
             <mat-select [(ngModel)]="newWO.vehicleId" (selectionChange)="onVehicleChange($event.value)" required>
               @for (vehicle of vehicleStore.vehicles(); track vehicle.id) {
                 <mat-option [value]="vehicle.id">{{ vehicle.plate }} ({{ vehicle.brand }})</mat-option>
@@ -36,20 +36,20 @@
           }
 
           <mat-form-field appearance="outline" class="w-full">
-            <mat-label>Descripción del Problema</mat-label>
+            <mat-label>{{ ('newWorkOrder.problemDescription') | translate}}</mat-label>
             <textarea matInput [(ngModel)]="newWO.description" rows="3" required></textarea>
           </mat-form-field>
 
           <div class="form-row">
             <mat-form-field appearance="outline" class="w-half">
-              <mat-label>Fecha Estimada</mat-label>
+              <mat-label>{{ ('newWorkOrder.estimatedDate') | translate}}</mat-label>
               <input matInput [matDatepicker]="picker" [(ngModel)]="newWO.estimatedDate" required>
               <mat-datepicker-toggle matIconSuffix [for]="picker"></mat-datepicker-toggle>
               <mat-datepicker #picker></mat-datepicker>
             </mat-form-field>
 
             <mat-form-field appearance="outline" class="w-half">
-              <mat-label>Precio Total (S/.)</mat-label>
+              <mat-label>{{ ('newWorkOrder.totalPrice') | translate}}</mat-label>
               <span matTextPrefix>S/.&nbsp;</span>
               <input matInput type="number" [(ngModel)]="newWO.price" required>
             </mat-form-field>
@@ -63,9 +63,9 @@
       <mat-card class="form-card h-full">
 
         <mat-card-header class="tasks-header">
-          <mat-card-title>Tareas Asignadas</mat-card-title>
+          <mat-card-title>{{ ('newWorkOrder.assignedTasks') | translate}}</mat-card-title>
           <button mat-stroked-button color="primary" (click)="addTaskRow()">
-            <mat-icon>add</mat-icon> Añadir Tarea
+            <mat-icon>add</mat-icon> {{ ('newWorkOrder.addTask') | translate}}
           </button>
         </mat-card-header>
 
@@ -97,8 +97,7 @@
 
             @if (tasks.length === 0) {
               <div class="empty-state">
-                No has agregado tareas. Añade al menos una para guardar la orden.
-              </div>
+                {{ ('newWorkOrder.emptyTasksMessage') | translate}}              </div>
             }
           </div>
 
@@ -109,11 +108,11 @@
   </div>
 
   <div class="footer-actions">
-    <button mat-button (click)="goBack()">Cancelar</button>
+    <button mat-button (click)="goBack()">{{ ('newWorkOrder.cancel') | translate}}</button>
     <button mat-raised-button color="primary" (click)="saveFullWorkOrder()" [disabled]="isSaving || !newWO.vehicleId || tasks.length === 0">
       <mat-icon *ngIf="!isSaving">save</mat-icon>
       <mat-icon *ngIf="isSaving" class="spin">sync</mat-icon>
-      {{ isSaving ? 'Guardando...' : 'Guardar Orden Completa' }}
+      {{ isSaving ? 'Guardando...' : ('newWorkOrder.saveCompleteOrder' | translate) }}
     </button>
   </div>
 

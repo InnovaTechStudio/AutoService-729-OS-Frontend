@@ -6,6 +6,7 @@ import { MatIconModule } from '@angular/material/icon';
 import { MatProgressBarModule } from '@angular/material/progress-bar';
 
 import { Vehicle } from '../../../../domain/models/vehicle.model';
+import { TranslatePipe } from '@ngx-translate/core';
 
 export interface VehicleCardView {
   id: string;
@@ -23,9 +24,9 @@ export interface VehicleCardView {
 @Component({
   selector: 'app-vehicle-card',
   standalone: true,
-  imports: [CommonModule, MatButtonModule, MatIconModule, MatProgressBarModule],
+  imports: [CommonModule, MatButtonModule, MatIconModule, MatProgressBarModule, TranslatePipe],
   templateUrl: './vehicle-card.html',
-  styleUrl: './vehicle-card.css'
+  styleUrl: './vehicle-card.css',
 })
 export class VehicleCardComponent {
   @Input({ required: true }) vehicle!: VehicleCardView;

@@ -1,151 +1,478 @@
 <div class="tracking-layout">
+  <app-language-switcher></app-language-switcher>
 
   <div class="tracking-header">
     <mat-icon class="header-icon">directions_car</mat-icon>
-    <h1>Rastrea tu Vehículo</h1>
-    <p>Ingresa el código que te proporcionó el taller para ver el estado de tu servicio en tiempo real.</p>
+    <h1>{{ ('tracking.title') | translate}}</h1>
+    <p>{{ ('tracking.subtitle') | translate}}</p>
   </div>
 
   <div class="tracking-content">
 
     <div class="search-box">
-      <label for="code">Código de Servicio</label>
+
+      <label for="code">
+        {{ ('tracking.serviceCode') | translate}}
+      </label>
+
       <div class="search-input-group">
         <input
-            id="code"
-            [(ngModel)]="trackingCode"
-            placeholder="Ej: AS-1001A"
-            (keyup.enter)="handleSearch()"
-            class="code-input"
+          id="code"
+          [(ngModel)]="trackingCode"
+          placeholder="Ej: AS-1001A"
+          (keyup.enter)="handleSearch()"
+          class="code-input"
         />
-        <button class="btn-search" (click)="handleSearch()" [disabled]="trackingStore.isLoading()">
-          <mat-icon>search</mat-icon> Buscar
+
+        <button
+          class="btn-search"
+          (click)="handleSearch()"
+          [disabled]="trackingStore.isLoading()"
+        >
+          <mat-icon>search</mat-icon>
+          {{ ('tracking.search') | translate}}
         </button>
       </div>
+
       @if (trackingStore.error()) {
         <div class="error-message mt-3">
-          <mat-icon>error_outline</mat-icon> {{ trackingStore.error() }}
+          <mat-icon>error_outline</mat-icon>
+          {{ trackingStore.error() }}
         </div>
       }
     </div>
 
     @if (trackingStore.order()) {
+
       <div class="results-box fade-in">
-        <div class="vehicle-info">
-          
-          <div class="dashboard-grid">
-            <!-- LEFT -->
-            <div class="left-section">
-              <!-- TASKS -->
-              <div class="service-card">
-                <div class="card-header">
-                  <h3>Tareas de Servicio</h3>
-                </div>
 
-                @for (task of trackingStore.tasks(); track task.id) {
+        <!-- VEHICLE HEADER -->
+        <div class="vehicle-header">
+
+          <div class="vehicle-details">
+            <span class="label">
+              {{ ('tracking.vehicleReceived') | translate}}
+            </span>
+
+            <h2>
+              {{ trackingStore.vehicle()?.brand }}
+              {{ trackingStore.vehicle()?.model }}
+
+              <span>
+                {{ trackingStore.vehicle()?.plate }}
+              </span>
+            </h2>
+          </div>
+
+          <div
+            class="tag status-tag"
+            [ngClass]="'tag-' + getStatusSeverity(trackingStore.order()!.status)"
+          >
+            {{ trackingStore.order()?.status }}
+          </div>
+        </div>
+
+        <!-- DATES -->
+        <div class="dates-grid">
+
+          <div class="date-item">
+            <span class="label">
+              {{ ('tracking.entryDate') | translate}}
+            </span>
+
+            <strong>
+              <mat-icon class="text-blue-500">event</mat-icon>
+              {{ trackingStore.order()?.startDate }}
+            </strong>
+          </div>
+
+          <div class="date-item right-align">
+            <span class="label">
+              {{ ('tracking.estimatedDelivery') | translate}}
+            </span>
+
+            <strong>
+              <mat-icon class="text-orange-500">event_available</mat-icon>
+              {{ trackingStore.order()?.estimatedDate }}
+            </strong>
+          </div>
+        </div>
+
+        <div class="dashboard-grid">
+
+          <!-- LEFT -->
+          <div class="left-section">
+
+            <!-- TASKS -->
+            <div class="service-card">
+
+              <div class="card-header">
+                <h3>
+                  {{ ('tracking.serviceTasks') | translate}}
+                </h3>
+
+                <p>
+                  {{ ('tracking.taskInstructions') | translate}}
+                </p>
+              </div>
+
+              @for (task of trackingStore.tasks(); track task.id) {
+
+                <div
+                  class="task-item"
+                  [class.active]="selectedTask?.id === task.id"
+                  (click)="selectTask(task)"
+                >
+
+                  <div class="task-left">
+
+                    <div
+                      class="task-icon"
+                      [ngClass]="getTaskTagSeverity(task.status)"
+                    >
+
+                      <mat-icon *ngIf="task.status === 'Completada'">
+                        check_circle
+                      </mat-icon>
+
+                      <mat-icon *ngIf="task.status === 'En Proceso'">
+                        settings
+                      </mat-icon>
+
+                      <mat-icon *ngIf="task.status === 'Pendiente'">
+                        schedule
+                      </mat-icon>
+
+                      <mat-icon
+                        *ngIf="
+                          task.status !== 'Completada'
+                          && task.status !== 'En Proceso'
+                          && task.status !== 'Pendiente'
+                        "
+                      >
+                        circle
+                      </mat-icon>
+
+                    </div>
+
+                    <div>
+                      <strong>{{ task.description }}</strong>
+                      <p>{{ task.status }}</p>
+                    </div>
+
+                  </div>
+
                   <div
-                      class="task-item"
-                      [class.active]="selectedTask?.id === task.id"
-                      (click)="selectTask(task)"
+                    class="tag"
+                    [ngClass]="'tag-' + getTaskTagSeverity(task.status)"
                   >
-                    <div class="task-left">
-                      <div class="task-icon" [ngClass]="getTaskTagSeverity(task.status)">
-                        <mat-icon *ngIf="task.status === 'Completada'">check_circle</mat-icon>
-                        <mat-icon *ngIf="task.status === 'En Proceso'">settings</mat-icon>
-                        <mat-icon *ngIf="task.status === 'Pendiente'">schedule</mat-icon>
-                        <mat-icon *ngIf="task.status !== 'Completada' && task.status !== 'En Proceso' && task.status !== 'Pendiente'">circle</mat-icon>
+                    {{ task.status }}
+                  </div>
+
+                </div>
+              }
+            </div>
+
+            <!-- MECHANIC REPORT -->
+            <div class="mechanic-report-card">
+
+              <div class="card-header">
+                <h3>
+                  {{ ('tracking.mechanicReport') | translate}}
+                </h3>
+
+                <p>
+                  {{ ('tracking.mechanicReportSubtitle') | translate}}
+                </p>
+              </div>
+
+              @if (selectedTask) {
+
+                <div class="report-box">
+
+                  <span>
+                    {{ ('tracking.selectedService') | translate}}
+                  </span>
+
+                  <strong>
+                    {{ selectedTask.description }}
+                  </strong>
+
+                  <p>
+                    {{ getSelectedTaskCustomerExplanation() }}
+                  </p>
+
+                  @if (hasSelectedTaskEvidence()) {
+
+                    <small class="evidence-ok">
+                      <mat-icon>image</mat-icon>
+
+                      {{ ('tracking.evidenceRegistered') | translate}}
+                    </small>
+
+                  } @else {
+
+                    <small class="evidence-pending">
+                      <mat-icon>image_not_supported</mat-icon>
+
+                      {{ ('tracking.noEvidenceYet') | translate}}
+                    </small>
+                  }
+
+                </div>
+
+              } @else {
+
+                <div class="no-report">
+
+                  <mat-icon>engineering</mat-icon>
+
+                  <p>
+                    {{ ('tracking.selectTaskInstruction') | translate}}
+                  </p>
+
+                </div>
+              }
+            </div>
+
+            <!-- EVIDENCE -->
+            <div class="evidence-card">
+
+              @if (selectedTask?.photo) {
+
+                <img [src]="selectedTask!.photo" alt="evidence" />
+
+              } @else if (selectedTask?.evidenceRegistered) {
+
+                <div class="simulated-evidence">
+
+                  <mat-icon>verified</mat-icon>
+
+                  <p>
+                    {{ ('tracking.simulatedEvidence') | translate}}
+                  </p>
+
+                </div>
+
+              } @else {
+
+                <div class="no-image">
+
+                  <mat-icon>image</mat-icon>
+
+                  <p>
+                    {{ ('tracking.noVisualEvidence') | translate}}
+                  </p>
+
+                </div>
+              }
+
+              <div class="evidence-info">
+
+                <span>
+                  {{ ('tracking.visualEvidence') | translate}}
+                </span>
+
+                <strong>
+                  {{ selectedTask?.description }}
+                </strong>
+
+              </div>
+            </div>
+
+          </div>
+
+          <!-- RIGHT -->
+          <div class="right-section">
+
+            <!-- COST -->
+            <div class="cost-card">
+
+              <span class="mini-title">
+                {{ ('tracking.estimatedTotalCost') | translate}}
+              </span>
+
+              <h2>
+                S/. {{ trackingStore.order()?.price }}
+              </h2>
+
+              <p>
+                {{ ('tracking.costDisclaimer') | translate}}
+              </p>
+
+              <button
+                class="btn-pay pay-now-btn"
+                (click)="openPaymentModal()"
+              >
+                <mat-icon>credit_card</mat-icon>
+
+                {{ ('tracking.makePayment') | translate}}
+              </button>
+            </div>
+
+            <!-- DATES -->
+            <div class="dates-card">
+
+              <span class="mini-title">
+                {{ ('tracking.serviceTimes') | translate}}
+              </span>
+
+              <div class="date-box">
+
+                <div class="date-icon">
+                  <mat-icon>calendar_today</mat-icon>
+                </div>
+
+                <div>
+                  <small>
+                    {{ ('tracking.entryDate') | translate}}
+                  </small>
+
+                  <strong>
+                    {{ trackingStore.order()?.startDate }}
+                  </strong>
+                </div>
+
+              </div>
+
+              <div class="date-box">
+
+                <div class="date-icon">
+                  <mat-icon>schedule</mat-icon>
+                </div>
+
+                <div>
+                  <small>
+                    {{ ('tracking.estimatedDelivery') | translate}}
+                  </small>
+
+                  <strong>
+                    {{ trackingStore.order()?.estimatedDate }}
+                  </strong>
+                </div>
+
+              </div>
+
+            </div>
+
+            <!-- VEHICLE HISTORY -->
+            <div class="vehicle-history-card">
+
+              <div class="card-header">
+
+                <h3>
+                  {{ ('tracking.vehicleHistory') | translate}}
+                </h3>
+
+                <p>
+                  {{ ('tracking.vehicleHistorySubtitle') | translate}}
+
+                  <strong>
+                    {{ trackingStore.vehicle()?.plate }}
+                  </strong>
+                </p>
+
+              </div>
+
+              @if (vehicleHistoryStore.isLoading()) {
+
+                <div class="history-empty">
+                  <mat-icon>sync</mat-icon>
+
+                  <p>
+                    {{ ('tracking.loadingHistory') | translate}}
+                  </p>
+                </div>
+
+              } @else if (vehicleHistoryStore.history().length) {
+
+                <div class="history-list">
+
+                  @for (record of vehicleHistoryStore.history(); track record.id) {
+
+                    <article class="history-item">
+
+                      <div class="history-top">
+
+                        <div>
+                          <span>{{ record.serviceDate }}</span>
+                          <h4>{{ record.serviceTitle }}</h4>
+                        </div>
+
+                        <mat-icon>history</mat-icon>
+
                       </div>
 
-                      <div>
-                        <strong>{{ task.description }}</strong>
-                        <p>{{ task.status }}</p>
+                      <p class="history-summary">
+                        {{ record.customerSummary }}
+                      </p>
+
+                      <div class="history-meta">
+
+                        <span>
+                          <mat-icon>store</mat-icon>
+                          {{ record.workshopName }}
+                        </span>
+
+                        <span>
+                          <mat-icon>engineering</mat-icon>
+                          {{ record.mechanicName }}
+                        </span>
+
                       </div>
-                    </div>
 
-                    <div class="tag" [ngClass]="'tag-' + getTaskTagSeverity(task.status)">
-                      {{ task.status }}
-                    </div>
-                  </div>
-                }
-              </div>
+                      @if (record.tasksCompleted.length) {
 
-              <!-- EVIDENCE -->
-              <div class="evidence-card">
-                @if (selectedTask?.photo) {
-                  <img [src]="selectedTask!.photo" alt="evidence" />
-                } @else {
-                  <div class="no-image">
-                    <mat-icon>image</mat-icon>
-                    <p>No hay evidencia visual</p>
-                  </div>
-                }
+                        <div class="history-tasks">
 
-                <div class="evidence-info">
-                  <span>EVIDENCIA VISUAL</span>
-                  <strong>{{ selectedTask?.description }}</strong>
-                </div>
-              </div>
+                          <strong>
+                            {{ ('tracking.completedTasks') | translate}}
+                          </strong>
 
-            </div>
+                          @for (taskName of record.tasksCompleted; track taskName) {
 
-            <!-- RIGHT -->
-            <div class="right-section">
+                            <small>
+                              <mat-icon>check_circle</mat-icon>
+                              {{ taskName }}
+                            </small>
 
-              <!-- COST -->
-              <div class="cost-card">
-                <span class="mini-title">COSTO ESTIMADO TOTAL</span>
-                <h2>${{ trackingStore.order()?.price }}</h2>
-                <p>Sujeto a cambios según diagnóstico.</p>
-                <button class="btn-pay pay-now-btn" (click)="openPaymentModal()">
-                  <mat-icon>credit_card</mat-icon> Realizar Pago
-                </button>
-              </div>
-              
-              <!-- DATES -->
-              <div class="dates-card">
-                <span class="mini-title">TIEMPOS DE SERVICIO</span>
+                          }
+                        </div>
+                      }
 
-                <div class="date-box">
-                  <div class="date-icon"><mat-icon>calendar_today</mat-icon></div>
-                  <div>
-                    <small>FECHA DE INGRESO</small>
-                    <strong>{{ trackingStore.order()?.startDate }}</strong>
-                  </div>
+                      <div class="recommendation-box">
+
+                        <strong>
+                          {{ ('tracking.recommendation') | translate}}
+                        </strong>
+
+                        <p>
+                          {{ record.recommendation }}
+                        </p>
+
+                      </div>
+
+                    </article>
+                  }
+
                 </div>
 
-                <div class="date-box">
-                  <div class="date-icon"><mat-icon>schedule</mat-icon></div>
-                  <div>
-                    <small>ENTREGA ESTIMADA</small>
-                    <strong>{{ trackingStore.order()?.estimatedDate }}</strong>
-                  </div>
+              } @else {
+
+                <div class="history-empty">
+
+                  <mat-icon>history_toggle_off</mat-icon>
+
+                  <p>
+                    {{ ('tracking.noHistory') | translate}}
+                  </p>
+
                 </div>
-              </div>
+              }
 
             </div>
-          </div>
-          
-          <div class="vehicle-header">
-            <div class="vehicle-details">
-              <span class="label">Vehículo Ingresado</span>
-              <h2>{{ trackingStore.vehicle()?.brand }} {{ trackingStore.vehicle()?.model }} <span>{{ trackingStore.vehicle()?.plate }}</span></h2>
-            </div>
-            <div class="tag status-tag" [ngClass]="'tag-' + getStatusSeverity(trackingStore.order()!.status)">
-              {{ trackingStore.order()?.status }}
-            </div>
-          </div>
 
-          <div class="dates-grid">
-            <div class="date-item">
-              <span class="label">Fecha de Ingreso</span>
-              <strong><mat-icon class="text-blue-500">event</mat-icon> {{ trackingStore.order()?.startDate }}</strong>
-            </div>
-            <div class="date-item right-align">
-              <span class="label">Entrega Estimada</span>
-              <strong><mat-icon class="text-orange-500">event_available</mat-icon> {{ trackingStore.order()?.estimatedDate }}</strong>
-            </div>
           </div>
-          
         </div>
       </div>
     }

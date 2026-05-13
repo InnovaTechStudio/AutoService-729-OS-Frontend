@@ -21,10 +21,11 @@ import { provideAnimationsAsync } from '@angular/platform-browser/animations/asy
 
 import { routes } from './app.routes';
 import { workshopInterceptor } from './shared/infrastructure/interceptors/workshop.interceptor';
-
+import { provideTranslateService } from '@ngx-translate/core';
+import {provideTranslateHttpLoader} from '@ngx-translate/http-loader';
 export const appConfig: ApplicationConfig = {
   providers: [
-    
+
     // Routing with debug tracing (useful in development)
     provideRouter(routes, withDebugTracing()),
 
@@ -32,6 +33,11 @@ export const appConfig: ApplicationConfig = {
     provideHttpClient(withInterceptors([workshopInterceptor])),
 
     // Animations of Angular Material
-    provideAnimationsAsync()
+    provideAnimationsAsync(),
+
+    provideTranslateService({
+      loader: provideTranslateHttpLoader({prefix: './i18n/', suffix: '.json'}),
+      fallbackLang: 'en'
+    })
   ]
 };

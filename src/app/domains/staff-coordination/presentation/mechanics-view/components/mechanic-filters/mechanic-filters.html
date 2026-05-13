@@ -1,6 +1,6 @@
 <div class="mechanic-filters">
   <mat-form-field appearance="outline" class="search-box">
-    <mat-label>Buscar mecánico</mat-label>
+    <mat-label>{{ 'staffManagement.actions.searchMechanic' | translate}}</mat-label>
     <mat-icon matPrefix>search</mat-icon>
 
     <input
@@ -11,7 +11,7 @@
   </mat-form-field>
 
   <mat-form-field appearance="outline" class="specialty-filter">
-    <mat-label>Filtrar por especialidad</mat-label>
+    <mat-label>{{ 'staffManagement.actions.filterBySpecialty' | translate}}</mat-label>
 
     <mat-select
       [ngModel]="specialty"

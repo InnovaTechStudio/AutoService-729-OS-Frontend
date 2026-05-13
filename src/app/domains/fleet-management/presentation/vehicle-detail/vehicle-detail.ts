@@ -1,6 +1,6 @@
 /**
  * VehicleDetailComponent
- * 
+ *
  * Component for displaying detailed information about a vehicle. Shows all relevant information
  * about a vehicle within the workshop, including:
  * - Basic vehicle data
@@ -8,10 +8,10 @@
  * - Active work order
  * - Progress of technical tasks
  * - Diagnosis and reported problems
- * 
+ *
  * Uses Signals and `computed()` for efficient reactivity and automatic updates
  * without the need for manual subscriptions.
- * 
+ *
  * @component
  * @selector app-vehicle-detail
  * @standalone true
@@ -31,6 +31,7 @@ import { VehicleStore } from '../../application/vehicle.store';
 import { TaskStore } from '../../../workshop-operations/application/task.store';
 import { WorkOrderStore } from '../../../workshop-operations/application/work-order.store';
 import { Task, WorkOrder } from '../../../workshop-operations/domain/models/work-order.model';
+import { TranslatePipe } from '@ngx-translate/core';
 
 @Component({
   selector: 'app-vehicle-detail',
@@ -41,10 +42,11 @@ import { Task, WorkOrder } from '../../../workshop-operations/domain/models/work
     MatCardModule,
     MatIconModule,
     MatButtonModule,
-    MatProgressBarModule
+    MatProgressBarModule,
+    TranslatePipe,
   ],
   templateUrl: './vehicle-detail.html',
-  styleUrl: './vehicle-detail.css'
+  styleUrl: './vehicle-detail.css',
 })
 export class VehicleDetailComponent implements OnInit {
   private readonly route = inject(ActivatedRoute);
@@ -60,9 +62,7 @@ export class VehicleDetailComponent implements OnInit {
 
   /** Current vehicle obtained from the store */
   protected readonly vehicle = computed<Vehicle | undefined>(() =>
-    this.vehicleStore
-      .vehicles()
-      .find((item) => String(item.id) === String(this.vehicleId))
+    this.vehicleStore.vehicles().find((item) => String(item.id) === String(this.vehicleId)),
   );
 
   /** Name of the vehicle owner */
@@ -107,8 +107,8 @@ export class VehicleDetailComponent implements OnInit {
   });
 
   /** Number of completed tasks */
-  protected readonly completedTasks = computed(() =>
-    this.vehicleTasks().filter((task) => task.status === 'Completada').length
+  protected readonly completedTasks = computed(
+    () => this.vehicleTasks().filter((task) => task.status === 'Completada').length,
   );
 
   /** Overall progress percentage of the vehicle (based on tasks or status) */
@@ -133,9 +133,10 @@ export class VehicleDetailComponent implements OnInit {
   });
 
   /** Problem reported by the client (description of the order) */
-  protected readonly problemReported = computed(() =>
-    this.activeWorkOrder()?.description ??
-    'Ruido en el motor al acelerar en frío y pérdida leve de potencia.'
+  protected readonly problemReported = computed(
+    () =>
+      this.activeWorkOrder()?.description ??
+      'Ruido en el motor al acelerar en frío y pérdida leve de potencia.',
   );
 
   /** Current technical diagnosis based on the available information */
@@ -177,8 +178,8 @@ export class VehicleDetailComponent implements OnInit {
       this.router.navigate(['/admin/tasks'], {
         queryParams: {
           workOrderId: order.id,
-          vehicleId: this.vehicleId
-        }
+          vehicleId: this.vehicleId,
+        },
       });
 
       return;

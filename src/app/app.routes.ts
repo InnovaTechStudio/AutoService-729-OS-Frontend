@@ -29,7 +29,6 @@ import { CustomerListComponent } from './domains/customer-management/presentatio
 
 // Fleet Management
 import { VehicleListComponent } from './domains/fleet-management/presentation/vehicle-list/vehicle-list';
-import { VehicleDetailComponent } from './domains/fleet-management/presentation/vehicle-detail/vehicle-detail';
 
 // Staff Coordination
 import { MechanicsViewComponent } from './domains/staff-coordination/presentation/mechanics-view/mechanics-view';

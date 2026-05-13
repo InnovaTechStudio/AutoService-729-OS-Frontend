@@ -1,6 +1,6 @@
 <div class="vehicle-filters">
   <mat-form-field appearance="outline" class="search-box">
-    <mat-label>Buscar vehículo</mat-label>
+    <mat-label>{{('vehicles1.search.placeholder') | translate }}</mat-label>
     <mat-icon matPrefix>search</mat-icon>
     <input
       matInput
@@ -10,7 +10,7 @@
   </mat-form-field>
 
   <mat-form-field appearance="outline" class="status-filter">
-    <mat-label>Filtrar por estado</mat-label>
+    <mat-label>{{('vehicles1.search.filterByStatus') | translate }}</mat-label>
     <mat-select
       [ngModel]="status"
       (ngModelChange)="onStatusChange($event)">

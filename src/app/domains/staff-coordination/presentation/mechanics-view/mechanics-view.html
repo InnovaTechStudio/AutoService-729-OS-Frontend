@@ -1,11 +1,10 @@
 <section class="mechanics-page">
   <div class="mechanics-header">
     <div>
-      <span class="eyebrow">Coordinación de staff</span>
-      <h1>Gestión de mecánicos</h1>
+      <span class="eyebrow">{{ 'staffManagement.section' | translate}}</span>
+      <h1>{{ 'staffManagement.title' | translate}}</h1>
       <p>
-        Administra especialidades, disponibilidad y carga laboral para asignar tareas
-        con mayor precisión.
+        {{ 'staffManagement.description' | translate}}
       </p>
     </div>
 
@@ -16,23 +15,23 @@
       class="add-button"
       (click)="openDialog()">
       <mat-icon>person_add</mat-icon>
-      Registrar mecánico
+      {{ 'staffManagement.actions.registerMechanic' | translate}}
     </button>
   </div>
 
   <div class="summary-row">
     <div class="summary-card">
-      <span>Total mecánicos</span>
+      <span>{{ 'staffManagement.stats.totalMechanics' | translate}}</span>
       <strong>{{ mechanicStore.mechanics().length }}</strong>
     </div>
 
     <div class="summary-card">
-      <span>Disponibles</span>
+      <span>{{ 'staffManagement.stats.available' | translate}}</span>
       <strong>{{ availableMechanics() }}</strong>
     </div>
 
     <div class="summary-card warning">
-      <span>Carga alta</span>
+      <span>{{ 'staffManagement.stats.highLoad' | translate}}</span>
       <strong>{{ highLoadMechanics() }}</strong>
     </div>
   </div>

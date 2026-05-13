@@ -22,12 +22,14 @@
 .tracking-layout {
   min-height: 100vh;
   width: 100vw;
-  background: linear-gradient(135deg, #0f172a 0%, #1e293b 100%);  
+  background: linear-gradient(135deg, #0f172a 0%, #1e293b 100%);
   display: flex;
   flex-direction: column;
   align-items: center;
   font-family: system-ui, -apple-system, sans-serif;
   padding: 4rem 1rem;
+
+  position: relative; /* IMPORTANTE */
 }
 .tracking-header {
   text-align: center;
@@ -207,62 +209,62 @@
   .tracking-layout {
     padding: 2rem 1rem;
   }
-  
+
   .tracking-header h1 {
     font-size: 2rem;
   }
-  
+
   .header-icon {
     font-size: 3rem;
     width: 3rem;
     height: 3rem;
   }
-  
+
   .search-box, .results-box {
     padding: 1.5rem;
   }
-  
+
   .search-input-group {
     flex-direction: column;
     align-items: stretch;
   }
-  
+
   .btn-search {
     justify-content: center;
   }
-  
+
   .vehicle-header {
     flex-direction: column;
     align-items: flex-start;
     gap: 1rem;
   }
-  
+
   .dates-grid {
     flex-direction: column;
     gap: 1rem;
   }
-  
+
   .right-align {
     text-align: left;
   }
-  
+
   .right-align strong {
     justify-content: flex-start;
   }
-  
+
   .evidence-card img {
     height: 200px;
   }
-  
+
   .no-image {
     height: 200px;
   }
-  
+
   .dashboard-grid {
     padding: 1rem;
     gap: 1.5rem;
   }
-  
+
   .service-card, .evidence-card, .cost-card, .dates-card {
     padding: 1.25rem;
   }
@@ -407,4 +409,20 @@
   .dashboard-grid{
     grid-template-columns:1fr;
   }
+}
+app-language-switcher {
+  position: absolute;
+  top: 20px;
+  right: 20px;
+  z-index: 50;
+
+  padding: 4px;
+  border-radius: 999px;
+
+  background: #ffffff;
+  backdrop-filter: blur(6px);
+}
+app-language-switcher * {
+  color: #ffffff !important;
+  border-color: rgba(255,255,255,0.4) !important;
 }

@@ -1,20 +1,20 @@
 <section class="admin-dashboard">
   <header class="dashboard-header">
     <div>
-      <p class="eyebrow">Gestión operativa</p>
-      <h1>Panel de control</h1>
-      <span>Supervisa vehículos, órdenes, tareas e ingresos del taller.</span>
+      <p class="eyebrow">{{ ('dashboard.h1') | translate }}</p>
+      <h1>{{ ('dashboard.title') | translate }}</h1>
+      <span>{{ ('dashboard.subtitle') | translate }}</span>
     </div>
 
     <div class="header-actions">
       <button mat-stroked-button type="button" (click)="goToOrders()">
         <mat-icon>assignment</mat-icon>
-        Ver órdenes
+        {{ ('dashboard.viewOrders') | translate }}
       </button>
 
       <button mat-flat-button color="primary" type="button" (click)="goToCreateOrder()">
         <mat-icon>add</mat-icon>
-        Nueva orden
+        {{ ('dashboard.newOrder') | translate }}
       </button>
     </div>
   </header>
@@ -23,9 +23,9 @@
     <mat-card class="kpi-card">
       <mat-card-content>
         <div class="kpi-info">
-          <span>Vehículos activos</span>
+          <span>{{ ('stats.activeVehicles') | translate }}</span>
           <strong>{{ vehiclesInWorkshop() }}</strong>
-          <small>En atención actualmente</small>
+          <small>{{ ('stats.currentlyAttended') | translate }}</small>
         </div>
         <div class="kpi-icon blue">
           <mat-icon>directions_car</mat-icon>
@@ -36,9 +36,9 @@
     <mat-card class="kpi-card">
       <mat-card-content>
         <div class="kpi-info">
-          <span>Órdenes activas</span>
+          <span></span>
           <strong>{{ activeOrders() }}</strong>
-          <small>Servicios en proceso</small>
+          <small>{{('stats.servicesInProgress') | translate }}</small>
         </div>
         <div class="kpi-icon indigo">
           <mat-icon>build</mat-icon>
@@ -49,9 +49,9 @@
     <mat-card class="kpi-card">
       <mat-card-content>
         <div class="kpi-info">
-          <span>Completados</span>
+          <span>{{('stats.completed') | translate }}</span>
           <strong>{{ completedOrders() }}</strong>
-          <small>Órdenes finalizadas</small>
+          <small>{{('stats.finishedOrders') | translate }}</small>
         </div>
         <div class="kpi-icon green">
           <mat-icon>check_circle</mat-icon>
@@ -62,9 +62,9 @@
     <mat-card class="kpi-card">
       <mat-card-content>
         <div class="kpi-info">
-          <span>Ingresos proyectados</span>
+          <span>{{('stats.projectedIncome') | translate }}</span>
           <strong>{{ projectedIncome() | currency:'PEN':'symbol':'1.0-0' }}</strong>
-          <small>Según órdenes registradas</small>
+          <small>{{('stats.accordingToOrders') | translate }}</small>
         </div>
         <div class="kpi-icon violet">
           <mat-icon>account_balance_wallet</mat-icon>
@@ -76,8 +76,8 @@
   <div class="dashboard-grid">
     <mat-card class="panel-card active-vehicles-card">
       <mat-card-header>
-        <mat-card-title>Vehículos activos</mat-card-title>
-        <button mat-button type="button" (click)="goToVehicles()">Ver todos</button>
+        <mat-card-title>{{('vehicles.title') | translate }}</mat-card-title>
+        <button mat-button type="button" (click)="goToVehicles()">{{('vehicles.viewAll') | translate }}</button>
       </mat-card-header>
 
       <mat-card-content>
@@ -112,9 +112,9 @@
 
     <mat-card class="panel-card income-card">
       <mat-card-header>
-        <mat-card-title>Ingresos semanales</mat-card-title>
+        <mat-card-title>{{('income.title') | translate }}</mat-card-title>
         <mat-card-subtitle>
-          Total acumulado esta semana:
+          {{('income.weeklyTotal') | translate }}:
           {{ projectedIncome() | currency:'PEN':'symbol':'1.0-0' }}
         </mat-card-subtitle>
       </mat-card-header>
@@ -137,8 +137,8 @@
 
     <mat-card class="panel-card orders-card">
       <mat-card-header>
-        <mat-card-title>Órdenes recientes</mat-card-title>
-        <button mat-button type="button" (click)="goToOrders()">Ver órdenes</button>
+        <mat-card-title>{{('recentOrders.title') | translate }}</mat-card-title>
+        <button mat-button type="button" (click)="goToOrders()">{{('recentOrders.viewOrders') | translate }}</button>
       </mat-card-header>
 
       <mat-card-content>
@@ -164,8 +164,8 @@
 
     <mat-card class="panel-card services-card">
       <mat-card-header>
-        <mat-card-title>Servicios más frecuentes</mat-card-title>
-        <mat-card-subtitle>Rendimiento de servicios por tipo</mat-card-subtitle>
+        <mat-card-title>{{('services.title') | translate }}:</mat-card-title>
+        <mat-card-subtitle>{{('services.subtitle') | translate }}:</mat-card-subtitle>
       </mat-card-header>
 
       <mat-card-content>

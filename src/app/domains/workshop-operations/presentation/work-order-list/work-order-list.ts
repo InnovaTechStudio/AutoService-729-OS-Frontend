@@ -1,12 +1,12 @@
 /**
  * WorkOrderListComponent
- * 
+ *
  * Main component that displays the list of all work orders
  * in the workshop. Includes filtering, statistics and navigation to the detail
  * or creation of new orders.
- * 
+ *
  * Uses Signals and `computed()` for a reactive and efficient experience.
- * 
+ *
  * @component
  * @selector app-work-order-list
  * @standalone true
@@ -25,6 +25,8 @@ import { WorkOrderStore } from '../../application/work-order.store';
 import { WorkOrder } from '../../domain/models/work-order.model';
 import { WorkOrderCardComponent, WorkOrderCardView } from './components/work-order-card/work-order-card';
 import { WorkOrderFiltersComponent } from './components/work-order-filters/work-order-filters';
+import { MatLabel } from '@angular/material/input';
+import { TranslatePipe } from '@ngx-translate/core';
 
 @Component({
   selector: 'app-work-order-list',
@@ -34,10 +36,12 @@ import { WorkOrderFiltersComponent } from './components/work-order-filters/work-
     MatButtonModule,
     MatIconModule,
     WorkOrderCardComponent,
-    WorkOrderFiltersComponent
+    WorkOrderFiltersComponent,
+    MatLabel,
+    TranslatePipe,
   ],
   templateUrl: './work-order-list.html',
-  styleUrl: './work-order-list.css'
+  styleUrl: './work-order-list.css',
 })
 export class WorkOrderListComponent implements OnInit {
   protected readonly workOrderStore = inject(WorkOrderStore);
@@ -54,7 +58,7 @@ export class WorkOrderListComponent implements OnInit {
     'Pendiente',
     'En Proceso',
     'Finalizado',
-    'Cancelado'
+    'Cancelado',
   ];
 
   /** Enriched view of the orders for display in cards */
@@ -73,8 +77,8 @@ export class WorkOrderListComponent implements OnInit {
       price: Number(order.price || 0),
       riskStatus: this.getDelayRiskStatus(order),
       riskClass: this.getDelayRiskClass(order),
-      isRisk: this.isRiskOrder(order)
-    }))
+      isRisk: this.isRiskOrder(order),
+    })),
   );
 
   /** Filtered orders based on search and status */
@@ -90,23 +94,22 @@ export class WorkOrderListComponent implements OnInit {
         order.plateOnly.toLowerCase().includes(term) ||
         order.customerName.toLowerCase().includes(term);
 
-      const matchesStatus =
-        !selectedStatus || order.status === selectedStatus;
+      const matchesStatus = !selectedStatus || order.status === selectedStatus;
 
       return matchesSearch && matchesStatus;
     });
   });
 
-  protected readonly activeOrders = computed(() =>
-    this.workOrderStore.workOrders().filter((order) => order.status === 'En Proceso').length
+  protected readonly activeOrders = computed(
+    () => this.workOrderStore.workOrders().filter((order) => order.status === 'En Proceso').length,
   );
 
-  protected readonly completedOrders = computed(() =>
-    this.workOrderStore.workOrders().filter((order) => order.status === 'Finalizado').length
+  protected readonly completedOrders = computed(
+    () => this.workOrderStore.workOrders().filter((order) => order.status === 'Finalizado').length,
   );
 
-  protected readonly riskOrders = computed(() =>
-    this.ordersView().filter((order) => order.isRisk).length
+  protected readonly riskOrders = computed(
+    () => this.ordersView().filter((order) => order.isRisk).length,
   );
 
   ngOnInit(): void {
@@ -142,10 +145,10 @@ export class WorkOrderListComponent implements OnInit {
   }
 
   private getVehiclePlate(vehicleId: string): string {
-    return this.vehicleStore
-      .vehicles()
-      .find((vehicle) => String(vehicle.id) === String(vehicleId))
-      ?.plate ?? '---';
+    return (
+      this.vehicleStore.vehicles().find((vehicle) => String(vehicle.id) === String(vehicleId))
+        ?.plate ?? '---'
+    );
   }
 
   private getVehicleName(vehicleId: string): string {
@@ -186,9 +189,8 @@ export class WorkOrderListComponent implements OnInit {
   }
 
   private getDelayRiskStatus(
-    order: WorkOrder
+    order: WorkOrder,
   ): 'A tiempo' | 'En riesgo' | 'Retrasada' | 'Completada' | 'Cancelada' {
-
     if (order.status === 'Finalizado') {
       return 'Completada';
     }
@@ -199,9 +201,7 @@ export class WorkOrderListComponent implements OnInit {
 
     const progress = this.calculateProgress(String(order.id));
     const today = new Date();
-    const estimatedDate = order.estimatedDate
-      ? new Date(order.estimatedDate)
-      : null;
+    const estimatedDate = order.estimatedDate ? new Date(order.estimatedDate) : null;
 
     if (estimatedDate && estimatedDate < today) {
       return 'Retrasada';

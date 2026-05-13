@@ -1,10 +1,10 @@
 /**
  * TrackingViewComponent
- * 
+ *
  * Component that allows users to search and view the current status
  * of a work order using its tracking code.
  * Displays information about the vehicle, the order, and the progress of the tasks.
- * 
+ *
  * @component
  * @selector app-tracking-view
  * @standalone true
@@ -21,6 +21,8 @@ import { MatDialog, MatDialogModule } from '@angular/material/dialog';
 import { TrackingStore } from '../../application/tracking.store';
 import { Task } from '../../../workshop-operations/domain/models/work-order.model';
 import { PaymentModalComponent } from '../payment-modal/payment-modal';
+import { TranslatePipe } from '@ngx-translate/core';
+import { LanguageSwitcher } from '../../../../shared/presentation/language-switcher/language-switcher';
 
 @Component({
   selector: 'app-tracking-view',
@@ -31,13 +33,14 @@ import { PaymentModalComponent } from '../payment-modal/payment-modal';
     MatInputModule,
     MatButtonModule,
     MatIconModule,
-    MatDialogModule
+    MatDialogModule,
+    TranslatePipe,
+    LanguageSwitcher,
   ],
   templateUrl: './tracking-view.html',
-  styleUrl: './tracking-view.css'
+  styleUrl: './tracking-view.css',
 })
 export class TrackingViewComponent {
-
   trackingStore = inject(TrackingStore);
   dialog = inject(MatDialog);
 
@@ -48,16 +51,13 @@ export class TrackingViewComponent {
 
   constructor() {
     effect(() => {
-
       const tasks = this.trackingStore.tasks();
 
       if (tasks && tasks.length > 0) {
-
         // Select the first task that has a photo, or just the first task
-        const taskWithPhoto = tasks.find(t => t.photo);
+        const taskWithPhoto = tasks.find((t) => t.photo);
 
         this.selectedTask = taskWithPhoto || tasks[0];
-
       } else {
         this.selectedTask = null;
       }
@@ -68,7 +68,6 @@ export class TrackingViewComponent {
    * Performs the search for a work order using the entered code.
    */
   handleSearch() {
-
     if (this.trackingCode) {
       this.trackingStore.searchOrder(this.trackingCode);
     }
@@ -76,7 +75,7 @@ export class TrackingViewComponent {
 
   /**
    * Selects a task from the list.
-   * 
+   *
    * @param task Selected task
    */
   selectTask(task: Task) {
@@ -87,19 +86,16 @@ export class TrackingViewComponent {
    * Opens the payment modal for the current order.
    */
   openPaymentModal() {
-
     const order = this.trackingStore.order();
 
     if (order && order.price) {
-
       const dialogRef = this.dialog.open(PaymentModalComponent, {
         width: '500px',
         panelClass: 'payment-dialog-container',
-        data: { amount: order.price }
+        data: { amount: order.price },
       });
 
-      dialogRef.afterClosed().subscribe(result => {
-
+      dialogRef.afterClosed().subscribe((result) => {
         if (result) {
           console.log('Pago completado con éxito');
         }
@@ -109,12 +105,11 @@ export class TrackingViewComponent {
 
   /**
    * Returns the severity level for the order status.
-   * 
+   *
    * @param status Order status
    * @returns Severity string
    */
   getStatusSeverity(status: string): string {
-
     if (status === 'Finalizado') return 'success';
     if (status === 'En Proceso') return 'info';
 
@@ -123,12 +118,11 @@ export class TrackingViewComponent {
 
   /**
    * Returns the icon corresponding to the status of a task.
-   * 
+   *
    * @param status Status of the task
    * @returns Material icon name
    */
   getTaskIcon(status: string): string {
-
     if (status === 'Completada') return 'pi pi-check';
     if (status === 'En Proceso') return 'pi pi-cog pi-spin';
 
@@ -137,12 +131,11 @@ export class TrackingViewComponent {
 
   /**
    * Returns the severity tag for a task.
-   * 
+   *
    * @param status Task status
    * @returns Severity string
    */
   getTaskTagSeverity(status: string): string {
-
     if (status === 'Completada') return 'success';
     if (status === 'En Proceso') return 'info';
 

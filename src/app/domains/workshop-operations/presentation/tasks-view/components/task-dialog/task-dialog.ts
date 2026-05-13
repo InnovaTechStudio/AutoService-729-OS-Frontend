@@ -1,12 +1,12 @@
 /**
  * TaskDialogComponent
- * 
+ *
  * Reusable dialog component for creating or editing a task.
  * It is used within a MatDialog or as an inline modal.
- * 
+ *
  * It receives the task data and selection options (work orders,
  * mechanics, statuses, and priorities).
- * 
+ *
  * @component
  * @selector app-task-dialog
  * @standalone true
@@ -22,6 +22,7 @@ import { MatSelectModule } from '@angular/material/select';
 
 import { Mechanic } from '../../../../../staff-coordination/domain/models/mechanic.model';
 import { Task, WorkOrder } from '../../../../domain/models/work-order.model';
+import { TranslatePipe } from '@ngx-translate/core';
 
 @Component({
   selector: 'app-task-dialog',
@@ -32,10 +33,11 @@ import { Task, WorkOrder } from '../../../../domain/models/work-order.model';
     MatButtonModule,
     MatIconModule,
     MatInputModule,
-    MatSelectModule
+    MatSelectModule,
+    TranslatePipe,
   ],
   templateUrl: './task-dialog.html',
-  styleUrl: './task-dialog.css'
+  styleUrl: './task-dialog.css',
 })
 export class TaskDialogComponent {
   /** Task to create or edit */
@@ -43,7 +45,7 @@ export class TaskDialogComponent {
 
   /** List of available work orders for assignment */
   @Input() workOrderOptions: WorkOrder[] = [];
-  
+
   /** List of available mechanics for assignment */
   @Input() mechanicOptions: Mechanic[] = [];
 

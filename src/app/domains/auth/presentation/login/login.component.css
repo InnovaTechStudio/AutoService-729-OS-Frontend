@@ -326,3 +326,26 @@
   }
 
 }
+.form-section {
+  width: 560px;
+  min-width: 560px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 2rem;
+  background: #f8fafc;
+
+  position: relative; /* IMPORTANTE */
+}
+app-language-switcher {
+  position: absolute;
+  top: 20px;
+  right: 20px;
+  z-index: 20;
+}
+@media (max-width: 768px) {
+  app-language-switcher {
+    top: 15px;
+    right: 15px;
+  }
+}

@@ -1,9 +1,9 @@
 /**
  * WorkOrderCardComponent
- * 
+ *
  * Reusable card component for displaying a visual summary
  * of a Work Order. It is primarily used in lists and general views.
- * 
+ *
  * @component
  * @selector app-work-order-card
  * @standalone true
@@ -16,6 +16,7 @@ import { MatIconModule } from '@angular/material/icon';
 import { MatProgressBarModule } from '@angular/material/progress-bar';
 
 import { WorkOrder } from '../../../../domain/models/work-order.model';
+import { TranslatePipe } from '@ngx-translate/core';
 
 export interface WorkOrderCardView {
   id: string;
@@ -41,10 +42,11 @@ export interface WorkOrderCardView {
     CurrencyPipe,
     MatButtonModule,
     MatIconModule,
-    MatProgressBarModule
+    MatProgressBarModule,
+    TranslatePipe,
   ],
   templateUrl: './work-order-card.html',
-  styleUrl: './work-order-card.css'
+  styleUrl: './work-order-card.css',
 })
 export class WorkOrderCardComponent {
   /** Data for the order in an enriched format for the view */

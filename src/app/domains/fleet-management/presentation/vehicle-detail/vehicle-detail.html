@@ -5,9 +5,9 @@
     </button>
 
     <div>
-      <p class="eyebrow">Gestión de flota</p>
-      <h1>Detalles del vehículo</h1>
-      <span>Consulta trazabilidad, diagnóstico y tareas asociadas al servicio.</span>
+      <p class="eyebrow">{{ ('detailsVehicle.fleetManagement') | translate }}</p>
+      <h1>{{ ('detailsVehicle.vehicleDetails') | translate }}</h1>
+      <span>{{ ('detailsVehicle.vehicleSubtitle') | translate }}</span>
     </div>
   </header>
 
@@ -17,7 +17,7 @@
         <mat-card-content>
           <div class="identity-head">
             <div>
-              <span class="label">Identificación</span>
+              <span class="label">{{ ('detailsVehicle.identification') | translate }}</span>
               <h2>{{ getVehicleName(currentVehicle) }}</h2>
               <p class="plate">{{ currentVehicle.plate }}</p>
             </div>
@@ -30,7 +30,7 @@
           <div class="owner-row">
             <mat-icon>person</mat-icon>
             <div>
-              <span>Propietario</span>
+              <span>{{ ('detailsVehicle.owner') | translate }}</span>
               <strong>{{ ownerName() }}</strong>
             </div>
           </div>
@@ -51,7 +51,7 @@
 
       <mat-card class="status-card">
         <mat-card-content>
-          <span class="label">Estado actual</span>
+          <span class="label">{{ ('detailsVehicle.currentStatus') | translate }}</span>
 
           <div class="status-head">
             <h2>{{ getStatusLabel(currentVehicle.status) }}</h2>
@@ -64,7 +64,7 @@
           </mat-progress-bar>
 
           <p>
-            Avance calculado según tareas completadas y estado operativo del servicio.
+            {{ ('detailsVehicle.progressDescription') | translate }}
           </p>
         </mat-card-content>
       </mat-card>
@@ -74,7 +74,7 @@
           <section class="info-block">
             <div class="section-title">
               <mat-icon>warning_amber</mat-icon>
-              <h3>Problema reportado</h3>
+              <h3>{{ ('detailsVehicle.reportedProblem') | translate }}</h3>
             </div>
 
             <p class="note-box">
@@ -85,7 +85,7 @@
           <section class="info-block">
             <div class="section-title">
               <mat-icon>engineering</mat-icon>
-              <h3>Diagnóstico técnico</h3>
+              <h3>{{ ('detailsVehicle.technicalDiagnosis') | translate }}</h3>
             </div>
 
             <p class="note-box">
@@ -99,7 +99,7 @@
         <mat-card-header>
           <mat-card-title>
             <mat-icon>assignment</mat-icon>
-            Tareas de mantenimiento
+            {{ ('detailsVehicle.maintenanceTasks') | translate }}
           </mat-card-title>
 
           <mat-card-subtitle>
@@ -136,7 +136,7 @@
           } @else {
             <div class="empty-tasks">
               <mat-icon>assignment_late</mat-icon>
-              <p>No hay tareas registradas para este vehículo.</p>
+              <p>{{ ('detailsVehicle.noTasksRegistered') | translate }}</p>
             </div>
           }
 
@@ -147,7 +147,7 @@
             class="add-task-button"
             (click)="goToNewTask()">
             <mat-icon>add</mat-icon>
-            Agregar tarea
+            {{ ('detailsVehicle.addTask') | translate }}
           </button>
         </mat-card-content>
       </mat-card>
@@ -156,11 +156,11 @@
     <mat-card class="not-found-card">
       <mat-card-content>
         <mat-icon>directions_car</mat-icon>
-        <h2>Vehículo no encontrado</h2>
-        <p>No se encontró información para el vehículo seleccionado.</p>
+        <h2>{{ ('detailsVehicle.vehicleNotFound') | translate }}</h2>
+        <p>{{ ('detailsVehicle.vehicleNotFoundDescription') | translate }}</p>
 
         <button mat-flat-button color="primary" type="button" (click)="goBack()">
-          Volver a vehículos
+          {{ ('detailsVehicle.backToVehicles') | translate }}
         </button>
       </mat-card-content>
     </mat-card>

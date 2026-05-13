@@ -59,10 +59,15 @@ export const routes: Routes = [
       { path: 'work-orders', component: WorkOrderListComponent },
       { path: 'work-orders/new', component: CreateWorkOrderComponent },
       { path: 'work-orders/:id', component: WorkOrderDetailComponent },
-      { path: 'mechanic-workspace', component: MechanicWorkspaceComponent },
       { path: '', redirectTo: 'dashboard', pathMatch: 'full' }
     ]
   },
+
+  {
+    path: 'mechanic/workspace',
+    component: MechanicWorkspaceComponent
+  },
+
   { path: '', redirectTo: '/admin/dashboard', pathMatch: 'full' },
   { path: '**', redirectTo: '/login' }
 ];

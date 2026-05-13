@@ -28,7 +28,9 @@ import { LanguageSwitcher } from '../../../../shared/presentation/language-switc
   /**
    * We import the Angular Material modules that we will use in the HTML
    */
+
   imports: [FormsModule, MatInputModule, MatButtonModule, MatIconModule, TranslatePipe, LanguageSwitcher],
+
   templateUrl: './login.component.html',
   styleUrl: './login.component.css',
 })
@@ -40,44 +42,88 @@ export class LoginComponent {
    * User email (default value for testing purposes)
    */
   email = 'admin@autoservice.com';
+
   /**
    * User password (default value for testing purposes)
    */
   password = 'admin';
+
   /**
    * Controls the visibility of the password in the input field
    */
   hidePassword = true;
+
   /**
    * Indicates if the login is being processed
    */
   isLoading = false;
+
   /**
    * Error message displayed to the user in case of login failure
    */
   errorMessage = '';
 
   /**
+   * Demo mechanic credentials.
+   * This is only used to simulate the mechanic flow without changing
+   * the current db.json authentication used by the administrator.
+   */
+  private readonly mechanicDemoEmail = 'mechanic@autoservice.com';
+  private readonly mechanicDemoPassword = 'mechanic';
+
+  /**
    *
    * Manages the user authentication process.
    *
+<<<<<<< HEAD
    * Validates that the fields are not empty, calls the authentication service
    * and manages the redirection or error messages based on the result.
    *
    */
-  handleLogin() {
+
+
+
+  handleLogin(): void {
+
     if (!this.email || !this.password) return;
 
     this.isLoading = true;
     this.errorMessage = '';
 
+    const normalizedEmail = this.email.trim().toLowerCase();
+    const normalizedPassword = this.password.trim();
+
     /**
+<<<<<<< HEAD
      * In Angular we use RxJS (subscribe) instead of async/await for HTTP requests
+=======
+     * Temporary mechanic access.
+     * It does not modify the existing administrator login flow.
+     */
+    if (
+      normalizedEmail === this.mechanicDemoEmail &&
+      normalizedPassword === this.mechanicDemoPassword
+    ) {
+      localStorage.setItem('auth_role', 'Mecanico');
+      localStorage.setItem('auth_email', normalizedEmail);
+      localStorage.setItem('auth_mechanic_id', 'M-1');
+      localStorage.setItem('auth_workshop_id', 'WS-1');
+
+      this.isLoading = false;
+      this.router.navigate(['/mechanic/workspace']);
+      return;
+    }
+
+    /**
+     * Current authentication flow.
+     * Keep this for admin and other users working with db.json.
+>>>>>>> origin/develop
      */
     this.authService.login(this.email, this.password).subscribe({
       next: (success) => {
         this.isLoading = false;
         if (success) {
+
           /**
            * Adjust the route according to your app.routes.ts
            */

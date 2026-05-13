@@ -305,27 +305,33 @@
   },
   "tracking": {
     "title": "Rastrea tu Vehículo",
-    "subtitle": "Ingresa el código que te proporcionó el taller para ver el estado de tu servicio en tiempo real.",
+    "subtitle": "Ingresa el código proporcionado por el taller para ver el estado de tu servicio en tiempo real.",
     "serviceCode": "Código de Servicio",
     "search": "Buscar",
-
-    "serviceTasks": "Tareas de Servicio",
-    "visualEvidence": "Evidencia Visual",
-
-    "estimatedTotalCost": "Costo Estimado Total",
-    "costDisclaimer": "Sujeto a cambios según diagnóstico.",
-    "makePayment": "Realizar Pago",
-
-    "serviceTimes": "Tiempos de Servicio",
+    "vehicleReceived": "Vehículo Recibido",
     "entryDate": "Fecha de Ingreso",
     "estimatedDelivery": "Entrega Estimada",
-
-    "vehicleReceived": "Vehículo Ingresado",
-
-    "statuses": {
-      "completed": "Completada",
-      "inProgress": "En Proceso",
-      "pending": "Pendiente"
+    "serviceTasks": "Tareas de Servicio",
+    "taskInstructions": "Haz clic en una tarea para ver los detalles y el reporte del mecánico.",
+    "mechanicReport": "Reporte del Mecánico",
+    "mechanicReportSubtitle": "Explicación detallada del trabajo realizado en esta tarea.",
+    "selectedService": "Servicio Seleccionado",
+    "evidenceRegistered": "Evidencia registrada",
+    "noEvidenceYet": "Aún sin evidencia",
+    "selectTaskInstruction": "Selecciona una tarea a la izquierda para ver su reporte técnico.",
+    "simulatedEvidence": "Evidencia técnica simulada registrada por el mecánico.",
+    "noVisualEvidence": "No hay evidencia visual registrada aún.",
+    "visualEvidence": "Evidencia visual",
+    "estimatedTotalCost": "Costo Total Estimado",
+    "costDisclaimer": "Sujeto a cambios según el diagnóstico.",
+    "makePayment": "Realizar Pago",
+    "serviceTimes": "Tiempos de Servicio",
+    "vehicleHistory": "Historial del Vehículo",
+    "vehicleHistorySubtitle": "Servicios anteriores de la placa",
+    "loadingHistory": "Cargando historial...",
+    "completedTasks": "Trabajos realizados:",
+    "recommendation": "Recomendación del taller:",
+    "noHistory": "No se encontraron servicios previos para este vehículo."
     },
 
     "tasks": {
@@ -334,5 +340,4 @@
       "engineReplacement": "Cambio de motor",
       "windowReplacement": "Cambio de luna"
     }
-  }
 }

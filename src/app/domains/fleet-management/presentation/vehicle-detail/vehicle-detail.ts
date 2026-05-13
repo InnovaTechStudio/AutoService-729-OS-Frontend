@@ -2,7 +2,7 @@
  * VehicleDetailComponent
  *
  * Component for displaying detailed information about a vehicle. Shows all relevant information
- * about a vehicle within the workshop, including:
+ * about a vehicle within the workshop, including
  * - Basic vehicle data
  * - Owner information
  * - Active work order

@@ -439,6 +439,29 @@ export class AuthService {
   }
 
 }
+.form-section {
+  width: 560px;
+  min-width: 560px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 2rem;
+  background: #f8fafc;
+
+  position: relative; /* IMPORTANTE */
+}
+app-language-switcher {
+  position: absolute;
+  top: 20px;
+  right: 20px;
+  z-index: 20;
+}
+@media (max-width: 768px) {
+  app-language-switcher {
+    top: 15px;
+    right: 15px;
+  }
+}
 
 
 /* === login.component.html === */
@@ -446,45 +469,45 @@ export class AuthService {
 <div class="login-layout">
   <div class="hero-section">
     <div class="hero-content">
+
       <h1>AutoService</h1>
 
       <p>
-        GestiÃ³n integral para talleres automotrices
-        de forma rÃ¡pida y segura.
+        {{ ('app.description') | translate}}
       </p>
 
       <div class="hero-features">
 
         <div class="feature-item">
           <mat-icon>build</mat-icon>
-          GestiÃ³n eficiente
+          {{ ('features.efficientManagement') | translate}}
         </div>
 
         <div class="feature-item">
           <mat-icon>verified_user</mat-icon>
-          Acceso seguro
+          {{ ('features.secureAccess') | translate}}
         </div>
 
         <div class="feature-item">
           <mat-icon>speed</mat-icon>
-          Control en tiempo real
+          {{ ('features.realTimeControl') | translate}}
         </div>
 
       </div>
     </div>
   </div>
-
   <div class="form-section">
+    <app-language-switcher></app-language-switcher>
     <div class="login-box">
       <div class="login-header">
-
         <div class="form-logo">
           <img src="/AutoService-logo.jpg" alt="AutoService Logo" />
           <span>AutoService</span>
+
         </div>
-        <h2>Bienvenido</h2>
-        <span class="badge">Modo Admin</span>
-        <p>Ingresa tus credenciales para continuar</p>
+        <h2>{{ ('auth.welcome') | translate}}</h2>
+        <span class="badge">{{ ('auth.adminMode') | translate}}</span>
+        <p>{{ ('auth.loginSubtitle') | translate}}</p>
       </div>
 
 
@@ -492,14 +515,14 @@ export class AuthService {
 
         <div class="input-group">
           <mat-form-field appearance="outline" class="w-full">
-            <mat-label>Correo ElectrÃ³nico</mat-label>
+            <mat-label>{{ ('auth.email') | translate}}</mat-label>
             <input matInput type="email" [(ngModel)]="email" name="email" placeholder="admin@autoservice.com" required>
           </mat-form-field>
         </div>
 
         <div class="input-group">
           <mat-form-field appearance="outline" class="w-full">
-            <mat-label>ContraseÃ±a</mat-label>
+            <mat-label>{{ ('auth.password') | translate}}</mat-label>
             <input matInput [type]="hidePassword ? 'password' : 'text'" [(ngModel)]="password" name="password" placeholder="â€¢â€¢â€¢â€¢â€¢â€¢â€¢â€¢" required>
             <button mat-icon-button matSuffix (click)="hidePassword = !hidePassword" type="button">
               <mat-icon>{{hidePassword ? 'visibility_off' : 'visibility'}}</mat-icon>
@@ -508,7 +531,7 @@ export class AuthService {
           </mat-form-field>
           <div class="form-options">
             <a href="#" class="forgot-link">
-              Â¿Has olvidado tu contraseÃ±a?
+              {{ ('auth.forgotPassword') | translate}}
             </a>
 
           </div>
@@ -522,11 +545,11 @@ export class AuthService {
         }
 
         <button mat-flat-button color="primary" type="submit" [disabled]="isLoading" class="w-full mt-3 submit-btn">
-          {{ isLoading ? 'Iniciando...' : 'Iniciar SesiÃ³n' }}
+          {{ isLoading ? 'Iniciando...' : ('auth.loginButton' | translate) }}
         </button>
         <div class="register-link">
-          Â¿No tienes una cuenta?
-          <a href="#">Solicita acceso</a>
+          {{ ('auth.noAccount') | translate}}
+          <a href="#">{{ ('auth.requestAccess') | translate}}</a>
         </div>
       </form>
     </div>
@@ -557,6 +580,8 @@ import { MatInputModule } from '@angular/material/input';
 import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
 import { AuthService } from '../../infrastructure/auth.service';
+import { TranslatePipe } from '@ngx-translate/core';
+import { LanguageSwitcher } from '../../../../shared/presentation/language-switcher/language-switcher';
 
 @Component({
   selector: 'app-login',
@@ -564,9 +589,11 @@ import { AuthService } from '../../infrastructure/auth.service';
   /**
    * We import the Angular Material modules that we will use in the HTML
    */
-  imports: [FormsModule, MatInputModule, MatButtonModule, MatIconModule],
+
+  imports: [FormsModule, MatInputModule, MatButtonModule, MatIconModule, TranslatePipe, LanguageSwitcher],
+
   templateUrl: './login.component.html',
-  styleUrl: './login.component.css'
+  styleUrl: './login.component.css',
 })
 export class LoginComponent {
   private router = inject(Router);
@@ -609,12 +636,16 @@ export class LoginComponent {
    *
    * Manages the user authentication process.
    *
-   * The mechanic demo user is handled locally to test the mechanic workspace.
-   * The administrator and the rest of the current users continue using AuthService
-   * and db.json as before.
+<<<<<<< HEAD
+   * Validates that the fields are not empty, calls the authentication service
+   * and manages the redirection or error messages based on the result.
    *
    */
+
+
+
   handleLogin(): void {
+
     if (!this.email || !this.password) return;
 
     this.isLoading = true;
@@ -624,6 +655,9 @@ export class LoginComponent {
     const normalizedPassword = this.password.trim();
 
     /**
+<<<<<<< HEAD
+     * In Angular we use RxJS (subscribe) instead of async/await for HTTP requests
+=======
      * Temporary mechanic access.
      * It does not modify the existing administrator login flow.
      */
@@ -650,11 +684,16 @@ export class LoginComponent {
     /**
      * Current authentication flow.
      * Keep this for admin and other users working with db.json.
+>>>>>>> origin/develop
      */
     this.authService.login(this.email, this.password).subscribe({
       next: (success) => {
         this.isLoading = false;
         if (success) {
+
+          /**
+           * Adjust the route according to your app.routes.ts
+           */
           this.router.navigate(['/admin/dashboard']);
         } else {
           this.errorMessage = 'Credenciales incorrectas';
@@ -663,7 +702,7 @@ export class LoginComponent {
       error: () => {
         this.isLoading = false;
         this.errorMessage = 'Error al conectar con el servidor';
-      }
+      },
     });
   }
 }
@@ -1058,10 +1097,10 @@ tr:hover {
 <div class="customer-list-container">
 
   <div class="header-actions">
-    <h1>Directorio de Clientes</h1>
+    <h1>{{ ('clients.title') | translate }}</h1>
     <button mat-raised-button color="primary" (click)="openNewCustomerDialog()">
       <mat-icon>add</mat-icon>
-      Nuevo Cliente
+      {{ ('clients.newClient') | translate }}
     </button>
   </div>
   <div class="summary-cards">
@@ -1070,7 +1109,7 @@ tr:hover {
       <mat-icon>groups</mat-icon>
 
       <div>
-        <span>Total Clientes</span>
+        <span>{{ ('clients.stats.totalClients') | translate }}</span>
         <h2>{{ customerStore.customers().length }}</h2>
       </div>
     </div>
@@ -1079,7 +1118,7 @@ tr:hover {
       <mat-icon>verified_user</mat-icon>
 
       <div>
-        <span>Clientes Activos</span>
+        <span>{{ ('clients.stats.activeClients') | translate }}</span>
         <h2>{{ customerStore.customers().length }}</h2>
       </div>
     </div>
@@ -1095,27 +1134,27 @@ tr:hover {
     <table mat-table [dataSource]="customerStore.customers()">
 
       <ng-container matColumnDef="fullName">
-        <th mat-header-cell *matHeaderCellDef> Nombre Completo </th>
+        <th mat-header-cell *matHeaderCellDef>{{ ('clients.table.fullName') | translate}}</th>
         <td mat-cell *matCellDef="let element"> {{element.fullName}} </td>
       </ng-container>
 
       <ng-container matColumnDef="dni">
-        <th mat-header-cell *matHeaderCellDef> DNI </th>
+        <th mat-header-cell *matHeaderCellDef>{{ ('clients.table.dni') | translate}}</th>
         <td mat-cell *matCellDef="let element"> {{element.dni}} </td>
       </ng-container>
 
       <ng-container matColumnDef="email">
-        <th mat-header-cell *matHeaderCellDef> Correo </th>
+        <th mat-header-cell *matHeaderCellDef> {{ ('clients.table.email') | translate}} </th>
         <td mat-cell *matCellDef="let element"> {{element.email}} </td>
       </ng-container>
 
       <ng-container matColumnDef="phone">
-        <th mat-header-cell *matHeaderCellDef> TelÃ©fono </th>
+        <th mat-header-cell *matHeaderCellDef> {{ ('clients.table.phone') | translate}} </th>
         <td mat-cell *matCellDef="let element"> {{element.phone}} </td>
       </ng-container>
 
       <ng-container matColumnDef="actions">
-        <th mat-header-cell *matHeaderCellDef> Acciones </th>
+        <th mat-header-cell *matHeaderCellDef> {{ ('clients.table.actions') | translate}} </th>
         <td mat-cell *matCellDef="let element">
           <div class="action-buttons">
 
@@ -1147,37 +1186,42 @@ tr:hover {
   </div>
 
   <ng-template #customerDialog>
-    <h2 mat-dialog-title>{{ isEditing ? 'Editar Cliente' : 'Registrar Nuevo Cliente' }}</h2>
-
+    <h2 mat-dialog-title>
+      {{
+        isEditing
+          ? ('clients.dialog.editTitle' | translate)
+          : ('clients.dialog.createTitle' | translate)
+      }}
+    </h2>
     <mat-dialog-content>
       <div class="form-container">
         <mat-form-field appearance="outline">
-          <mat-label>Nombre Completo</mat-label>
+          <mat-label>{{ ('clients.table.fullName') | translate}}</mat-label>
           <input matInput [(ngModel)]="currentCustomer.fullName" required autofocus>
         </mat-form-field>
 
         <mat-form-field appearance="outline">
-          <mat-label>DNI</mat-label>
+          <mat-label>{{ ('clients.table.dni') | translate}}</mat-label>
           <input matInput [(ngModel)]="currentCustomer.dni" required>
         </mat-form-field>
 
         <mat-form-field appearance="outline">
-          <mat-label>Correo ElectrÃ³nico</mat-label>
+          <mat-label>{{ ('clients.table.email') | translate}}</mat-label>
           <input matInput [(ngModel)]="currentCustomer.email" type="email">
         </mat-form-field>
 
         <mat-form-field appearance="outline">
-          <mat-label>TelÃ©fono de Contacto</mat-label>
+          <mat-label>{{ ('clients.table.phone') | translate}}</mat-label>
           <input matInput [(ngModel)]="currentCustomer.phone">
         </mat-form-field>
       </div>
     </mat-dialog-content>
 
     <mat-dialog-actions align="end">
-      <button mat-button (click)="closeDialog()">Cancelar</button>
+      <button mat-button (click)="closeDialog()">{{ ('clients.actions.cancel') | translate}}</button>
       <button mat-flat-button color="primary" (click)="saveCustomer()"
               [disabled]="!currentCustomer.fullName || !currentCustomer.dni">
-        Guardar
+        {{ ('clients.actions.save') | translate}}
       </button>
     </mat-dialog-actions>
   </ng-template>
@@ -1215,41 +1259,49 @@ import { MatFormFieldModule } from '@angular/material/form-field';
 
 import { CustomerStore } from '../../application/customer.store';
 import { Customer } from '../../domain/models/customer.model';
+import { TranslatePipe } from '@ngx-translate/core';
 
 @Component({
   selector: 'app-customer-list',
   standalone: true,
   imports: [
-    CommonModule, FormsModule, MatTableModule, MatButtonModule,
-    MatIconModule, MatDialogModule, MatInputModule, MatFormFieldModule
+    CommonModule,
+    FormsModule,
+    MatTableModule,
+    MatButtonModule,
+    MatIconModule,
+    MatDialogModule,
+    MatInputModule,
+    MatFormFieldModule,
+    TranslatePipe,
   ],
   templateUrl: './customer-list.html',
-  styleUrl: './customer-list.css'
+  styleUrl: './customer-list.css',
 })
 export class CustomerListComponent implements OnInit {
   /**
- * We injected the Store and the Material Modals service
- */
+   * We injected the Store and the Material Modals service
+   */
   customerStore = inject(CustomerStore);
   private dialog = inject(MatDialog);
 
   /**
- * Columns that will be displayed in the Material table
- */
+   * Columns that will be displayed in the Material table
+   */
   displayedColumns: string[] = ['fullName', 'dni', 'email', 'phone', 'actions'];
 
   /**
- * Reference to the modal template defined in the HTML
- */
+   * Reference to the modal template defined in the HTML
+   */
   @ViewChild('customerDialog') customerDialogTemplate!: TemplateRef<any>;
 
   /**
- * Customer currently being edited or created
- */
+   * Customer currently being edited or created
+   */
   currentCustomer: Customer = this.getEmptyCustomer();
   /**
- * Indicates if an existing customer is being edited
- */
+   * Indicates if an existing customer is being edited
+   */
   isEditing = false;
 
   ngOnInit() {
@@ -1258,10 +1310,10 @@ export class CustomerListComponent implements OnInit {
   }
 
   /**
-* 
- * Opens the modal to create a new customer.
- *
- */
+   *
+   * Opens the modal to create a new customer.
+   *
+   */
   openNewCustomerDialog() {
     this.currentCustomer = this.getEmptyCustomer();
     this.isEditing = false;
@@ -1269,10 +1321,10 @@ export class CustomerListComponent implements OnInit {
   }
 
   /**
- * Opens the modal to edit an existing customer.
- * @param customer - Customer to edit
- *
- */
+   * Opens the modal to edit an existing customer.
+   * @param customer - Customer to edit
+   *
+   */
   editCustomer(customer: Customer) {
     this.currentCustomer = { ...customer }; // Clonamos para no editar directamente
     this.isEditing = true;
@@ -1280,19 +1332,19 @@ export class CustomerListComponent implements OnInit {
   }
 
   /**
- *
- * Closes all open modals.
- *
- */
+   *
+   * Closes all open modals.
+   *
+   */
   closeDialog() {
     this.dialog.closeAll();
   }
 
   /**
- *
- * Saves or updates the customer based on the mode (create/edit).
- *
- */
+   *
+   * Saves or updates the customer based on the mode (create/edit).
+   *
+   */
   saveCustomer() {
     if (this.currentCustomer.fullName && this.currentCustomer.dni) {
       if (this.isEditing && this.currentCustomer.id) {
@@ -1304,20 +1356,17 @@ export class CustomerListComponent implements OnInit {
     }
   }
   protected deleteCustomer(id: string): void {
-
-    const confirmed = window.confirm(
-      'Â¿Deseas eliminar este cliente?'
-    );
+    const confirmed = window.confirm('Â¿Deseas eliminar este cliente?');
     if (!confirmed) return;
     this.customerStore.deleteCustomer(id);
   }
 
   /**
- *
- * Returns an empty Customer object for new records.
- * @returns Empty Customer
- *
- */
+   *
+   * Returns an empty Customer object for new records.
+   * @returns Empty Customer
+   *
+   */
   private getEmptyCustomer(): Customer {
     return { fullName: '', dni: '', email: '', phone: '' };
   }
@@ -1445,6 +1494,362 @@ export class TrackingService {
     return this.http.get<Task[]>(`${this.apiUrl}/tasks?workOrderId=${workOrderId}`).pipe(
       map(tasks => tasks.filter(task => String(task.workOrderId) === String(workOrderId)))
     );
+  }
+}
+
+
+/* === client-history-view.css === */
+
+/* Entorno oscuro (Tipo escritorio) */
+.history-wrapper {
+  min-height: 100vh;
+  background: #94a3b8;
+  padding: 2rem;
+  font-family: system-ui, -apple-system, sans-serif;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+/* Barra de acciones */
+.action-bar {
+  width: 100%;
+  max-width: 800px;
+  display: flex;
+  justify-content: space-between;
+  margin-bottom: 1.5rem;
+  background: white;
+  padding: 1rem 1.5rem;
+  border-radius: 12px;
+  box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+}
+
+/* La Hoja A4 de Papel */
+.a4-document {
+  width: 100%;
+  max-width: 800px;
+  background: white;
+  min-height: 1131px; /* ProporciÃ³n A4 */
+  padding: 3.5rem 4rem;
+  box-shadow: 0 25px 50px rgba(0,0,0,0.15);
+  color: #1e293b;
+  position: relative;
+}
+
+/* Cabecera del PDF */
+.doc-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  border-bottom: 3px solid #2563eb;
+  padding-bottom: 1.5rem;
+  margin-bottom: 2rem;
+}
+
+.doc-brand {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+}
+
+.brand-icon {
+  font-size: 2.8rem;
+  width: 2.8rem;
+  height: 2.8rem;
+  color: #2563eb;
+}
+
+.doc-brand h2 {
+  margin: 0;
+  font-size: 1.8rem;
+  color: #0f172a;
+}
+
+.doc-brand span {
+  font-size: 0.85rem;
+  color: #64748b;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  font-weight: 700;
+}
+
+.doc-meta { text-align: right; }
+.doc-meta h1 { margin: 0 0 0.5rem; color: #0f172a; font-size: 2rem; }
+.doc-meta p { margin: 0.2rem 0; color: #475569; }
+
+/* Cuerpo */
+.intro-text {
+  color: #475569;
+  font-size: 1.05rem;
+  line-height: 1.6;
+  margin-bottom: 2.5rem;
+}
+
+.timeline {
+  display: flex;
+  flex-direction: column;
+  gap: 2rem;
+}
+
+.history-record { display: flex; gap: 1.5rem; }
+.record-left { flex-shrink: 0; }
+
+.date-badge {
+  background: #f8fafc;
+  border: 1px solid #e2e8f0;
+  padding: 0.75rem;
+  border-radius: 12px;
+  text-align: center;
+  display: flex;
+  flex-direction: column;
+  min-width: 75px;
+}
+
+.date-badge strong { font-size: 1.6rem; color: #2563eb; line-height: 1; }
+.date-badge span { font-size: 0.8rem; color: #64748b; margin-top: 0.2rem; font-weight: bold; }
+
+.record-content {
+  flex: 1;
+  padding-bottom: 2rem;
+  border-bottom: 1px dashed #cbd5e1;
+}
+
+.record-title {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 0.5rem;
+}
+
+.record-title h3 { margin: 0; font-size: 1.35rem; color: #0f172a; }
+
+.workshop-tag {
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+  background: #eff6ff;
+  color: #1d4ed8;
+  padding: 0.35rem 0.7rem;
+  border-radius: 999px;
+  font-size: 0.75rem;
+  font-weight: bold;
+}
+.workshop-tag mat-icon { font-size: 1rem; width: 1rem; height: 1rem; }
+
+.summary-text { margin: 0 0 1rem; color: #334155; line-height: 1.5; }
+
+.tasks-box {
+  background: #f8fafc;
+  padding: 1.2rem;
+  border-radius: 12px;
+  margin-bottom: 1rem;
+}
+.tasks-box strong { color: #0f172a; font-size: 0.95rem; }
+.tasks-box ul { margin: 0.5rem 0 0; padding-left: 1.2rem; color: #475569; }
+.tasks-box li { margin-bottom: 0.35rem; }
+
+.recommendation-box {
+  border-left: 4px solid #f59e0b;
+  padding: 1rem 1.2rem;
+  background: #fffbeb;
+  margin-bottom: 1rem;
+  border-radius: 0 8px 8px 0;
+}
+.recommendation-box strong { color: #92400e; font-size: 0.95rem; display: block; margin-bottom: 0.35rem; }
+.recommendation-box p { margin: 0; color: #92400e; font-size: 0.95rem; line-height: 1.5; }
+
+.mechanic-signature {
+  font-size: 0.85rem;
+  color: #64748b;
+  text-align: right;
+  margin-top: 1rem;
+}
+
+.doc-footer {
+  margin-top: 3rem;
+  padding-top: 1.5rem;
+  border-top: 1px solid #e2e8f0;
+  text-align: center;
+  color: #94a3b8;
+  font-size: 0.8rem;
+}
+
+/* =========================================
+   LA MAGIA DEL PDF (@media print)
+========================================= */
+@media print {
+  @page {
+    size: A4 portrait;
+    margin: 0; /* Quitamos mÃ¡rgenes del navegador */
+  }
+
+  /* Ocultamos el fondo gris y todo lo que no sea el documento */
+  body * {
+    visibility: hidden;
+  }
+
+  .history-wrapper {
+    background: transparent;
+    padding: 0;
+  }
+
+  .a4-document, .a4-document * {
+    visibility: visible;
+  }
+
+  .a4-document {
+    position: absolute;
+    left: 0;
+    top: 0;
+    width: 100%;
+    margin: 0;
+    padding: 20mm; /* MÃ¡rgenes internos para la impresiÃ³n PDF */
+    box-shadow: none;
+  }
+
+  .no-print {
+    display: none !important;
+  }
+}
+
+
+/* === client-history-view.html === */
+
+<div class="history-wrapper">
+
+  <header class="action-bar no-print">
+    <button mat-stroked-button (click)="goBack()">
+      <mat-icon>arrow_back</mat-icon>
+      Volver al seguimiento
+    </button>
+
+    <button mat-flat-button color="primary" (click)="downloadPDF()">
+      <mat-icon>picture_as_pdf</mat-icon>
+      Descargar PDF
+    </button>
+  </header>
+
+  <div class="a4-document">
+
+    <div class="doc-header">
+      <div class="doc-brand">
+        <mat-icon class="brand-icon">directions_car</mat-icon>
+        <div>
+          <h2>AutoService</h2>
+          <span>Red de Talleres Especializados</span>
+        </div>
+      </div>
+      <div class="doc-meta">
+        <h1>Historial TÃ©cnico</h1>
+        <p><strong>Placa del vehÃ­culo:</strong> {{ plate }}</p>
+        <p><strong>Fecha de emisiÃ³n:</strong> {{ currentDate | date:'dd/MM/yyyy' }}</p>
+      </div>
+    </div>
+
+    <div class="doc-body">
+      @if (vehicleHistoryStore.isLoading()) {
+        <div class="loading-state no-print">Cargando historial del vehÃ­culo...</div>
+      } @else if (vehicleHistoryStore.history().length === 0) {
+        <div class="empty-state">No se encontraron servicios previos para la placa {{ plate }}.</div>
+      } @else {
+        <p class="intro-text">
+          A continuaciÃ³n se detalla el historial de servicios realizados en nuestra red de talleres,
+          garantizando la trazabilidad y el correcto mantenimiento de su vehÃ­culo.
+        </p>
+
+        <div class="timeline">
+          @for (record of vehicleHistoryStore.history(); track record.id) {
+            <article class="history-record">
+              <div class="record-left">
+                <div class="date-badge">
+                  <strong>{{ record.serviceDate | slice:0:2 }}</strong>
+                  <span>{{ record.serviceDate | slice:3:5 }}/{{ record.serviceDate | slice:6:10 }}</span>
+                </div>
+              </div>
+
+              <div class="record-content">
+                <div class="record-title">
+                  <h3>{{ record.serviceTitle }}</h3>
+                  <span class="workshop-tag">
+                    <mat-icon>store</mat-icon>
+                    {{ record.workshopName }}
+                  </span>
+                </div>
+
+                <p class="summary-text">{{ record.customerSummary }}</p>
+
+                @if (record.tasksCompleted.length > 0) {
+                  <div class="tasks-box">
+                    <strong>Trabajos realizados:</strong>
+                    <ul>
+                      @for (task of record.tasksCompleted; track task) {
+                        <li>{{ task }}</li>
+                      }
+                    </ul>
+                  </div>
+                }
+
+                @if (record.recommendation) {
+                  <div class="recommendation-box">
+                    <strong>RecomendaciÃ³n del taller:</strong>
+                    <p>{{ record.recommendation }}</p>
+                  </div>
+                }
+
+                <div class="mechanic-signature">
+                  Atendido por: <strong>{{ record.mechanicName }}</strong>
+                </div>
+              </div>
+            </article>
+          }
+        </div>
+      }
+    </div>
+
+    <div class="doc-footer">
+      <p>Este documento es generado automÃ¡ticamente por la plataforma AutoService y sirve como constancia del mantenimiento tÃ©cnico realizado.</p>
+    </div>
+  </div>
+</div>
+
+
+/* === client-history-view.ts === */
+
+import { Component, inject, OnInit } from '@angular/core';
+import { CommonModule } from '@angular/common';
+import { ActivatedRoute, Router } from '@angular/router';
+import { MatButtonModule } from '@angular/material/button';
+import { MatIconModule } from '@angular/material/icon';
+import { VehicleHistoryStore } from '../../../vehicle-history/application/vehicle-history.store';
+
+@Component({
+  selector: 'app-client-history-view',
+  standalone: true,
+  imports: [CommonModule, MatButtonModule, MatIconModule],
+  templateUrl: './client-history-view.html',
+  styleUrl: './client-history-view.css'
+})
+export class ClientHistoryViewComponent implements OnInit {
+  private readonly route = inject(ActivatedRoute);
+  private readonly router = inject(Router);
+  public readonly vehicleHistoryStore = inject(VehicleHistoryStore);
+
+  plate: string = '';
+  currentDate = new Date();
+
+  ngOnInit(): void {
+    this.plate = this.route.snapshot.paramMap.get('plate') || '';
+    if (this.plate) {
+      this.vehicleHistoryStore.loadByPlate(this.plate);
+    }
+  }
+
+  goBack(): void {
+    this.router.navigate(['/tracking']);
+  }
+
+  downloadPDF(): void {
+    window.print();
   }
 }
 
@@ -1806,6 +2211,8 @@ export class PaymentModalComponent {
   align-items: center;
   font-family: system-ui, -apple-system, sans-serif;
   padding: 4rem 1rem;
+
+  position: relative; /* IMPORTANTE */
 }
 .tracking-header {
   text-align: center;
@@ -2388,22 +2795,42 @@ export class PaymentModalComponent {
     grid-template-columns:1fr;
   }
 }
+app-language-switcher {
+  position: absolute;
+  top: 20px;
+  right: 20px;
+  z-index: 50;
+
+  padding: 4px;
+  border-radius: 999px;
+
+  background: #ffffff;
+  backdrop-filter: blur(6px);
+}
+app-language-switcher * {
+  color: #ffffff !important;
+  border-color: rgba(255,255,255,0.4) !important;
+}
 
 
 /* === tracking-view.html === */
 
 <div class="tracking-layout">
+  <app-language-switcher></app-language-switcher>
 
   <div class="tracking-header">
     <mat-icon class="header-icon">directions_car</mat-icon>
-    <h1>Rastrea tu VehÃ­culo</h1>
-    <p>Ingresa el cÃ³digo que te proporcionÃ³ el taller para ver el estado de tu servicio en tiempo real.</p>
+    <h1>{{ ('tracking.title') | translate}}</h1>
+    <p>{{ ('tracking.subtitle') | translate}}</p>
   </div>
 
   <div class="tracking-content">
 
     <div class="search-box">
-      <label for="code">CÃ³digo de Servicio</label>
+
+      <label for="code">
+        {{ ('tracking.serviceCode') | translate}}
+      </label>
 
       <div class="search-input-group">
         <input
@@ -2417,9 +2844,10 @@ export class PaymentModalComponent {
         <button
           class="btn-search"
           (click)="handleSearch()"
-          [disabled]="trackingStore.isLoading()">
+          [disabled]="trackingStore.isLoading()"
+        >
           <mat-icon>search</mat-icon>
-          Buscar
+          {{ ('tracking.search') | translate}}
         </button>
       </div>
 
@@ -2432,262 +2860,440 @@ export class PaymentModalComponent {
     </div>
 
     @if (trackingStore.order()) {
+
       <div class="results-box fade-in">
-        <div class="vehicle-info">
 
-          <div class="vehicle-header">
-            <div class="vehicle-details">
-              <span class="label">VehÃ­culo Ingresado</span>
-              <h2>
-                {{ trackingStore.vehicle()?.brand }}
-                {{ trackingStore.vehicle()?.model }}
-                <span>{{ trackingStore.vehicle()?.plate }}</span>
-              </h2>
-            </div>
+        <!-- VEHICLE HEADER -->
+        <div class="vehicle-header">
 
-            <div
-              class="tag status-tag"
-              [ngClass]="'tag-' + getStatusSeverity(trackingStore.order()!.status)">
-              {{ trackingStore.order()?.status }}
-            </div>
+          <div class="vehicle-details">
+            <span class="label">
+              {{ ('tracking.vehicleReceived') | translate}}
+            </span>
+
+            <h2>
+              {{ trackingStore.vehicle()?.brand }}
+              {{ trackingStore.vehicle()?.model }}
+
+              <span>
+                {{ trackingStore.vehicle()?.plate }}
+              </span>
+            </h2>
           </div>
 
-          <div class="dates-grid">
-            <div class="date-item">
-              <span class="label">Fecha de Ingreso</span>
-              <strong>
-                <mat-icon class="text-blue-500">event</mat-icon>
-                {{ trackingStore.order()?.startDate }}
-              </strong>
-            </div>
+          <div
+            class="tag status-tag"
+            [ngClass]="'tag-' + getStatusSeverity(trackingStore.order()!.status)"
+          >
+            {{ trackingStore.order()?.status }}
+          </div>
+        </div>
 
-            <div class="date-item right-align">
-              <span class="label">Entrega Estimada</span>
-              <strong>
-                <mat-icon class="text-orange-500">event_available</mat-icon>
-                {{ trackingStore.order()?.estimatedDate }}
-              </strong>
-            </div>
+        <!-- DATES -->
+        <div class="dates-grid">
+
+          <div class="date-item">
+            <span class="label">
+              {{ ('tracking.entryDate') | translate}}
+            </span>
+
+            <strong>
+              <mat-icon class="text-blue-500">event</mat-icon>
+              {{ trackingStore.order()?.startDate }}
+            </strong>
           </div>
 
-          <div class="dashboard-grid">
+          <div class="date-item right-align">
+            <span class="label">
+              {{ ('tracking.estimatedDelivery') | translate}}
+            </span>
 
-            <!-- LEFT -->
-            <div class="left-section">
+            <strong>
+              <mat-icon class="text-orange-500">event_available</mat-icon>
+              {{ trackingStore.order()?.estimatedDate }}
+            </strong>
+          </div>
+        </div>
 
-              <!-- TASKS -->
-              <div class="service-card">
-                <div class="card-header">
-                  <h3>Tareas de Servicio</h3>
-                  <p>Selecciona una tarea para revisar su explicaciÃ³n y evidencia.</p>
-                </div>
+        <div class="dashboard-grid">
 
-                @for (task of trackingStore.tasks(); track task.id) {
+          <!-- LEFT -->
+          <div class="left-section">
+
+            <!-- TASKS -->
+            <div class="service-card">
+
+              <div class="card-header">
+                <h3>
+                  {{ ('tracking.serviceTasks') | translate}}
+                </h3>
+
+                <p>
+                  {{ ('tracking.taskInstructions') | translate}}
+                </p>
+              </div>
+
+              @for (task of trackingStore.tasks(); track task.id) {
+
+                <div
+                  class="task-item"
+                  [class.active]="selectedTask?.id === task.id"
+                  (click)="selectTask(task)"
+                >
+
+                  <div class="task-left">
+
+                    <div
+                      class="task-icon"
+                      [ngClass]="getTaskTagSeverity(task.status)"
+                    >
+
+                      <mat-icon *ngIf="task.status === 'Completada'">
+                        check_circle
+                      </mat-icon>
+
+                      <mat-icon *ngIf="task.status === 'En Proceso'">
+                        settings
+                      </mat-icon>
+
+                      <mat-icon *ngIf="task.status === 'Pendiente'">
+                        schedule
+                      </mat-icon>
+
+                      <mat-icon
+                        *ngIf="
+                          task.status !== 'Completada'
+                          && task.status !== 'En Proceso'
+                          && task.status !== 'Pendiente'
+                        "
+                      >
+                        circle
+                      </mat-icon>
+
+                    </div>
+
+                    <div>
+                      <strong>{{ task.description }}</strong>
+                      <p>{{ task.status }}</p>
+                    </div>
+
+                  </div>
+
                   <div
-                    class="task-item"
-                    [class.active]="selectedTask?.id === task.id"
-                    (click)="selectTask(task)"
+                    class="tag"
+                    [ngClass]="'tag-' + getTaskTagSeverity(task.status)"
                   >
-                    <div class="task-left">
-                      <div class="task-icon" [ngClass]="getTaskTagSeverity(task.status)">
-                        <mat-icon *ngIf="task.status === 'Completada'">check_circle</mat-icon>
-                        <mat-icon *ngIf="task.status === 'En Proceso'">settings</mat-icon>
-                        <mat-icon *ngIf="task.status === 'Pendiente'">schedule</mat-icon>
-                        <mat-icon *ngIf="task.status !== 'Completada' && task.status !== 'En Proceso' && task.status !== 'Pendiente'">circle</mat-icon>
-                      </div>
-
-                      <div>
-                        <strong>{{ task.description }}</strong>
-                        <p>{{ task.status }}</p>
-                      </div>
-                    </div>
-
-                    <div class="tag" [ngClass]="'tag-' + getTaskTagSeverity(task.status)">
-                      {{ task.status }}
-                    </div>
+                    {{ task.status }}
                   </div>
-                }
-              </div>
 
-              <!-- MECHANIC CUSTOMER REPORT -->
-              <div class="mechanic-report-card">
-                <div class="card-header">
-                  <h3>Informe del MecÃ¡nico para el Cliente</h3>
-                  <p>ExplicaciÃ³n simple del trabajo realizado o recomendado.</p>
                 </div>
-
-                @if (selectedTask) {
-                  <div class="report-box">
-                    <span>Servicio seleccionado</span>
-                    <strong>{{ selectedTask.description }}</strong>
-
-                    <p>
-                      {{ getSelectedTaskCustomerExplanation() }}
-                    </p>
-
-                    @if (hasSelectedTaskEvidence()) {
-                      <small class="evidence-ok">
-                        <mat-icon>image</mat-icon>
-                        Evidencia tÃ©cnica registrada por el MecÃ¡nico.
-                      </small>
-                    } @else {
-                      <small class="evidence-pending">
-                        <mat-icon>image_not_supported</mat-icon>
-                        TodavÃ­a no hay evidencia visible para esta tarea.
-                      </small>
-                    }
-                  </div>
-                } @else {
-                  <div class="no-report">
-                    <mat-icon>engineering</mat-icon>
-                    <p>Selecciona una tarea para ver el informe del MecÃ¡nico.</p>
-                  </div>
-                }
-              </div>
-
-              <!-- EVIDENCE -->
-              <div class="evidence-card">
-                @if (selectedTask?.photo) {
-                  <img [src]="selectedTask!.photo" alt="evidence" />
-                } @else if (selectedTask?.evidenceRegistered) {
-                  <div class="simulated-evidence">
-                    <mat-icon>verified</mat-icon>
-                    <p>Evidencia tÃ©cnica simulada registrada por el MecÃ¡nico.</p>
-                  </div>
-                } @else {
-                  <div class="no-image">
-                    <mat-icon>image</mat-icon>
-                    <p>No hay evidencia visual</p>
-                  </div>
-                }
-
-                <div class="evidence-info">
-                  <span>EVIDENCIA VISUAL</span>
-                  <strong>{{ selectedTask?.description }}</strong>
-                </div>
-              </div>
-
+              }
             </div>
 
-            <!-- RIGHT -->
-            <div class="right-section">
+            <!-- MECHANIC REPORT -->
+            <div class="mechanic-report-card">
 
-              <!-- COST -->
-              <div class="cost-card">
-                <span class="mini-title">COSTO ESTIMADO TOTAL</span>
-                <h2>S/. {{ trackingStore.order()?.price }}</h2>
-                <p>Sujeto a cambios segÃºn diagnÃ³stico.</p>
+              <div class="card-header">
+                <h3>
+                  {{ ('tracking.mechanicReport') | translate}}
+                </h3>
 
-                <button class="btn-pay pay-now-btn" (click)="openPaymentModal()">
-                  <mat-icon>credit_card</mat-icon>
-                  Realizar Pago
-                </button>
+                <p>
+                  {{ ('tracking.mechanicReportSubtitle') | translate}}
+                </p>
               </div>
 
-              <!-- DATES -->
-              <div class="dates-card">
-                <span class="mini-title">TIEMPOS DE SERVICIO</span>
+              @if (selectedTask) {
 
-                <div class="date-box">
-                  <div class="date-icon">
-                    <mat-icon>calendar_today</mat-icon>
-                  </div>
+                <div class="report-box">
 
-                  <div>
-                    <small>FECHA DE INGRESO</small>
-                    <strong>{{ trackingStore.order()?.startDate }}</strong>
-                  </div>
-                </div>
+                  <span>
+                    {{ ('tracking.selectedService') | translate}}
+                  </span>
 
-                <div class="date-box">
-                  <div class="date-icon">
-                    <mat-icon>schedule</mat-icon>
-                  </div>
+                  <strong>
+                    {{ selectedTask.description }}
+                  </strong>
 
-                  <div>
-                    <small>ENTREGA ESTIMADA</small>
-                    <strong>{{ trackingStore.order()?.estimatedDate }}</strong>
-                  </div>
-                </div>
-              </div>
-
-              <!-- VEHICLE HISTORY -->
-              <div class="vehicle-history-card">
-                <div class="card-header">
-                  <h3>Historial tÃ©cnico del vehÃ­culo</h3>
                   <p>
-                    Servicios anteriores asociados a la placa
-                    <strong>{{ trackingStore.vehicle()?.plate }}</strong>.
+                    {{ getSelectedTaskCustomerExplanation() }}
                   </p>
+
+                  @if (hasSelectedTaskEvidence()) {
+
+                    <small class="evidence-ok">
+                      <mat-icon>image</mat-icon>
+
+                      {{ ('tracking.evidenceRegistered') | translate}}
+                    </small>
+
+                  } @else {
+
+                    <small class="evidence-pending">
+                      <mat-icon>image_not_supported</mat-icon>
+
+                      {{ ('tracking.noEvidenceYet') | translate}}
+                    </small>
+                  }
+
                 </div>
 
-                @if (vehicleHistoryStore.isLoading()) {
-                  <div class="history-empty">
-                    <mat-icon>sync</mat-icon>
-                    <p>Cargando historial...</p>
-                  </div>
-                } @else if (vehicleHistoryStore.history().length) {
-                  <div class="history-list">
-                    @for (record of vehicleHistoryStore.history(); track record.id) {
-                      <article class="history-item">
-                        <div class="history-top">
-                          <div>
-                            <span>{{ record.serviceDate }}</span>
-                            <h4>{{ record.serviceTitle }}</h4>
-                          </div>
+              } @else {
 
-                          <mat-icon>history</mat-icon>
-                        </div>
+                <div class="no-report">
 
-                        <p class="history-summary">
-                          {{ record.customerSummary }}
-                        </p>
+                  <mat-icon>engineering</mat-icon>
 
-                        <div class="history-meta">
-                          <span>
-                            <mat-icon>store</mat-icon>
-                            {{ record.workshopName }}
-                          </span>
+                  <p>
+                    {{ ('tracking.selectTaskInstruction') | translate}}
+                  </p>
 
-                          <span>
-                            <mat-icon>engineering</mat-icon>
-                            {{ record.mechanicName }}
-                          </span>
-                        </div>
-
-                        @if (record.tasksCompleted.length) {
-                          <div class="history-tasks">
-                            <strong>Trabajos realizados:</strong>
-
-                            @for (taskName of record.tasksCompleted; track taskName) {
-                              <small>
-                                <mat-icon>check_circle</mat-icon>
-                                {{ taskName }}
-                              </small>
-                            }
-                          </div>
-                        }
-
-                        <div class="recommendation-box">
-                          <strong>RecomendaciÃ³n:</strong>
-                          <p>{{ record.recommendation }}</p>
-                        </div>
-                      </article>
-                    }
-                  </div>
-                } @else {
-                  <div class="history-empty">
-                    <mat-icon>history_toggle_off</mat-icon>
-                    <p>
-                      AÃºn no hay servicios anteriores registrados para este vehÃ­culo.
-                    </p>
-                  </div>
-                }
-              </div>
-
+                </div>
+              }
             </div>
+
+            <!-- EVIDENCE -->
+            <div class="evidence-card">
+
+              @if (selectedTask?.photo) {
+
+                <img [src]="selectedTask!.photo" alt="evidence" />
+
+              } @else if (selectedTask?.evidenceRegistered) {
+
+                <div class="simulated-evidence">
+
+                  <mat-icon>verified</mat-icon>
+
+                  <p>
+                    {{ ('tracking.simulatedEvidence') | translate}}
+                  </p>
+
+                </div>
+
+              } @else {
+
+                <div class="no-image">
+
+                  <mat-icon>image</mat-icon>
+
+                  <p>
+                    {{ ('tracking.noVisualEvidence') | translate}}
+                  </p>
+
+                </div>
+              }
+
+              <div class="evidence-info">
+
+                <span>
+                  {{ ('tracking.visualEvidence') | translate}}
+                </span>
+
+                <strong>
+                  {{ selectedTask?.description }}
+                </strong>
+
+              </div>
+            </div>
+
           </div>
 
+          <!-- RIGHT -->
+          <div class="right-section">
+
+            <!-- COST -->
+            <div class="cost-card">
+
+              <span class="mini-title">
+                {{ ('tracking.estimatedTotalCost') | translate}}
+              </span>
+
+              <h2>
+                S/. {{ trackingStore.order()?.price }}
+              </h2>
+
+              <p>
+                {{ ('tracking.costDisclaimer') | translate}}
+              </p>
+
+              <button
+                class="btn-pay pay-now-btn"
+                (click)="openPaymentModal()"
+              >
+                <mat-icon>credit_card</mat-icon>
+
+                {{ ('tracking.makePayment') | translate}}
+              </button>
+            </div>
+
+            <!-- DATES -->
+            <div class="dates-card">
+
+              <span class="mini-title">
+                {{ ('tracking.serviceTimes') | translate}}
+              </span>
+
+              <div class="date-box">
+
+                <div class="date-icon">
+                  <mat-icon>calendar_today</mat-icon>
+                </div>
+
+                <div>
+                  <small>
+                    {{ ('tracking.entryDate') | translate}}
+                  </small>
+
+                  <strong>
+                    {{ trackingStore.order()?.startDate }}
+                  </strong>
+                </div>
+
+              </div>
+
+              <div class="date-box">
+
+                <div class="date-icon">
+                  <mat-icon>schedule</mat-icon>
+                </div>
+
+                <div>
+                  <small>
+                    {{ ('tracking.estimatedDelivery') | translate}}
+                  </small>
+
+                  <strong>
+                    {{ trackingStore.order()?.estimatedDate }}
+                  </strong>
+                </div>
+
+              </div>
+
+            </div>
+
+            <!-- VEHICLE HISTORY -->
+            <div class="vehicle-history-card">
+
+  <div class="card-header">
+
+    <h3>
+      {{ ('tracking.vehicleHistory') | translate}}
+    </h3>
+
+    <p>
+      {{ ('tracking.vehicleHistorySubtitle') | translate}}
+      <strong>
+        {{ trackingStore.vehicle()?.plate }}
+      </strong>
+    </p>
+
+  </div>
+
+  @if (vehicleHistoryStore.isLoading()) {
+
+    <div class="history-empty">
+      <mat-icon>sync</mat-icon>
+      <p>{{ ('tracking.loadingHistory') | translate}}</p>
+    </div>
+
+  } @else if (vehicleHistoryStore.history().length) {
+
+    <button
+      mat-flat-button
+      color="primary"
+      style="width: 100%; padding: 1.5rem; border-radius: 14px; font-weight: 800; font-size: 1rem; margin-top: 1rem; display: flex; align-items: center; justify-content: center; gap: 8px;"
+      (click)="goToFullHistory()"
+    >
+      <mat-icon>history</mat-icon>
+      Ver historial completo y descargar PDF
+    </button>
+
+    <div class="history-list">
+
+      @for (record of vehicleHistoryStore.history(); track record.id) {
+
+        <article class="history-item">
+
+          <div class="history-top">
+
+            <div>
+              <span>{{ record.serviceDate }}</span>
+              <h4>{{ record.serviceTitle }}</h4>
+            </div>
+
+            <mat-icon>history</mat-icon>
+
+          </div>
+
+          <p class="history-summary">
+            {{ record.customerSummary }}
+          </p>
+
+          <div class="history-meta">
+
+            <span>
+              <mat-icon>store</mat-icon>
+              {{ record.workshopName }}
+            </span>
+
+            <span>
+              <mat-icon>engineering</mat-icon>
+              {{ record.mechanicName }}
+            </span>
+
+          </div>
+
+          @if (record.tasksCompleted.length) {
+
+            <div class="history-tasks">
+
+              <strong>
+                {{ ('tracking.completedTasks') | translate}}
+              </strong>
+
+              @for (taskName of record.tasksCompleted; track taskName) {
+
+                <small>
+                  <mat-icon>check_circle</mat-icon>
+                  {{ taskName }}
+                </small>
+
+              }
+
+            </div>
+          }
+
+          <div class="recommendation-box">
+
+            <strong>
+              {{ ('tracking.recommendation') | translate}}
+            </strong>
+
+            <p>
+              {{ record.recommendation }}
+            </p>
+
+          </div>
+
+        </article>
+
+      }
+
+    </div>
+
+  } @else {
+
+    <div class="history-empty">
+      <mat-icon>history_toggle_off</mat-icon>
+      <p>{{ ('tracking.noHistory') | translate}}</p>
+    </div>
+
+  }
+
+</div>
+
+          </div>
         </div>
       </div>
     }
@@ -2711,6 +3317,7 @@ export class PaymentModalComponent {
  */
 
 import { Component, inject, effect, computed } from '@angular/core';
+import { Router } from '@angular/router';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 
@@ -2722,6 +3329,10 @@ import { MatDialog, MatDialogModule } from '@angular/material/dialog';
 import { TrackingStore } from '../../application/tracking.store';
 import { Task } from '../../../workshop-operations/domain/models/work-order.model';
 import { PaymentModalComponent } from '../payment-modal/payment-modal';
+
+import { TranslatePipe } from '@ngx-translate/core';
+import { LanguageSwitcher } from '../../../../shared/presentation/language-switcher/language-switcher';
+
 import { VehicleHistoryStore } from '../../../vehicle-history/application/vehicle-history.store';
 
 @Component({
@@ -2733,15 +3344,18 @@ import { VehicleHistoryStore } from '../../../vehicle-history/application/vehicl
     MatInputModule,
     MatButtonModule,
     MatIconModule,
-    MatDialogModule
+    MatDialogModule,
+    TranslatePipe,
+    LanguageSwitcher,
   ],
   templateUrl: './tracking-view.html',
-  styleUrl: './tracking-view.css'
+  styleUrl: './tracking-view.css',
 })
 export class TrackingViewComponent {
   trackingStore = inject(TrackingStore);
   vehicleHistoryStore = inject(VehicleHistoryStore);
   dialog = inject(MatDialog);
+  private readonly router = inject(Router);
 
   /** Tracking code entered by the customer */
   trackingCode = '';
@@ -2754,12 +3368,12 @@ export class TrackingViewComponent {
 
   /**
    * Customer-facing tasks.
-   * These are the tasks the customer can understand from the tracking view.
    */
   readonly customerVisibleTasks = computed(() =>
-    this.trackingStore.tasks().filter((task) =>
-      task.status === 'Completada' ||
-      task.customerReportStatus === 'Visible para Cliente'
+    this.trackingStore.tasks().filter(
+      (task) =>
+        task.status === 'Completada' ||
+        task.customerReportStatus === 'Visible para Cliente'
     )
   );
 
@@ -2769,21 +3383,22 @@ export class TrackingViewComponent {
 
       if (tasks && tasks.length > 0) {
         const taskWithCustomerExplanation = tasks.find(
-          (task) => task.customerExplanation && task.customerExplanation.trim().length > 0
+          (task) =>
+            task.customerExplanation &&
+            task.customerExplanation.trim().length > 0
         );
 
         const taskWithPhoto = tasks.find((task) => task.photo);
 
-        this.selectedTask = taskWithCustomerExplanation || taskWithPhoto || tasks[0];
+        this.selectedTask =
+          taskWithCustomerExplanation || taskWithPhoto || tasks[0];
       } else {
         this.selectedTask = null;
       }
     });
 
     /**
-     * Loads the technical history using the vehicle plate.
-     * This supports the business logic where the same car keeps its history
-     * even if it is later attended by another workshop inside AutoService.
+     * Loads vehicle history by plate
      */
     effect(() => {
       const vehicle = this.trackingStore.vehicle();
@@ -2799,12 +3414,10 @@ export class TrackingViewComponent {
   }
 
   /**
-   * Performs the search for a work order using the entered code.
+   * Search work order
    */
   handleSearch(): void {
-    if (!this.trackingCode.trim()) {
-      return;
-    }
+    if (!this.trackingCode.trim()) return;
 
     this.loadedHistoryPlate = '';
     this.vehicleHistoryStore.history.set([]);
@@ -2812,16 +3425,14 @@ export class TrackingViewComponent {
   }
 
   /**
-   * Selects a task from the list.
-   *
-   * @param task Selected task
+   * Select task
    */
   selectTask(task: Task): void {
     this.selectedTask = task;
   }
 
   /**
-   * Opens the payment modal for the current order.
+   * Open payment modal
    */
   openPaymentModal(): void {
     const order = this.trackingStore.order();
@@ -2830,7 +3441,7 @@ export class TrackingViewComponent {
       const dialogRef = this.dialog.open(PaymentModalComponent, {
         width: '500px',
         panelClass: 'payment-dialog-container',
-        data: { amount: order.price }
+        data: { amount: order.price },
       });
 
       dialogRef.afterClosed().subscribe((result) => {
@@ -2842,33 +3453,25 @@ export class TrackingViewComponent {
   }
 
   /**
-   * Returns the severity level for the order status.
-   *
-   * @param status Order status
-   * @returns Severity string
+   * Order status severity
    */
   getStatusSeverity(status: string): string {
     if (status === 'Finalizado') return 'success';
     if (status === 'En Proceso') return 'info';
-
     return 'warning';
   }
 
   /**
-   * Returns the severity tag for a task.
-   *
-   * @param status Task status
-   * @returns Severity string
+   * Task severity tag
    */
   getTaskTagSeverity(status: string): string {
     if (status === 'Completada') return 'success';
     if (status === 'En Proceso') return 'info';
-
     return 'secondary';
   }
 
   /**
-   * Returns a friendly mechanic explanation for the selected task.
+   * Customer explanation fallback
    */
   getSelectedTaskCustomerExplanation(): string {
     if (!this.selectedTask?.customerExplanation) {
@@ -2879,10 +3482,21 @@ export class TrackingViewComponent {
   }
 
   /**
-   * Returns the visual label for task evidence.
+   * Evidence check
    */
   hasSelectedTaskEvidence(): boolean {
     return !!this.selectedTask?.photo || !!this.selectedTask?.evidenceRegistered;
+  }
+
+  /**
+   * Navigate to full history view (feature)
+   */
+  goToFullHistory(): void {
+    const plate = this.trackingStore.vehicle()?.plate;
+
+    if (plate) {
+      this.router.navigate(['/tracking/history', plate]);
+    }
   }
 }
 
@@ -3458,9 +4072,9 @@ export class VehicleService {
     </button>
 
     <div>
-      <p class="eyebrow">GestiÃ³n de flota</p>
-      <h1>Detalles del vehÃ­culo</h1>
-      <span>Consulta trazabilidad, diagnÃ³stico y tareas asociadas al servicio.</span>
+      <p class="eyebrow">{{ ('detailsVehicle.fleetManagement') | translate }}</p>
+      <h1>{{ ('detailsVehicle.vehicleDetails') | translate }}</h1>
+      <span>{{ ('detailsVehicle.vehicleSubtitle') | translate }}</span>
     </div>
   </header>
 
@@ -3470,7 +4084,7 @@ export class VehicleService {
         <mat-card-content>
           <div class="identity-head">
             <div>
-              <span class="label">IdentificaciÃ³n</span>
+              <span class="label">{{ ('detailsVehicle.identification') | translate }}</span>
               <h2>{{ getVehicleName(currentVehicle) }}</h2>
               <p class="plate">{{ currentVehicle.plate }}</p>
             </div>
@@ -3483,7 +4097,7 @@ export class VehicleService {
           <div class="owner-row">
             <mat-icon>person</mat-icon>
             <div>
-              <span>Propietario</span>
+              <span>{{ ('detailsVehicle.owner') | translate }}</span>
               <strong>{{ ownerName() }}</strong>
             </div>
           </div>
@@ -3504,7 +4118,7 @@ export class VehicleService {
 
       <mat-card class="status-card">
         <mat-card-content>
-          <span class="label">Estado actual</span>
+          <span class="label">{{ ('detailsVehicle.currentStatus') | translate }}</span>
 
           <div class="status-head">
             <h2>{{ getStatusLabel(currentVehicle.status) }}</h2>
@@ -3517,7 +4131,7 @@ export class VehicleService {
           </mat-progress-bar>
 
           <p>
-            Avance calculado segÃºn tareas completadas y estado operativo del servicio.
+            {{ ('detailsVehicle.progressDescription') | translate }}
           </p>
         </mat-card-content>
       </mat-card>
@@ -3527,7 +4141,7 @@ export class VehicleService {
           <section class="info-block">
             <div class="section-title">
               <mat-icon>warning_amber</mat-icon>
-              <h3>Problema reportado</h3>
+              <h3>{{ ('detailsVehicle.reportedProblem') | translate }}</h3>
             </div>
 
             <p class="note-box">
@@ -3538,7 +4152,7 @@ export class VehicleService {
           <section class="info-block">
             <div class="section-title">
               <mat-icon>engineering</mat-icon>
-              <h3>DiagnÃ³stico tÃ©cnico</h3>
+              <h3>{{ ('detailsVehicle.technicalDiagnosis') | translate }}</h3>
             </div>
 
             <p class="note-box">
@@ -3552,7 +4166,7 @@ export class VehicleService {
         <mat-card-header>
           <mat-card-title>
             <mat-icon>assignment</mat-icon>
-            Tareas de mantenimiento
+            {{ ('detailsVehicle.maintenanceTasks') | translate }}
           </mat-card-title>
 
           <mat-card-subtitle>
@@ -3589,7 +4203,7 @@ export class VehicleService {
           } @else {
             <div class="empty-tasks">
               <mat-icon>assignment_late</mat-icon>
-              <p>No hay tareas registradas para este vehÃ­culo.</p>
+              <p>{{ ('detailsVehicle.noTasksRegistered') | translate }}</p>
             </div>
           }
 
@@ -3600,7 +4214,7 @@ export class VehicleService {
             class="add-task-button"
             (click)="goToNewTask()">
             <mat-icon>add</mat-icon>
-            Agregar tarea
+            {{ ('detailsVehicle.addTask') | translate }}
           </button>
         </mat-card-content>
       </mat-card>
@@ -3609,11 +4223,11 @@ export class VehicleService {
     <mat-card class="not-found-card">
       <mat-card-content>
         <mat-icon>directions_car</mat-icon>
-        <h2>VehÃ­culo no encontrado</h2>
-        <p>No se encontrÃ³ informaciÃ³n para el vehÃ­culo seleccionado.</p>
+        <h2>{{ ('detailsVehicle.vehicleNotFound') | translate }}</h2>
+        <p>{{ ('detailsVehicle.vehicleNotFoundDescription') | translate }}</p>
 
         <button mat-flat-button color="primary" type="button" (click)="goBack()">
-          Volver a vehÃ­culos
+          {{ ('detailsVehicle.backToVehicles') | translate }}
         </button>
       </mat-card-content>
     </mat-card>
@@ -3625,18 +4239,18 @@ export class VehicleService {
 
 /**
  * VehicleDetailComponent
- * 
+ *
  * Component for displaying detailed information about a vehicle. Shows all relevant information
- * about a vehicle within the workshop, including:
+ * about a vehicle within the workshop, including
  * - Basic vehicle data
  * - Owner information
  * - Active work order
  * - Progress of technical tasks
  * - Diagnosis and reported problems
- * 
+ *
  * Uses Signals and `computed()` for efficient reactivity and automatic updates
  * without the need for manual subscriptions.
- * 
+ *
  * @component
  * @selector app-vehicle-detail
  * @standalone true
@@ -3656,6 +4270,7 @@ import { VehicleStore } from '../../application/vehicle.store';
 import { TaskStore } from '../../../workshop-operations/application/task.store';
 import { WorkOrderStore } from '../../../workshop-operations/application/work-order.store';
 import { Task, WorkOrder } from '../../../workshop-operations/domain/models/work-order.model';
+import { TranslatePipe } from '@ngx-translate/core';
 
 @Component({
   selector: 'app-vehicle-detail',
@@ -3666,10 +4281,11 @@ import { Task, WorkOrder } from '../../../workshop-operations/domain/models/work
     MatCardModule,
     MatIconModule,
     MatButtonModule,
-    MatProgressBarModule
+    MatProgressBarModule,
+    TranslatePipe,
   ],
   templateUrl: './vehicle-detail.html',
-  styleUrl: './vehicle-detail.css'
+  styleUrl: './vehicle-detail.css',
 })
 export class VehicleDetailComponent implements OnInit {
   private readonly route = inject(ActivatedRoute);
@@ -3685,9 +4301,7 @@ export class VehicleDetailComponent implements OnInit {
 
   /** Current vehicle obtained from the store */
   protected readonly vehicle = computed<Vehicle | undefined>(() =>
-    this.vehicleStore
-      .vehicles()
-      .find((item) => String(item.id) === String(this.vehicleId))
+    this.vehicleStore.vehicles().find((item) => String(item.id) === String(this.vehicleId)),
   );
 
   /** Name of the vehicle owner */
@@ -3732,8 +4346,8 @@ export class VehicleDetailComponent implements OnInit {
   });
 
   /** Number of completed tasks */
-  protected readonly completedTasks = computed(() =>
-    this.vehicleTasks().filter((task) => task.status === 'Completada').length
+  protected readonly completedTasks = computed(
+    () => this.vehicleTasks().filter((task) => task.status === 'Completada').length,
   );
 
   /** Overall progress percentage of the vehicle (based on tasks or status) */
@@ -3758,9 +4372,10 @@ export class VehicleDetailComponent implements OnInit {
   });
 
   /** Problem reported by the client (description of the order) */
-  protected readonly problemReported = computed(() =>
-    this.activeWorkOrder()?.description ??
-    'Ruido en el motor al acelerar en frÃ­o y pÃ©rdida leve de potencia.'
+  protected readonly problemReported = computed(
+    () =>
+      this.activeWorkOrder()?.description ??
+      'Ruido en el motor al acelerar en frÃ­o y pÃ©rdida leve de potencia.',
   );
 
   /** Current technical diagnosis based on the available information */
@@ -3802,8 +4417,8 @@ export class VehicleDetailComponent implements OnInit {
       this.router.navigate(['/admin/tasks'], {
         queryParams: {
           workOrderId: order.id,
-          vehicleId: this.vehicleId
-        }
+          vehicleId: this.vehicleId,
+        },
       });
 
       return;
@@ -4077,7 +4692,7 @@ export class VehicleDetailComponent implements OnInit {
       type="button"
       class="details-button"
       (click)="onViewDetails()">
-      Ver detalles
+      {{('vehicles1.card.viewDetails') | translate }}
       <mat-icon>arrow_forward</mat-icon>
     </button>
   </div>
@@ -4094,6 +4709,7 @@ import { MatIconModule } from '@angular/material/icon';
 import { MatProgressBarModule } from '@angular/material/progress-bar';
 
 import { Vehicle } from '../../../../domain/models/vehicle.model';
+import { TranslatePipe } from '@ngx-translate/core';
 
 export interface VehicleCardView {
   id: string;
@@ -4111,9 +4727,9 @@ export interface VehicleCardView {
 @Component({
   selector: 'app-vehicle-card',
   standalone: true,
-  imports: [CommonModule, MatButtonModule, MatIconModule, MatProgressBarModule],
+  imports: [CommonModule, MatButtonModule, MatIconModule, MatProgressBarModule, TranslatePipe],
   templateUrl: './vehicle-card.html',
-  styleUrl: './vehicle-card.css'
+  styleUrl: './vehicle-card.css',
 })
 export class VehicleCardComponent {
   @Input({ required: true }) vehicle!: VehicleCardView;
@@ -4172,7 +4788,7 @@ export class VehicleCardComponent {
 
 <div class="vehicle-filters">
   <mat-form-field appearance="outline" class="search-box">
-    <mat-label>Buscar vehÃ­culo</mat-label>
+    <mat-label>{{('vehicles1.search.placeholder') | translate }}</mat-label>
     <mat-icon matPrefix>search</mat-icon>
     <input
       matInput
@@ -4182,7 +4798,7 @@ export class VehicleCardComponent {
   </mat-form-field>
 
   <mat-form-field appearance="outline" class="status-filter">
-    <mat-label>Filtrar por estado</mat-label>
+    <mat-label>{{('vehicles1.search.filterByStatus') | translate }}</mat-label>
     <mat-select
       [ngModel]="status"
       (ngModelChange)="onStatusChange($event)">
@@ -4208,6 +4824,7 @@ import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatIconModule } from '@angular/material/icon';
 import { MatInputModule } from '@angular/material/input';
 import { MatSelectModule } from '@angular/material/select';
+import { TranslatePipe } from '@ngx-translate/core';
 
 @Component({
   selector: 'app-vehicle-filters',
@@ -4218,10 +4835,11 @@ import { MatSelectModule } from '@angular/material/select';
     MatFormFieldModule,
     MatInputModule,
     MatSelectModule,
-    MatIconModule
+    MatIconModule,
+    TranslatePipe,
   ],
   templateUrl: './vehicle-filters.html',
-  styleUrl: './vehicle-filters.css'
+  styleUrl: './vehicle-filters.css',
 })
 export class VehicleFiltersComponent {
   @Input() search = '';
@@ -4395,11 +5013,9 @@ export class VehicleFiltersComponent {
 <section class="vehicle-page">
   <div class="vehicle-header">
     <div>
-      <span class="eyebrow">GestiÃ³n de flota</span>
-      <h1>VehÃ­culos registrados</h1>
-      <p>
-        Consulta, filtra y administra los vehÃ­culos vinculados a servicios activos del taller.
-      </p>
+      <span class="eyebrow">{{('vehicles1.h5') | translate }}</span>
+      <h1>{{('vehicles1.title') | translate }}</h1>
+      <p>{{('vehicles1.subtitle') | translate }}</p>
     </div>
 
     <button
@@ -4409,23 +5025,23 @@ export class VehicleFiltersComponent {
       class="add-button"
       (click)="openNewDialog()">
       <mat-icon>add</mat-icon>
-      Agregar vehÃ­culo
+      {{('vehicles1.addVehicle') | translate }}
     </button>
   </div>
 
   <div class="summary-row">
     <div class="summary-card">
-      <span>Total registrados</span>
+      <span>{{('vehicles1.stats.totalRegistered') | translate }}</span>
       <strong>{{ vehicleStore.vehicles().length }}</strong>
     </div>
 
     <div class="summary-card">
-      <span>En taller</span>
+      <span>{{('vehicles1.stats.inWorkshop') | translate }}</span>
       <strong>{{ vehiclesInWorkshop() }}</strong>
     </div>
 
     <div class="summary-card">
-      <span>Listos</span>
+      <span>{{('vehicles1.stats.ready') | translate }}</span>
       <strong>{{ readyVehicles() }}</strong>
     </div>
   </div>
@@ -4462,12 +5078,12 @@ export class VehicleFiltersComponent {
   }
 
   <ng-template #vehicleDialog>
-    <h2 mat-dialog-title>{{ isEditing ? 'Editar vehÃ­culo' : 'Nuevo vehÃ­culo' }}</h2>
+    <h2 mat-dialog-title>{{ isEditing ? ('detailsVehicle.editVehicle' | translate) : ('detailsVehicle.newVehicle' | translate) }}</h2>
 
     <mat-dialog-content>
       <div class="form-container">
         <mat-form-field appearance="outline" class="full-width">
-          <mat-label>Usuario propietario</mat-label>
+          <mat-label>{{('detailsVehicle.ownerUser') | translate }}</mat-label>
           <mat-select [(ngModel)]="currentVehicle.customerId" required>
             @for (customer of customerStore.customers(); track customer.id) {
               <mat-option [value]="customer.id">
@@ -4479,7 +5095,7 @@ export class VehicleFiltersComponent {
 
         <div class="form-row">
           <mat-form-field appearance="outline">
-            <mat-label>MatrÃ­cula</mat-label>
+            <mat-label>{{('detailsVehicle.licensePlate') | translate }}</mat-label>
             <input
               matInput
               [(ngModel)]="currentVehicle.plate"
@@ -4488,7 +5104,7 @@ export class VehicleFiltersComponent {
           </mat-form-field>
 
           <mat-form-field appearance="outline">
-            <mat-label>Estado</mat-label>
+            <mat-label>{{('detailsVehicle.status') | translate }}</mat-label>
             <mat-select [(ngModel)]="currentVehicle.status">
               @for (status of statusOptions; track status) {
                 <mat-option [value]="status">
@@ -4501,19 +5117,19 @@ export class VehicleFiltersComponent {
 
         <div class="form-row">
           <mat-form-field appearance="outline">
-            <mat-label>Marca</mat-label>
+            <mat-label>{{('detailsVehicle.brand') | translate }}</mat-label>
             <input matInput [(ngModel)]="currentVehicle.brand" placeholder="Toyota" />
           </mat-form-field>
 
           <mat-form-field appearance="outline">
-            <mat-label>Modelo</mat-label>
+            <mat-label>{{('detailsVehicle.model') | translate }}</mat-label>
             <input matInput [(ngModel)]="currentVehicle.model" placeholder="Corolla" />
           </mat-form-field>
         </div>
 
         <div class="form-row">
           <mat-form-field appearance="outline">
-            <mat-label>AÃ±o</mat-label>
+            <mat-label>{{('detailsVehicle.year') | translate }}</mat-label>
             <input matInput [(ngModel)]="currentVehicle.year" placeholder="2024" />
           </mat-form-field>
 
@@ -4526,7 +5142,7 @@ export class VehicleFiltersComponent {
     </mat-dialog-content>
 
     <mat-dialog-actions align="end">
-      <button mat-button type="button" (click)="closeDialog()">Cancelar</button>
+      <button mat-button type="button" (click)="closeDialog()">{{('detailsVehicle.cancel') | translate }}</button>
 
       <button
         mat-flat-button
@@ -4534,7 +5150,7 @@ export class VehicleFiltersComponent {
         type="button"
         (click)="saveVehicle()"
         [disabled]="!currentVehicle.plate || !currentVehicle.customerId">
-        Guardar
+        {{('detailsVehicle.save') | translate }}
       </button>
     </mat-dialog-actions>
   </ng-template>
@@ -4545,7 +5161,7 @@ export class VehicleFiltersComponent {
 
 /**
  * VehicleListComponent
- * 
+ *
  * Main component for managing and displaying the vehicle list
  * from the workshop. It allows:
  * - Display all vehicles in card format (`VehicleCardComponent`)
@@ -4553,10 +5169,10 @@ export class VehicleFiltersComponent {
  * - Create new vehicles
  * - Edit existing vehicles through a modal
  * - Navigate to the detail of each vehicle
- * 
+ *
  * Uses Signals and `computed()` to manage the state and filters in a
  * reactive and efficient manner.
- * 
+ *
  * @component
  * @selector app-vehicle-list
  * @standalone true
@@ -4579,6 +5195,7 @@ import { VehicleStore } from '../../application/vehicle.store';
 import { Vehicle } from '../../domain/models/vehicle.model';
 import { VehicleCardComponent, VehicleCardView } from './components/vehicle-card/vehicle-card';
 import { VehicleFiltersComponent } from './components/vehicle-filters/vehicle-filters';
+import { TranslatePipe } from '@ngx-translate/core';
 
 @Component({
   selector: 'app-vehicle-list',
@@ -4593,10 +5210,11 @@ import { VehicleFiltersComponent } from './components/vehicle-filters/vehicle-fi
     MatFormFieldModule,
     MatSelectModule,
     VehicleCardComponent,
-    VehicleFiltersComponent
+    VehicleFiltersComponent,
+    TranslatePipe,
   ],
   templateUrl: './vehicle-list.html',
-  styleUrl: './vehicle-list.css'
+  styleUrl: './vehicle-list.css',
 })
 export class VehicleListComponent implements OnInit {
   protected readonly vehicleStore = inject(VehicleStore);
@@ -4625,7 +5243,7 @@ export class VehicleListComponent implements OnInit {
     'https://images.unsplash.com/photo-1552519507-da3b142c6e3d?w=500&auto=format&fit=crop',
     'https://images.unsplash.com/photo-1542362567-b07e54358753?w=500&auto=format&fit=crop',
     'https://images.unsplash.com/photo-1492144534655-ae79c964c9d7?w=500&auto=format&fit=crop',
-    'https://images.unsplash.com/photo-1503376780353-7e6692767b70?w=500&auto=format&fit=crop'
+    'https://images.unsplash.com/photo-1503376780353-7e6692767b70?w=500&auto=format&fit=crop',
   ];
 
   /** Enriched view of the vehicles to display in the cards */
@@ -4640,8 +5258,8 @@ export class VehicleListComponent implements OnInit {
       progress: this.getProgress(item.status),
       year: item.year || 'N/A',
       color: item.color || 'N/A',
-      image: this.carImages[index % this.carImages.length]
-    }))
+      image: this.carImages[index % this.carImages.length],
+    })),
   );
 
   /** Filtered list of vehicles based on search and status */
@@ -4656,21 +5274,20 @@ export class VehicleListComponent implements OnInit {
         item.plate.toLowerCase().includes(term) ||
         item.owner.toLowerCase().includes(term);
 
-      const matchesStatus =
-        !selectedStatus || item.status === selectedStatus;
+      const matchesStatus = !selectedStatus || item.status === selectedStatus;
 
       return matchesSearch && matchesStatus;
     });
   });
 
   /** Count of vehicles currently in the workshop */
-  protected readonly vehiclesInWorkshop = computed(() =>
-    this.vehicleStore.vehicles().filter((vehicle) => vehicle.status === 'En Taller').length
+  protected readonly vehiclesInWorkshop = computed(
+    () => this.vehicleStore.vehicles().filter((vehicle) => vehicle.status === 'En Taller').length,
   );
 
   /** Count of vehicles ready for delivery */
-  protected readonly readyVehicles = computed(() =>
-    this.vehicleStore.vehicles().filter((vehicle) => vehicle.status === 'Listo').length
+  protected readonly readyVehicles = computed(
+    () => this.vehicleStore.vehicles().filter((vehicle) => vehicle.status === 'Listo').length,
   );
 
   ngOnInit(): void {
@@ -4788,7 +5405,7 @@ export class VehicleListComponent implements OnInit {
       year: '',
       color: '',
       status: 'En Taller',
-      customerId: ''
+      customerId: '',
     };
   }
 }
@@ -6493,19 +7110,19 @@ p {
 
   <div class="mechanic-stats">
     <div>
-      <span>Tareas activas</span>
+      <span>{{ 'staffManagement.labels.activeTasks' | translate}}</span>
       <strong>{{ mechanic.activeTasks }} / {{ mechanic.maxCapacity }}</strong>
     </div>
 
     <div>
-      <span>Efectividad</span>
+      <span>{{ 'staffManagement.labels.effectiveness' | translate}}</span>
       <strong>{{ mechanic.effectiveness }}%</strong>
     </div>
   </div>
 
   <div class="load-section">
     <div class="load-label">
-      <span>Carga laboral</span>
+      <span>{{ 'staffManagement.labels.workload' | translate}}</span>
       <strong>{{ mechanic.loadPercentage }}%</strong>
     </div>
 
@@ -6523,7 +7140,7 @@ p {
       class="action-button"
       (click)="onEdit()">
       <mat-icon>edit</mat-icon>
-      Editar
+      {{ 'staffManagement.actions.edit' | translate}}
     </button>
 
     <button
@@ -6548,6 +7165,7 @@ import { MatIconModule } from '@angular/material/icon';
 import { MatProgressBarModule } from '@angular/material/progress-bar';
 
 import { Mechanic } from '../../../../domain/models/mechanic.model';
+import { TranslatePipe } from '@ngx-translate/core';
 
 /**
  * MechanicCardView
@@ -6628,7 +7246,8 @@ export interface MechanicCardView {
     CommonModule,
     MatButtonModule,
     MatIconModule,
-    MatProgressBarModule
+    MatProgressBarModule,
+    TranslatePipe
   ],
   templateUrl: './mechanic-card.html',
   styleUrl: './mechanic-card.css'
@@ -6759,7 +7378,7 @@ export class MechanicCardComponent {
   <section class="mechanic-dialog">
     <header>
       <div>
-        <p class="eyebrow">CoordinaciÃ³n de staff</p>
+        <p class="eyebrow"> {{ 'registerMechanicModal.section' | translate}}</p>
         <h2>{{ mechanic.id ? 'Editar mecÃ¡nico' : 'Registrar mecÃ¡nico' }}</h2>
       </div>
 
@@ -6774,7 +7393,7 @@ export class MechanicCardComponent {
 
     <div class="form-grid">
       <mat-form-field appearance="outline" class="full-width">
-        <mat-label>Nombre completo</mat-label>
+        <mat-label> {{ 'registerMechanicModal.fields.fullName' | translate}}</mat-label>
         <input
           matInput
           [(ngModel)]="mechanic.fullName"
@@ -6782,7 +7401,7 @@ export class MechanicCardComponent {
       </mat-form-field>
 
       <mat-form-field appearance="outline" class="full-width">
-        <mat-label>Especialidad</mat-label>
+        <mat-label> {{ 'registerMechanicModal.fields.specialty' | translate}}</mat-label>
         <mat-select [(ngModel)]="mechanic.specialty">
           @for (specialty of specialtyOptions; track specialty) {
             <mat-option [value]="specialty">
@@ -6793,7 +7412,7 @@ export class MechanicCardComponent {
       </mat-form-field>
 
       <mat-form-field appearance="outline" class="full-width">
-        <mat-label>NÃºmero de telÃ©fono</mat-label>
+        <mat-label> {{ 'registerMechanicModal.fields.phoneNumber' | translate}}</mat-label>
         <input
           matInput
           [(ngModel)]="mechanic.phone"
@@ -6801,7 +7420,7 @@ export class MechanicCardComponent {
       </mat-form-field>
 
       <mat-form-field appearance="outline" class="full-width">
-        <mat-label>Capacidad mÃ¡xima de tareas</mat-label>
+        <mat-label> {{ 'registerMechanicModal.fields.maxTasks' | translate}}</mat-label>
         <input
           matInput
           type="number"
@@ -6811,7 +7430,7 @@ export class MechanicCardComponent {
       </mat-form-field>
 
       <mat-form-field appearance="outline" class="full-width">
-        <mat-label>Estado inicial</mat-label>
+        <mat-label> {{ 'registerMechanicModal.fields.initialStatus' | translate}}</mat-label>
         <mat-select [(ngModel)]="mechanic.status">
           <mat-option value="Disponible">Disponible</mat-option>
           <mat-option value="Ocupado">Ocupado</mat-option>
@@ -6821,15 +7440,14 @@ export class MechanicCardComponent {
       <div class="technical-note">
         <mat-icon>info</mat-icon>
         <p>
-          La capacidad mÃ¡xima permite calcular la carga laboral del mecÃ¡nico y evitar
-          asignaciones que generen retrasos en el taller.
+          {{ 'registerMechanicModal.info.maxTasksDescription' | translate}}
         </p>
       </div>
     </div>
 
     <footer>
       <button mat-button type="button" (click)="onCancel()">
-        Cancelar
+        {{ 'registerMechanicModal.actions.cancel' | translate}}
       </button>
 
       <button
@@ -6839,7 +7457,7 @@ export class MechanicCardComponent {
         [disabled]="!mechanic.fullName || !mechanic.specialty"
         (click)="onSave()">
         <mat-icon>save</mat-icon>
-        Guardar
+        {{ 'registerMechanicModal.actions.save' | translate}}
       </button>
     </footer>
   </section>
@@ -6858,6 +7476,7 @@ import { MatInputModule } from '@angular/material/input';
 import { MatSelectModule } from '@angular/material/select';
 
 import { Mechanic } from '../../../../domain/models/mechanic.model';
+import { TranslatePipe } from '@ngx-translate/core';
 
 /**
  * MechanicDialogComponent
@@ -6885,13 +7504,13 @@ import { Mechanic } from '../../../../domain/models/mechanic.model';
     MatButtonModule,
     MatIconModule,
     MatInputModule,
-    MatSelectModule
+    MatSelectModule,
+    TranslatePipe,
   ],
   templateUrl: './mechanic-dialog.html',
-  styleUrl: './mechanic-dialog.css'
+  styleUrl: './mechanic-dialog.css',
 })
 export class MechanicDialogComponent {
-
   /**
    * Mechanic
    *
@@ -6953,7 +7572,7 @@ export class MechanicDialogComponent {
 
 <div class="mechanic-filters">
   <mat-form-field appearance="outline" class="search-box">
-    <mat-label>Buscar mecÃ¡nico</mat-label>
+    <mat-label>{{ 'staffManagement.actions.searchMechanic' | translate}}</mat-label>
     <mat-icon matPrefix>search</mat-icon>
 
     <input
@@ -6964,7 +7583,7 @@ export class MechanicDialogComponent {
   </mat-form-field>
 
   <mat-form-field appearance="outline" class="specialty-filter">
-    <mat-label>Filtrar por especialidad</mat-label>
+    <mat-label>{{ 'staffManagement.actions.filterBySpecialty' | translate}}</mat-label>
 
     <mat-select
       [ngModel]="specialty"
@@ -6991,6 +7610,7 @@ import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatIconModule } from '@angular/material/icon';
 import { MatInputModule } from '@angular/material/input';
 import { MatSelectModule } from '@angular/material/select';
+import { TranslatePipe } from '@ngx-translate/core';
 
 @Component({
   selector: 'app-mechanic-filters',
@@ -7001,10 +7621,11 @@ import { MatSelectModule } from '@angular/material/select';
     MatFormFieldModule,
     MatIconModule,
     MatInputModule,
-    MatSelectModule
+    MatSelectModule,
+    TranslatePipe,
   ],
   templateUrl: './mechanic-filters.html',
-  styleUrl: './mechanic-filters.css'
+  styleUrl: './mechanic-filters.css',
 })
 export class MechanicFiltersComponent {
   @Input() search = '';
@@ -7168,11 +7789,10 @@ export class MechanicFiltersComponent {
 <section class="mechanics-page">
   <div class="mechanics-header">
     <div>
-      <span class="eyebrow">CoordinaciÃ³n de staff</span>
-      <h1>GestiÃ³n de mecÃ¡nicos</h1>
+      <span class="eyebrow">{{ 'staffManagement.section' | translate}}</span>
+      <h1>{{ 'staffManagement.title' | translate}}</h1>
       <p>
-        Administra especialidades, disponibilidad y carga laboral para asignar tareas
-        con mayor precisiÃ³n.
+        {{ 'staffManagement.description' | translate}}
       </p>
     </div>
 
@@ -7183,23 +7803,23 @@ export class MechanicFiltersComponent {
       class="add-button"
       (click)="openDialog()">
       <mat-icon>person_add</mat-icon>
-      Registrar mecÃ¡nico
+      {{ 'staffManagement.actions.registerMechanic' | translate}}
     </button>
   </div>
 
   <div class="summary-row">
     <div class="summary-card">
-      <span>Total mecÃ¡nicos</span>
+      <span>{{ 'staffManagement.stats.totalMechanics' | translate}}</span>
       <strong>{{ mechanicStore.mechanics().length }}</strong>
     </div>
 
     <div class="summary-card">
-      <span>Disponibles</span>
+      <span>{{ 'staffManagement.stats.available' | translate}}</span>
       <strong>{{ availableMechanics() }}</strong>
     </div>
 
     <div class="summary-card warning">
-      <span>Carga alta</span>
+      <span>{{ 'staffManagement.stats.highLoad' | translate}}</span>
       <strong>{{ highLoadMechanics() }}</strong>
     </div>
   </div>
@@ -7261,6 +7881,7 @@ import { Mechanic } from '../../domain/models/mechanic.model';
 import { MechanicCardComponent, MechanicCardView } from './components/mechanic-card/mechanic-card';
 import { MechanicDialogComponent } from './components/mechanic-dialog/mechanic-dialog';
 import { MechanicFiltersComponent } from './components/mechanic-filters/mechanic-filters';
+import { TranslatePipe } from '@ngx-translate/core';
 
 /**
  * MechanicsViewComponent
@@ -7284,10 +7905,11 @@ import { MechanicFiltersComponent } from './components/mechanic-filters/mechanic
     MatIconModule,
     MechanicFiltersComponent,
     MechanicCardComponent,
-    MechanicDialogComponent
+    MechanicDialogComponent,
+    TranslatePipe,
   ],
   templateUrl: './mechanics-view.html',
-  styleUrl: './mechanics-view.css'
+  styleUrl: './mechanics-view.css',
 })
 export class MechanicsViewComponent implements OnInit {
   /**
@@ -7318,7 +7940,7 @@ export class MechanicsViewComponent implements OnInit {
     'Planchado y Pintura',
     'ElectrÃ³nica',
     'Frenos y SuspensiÃ³n',
-    'Motor y TransmisiÃ³n'
+    'Motor y TransmisiÃ³n',
   ];
 
   /**
@@ -7340,9 +7962,9 @@ export class MechanicsViewComponent implements OnInit {
         loadPercentage,
         workloadStatus: this.getWorkloadStatus(loadPercentage),
         loadClass: this.getLoadClass(loadPercentage),
-        effectiveness: this.calculateEffectiveness(String(mechanic.id))
+        effectiveness: this.calculateEffectiveness(String(mechanic.id)),
       };
-    })
+    }),
   );
 
   /**
@@ -7358,8 +7980,7 @@ export class MechanicsViewComponent implements OnInit {
         mechanic.fullName.toLowerCase().includes(term) ||
         mechanic.specialty.toLowerCase().includes(term);
 
-      const matchesSpecialty =
-        !selectedSpecialty || mechanic.specialty === selectedSpecialty;
+      const matchesSpecialty = !selectedSpecialty || mechanic.specialty === selectedSpecialty;
 
       return matchesSearch && matchesSpecialty;
     });
@@ -7368,15 +7989,15 @@ export class MechanicsViewComponent implements OnInit {
   /**
    * Number of mechanics with available workload capacity.
    */
-  protected readonly availableMechanics = computed(() =>
-    this.mechanicsView().filter((mechanic) => mechanic.loadPercentage < 70).length
+  protected readonly availableMechanics = computed(
+    () => this.mechanicsView().filter((mechanic) => mechanic.loadPercentage < 70).length,
   );
 
   /**
    * Number of mechanics with high workload.
    */
-  protected readonly highLoadMechanics = computed(() =>
-    this.mechanicsView().filter((mechanic) => mechanic.loadPercentage >= 70).length
+  protected readonly highLoadMechanics = computed(
+    () => this.mechanicsView().filter((mechanic) => mechanic.loadPercentage >= 70).length,
   );
 
   /**
@@ -7415,7 +8036,7 @@ export class MechanicsViewComponent implements OnInit {
     this.mechanicForm = {
       ...mechanic,
       maxCapacity: mechanic.maxCapacity || 5,
-      status: mechanic.status || 'Disponible'
+      status: mechanic.status || 'Disponible',
     };
     this.displayDialog.set(true);
   }
@@ -7473,9 +8094,8 @@ export class MechanicsViewComponent implements OnInit {
   private getActiveTasksCount(mechanicId: string): number {
     return this.taskStore
       .tasks()
-      .filter((task) =>
-        String(task.mechanicId) === String(mechanicId) &&
-        task.status !== 'Completada'
+      .filter(
+        (task) => String(task.mechanicId) === String(mechanicId) && task.status !== 'Completada',
       ).length;
   }
 
@@ -7536,7 +8156,7 @@ export class MechanicsViewComponent implements OnInit {
       specialty: 'MecÃ¡nica General',
       phone: '',
       status: 'Disponible',
-      maxCapacity: 5
+      maxCapacity: 5,
     };
   }
 }
@@ -8144,7 +8764,7 @@ export class WorkOrderService {
       <button mat-icon-button (click)="goBack()">
         <mat-icon>arrow_back</mat-icon>
       </button>
-      <h1>Registrar Nueva Orden de Trabajo</h1>
+      <h1>{{ ('newWorkOrder.title') | translate}}</h1>
     </div>
   </div>
 
@@ -8153,13 +8773,13 @@ export class WorkOrderService {
     <div class="left-column">
       <mat-card class="form-card">
         <mat-card-header>
-          <mat-card-title>Datos Generales</mat-card-title>
+          <mat-card-title>{{ ('newWorkOrder.generalData') | translate}}</mat-card-title>
         </mat-card-header>
 
         <mat-card-content class="pt-3">
 
           <mat-form-field appearance="outline" class="w-full">
-            <mat-label>VehÃ­culo (Placa)</mat-label>
+            <mat-label>{{ ('newWorkOrder.vehicle') | translate}}</mat-label>
             <mat-select [(ngModel)]="newWO.vehicleId" (selectionChange)="onVehicleChange($event.value)" required>
               @for (vehicle of vehicleStore.vehicles(); track vehicle.id) {
                 <mat-option [value]="vehicle.id">{{ vehicle.plate }} ({{ vehicle.brand }})</mat-option>
@@ -8175,20 +8795,20 @@ export class WorkOrderService {
           }
 
           <mat-form-field appearance="outline" class="w-full">
-            <mat-label>DescripciÃ³n del Problema</mat-label>
+            <mat-label>{{ ('newWorkOrder.problemDescription') | translate}}</mat-label>
             <textarea matInput [(ngModel)]="newWO.description" rows="3" required></textarea>
           </mat-form-field>
 
           <div class="form-row">
             <mat-form-field appearance="outline" class="w-half">
-              <mat-label>Fecha Estimada</mat-label>
+              <mat-label>{{ ('newWorkOrder.estimatedDate') | translate}}</mat-label>
               <input matInput [matDatepicker]="picker" [(ngModel)]="newWO.estimatedDate" required>
               <mat-datepicker-toggle matIconSuffix [for]="picker"></mat-datepicker-toggle>
               <mat-datepicker #picker></mat-datepicker>
             </mat-form-field>
 
             <mat-form-field appearance="outline" class="w-half">
-              <mat-label>Precio Total (S/.)</mat-label>
+              <mat-label>{{ ('newWorkOrder.totalPrice') | translate}}</mat-label>
               <span matTextPrefix>S/.&nbsp;</span>
               <input matInput type="number" [(ngModel)]="newWO.price" required>
             </mat-form-field>
@@ -8202,9 +8822,9 @@ export class WorkOrderService {
       <mat-card class="form-card h-full">
 
         <mat-card-header class="tasks-header">
-          <mat-card-title>Tareas Asignadas</mat-card-title>
+          <mat-card-title>{{ ('newWorkOrder.assignedTasks') | translate}}</mat-card-title>
           <button mat-stroked-button color="primary" (click)="addTaskRow()">
-            <mat-icon>add</mat-icon> AÃ±adir Tarea
+            <mat-icon>add</mat-icon> {{ ('newWorkOrder.addTask') | translate}}
           </button>
         </mat-card-header>
 
@@ -8236,8 +8856,7 @@ export class WorkOrderService {
 
             @if (tasks.length === 0) {
               <div class="empty-state">
-                No has agregado tareas. AÃ±ade al menos una para guardar la orden.
-              </div>
+                {{ ('newWorkOrder.emptyTasksMessage') | translate}}              </div>
             }
           </div>
 
@@ -8248,11 +8867,11 @@ export class WorkOrderService {
   </div>
 
   <div class="footer-actions">
-    <button mat-button (click)="goBack()">Cancelar</button>
+    <button mat-button (click)="goBack()">{{ ('newWorkOrder.cancel') | translate}}</button>
     <button mat-raised-button color="primary" (click)="saveFullWorkOrder()" [disabled]="isSaving || !newWO.vehicleId || tasks.length === 0">
       <mat-icon *ngIf="!isSaving">save</mat-icon>
       <mat-icon *ngIf="isSaving" class="spin">sync</mat-icon>
-      {{ isSaving ? 'Guardando...' : 'Guardar Orden Completa' }}
+      {{ isSaving ? 'Guardando...' : ('newWorkOrder.saveCompleteOrder' | translate) }}
     </button>
   </div>
 
@@ -8263,14 +8882,14 @@ export class WorkOrderService {
 
 /**
  * CreateWorkOrderComponent
- * 
+ *
  * Component for creating a new complete Work Order.
  * Allows:
  * - Selecting a vehicle (and auto-completing the customer)
  * - Entering general order data (description, price, estimated date)
  * - Adding multiple tasks dynamically
  * - Saving the order and all its associated tasks in a single operation
- * 
+ *
  * @component
  * @selector app-create-work-order
  * @standalone true
@@ -8300,17 +8919,26 @@ import { MechanicStore } from '../../../staff-coordination/application/mechanic.
 
 // Models
 import { WorkOrder, Task } from '../../domain/models/work-order.model';
+import { TranslatePipe } from '@ngx-translate/core';
 
 @Component({
   selector: 'app-create-work-order',
   standalone: true,
   providers: [provideNativeDateAdapter()], // Necesario para el MatDatepicker
   imports: [
-    CommonModule, FormsModule, MatCardModule, MatButtonModule, MatIconModule,
-    MatInputModule, MatFormFieldModule, MatSelectModule, MatDatepickerModule
+    CommonModule,
+    FormsModule,
+    MatCardModule,
+    MatButtonModule,
+    MatIconModule,
+    MatInputModule,
+    MatFormFieldModule,
+    MatSelectModule,
+    MatDatepickerModule,
+    TranslatePipe,
   ],
   templateUrl: './create-work-order.html',
-  styleUrl: './create-work-order.css'
+  styleUrl: './create-work-order.css',
 })
 export class CreateWorkOrderComponent implements OnInit {
   private router = inject(Router);
@@ -8334,7 +8962,7 @@ export class CreateWorkOrderComponent implements OnInit {
     description: '',
     estimatedDate: '',
     price: 0,
-    status: 'En Proceso'
+    status: 'En Proceso',
   };
 
   /** Array of tasks to create along with the order */
@@ -8357,10 +8985,12 @@ export class CreateWorkOrderComponent implements OnInit {
    * Auto-completes the owner customer.
    */
   onVehicleChange(vehicleId: string) {
-    const vehicle = this.vehicleStore.vehicles().find(v => String(v.id) === String(vehicleId));
+    const vehicle = this.vehicleStore.vehicles().find((v) => String(v.id) === String(vehicleId));
     if (vehicle) {
       this.newWO.customerId = vehicle.customerId;
-      const customer = this.customerStore.customers().find(c => String(c.id) === String(vehicle.customerId));
+      const customer = this.customerStore
+        .customers()
+        .find((c) => String(c.id) === String(vehicle.customerId));
       this.selectedCustomerName = customer ? customer.fullName : 'No encontrado';
     }
   }
@@ -8384,7 +9014,7 @@ export class CreateWorkOrderComponent implements OnInit {
    */
   saveFullWorkOrder() {
     if (!this.newWO.vehicleId || this.tasks.length === 0) {
-      alert("Debes seleccionar un vehÃ­culo y aÃ±adir al menos una tarea.");
+      alert('Debes seleccionar un vehÃ­culo y aÃ±adir al menos una tarea.');
       return;
     }
 
@@ -8402,18 +9032,18 @@ export class CreateWorkOrderComponent implements OnInit {
       ...(this.newWO as WorkOrder),
       trackingCode: `AS-${Math.random().toString(36).substring(2, 7).toUpperCase()}`,
       startDate: new Date().toISOString().split('T')[0],
-      estimatedDate: formattedDate as string
+      estimatedDate: formattedDate as string,
     };
 
     // 1. Create the main order
     this.workOrderStore.addWorkOrder(payloadWO).subscribe({
       next: (createdOrder) => {
         // 2. Iterate through and create all tasks associated with the order ID
-        this.tasks.forEach(task => {
+        this.tasks.forEach((task) => {
           if (task.description) {
             this.taskStore.addTask({
               ...(task as Task),
-              workOrderId: createdOrder.id!
+              workOrderId: createdOrder.id!,
             });
           }
         });
@@ -8422,9 +9052,9 @@ export class CreateWorkOrderComponent implements OnInit {
         this.router.navigate(['/admin/work-orders']);
       },
       error: (err) => {
-        console.error("Error al guardar la orden completa:", err);
+        console.error('Error al guardar la orden completa:', err);
         this.isSaving = false;
-      }
+      },
     });
   }
 }
@@ -8780,20 +9410,20 @@ export class CreateWorkOrderComponent implements OnInit {
 <section class="admin-dashboard">
   <header class="dashboard-header">
     <div>
-      <p class="eyebrow">GestiÃ³n operativa</p>
-      <h1>Panel de control</h1>
-      <span>Supervisa vehÃ­culos, Ã³rdenes, tareas e ingresos del taller.</span>
+      <p class="eyebrow">{{ ('dashboard.h1') | translate }}</p>
+      <h1>{{ ('dashboard.title') | translate }}</h1>
+      <span>{{ ('dashboard.subtitle') | translate }}</span>
     </div>
 
     <div class="header-actions">
       <button mat-stroked-button type="button" (click)="goToOrders()">
         <mat-icon>assignment</mat-icon>
-        Ver Ã³rdenes
+        {{ ('dashboard.viewOrders') | translate }}
       </button>
 
       <button mat-flat-button color="primary" type="button" (click)="goToCreateOrder()">
         <mat-icon>add</mat-icon>
-        Nueva orden
+        {{ ('dashboard.newOrder') | translate }}
       </button>
     </div>
   </header>
@@ -8802,9 +9432,9 @@ export class CreateWorkOrderComponent implements OnInit {
     <mat-card class="kpi-card">
       <mat-card-content>
         <div class="kpi-info">
-          <span>VehÃ­culos activos</span>
+          <span>{{ ('stats.activeVehicles') | translate }}</span>
           <strong>{{ vehiclesInWorkshop() }}</strong>
-          <small>En atenciÃ³n actualmente</small>
+          <small>{{ ('stats.currentlyAttended') | translate }}</small>
         </div>
         <div class="kpi-icon blue">
           <mat-icon>directions_car</mat-icon>
@@ -8815,9 +9445,9 @@ export class CreateWorkOrderComponent implements OnInit {
     <mat-card class="kpi-card">
       <mat-card-content>
         <div class="kpi-info">
-          <span>Ã“rdenes activas</span>
+          <span></span>
           <strong>{{ activeOrders() }}</strong>
-          <small>Servicios en proceso</small>
+          <small>{{('stats.servicesInProgress') | translate }}</small>
         </div>
         <div class="kpi-icon indigo">
           <mat-icon>build</mat-icon>
@@ -8828,9 +9458,9 @@ export class CreateWorkOrderComponent implements OnInit {
     <mat-card class="kpi-card">
       <mat-card-content>
         <div class="kpi-info">
-          <span>Completados</span>
+          <span>{{('stats.completed') | translate }}</span>
           <strong>{{ completedOrders() }}</strong>
-          <small>Ã“rdenes finalizadas</small>
+          <small>{{('stats.finishedOrders') | translate }}</small>
         </div>
         <div class="kpi-icon green">
           <mat-icon>check_circle</mat-icon>
@@ -8841,9 +9471,9 @@ export class CreateWorkOrderComponent implements OnInit {
     <mat-card class="kpi-card">
       <mat-card-content>
         <div class="kpi-info">
-          <span>Ingresos proyectados</span>
+          <span>{{('stats.projectedIncome') | translate }}</span>
           <strong>{{ projectedIncome() | currency:'PEN':'symbol':'1.0-0' }}</strong>
-          <small>SegÃºn Ã³rdenes registradas</small>
+          <small>{{('stats.accordingToOrders') | translate }}</small>
         </div>
         <div class="kpi-icon violet">
           <mat-icon>account_balance_wallet</mat-icon>
@@ -8855,8 +9485,8 @@ export class CreateWorkOrderComponent implements OnInit {
   <div class="dashboard-grid">
     <mat-card class="panel-card active-vehicles-card">
       <mat-card-header>
-        <mat-card-title>VehÃ­culos activos</mat-card-title>
-        <button mat-button type="button" (click)="goToVehicles()">Ver todos</button>
+        <mat-card-title>{{('vehicles.title') | translate }}</mat-card-title>
+        <button mat-button type="button" (click)="goToVehicles()">{{('vehicles.viewAll') | translate }}</button>
       </mat-card-header>
 
       <mat-card-content>
@@ -8891,9 +9521,9 @@ export class CreateWorkOrderComponent implements OnInit {
 
     <mat-card class="panel-card income-card">
       <mat-card-header>
-        <mat-card-title>Ingresos semanales</mat-card-title>
+        <mat-card-title>{{('income.title') | translate }}</mat-card-title>
         <mat-card-subtitle>
-          Total acumulado esta semana:
+          {{('income.weeklyTotal') | translate }}:
           {{ projectedIncome() | currency:'PEN':'symbol':'1.0-0' }}
         </mat-card-subtitle>
       </mat-card-header>
@@ -8916,8 +9546,8 @@ export class CreateWorkOrderComponent implements OnInit {
 
     <mat-card class="panel-card orders-card">
       <mat-card-header>
-        <mat-card-title>Ã“rdenes recientes</mat-card-title>
-        <button mat-button type="button" (click)="goToOrders()">Ver Ã³rdenes</button>
+        <mat-card-title>{{('recentOrders.title') | translate }}</mat-card-title>
+        <button mat-button type="button" (click)="goToOrders()">{{('recentOrders.viewOrders') | translate }}</button>
       </mat-card-header>
 
       <mat-card-content>
@@ -8943,8 +9573,8 @@ export class CreateWorkOrderComponent implements OnInit {
 
     <mat-card class="panel-card services-card">
       <mat-card-header>
-        <mat-card-title>Servicios mÃ¡s frecuentes</mat-card-title>
-        <mat-card-subtitle>Rendimiento de servicios por tipo</mat-card-subtitle>
+        <mat-card-title>{{('services.title') | translate }}:</mat-card-title>
+        <mat-card-subtitle>{{('services.subtitle') | translate }}:</mat-card-subtitle>
       </mat-card-header>
 
       <mat-card-content>
@@ -8984,7 +9614,7 @@ export class CreateWorkOrderComponent implements OnInit {
 
 /**
  * DashboardComponent
- * 
+ *
  * Main component of the workshop's administrative dashboard.
  * Displays an executive summary with:
  * - Key statistics (vehicles in workshop, active orders, pending tasks)
@@ -8992,7 +9622,7 @@ export class CreateWorkOrderComponent implements OnInit {
  * - Recent orders
  * - Most frequent services
  * - Simple weekly income charts
- * 
+ *
  * @component
  * @selector app-dashboard
  * @standalone true
@@ -9011,6 +9641,7 @@ import { WorkOrderStore } from '../../application/work-order.store';
 import { TaskStore } from '../../application/task.store';
 import { Vehicle } from '../../../fleet-management/domain/models/vehicle.model';
 import { WorkOrder } from '../../domain/models/work-order.model';
+import { TranslatePipe } from '@ngx-translate/core';
 
 interface DashboardVehiclePreview {
   id: string;
@@ -9038,10 +9669,11 @@ interface FrequentService {
     MatCardModule,
     MatIconModule,
     MatButtonModule,
-    MatProgressBarModule
+    MatProgressBarModule,
+    TranslatePipe,
   ],
   templateUrl: './dashboard.component.html',
-  styleUrl: './dashboard.component.css'
+  styleUrl: './dashboard.component.css',
 })
 export class DashboardComponent implements OnInit {
   private readonly router = inject(Router);
@@ -9053,7 +9685,7 @@ export class DashboardComponent implements OnInit {
     'https://images.unsplash.com/photo-1552519507-da3b142c6e3d?w=300&auto=format&fit=crop',
     'https://images.unsplash.com/photo-1542362567-b07e54358753?w=300&auto=format&fit=crop',
     'https://images.unsplash.com/photo-1492144534655-ae79c964c9d7?w=300&auto=format&fit=crop',
-    'https://images.unsplash.com/photo-1503376780353-7e6692767b70?w=300&auto=format&fit=crop'
+    'https://images.unsplash.com/photo-1503376780353-7e6692767b70?w=300&auto=format&fit=crop',
   ];
 
   // Signals directos de los stores
@@ -9061,31 +9693,28 @@ export class DashboardComponent implements OnInit {
   protected readonly workOrders = this.workOrderStore.workOrders;
   protected readonly tasks = this.taskStore.tasks;
 
-  protected readonly vehiclesInWorkshop = computed(() =>
-    this.vehicles().filter((vehicle) => vehicle.status !== 'Entregado').length
+  protected readonly vehiclesInWorkshop = computed(
+    () => this.vehicles().filter((vehicle) => vehicle.status !== 'Entregado').length,
   );
 
-  protected readonly activeOrders = computed(() =>
-    this.workOrders().filter((order) => order.status === 'En Proceso').length
+  protected readonly activeOrders = computed(
+    () => this.workOrders().filter((order) => order.status === 'En Proceso').length,
   );
 
-  protected readonly completedOrders = computed(() =>
-    this.workOrders().filter((order) => order.status === 'Finalizado').length
+  protected readonly completedOrders = computed(
+    () => this.workOrders().filter((order) => order.status === 'Finalizado').length,
   );
 
-  protected readonly pendingTasks = computed(() =>
-    this.tasks().filter((task) => task.status === 'Pendiente').length
+  protected readonly pendingTasks = computed(
+    () => this.tasks().filter((task) => task.status === 'Pendiente').length,
   );
 
   protected readonly projectedIncome = computed(() =>
-    this.workOrders()
-      .reduce((total, order) => total + Number(order.price || 0), 0)
+    this.workOrders().reduce((total, order) => total + Number(order.price || 0), 0),
   );
 
   protected readonly activeVehiclePreview = computed<DashboardVehiclePreview[]>(() => {
-    const sourceVehicles = this.vehicles().length
-      ? this.vehicles()
-      : this.getFallbackVehicles();
+    const sourceVehicles = this.vehicles().length ? this.vehicles() : this.getFallbackVehicles();
 
     return sourceVehicles
       .filter((vehicle) => vehicle.status !== 'Entregado')
@@ -9095,13 +9724,11 @@ export class DashboardComponent implements OnInit {
         name: `${vehicle.brand} ${vehicle.model}`,
         status: this.getReadableVehicleStatus(vehicle.status),
         progress: this.getProgressByStatus(vehicle.status),
-        image: this.fallbackVehicleImages[index % this.fallbackVehicleImages.length]
+        image: this.fallbackVehicleImages[index % this.fallbackVehicleImages.length],
       }));
   });
 
-  protected readonly recentOrders = computed(() =>
-    [...this.workOrders()].reverse().slice(0, 5)
-  );
+  protected readonly recentOrders = computed(() => [...this.workOrders()].reverse().slice(0, 5));
 
   protected readonly frequentServices: FrequentService[] = [
     {
@@ -9109,22 +9736,22 @@ export class DashboardComponent implements OnInit {
       count: 12,
       amount: 540,
       progress: 86,
-      icon: 'settings'
+      icon: 'settings',
     },
     {
       name: 'ReparaciÃ³n de frenos',
       count: 8,
       amount: 820,
       progress: 68,
-      icon: 'build'
+      icon: 'build',
     },
     {
       name: 'RotaciÃ³n de neumÃ¡ticos',
       count: 5,
       amount: 140,
       progress: 44,
-      icon: 'sync'
-    }
+      icon: 'sync',
+    },
   ];
 
   protected readonly weeklyIncomeBars = [
@@ -9133,7 +9760,7 @@ export class DashboardComponent implements OnInit {
     { day: 'MiÃ©', value: 460 },
     { day: 'Jue', value: 610 },
     { day: 'Vie', value: 900 },
-    { day: 'SÃ¡b', value: 300 }
+    { day: 'SÃ¡b', value: 300 },
   ];
 
   ngOnInit(): void {
@@ -9206,7 +9833,7 @@ export class DashboardComponent implements OnInit {
         year: '2024',
         color: 'Negro',
         status: 'En Taller',
-        customerId: '1'
+        customerId: '1',
       },
       {
         id: '2',
@@ -9216,7 +9843,7 @@ export class DashboardComponent implements OnInit {
         year: '2023',
         color: 'Azul',
         status: 'En Taller',
-        customerId: '2'
+        customerId: '2',
       },
       {
         id: '3',
@@ -9226,8 +9853,8 @@ export class DashboardComponent implements OnInit {
         year: '2024',
         color: 'Gris',
         status: 'Listo',
-        customerId: '3'
-      }
+        customerId: '3',
+      },
     ];
   }
 }
@@ -9682,8 +10309,8 @@ export class TaskCardComponent {
   <section class="task-dialog">
     <header>
       <div>
-        <p class="eyebrow">ConfiguraciÃ³n de servicio</p>
-        <h2>{{ task.id ? 'Editar tarea' : 'Nueva tarea' }}</h2>
+        <p class="eyebrow">{{ 'taskBoard.newTask1.section' | translate}}</p>
+        <h2>{{ task.id ? 'Editar tarea' : ('taskBoard.newTask1.title' | translate) }}</h2>
       </div>
 
       <button
@@ -9697,7 +10324,7 @@ export class TaskCardComponent {
 
     <div class="form-grid">
       <mat-form-field appearance="outline" class="full-width">
-        <mat-label>Orden de trabajo</mat-label>
+        <mat-label>{{ 'taskBoard.newTask1.workOrder' | translate}}</mat-label>
         <mat-select [(ngModel)]="task.workOrderId" required>
           @for (order of workOrderOptions; track order.id) {
             <mat-option [value]="order.id">
@@ -9708,7 +10335,7 @@ export class TaskCardComponent {
       </mat-form-field>
 
       <mat-form-field appearance="outline" class="full-width">
-        <mat-label>DescripciÃ³n</mat-label>
+        <mat-label>{{ 'taskBoard.newTask1.description' | translate}}</mat-label>
         <input
           matInput
           [(ngModel)]="task.description"
@@ -9716,7 +10343,7 @@ export class TaskCardComponent {
       </mat-form-field>
 
       <mat-form-field appearance="outline" class="full-width">
-        <mat-label>MecÃ¡nico asignado</mat-label>
+        <mat-label>{{ 'taskBoard.newTask1.assignedMechanic' | translate}}</mat-label>
         <mat-select [(ngModel)]="task.mechanicId">
           @for (mechanic of mechanicOptions; track mechanic.id) {
             <mat-option [value]="mechanic.id">
@@ -9728,7 +10355,7 @@ export class TaskCardComponent {
 
       <div class="form-row">
         <mat-form-field appearance="outline">
-          <mat-label>Estado</mat-label>
+          <mat-label>{{ 'taskBoard.newTask1.status' | translate}}</mat-label>
           <mat-select [(ngModel)]="task.status">
             @for (status of statusOptions; track status) {
               <mat-option [value]="status">{{ status }}</mat-option>
@@ -9737,7 +10364,7 @@ export class TaskCardComponent {
         </mat-form-field>
 
         <mat-form-field appearance="outline">
-          <mat-label>Prioridad</mat-label>
+          <mat-label>{{ 'taskBoard.newTask1.priority' | translate}}</mat-label>
           <mat-select [(ngModel)]="task.priority">
             @for (priority of priorityOptions; track priority) {
               <mat-option [value]="priority">{{ priority }}</mat-option>
@@ -9747,7 +10374,7 @@ export class TaskCardComponent {
       </div>
 
       <mat-form-field appearance="outline" class="full-width">
-        <mat-label>Tiempo estimado</mat-label>
+        <mat-label>{{ 'taskBoard.newTask1.estimatedTime' | translate}}</mat-label>
         <input
           matInput
           type="number"
@@ -9760,7 +10387,7 @@ export class TaskCardComponent {
 
       <div class="image-upload-section">
         <label class="upload-label">
-          Evidencia visual
+          {{ 'taskBoard.newTask1.visualEvidence' | translate}}
         </label>
         <input
           type="file"
@@ -9779,15 +10406,14 @@ export class TaskCardComponent {
       <div class="technical-note">
         <mat-icon>info</mat-icon>
         <p>
-          Las tareas guardadas se asignarÃ¡n automÃ¡ticamente al historial tÃ©cnico
-          de la orden seleccionada para mantener trazabilidad del servicio.
+          {{ 'taskBoard.newTask1.infoMessage' | translate}}
         </p>
       </div>
     </div>
 
     <footer>
       <button mat-button type="button" (click)="onCancel()">
-        Cancelar
+        {{ 'taskBoard.newTask1.cancel' | translate}}
       </button>
 
       <button
@@ -9797,7 +10423,7 @@ export class TaskCardComponent {
         [disabled]="!task.description || !task.workOrderId"
         (click)="onSave()">
         <mat-icon>save</mat-icon>
-        Guardar
+        {{ 'taskBoard.newTask1.save' | translate}}
       </button>
     </footer>
   </section>
@@ -9808,13 +10434,13 @@ export class TaskCardComponent {
 
 /**
  * TaskDialogComponent
- * 
+ *
  * Reusable dialog component for creating or editing a task.
  * It is used within a MatDialog or as an inline modal.
- * 
+ *
  * It receives the task data and selection options (work orders,
  * mechanics, statuses, and priorities).
- * 
+ *
  * @component
  * @selector app-task-dialog
  * @standalone true
@@ -9830,6 +10456,7 @@ import { MatSelectModule } from '@angular/material/select';
 
 import { Mechanic } from '../../../../../staff-coordination/domain/models/mechanic.model';
 import { Task, WorkOrder } from '../../../../domain/models/work-order.model';
+import { TranslatePipe } from '@ngx-translate/core';
 
 @Component({
   selector: 'app-task-dialog',
@@ -9840,10 +10467,11 @@ import { Task, WorkOrder } from '../../../../domain/models/work-order.model';
     MatButtonModule,
     MatIconModule,
     MatInputModule,
-    MatSelectModule
+    MatSelectModule,
+    TranslatePipe,
   ],
   templateUrl: './task-dialog.html',
-  styleUrl: './task-dialog.css'
+  styleUrl: './task-dialog.css',
 })
 export class TaskDialogComponent {
   /** Task to create or edit */
@@ -9851,7 +10479,7 @@ export class TaskDialogComponent {
 
   /** List of available work orders for assignment */
   @Input() workOrderOptions: WorkOrder[] = [];
-  
+
   /** List of available mechanics for assignment */
   @Input() mechanicOptions: Mechanic[] = [];
 
@@ -9925,7 +10553,7 @@ export class TaskDialogComponent {
 
 <div class="task-filters">
   <mat-form-field appearance="outline" class="search-box">
-    <mat-label>Buscar tarea</mat-label>
+    <mat-label>{{ 'taskBoard.filters.searchPlaceholder' | translate}}</mat-label>
     <mat-icon matPrefix>search</mat-icon>
 
     <input
@@ -9936,7 +10564,7 @@ export class TaskDialogComponent {
   </mat-form-field>
 
   <mat-form-field appearance="outline" class="filter-select">
-    <mat-label>Estado</mat-label>
+    <mat-label>{{ 'taskBoard.filters.status' | translate}}</mat-label>
 
     <mat-select
       [ngModel]="status"
@@ -9950,7 +10578,7 @@ export class TaskDialogComponent {
   </mat-form-field>
 
   <mat-form-field appearance="outline" class="filter-select">
-    <mat-label>MecÃ¡nico</mat-label>
+    <mat-label>{{ 'taskBoard.filters.mechanic' | translate}}</mat-label>
 
     <mat-select
       [ngModel]="mechanicId"
@@ -9971,13 +10599,13 @@ export class TaskDialogComponent {
 
 /**
  * TaskFiltersComponent
- * 
+ *
  * Component for filtering the tasks view.
  * Allows filtering by:
  * - Textual search (description, work order code, mechanic)
  * - Task status
  * - Assigned mechanic
- * 
+ *
  * @component
  * @selector app-task-filters
  * @standalone true
@@ -9993,6 +10621,7 @@ import { MatSelectModule } from '@angular/material/select';
 
 import { Mechanic } from '../../../../../staff-coordination/domain/models/mechanic.model';
 import { Task } from '../../../../domain/models/work-order.model';
+import { TranslatePipe } from '@ngx-translate/core';
 
 @Component({
   selector: 'app-task-filters',
@@ -10003,10 +10632,11 @@ import { Task } from '../../../../domain/models/work-order.model';
     MatFormFieldModule,
     MatInputModule,
     MatSelectModule,
-    MatIconModule
+    MatIconModule,
+    TranslatePipe,
   ],
   templateUrl: './task-filters.html',
-  styleUrl: './task-filters.css'
+  styleUrl: './task-filters.css',
 })
 export class TaskFiltersComponent {
   /** Current search term */
@@ -10029,7 +10659,7 @@ export class TaskFiltersComponent {
 
   /** Emits when the selected status changes */
   @Output() statusChange = new EventEmitter<Task['status'] | null>();
-  
+
   /** Emits when the selected mechanic changes */
   @Output() mechanicIdChange = new EventEmitter<string | null>();
 
@@ -10201,11 +10831,10 @@ export class TaskFiltersComponent {
 <section class="tasks-page">
   <div class="tasks-header">
     <div>
-      <span class="eyebrow">Control operativo</span>
-      <h1>Tablero de tareas</h1>
+      <span class="eyebrow">{{ 'taskBoard.section' | translate}}</span>
+      <h1>{{ 'taskBoard.title' | translate}}</h1>
       <p>
-        Gestiona tareas por orden, asigna mecÃ¡nicos y actualiza el avance real del servicio.
-      </p>
+        {{ 'taskBoard.description' | translate}}      </p>
     </div>
 
     <div class="header-actions">
@@ -10224,29 +10853,29 @@ export class TaskFiltersComponent {
         class="add-button"
         (click)="openDialog()">
         <mat-icon>add</mat-icon>
-        Nueva tarea
+        {{ 'taskBoard.newTask' | translate}}
       </button>
     </div>
   </div>
 
   <div class="summary-row">
     <div class="summary-card">
-      <span>Total tareas</span>
+      <span>{{ 'taskBoard.stats.totalTasks' | translate}}</span>
       <strong>{{ taskStore.tasks().length }}</strong>
     </div>
 
     <div class="summary-card">
-      <span>Pendientes</span>
+      <span>{{ 'taskBoard.stats.pending' | translate}}</span>
       <strong>{{ pendingTasks() }}</strong>
     </div>
 
     <div class="summary-card">
-      <span>En proceso</span>
+      <span>{{ 'taskBoard.stats.inProgress' | translate}}</span>
       <strong>{{ inProgressTasks() }}</strong>
     </div>
 
     <div class="summary-card success">
-      <span>Completadas</span>
+      <span>{{ 'taskBoard.stats.completed' | translate}}</span>
       <strong>{{ completedTasks() }}</strong>
     </div>
   </div>
@@ -10306,16 +10935,16 @@ export class TaskFiltersComponent {
 
 /**
  * TasksViewComponent
- * 
+ *
  * Main view of workshop task management.
  * Allows viewing, filtering, creating, editing and deleting tasks.
- * 
+ *
  * Includes:
  * - Advanced filters (search, status, mechanic)
  * - Task cards (`TaskCardComponent`)
  * - Dialog for creating/editing tasks (`TaskDialogComponent`)
  * - Real-time statistics
- * 
+ *
  * @component
  * @selector app-tasks-view
  * @standalone true
@@ -10334,6 +10963,7 @@ import { Task } from '../../domain/models/work-order.model';
 import { TaskCardComponent, TaskCardView } from './components/task-card/task-card';
 import { TaskDialogComponent } from './components/task-dialog/task-dialog';
 import { TaskFiltersComponent } from './components/task-filters/task-filters';
+import { TranslatePipe } from '@ngx-translate/core';
 
 type TaskPriority = 'Baja' | 'Media' | 'Alta' | 'CrÃ­tica';
 
@@ -10346,10 +10976,11 @@ type TaskPriority = 'Baja' | 'Media' | 'Alta' | 'CrÃ­tica';
     MatIconModule,
     TaskFiltersComponent,
     TaskCardComponent,
-    TaskDialogComponent
+    TaskDialogComponent,
+    TranslatePipe,
   ],
   templateUrl: './tasks-view.html',
-  styleUrl: './tasks-view.css'
+  styleUrl: './tasks-view.css',
 })
 export class TasksViewComponent implements OnInit {
   protected readonly taskStore = inject(TaskStore);
@@ -10366,18 +10997,9 @@ export class TasksViewComponent implements OnInit {
   /** Task being created or edited in the dialog */
   protected taskForm: Task = this.getEmptyTask();
 
-  protected readonly statusOptions: Task['status'][] = [
-    'Pendiente',
-    'En Proceso',
-    'Completada'
-  ];
+  protected readonly statusOptions: Task['status'][] = ['Pendiente', 'En Proceso', 'Completada'];
 
-  protected readonly priorityOptions: TaskPriority[] = [
-    'Baja',
-    'Media',
-    'Alta',
-    'CrÃ­tica'
-  ];
+  protected readonly priorityOptions: TaskPriority[] = ['Baja', 'Media', 'Alta', 'CrÃ­tica'];
 
   /** Enriched view of tasks for display in cards */
   protected readonly tasksView = computed<TaskCardView[]>(() =>
@@ -10393,7 +11015,7 @@ export class TasksViewComponent implements OnInit {
       priority: task.priority || 'Media',
       estimatedTime: task.estimatedTime || 2,
       photo: task.photo,
-    }))
+    })),
   );
 
   /** Filtered tasks based on current criteria */
@@ -10409,8 +11031,7 @@ export class TasksViewComponent implements OnInit {
         task.workOrderCode.toLowerCase().includes(term) ||
         task.mechanicName.toLowerCase().includes(term);
 
-      const matchesStatus =
-        !selectedStatus || task.status === selectedStatus;
+      const matchesStatus = !selectedStatus || task.status === selectedStatus;
 
       const matchesMechanic =
         !selectedMechanicId || String(task.mechanicId) === String(selectedMechanicId);
@@ -10419,16 +11040,16 @@ export class TasksViewComponent implements OnInit {
     });
   });
 
-  protected readonly pendingTasks = computed(() =>
-    this.taskStore.tasks().filter((task) => task.status === 'Pendiente').length
+  protected readonly pendingTasks = computed(
+    () => this.taskStore.tasks().filter((task) => task.status === 'Pendiente').length,
   );
 
-  protected readonly inProgressTasks = computed(() =>
-    this.taskStore.tasks().filter((task) => task.status === 'En Proceso').length
+  protected readonly inProgressTasks = computed(
+    () => this.taskStore.tasks().filter((task) => task.status === 'En Proceso').length,
   );
 
-  protected readonly completedTasks = computed(() =>
-    this.taskStore.tasks().filter((task) => task.status === 'Completada').length
+  protected readonly completedTasks = computed(
+    () => this.taskStore.tasks().filter((task) => task.status === 'Completada').length,
   );
 
   ngOnInit(): void {
@@ -10469,7 +11090,7 @@ export class TasksViewComponent implements OnInit {
     this.taskForm = {
       ...task,
       priority: task.priority || 'Media',
-      estimatedTime: task.estimatedTime || 2
+      estimatedTime: task.estimatedTime || 2,
     };
     this.displayDialog.set(true);
   }
@@ -10554,7 +11175,7 @@ export class TasksViewComponent implements OnInit {
       mechanicId: String(defaultMechanicId),
       status: 'Pendiente',
       priority: 'Media',
-      estimatedTime: 2
+      estimatedTime: 2,
     };
   }
 }
@@ -11792,7 +12413,7 @@ mat-progress-bar {
 
   <div class="progress-area">
     <div class="progress-label">
-      <span>Progreso de tareas</span>
+      <span>{{ ('workOrder.taskProgress') | translate}}</span>
       <strong>{{ order.progress }}%</strong>
     </div>
 
@@ -11817,7 +12438,7 @@ mat-progress-bar {
       type="button"
       class="detail-button"
       (click)="onViewDetail()">
-      Ver detalle
+      {{ ('workOrder.viewDetail') | translate}}
       <mat-icon>arrow_forward</mat-icon>
     </button>
   </div>
@@ -11828,10 +12449,10 @@ mat-progress-bar {
 
 /**
  * WorkOrderCardComponent
- * 
+ *
  * Reusable card component for displaying a visual summary
  * of a Work Order. It is primarily used in lists and general views.
- * 
+ *
  * @component
  * @selector app-work-order-card
  * @standalone true
@@ -11844,6 +12465,7 @@ import { MatIconModule } from '@angular/material/icon';
 import { MatProgressBarModule } from '@angular/material/progress-bar';
 
 import { WorkOrder } from '../../../../domain/models/work-order.model';
+import { TranslatePipe } from '@ngx-translate/core';
 
 export interface WorkOrderCardView {
   id: string;
@@ -11869,10 +12491,11 @@ export interface WorkOrderCardView {
     CurrencyPipe,
     MatButtonModule,
     MatIconModule,
-    MatProgressBarModule
+    MatProgressBarModule,
+    TranslatePipe,
   ],
   templateUrl: './work-order-card.html',
-  styleUrl: './work-order-card.css'
+  styleUrl: './work-order-card.css',
 })
 export class WorkOrderCardComponent {
   /** Data for the order in an enriched format for the view */
@@ -11932,7 +12555,7 @@ export class WorkOrderCardComponent {
 
 <div class="work-order-filters">
   <mat-form-field appearance="outline" class="search-box">
-    <mat-label>Buscar orden</mat-label>
+    <mat-label>{{ ('workOrder.searchOrder') | translate}}</mat-label>
     <mat-icon matPrefix>search</mat-icon>
 
     <input
@@ -11943,7 +12566,7 @@ export class WorkOrderCardComponent {
   </mat-form-field>
 
   <mat-form-field appearance="outline" class="status-filter">
-    <mat-label>Filtrar por estado</mat-label>
+    <mat-label>{{ ('workOrder.filterByStatus') | translate}}</mat-label>
 
     <mat-select
       [ngModel]="status"
@@ -11964,10 +12587,10 @@ export class WorkOrderCardComponent {
 
 /**
  * WorkOrderFiltersComponent
- * 
+ *
  * Reusable filter component for the work order list.
  * Allows filtering by text search and order status.
- * 
+ *
  * @component
  * @selector app-work-order-filters
  * @standalone true
@@ -11982,6 +12605,7 @@ import { MatInputModule } from '@angular/material/input';
 import { MatSelectModule } from '@angular/material/select';
 
 import { WorkOrder } from '../../../../domain/models/work-order.model';
+import { TranslatePipe } from '@ngx-translate/core';
 
 @Component({
   selector: 'app-work-order-filters',
@@ -11992,10 +12616,11 @@ import { WorkOrder } from '../../../../domain/models/work-order.model';
     MatFormFieldModule,
     MatIconModule,
     MatInputModule,
-    MatSelectModule
+    MatSelectModule,
+    TranslatePipe,
   ],
   templateUrl: './work-order-filters.html',
-  styleUrl: './work-order-filters.css'
+  styleUrl: './work-order-filters.css',
 })
 export class WorkOrderFiltersComponent {
   /** Current search term */
@@ -12163,11 +12788,10 @@ export class WorkOrderFiltersComponent {
 <section class="work-orders-page">
   <div class="work-orders-header">
     <div>
-      <span class="eyebrow">OperaciÃ³n del taller</span>
-      <h1>Ã“rdenes de trabajo</h1>
+      <span class="eyebrow">{{ ('workOrder.workshopOperation') | translate}}</span>
+      <h1>{{ ('workOrder.workOrders') | translate}}</h1>
       <p>
-        Consulta el avance de cada servicio, detecta retrasos y accede al detalle operativo de la orden.
-      </p>
+        {{ ('workOrder.workOrdersSubtitle') | translate}}      </p>
     </div>
 
     <button
@@ -12177,28 +12801,28 @@ export class WorkOrderFiltersComponent {
       class="add-button"
       (click)="goToCreateOrder()">
       <mat-icon>add</mat-icon>
-      Nueva orden
+      {{ ('workOrder.newOrder') | translate}}
     </button>
   </div>
 
   <div class="summary-row">
     <div class="summary-card">
-      <span>Total Ã³rdenes</span>
+      <span>{{ ('workOrder.totalOrders') | translate}}</span>
       <strong>{{ workOrderStore.workOrders().length }}</strong>
     </div>
 
     <div class="summary-card">
-      <span>En proceso</span>
+      <span>{{ ('workOrder.inProgress') | translate}}</span>
       <strong>{{ activeOrders() }}</strong>
     </div>
 
     <div class="summary-card warning">
-      <span>Riesgo de retraso</span>
+      <span>{{ ('workOrder.delayRisk') | translate}}</span>
       <strong>{{ riskOrders() }}</strong>
     </div>
 
     <div class="summary-card">
-      <span>Finalizadas</span>
+      <span>{{ ('workOrder.completed') | translate}}</span>
       <strong>{{ completedOrders() }}</strong>
     </div>
   </div>
@@ -12239,13 +12863,13 @@ export class WorkOrderFiltersComponent {
 
 /**
  * WorkOrderListComponent
- * 
+ *
  * Main component that displays the list of all work orders
  * in the workshop. Includes filtering, statistics and navigation to the detail
  * or creation of new orders.
- * 
+ *
  * Uses Signals and `computed()` for a reactive and efficient experience.
- * 
+ *
  * @component
  * @selector app-work-order-list
  * @standalone true
@@ -12264,6 +12888,7 @@ import { WorkOrderStore } from '../../application/work-order.store';
 import { WorkOrder } from '../../domain/models/work-order.model';
 import { WorkOrderCardComponent, WorkOrderCardView } from './components/work-order-card/work-order-card';
 import { WorkOrderFiltersComponent } from './components/work-order-filters/work-order-filters';
+import { TranslatePipe } from '@ngx-translate/core';
 
 @Component({
   selector: 'app-work-order-list',
@@ -12273,10 +12898,11 @@ import { WorkOrderFiltersComponent } from './components/work-order-filters/work-
     MatButtonModule,
     MatIconModule,
     WorkOrderCardComponent,
-    WorkOrderFiltersComponent
+    WorkOrderFiltersComponent,
+    TranslatePipe,
   ],
   templateUrl: './work-order-list.html',
-  styleUrl: './work-order-list.css'
+  styleUrl: './work-order-list.css',
 })
 export class WorkOrderListComponent implements OnInit {
   protected readonly workOrderStore = inject(WorkOrderStore);
@@ -12293,7 +12919,7 @@ export class WorkOrderListComponent implements OnInit {
     'Pendiente',
     'En Proceso',
     'Finalizado',
-    'Cancelado'
+    'Cancelado',
   ];
 
   /** Enriched view of the orders for display in cards */
@@ -12312,8 +12938,8 @@ export class WorkOrderListComponent implements OnInit {
       price: Number(order.price || 0),
       riskStatus: this.getDelayRiskStatus(order),
       riskClass: this.getDelayRiskClass(order),
-      isRisk: this.isRiskOrder(order)
-    }))
+      isRisk: this.isRiskOrder(order),
+    })),
   );
 
   /** Filtered orders based on search and status */
@@ -12329,23 +12955,22 @@ export class WorkOrderListComponent implements OnInit {
         order.plateOnly.toLowerCase().includes(term) ||
         order.customerName.toLowerCase().includes(term);
 
-      const matchesStatus =
-        !selectedStatus || order.status === selectedStatus;
+      const matchesStatus = !selectedStatus || order.status === selectedStatus;
 
       return matchesSearch && matchesStatus;
     });
   });
 
-  protected readonly activeOrders = computed(() =>
-    this.workOrderStore.workOrders().filter((order) => order.status === 'En Proceso').length
+  protected readonly activeOrders = computed(
+    () => this.workOrderStore.workOrders().filter((order) => order.status === 'En Proceso').length,
   );
 
-  protected readonly completedOrders = computed(() =>
-    this.workOrderStore.workOrders().filter((order) => order.status === 'Finalizado').length
+  protected readonly completedOrders = computed(
+    () => this.workOrderStore.workOrders().filter((order) => order.status === 'Finalizado').length,
   );
 
-  protected readonly riskOrders = computed(() =>
-    this.ordersView().filter((order) => order.isRisk).length
+  protected readonly riskOrders = computed(
+    () => this.ordersView().filter((order) => order.isRisk).length,
   );
 
   ngOnInit(): void {
@@ -12381,10 +13006,10 @@ export class WorkOrderListComponent implements OnInit {
   }
 
   private getVehiclePlate(vehicleId: string): string {
-    return this.vehicleStore
-      .vehicles()
-      .find((vehicle) => String(vehicle.id) === String(vehicleId))
-      ?.plate ?? '---';
+    return (
+      this.vehicleStore.vehicles().find((vehicle) => String(vehicle.id) === String(vehicleId))
+        ?.plate ?? '---'
+    );
   }
 
   private getVehicleName(vehicleId: string): string {
@@ -12425,9 +13050,8 @@ export class WorkOrderListComponent implements OnInit {
   }
 
   private getDelayRiskStatus(
-    order: WorkOrder
+    order: WorkOrder,
   ): 'A tiempo' | 'En riesgo' | 'Retrasada' | 'Completada' | 'Cancelada' {
-
     if (order.status === 'Finalizado') {
       return 'Completada';
     }
@@ -12438,9 +13062,7 @@ export class WorkOrderListComponent implements OnInit {
 
     const progress = this.calculateProgress(String(order.id));
     const today = new Date();
-    const estimatedDate = order.estimatedDate
-      ? new Date(order.estimatedDate)
-      : null;
+    const estimatedDate = order.estimatedDate ? new Date(order.estimatedDate) : null;
 
     if (estimatedDate && estimatedDate < today) {
       return 'Retrasada';
@@ -12675,7 +13297,7 @@ export const workshopInterceptor: HttpInterceptorFn = (req, next) => {
 
       <div class="logo-text">
         <h2>AutoService</h2>
-        <span class="subtitle">Panel Administrador</span>
+        <span class="subtitle">{{ ('dashboard.title') | translate }}</span>
       </div>
 
     </div>
@@ -12687,42 +13309,42 @@ export const workshopInterceptor: HttpInterceptorFn = (req, next) => {
          routerLinkActive="active-menu-item"
          (click)="closeSidebarIfMobile(drawer)">
         <mat-icon matListItemIcon>dashboard</mat-icon>
-        <span matListItemTitle>Dashboard</span>
+        <span matListItemTitle>{{ ('sidebar.dashboard') | translate }}</span>
       </a>
 
       <a mat-list-item routerLink="/admin/customers"
          routerLinkActive="active-menu-item"
          (click)="closeSidebarIfMobile(drawer)">
         <mat-icon matListItemIcon>people</mat-icon>
-        <span matListItemTitle>Clientes</span>
+        <span matListItemTitle>{{ ('sidebar.clients') | translate }}</span>
       </a>
 
       <a mat-list-item routerLink="/admin/vehicles"
          routerLinkActive="active-menu-item"
          (click)="closeSidebarIfMobile(drawer)">
         <mat-icon matListItemIcon>directions_car</mat-icon>
-        <span matListItemTitle>VehÃ­culos</span>
+        <span matListItemTitle>{{ ('sidebar.vehicles') | translate }}</span>
       </a>
 
       <a mat-list-item routerLink="/admin/work-orders"
          routerLinkActive="active-menu-item"
          (click)="closeSidebarIfMobile(drawer)">
         <mat-icon matListItemIcon>assignment</mat-icon>
-        <span matListItemTitle>Ã“rdenes de Trabajo</span>
+        <span matListItemTitle>{{ ('sidebar.workOrders') | translate }}</span>
       </a>
 
       <a mat-list-item routerLink="/admin/tasks"
          routerLinkActive="active-menu-item"
          (click)="closeSidebarIfMobile(drawer)">
         <mat-icon matListItemIcon>checklist</mat-icon>
-        <span matListItemTitle>Tareas</span>
+        <span matListItemTitle>{{ ('sidebar.tasks') | translate }}</span>
       </a>
 
       <a mat-list-item routerLink="/admin/mechanics"
          routerLinkActive="active-menu-item"
          (click)="closeSidebarIfMobile(drawer)">
         <mat-icon matListItemIcon>engineering</mat-icon>
-        <span matListItemTitle>MecÃ¡nicos</span>
+        <span matListItemTitle>{{ ('sidebar.mechanics') | translate }}</span>
       </a>
 
     </mat-nav-list>
@@ -12742,15 +13364,16 @@ export const workshopInterceptor: HttpInterceptorFn = (req, next) => {
       </button>
 
       <div class="welcome-msg">
-        <span class="text-gray">Bienvenido al Taller, </span>
+        <span class="text-gray">{{ 'toolbar.title' | translate}}</span>
         <span class="fw-bold">{{ userName }}</span>
       </div>
 
       <span class="spacer"></span>
+      <app-language-switcher />
 
       <button mat-button color="warn" (click)="logout()">
         <mat-icon>logout</mat-icon>
-        Cerrar SesiÃ³n
+        {{('toolbar.logout') | translate }}
       </button>
 
     </mat-toolbar>
@@ -12768,11 +13391,11 @@ export const workshopInterceptor: HttpInterceptorFn = (req, next) => {
 
 /**
  * AdminLayoutComponent
- * 
+ *
  * Main layout for all pages in the admin panel.
  * Contains the navigation sidebar, top toolbar and general structure
  * of the application.
- * 
+ *
  * @component
  * @selector app-admin-layout
  * @standalone true
@@ -12787,6 +13410,8 @@ import { MatIconModule } from '@angular/material/icon';
 import { MatButtonModule } from '@angular/material/button';
 import { CommonModule } from '@angular/common';
 import { AuthService } from '../../../domains/auth/infrastructure/auth.service';
+import { LanguageSwitcher } from '../language-switcher/language-switcher';
+import { TranslatePipe } from '@ngx-translate/core';
 
 @Component({
   selector: 'app-admin-layout',
@@ -12798,13 +13423,14 @@ import { AuthService } from '../../../domains/auth/infrastructure/auth.service';
     MatListModule,
     MatIconModule,
     MatButtonModule,
-    CommonModule
+    CommonModule,
+    LanguageSwitcher,
+    TranslatePipe,
   ],
   templateUrl: './admin-layout.component.html',
   styleUrl: './admin-layout.component.css',
 })
 export class AdminLayoutComponent implements OnInit {
-
   private authService = inject(AuthService);
 
   /** Indicates if the app is currently on a mobile screen */
@@ -12821,7 +13447,7 @@ export class AdminLayoutComponent implements OnInit {
 
   /**
    * Closes the sidebar automatically on mobile devices.
-   * 
+   *
    * @param drawer - Reference to the sidenav component
    */
   closeSidebarIfMobile(drawer: MatSidenav) {
@@ -12842,6 +13468,57 @@ export class AdminLayoutComponent implements OnInit {
    */
   logout() {
     this.authService.logout();
+  }
+}
+
+
+/* === language-switcher.css === */
+
+
+
+/* === language-switcher.html === */
+
+<mat-button-toggle-group [value]="currentLang" appearance="standard" aria-label="Preferred Language" name="language">
+  @for (language of languages; track language) {
+    <mat-button-toggle (click)="useLanguage(language)"
+                       [aria-label]="language"
+                       [value]="language">{{ language.toUpperCase() }}
+    </mat-button-toggle>
+  }
+</mat-button-toggle-group>
+
+
+/* === language-switcher.ts === */
+
+import { Component } from '@angular/core';
+import { MatButtonToggle, MatButtonToggleGroup } from '@angular/material/button-toggle';
+import { TranslateService } from '@ngx-translate/core';
+@Component({
+  selector: 'app-language-switcher',
+  imports: [MatButtonToggle, MatButtonToggleGroup],
+  templateUrl: './language-switcher.html',
+  styleUrl: './language-switcher.css',
+})
+export class LanguageSwitcher {
+  /** Currently selected language code in the toggle group. */
+  currentLang = 'en';
+  /** Supported language codes available to users. */
+  languages = ['en', 'es'];
+
+  /**
+   * @param translate - Translation service managing runtime locale state.
+   */
+  constructor(private translate: TranslateService) {
+    this.currentLang = translate.getCurrentLang();
+  }
+
+  /**
+   * Changes the active application language.
+   *
+   * @param language - Locale code to activate.
+   */
+  useLanguage(language: string) {
+    this.translate.use(language);
   }
 }
 
@@ -12871,10 +13548,11 @@ import { provideAnimationsAsync } from '@angular/platform-browser/animations/asy
 
 import { routes } from './app.routes';
 import { workshopInterceptor } from './shared/infrastructure/interceptors/workshop.interceptor';
-
+import { provideTranslateService } from '@ngx-translate/core';
+import {provideTranslateHttpLoader} from '@ngx-translate/http-loader';
 export const appConfig: ApplicationConfig = {
   providers: [
-    
+
     // Routing with debug tracing (useful in development)
     provideRouter(routes, withDebugTracing()),
 
@@ -12882,7 +13560,12 @@ export const appConfig: ApplicationConfig = {
     provideHttpClient(withInterceptors([workshopInterceptor])),
 
     // Animations of Angular Material
-    provideAnimationsAsync()
+    provideAnimationsAsync(),
+
+    provideTranslateService({
+      loader: provideTranslateHttpLoader({prefix: './i18n/', suffix: '.json'}),
+      fallbackLang: 'en'
+    })
   ]
 };
 
@@ -12930,7 +13613,6 @@ import { CustomerListComponent } from './domains/customer-management/presentatio
 
 // Fleet Management
 import { VehicleListComponent } from './domains/fleet-management/presentation/vehicle-list/vehicle-list';
-
 
 // Staff Coordination
 import { MechanicsViewComponent } from './domains/staff-coordination/presentation/mechanics-view/mechanics-view';

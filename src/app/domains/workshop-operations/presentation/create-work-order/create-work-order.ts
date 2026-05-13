@@ -156,7 +156,6 @@ export class CreateWorkOrderComponent implements OnInit {
     // 1. Create the main order
     this.workOrderStore.addWorkOrder(payloadWO).subscribe({
       next: (createdOrder) => {
-        // 2. Iterate through and create all tasks associated with the order ID
         this.tasks.forEach((task) => {
           if (task.description) {
             this.taskStore.addTask({
@@ -166,8 +165,13 @@ export class CreateWorkOrderComponent implements OnInit {
           }
         });
 
-        this.isSaving = false;
-        this.router.navigate(['/admin/work-orders']);
+        setTimeout(() => {
+          this.taskStore.loadAllTasks();
+          this.workOrderStore.loadWorkOrders();
+
+          this.isSaving = false;
+          this.router.navigate(['/admin/work-orders']);
+        }, 600);
       },
       error: (err) => {
         console.error('Error al guardar la orden completa:', err);

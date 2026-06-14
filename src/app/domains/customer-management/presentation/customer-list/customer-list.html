@@ -1,81 +1,57 @@
-<div class="customer-list-container">
+<div class="customer-management">
+  <div class="top-section">
+    <div class="customer-header">
+      <div>
+        <span class="eyebrow">{{ 'customers.eyebrow' | translate }}</span>
+        <h1>{{ 'customers.title' | translate }}</h1>
+        <p>{{ 'customers.description' | translate }}</p>
+      </div>
+    </div>
 
-  <div class="header-actions">
-    <h1>{{ ('clients.title') | translate }}</h1>
-    <button mat-raised-button color="primary" (click)="openNewCustomerDialog()">
+    <button mat-flat-button class="add-btn" (click)="openAddModal()">
       <mat-icon>add</mat-icon>
-      {{ ('clients.newClient') | translate }}
+      {{ 'customers.registerButton' | translate }}
     </button>
   </div>
-  <div class="summary-cards">
 
-    <div class="summary-card">
-      <mat-icon>groups</mat-icon>
-
-      <div>
-        <span>{{ ('clients.stats.totalClients') | translate }}</span>
-        <h2>{{ customerStore.customers().length }}</h2>
-      </div>
-    </div>
-
-    <div class="summary-card blue">
-      <mat-icon>verified_user</mat-icon>
-
-      <div>
-        <span>{{ ('clients.stats.activeClients') | translate }}</span>
-        <h2>{{ customerStore.customers().length }}</h2>
-      </div>
-    </div>
-
+  <div class="search-container">
+    <mat-icon>search</mat-icon>
+    <input type="text" [ngModel]="searchTerm()" (ngModelChange)="searchTerm.set($event)" [placeholder]="'customers.search' | translate" class="custom-search-input">
   </div>
 
-  <div class="mat-elevation-z2 table-container">
-
-    @if (customerStore.isLoading()) {
-      <div class="loading-shade">Cargando...</div>
-    }
-
-    <table mat-table [dataSource]="customerStore.customers()">
+  <div class="table-wrapper">
+    <table mat-table [dataSource]="filteredCustomers()">
 
       <ng-container matColumnDef="fullName">
-        <th mat-header-cell *matHeaderCellDef>{{ ('clients.table.fullName') | translate}}</th>
+        <th mat-header-cell *matHeaderCellDef>{{ 'customers.columns.fullName' | translate }}</th>
         <td mat-cell *matCellDef="let element"> {{element.fullName}} </td>
       </ng-container>
 
       <ng-container matColumnDef="dni">
-        <th mat-header-cell *matHeaderCellDef>{{ ('clients.table.dni') | translate}}</th>
+        <th mat-header-cell *matHeaderCellDef>{{ 'customers.columns.dni' | translate }}</th>
         <td mat-cell *matCellDef="let element"> {{element.dni}} </td>
       </ng-container>
 
       <ng-container matColumnDef="email">
-        <th mat-header-cell *matHeaderCellDef> {{ ('clients.table.email') | translate}} </th>
+        <th mat-header-cell *matHeaderCellDef>{{ 'customers.columns.email' | translate }}</th>
         <td mat-cell *matCellDef="let element"> {{element.email}} </td>
       </ng-container>
 
       <ng-container matColumnDef="phone">
-        <th mat-header-cell *matHeaderCellDef> {{ ('clients.table.phone') | translate}} </th>
+        <th mat-header-cell *matHeaderCellDef>{{ 'customers.columns.phone' | translate }}</th>
         <td mat-cell *matCellDef="let element"> {{element.phone}} </td>
       </ng-container>
 
       <ng-container matColumnDef="actions">
-        <th mat-header-cell *matHeaderCellDef> {{ ('clients.table.actions') | translate}} </th>
+        <th mat-header-cell *matHeaderCellDef>{{ 'customers.columns.actions' | translate }}</th>
         <td mat-cell *matCellDef="let element">
-          <div class="action-buttons">
-
-            <button
-              mat-icon-button
-              color="primary"
-              (click)="editCustomer(element)">
+          <div class="actions">
+            <button mat-icon-button class="action-btn outline-btn" (click)="openEditModal(element)">
               <mat-icon>edit</mat-icon>
             </button>
-
-            <button
-              mat-icon-button
-              color="warn"
-              (click)="deleteCustomer(element.id)">
+            <button mat-icon-button class="action-btn danger-btn" (click)="openDeleteModal(element)">
               <mat-icon>delete</mat-icon>
             </button>
-
           </div>
         </td>
       </ng-container>
@@ -83,51 +59,63 @@
       <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
       <tr mat-row *matRowDef="let row; columns: displayedColumns;"></tr>
     </table>
-
-    @if (customerStore.customers().length === 0 && !customerStore.isLoading()) {
-      <div class="empty-state">No hay clientes registrados en este taller.</div>
-    }
   </div>
 
-  <ng-template #customerDialog>
-    <h2 mat-dialog-title>
-      {{
-        isEditing
-          ? ('clients.dialog.editTitle' | translate)
-          : ('clients.dialog.createTitle' | translate)
-      }}
-    </h2>
+  <ng-template #customerFormDialog>
+    <div class="custom-dialog-header">
+      <h2 mat-dialog-title style="margin: 0;">{{ editMode ? ('customers.form.editTitle' | translate) : ('customers.form.registerTitle' | translate) }}</h2>
+    </div>
+
     <mat-dialog-content>
-      <div class="form-container">
-        <mat-form-field appearance="outline">
-          <mat-label>{{ ('clients.table.fullName') | translate}}</mat-label>
-          <input matInput [(ngModel)]="currentCustomer.fullName" required autofocus>
-        </mat-form-field>
+      <div class="customer-form p-fluid mt-3">
+        <div class="field">
+          <label for="fullName">{{ 'customers.form.fullName' | translate }} <span class="required">*</span></label>
+          <input type="text" id="fullName" [(ngModel)]="customerForm.fullName" [placeholder]="'customers.form.fullNamePlaceholder' | translate" class="custom-form-input">
+        </div>
 
-        <mat-form-field appearance="outline">
-          <mat-label>{{ ('clients.table.dni') | translate}}</mat-label>
-          <input matInput [(ngModel)]="currentCustomer.dni" required>
-        </mat-form-field>
+        <div class="double-grid">
+          <div class="field">
+            <label for="dni">{{ 'customers.form.dni' | translate }} <span class="required">*</span></label>
+            <input type="text" id="dni" [(ngModel)]="customerForm.dni" [placeholder]="'customers.form.dniPlaceholder' | translate" class="custom-form-input">
+          </div>
 
-        <mat-form-field appearance="outline">
-          <mat-label>{{ ('clients.table.email') | translate}}</mat-label>
-          <input matInput [(ngModel)]="currentCustomer.email" type="email">
-        </mat-form-field>
+          <div class="field">
+            <label for="phone">{{ 'customers.form.phone' | translate }}</label>
+            <input type="text" id="phone" [(ngModel)]="customerForm.phone" [placeholder]="'customers.form.phonePlaceholder' | translate" class="custom-form-input">
+          </div>
+        </div>
 
-        <mat-form-field appearance="outline">
-          <mat-label>{{ ('clients.table.phone') | translate}}</mat-label>
-          <input matInput [(ngModel)]="currentCustomer.phone">
-        </mat-form-field>
+        <div class="field">
+          <label for="email">{{ 'customers.form.email' | translate }}</label>
+          <input type="email" id="email" [(ngModel)]="customerForm.email" [placeholder]="'customers.form.emailPlaceholder' | translate" class="custom-form-input">
+        </div>
       </div>
     </mat-dialog-content>
 
-    <mat-dialog-actions align="end">
-      <button mat-button (click)="closeDialog()">{{ ('clients.actions.cancel') | translate}}</button>
-      <button mat-flat-button color="primary" (click)="saveCustomer()"
-              [disabled]="!currentCustomer.fullName || !currentCustomer.dni">
-        {{ ('clients.actions.save') | translate}}
+    <mat-dialog-actions align="end" class="dialog-footer">
+      <button mat-button (click)="closeDialog()" style="color: #64748b;">{{ 'customers.form.cancel' | translate }}</button>
+      <button mat-flat-button class="save-btn" (click)="saveCustomer()">
+        <mat-icon>check</mat-icon>
+        {{ editMode ? ('customers.form.update' | translate) : ('customers.form.save' | translate) }}
       </button>
     </mat-dialog-actions>
   </ng-template>
 
+  <ng-template #deleteConfirmDialog>
+    <mat-dialog-content>
+      <div class="delete-container">
+        <div class="delete-icon">
+          <mat-icon>warning</mat-icon>
+        </div>
+        <h2>{{ 'customers.delete.title' | translate }}</h2>
+        <p>{{ 'customers.delete.description' | translate }}</p>
+        <strong>{{ customerForm.fullName }}</strong>
+
+        <div class="delete-actions">
+          <button mat-stroked-button (click)="closeDialog()">{{ 'customers.delete.cancel' | translate }}</button>
+          <button mat-flat-button color="warn" (click)="confirmDelete()">{{ 'customers.delete.confirm' | translate }}</button>
+        </div>
+      </div>
+    </mat-dialog-content>
+  </ng-template>
 </div>

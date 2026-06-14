@@ -1,35 +1,53 @@
-import { Component, Inject } from '@angular/core';
+import { Component, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { MatDialogRef, MAT_DIALOG_DATA, MatDialogModule } from '@angular/material/dialog';
-import { MatIconModule } from '@angular/material/icon';
 import { FormsModule } from '@angular/forms';
+import { MAT_DIALOG_DATA, MatDialogRef, MatDialogModule } from '@angular/material/dialog';
+import { MatButtonModule } from '@angular/material/button';
+import { MatInputModule } from '@angular/material/input';
+import { MatIconModule } from '@angular/material/icon';
+import { TranslatePipe } from '@ngx-translate/core';
 
 @Component({
   selector: 'app-payment-modal',
   standalone: true,
-  imports: [CommonModule, MatDialogModule, MatIconModule, FormsModule],
+  imports: [
+    CommonModule,
+    FormsModule,
+    MatDialogModule,
+    MatButtonModule,
+    MatInputModule,
+    MatIconModule,
+  ],
   templateUrl: './payment-modal.html',
-  styleUrl: './payment-modal.css'
+  styleUrl: './payment-modal.css',
 })
 export class PaymentModalComponent {
-  amount: number = 0;
-  selectedMethod: string = 'Tarjeta';
+  public dialogRef = inject(MatDialogRef<PaymentModalComponent>);
+  public data = inject(MAT_DIALOG_DATA);
 
-  constructor(
-    public dialogRef: MatDialogRef<PaymentModalComponent>,
-    @Inject(MAT_DIALOG_DATA) public data: { amount: number }
-  ) {
-    if (data && data.amount) {
-      this.amount = data.amount;
-    }
-  }
+  order = this.data.order;
+  workshop = this.data.workshop;
 
-  processPayment() {
-    alert(`Pago realizado con ${this.selectedMethod}`);
-    this.dialogRef.close(true);
-  }
+  paymentData = {
+    cardNumber: '',
+    cardHolder: '',
+    expiryDate: '',
+    cvv: '',
+  };
 
-  closeModal() {
+  isProcessing = false;
+
+  close() {
     this.dialogRef.close(false);
+  }
+
+  simulatePayment() {
+    if (!this.paymentData.cardNumber || !this.paymentData.cvv) return;
+
+    this.isProcessing = true;
+    setTimeout(() => {
+      this.isProcessing = false;
+      this.dialogRef.close(true); // Retorna true en caso de éxito
+    }, 2000);
   }
 }

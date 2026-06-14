@@ -1,144 +1,132 @@
 <section class="vehicle-page">
   <div class="vehicle-header">
     <div>
-      <span class="eyebrow">{{('vehicles1.h5') | translate }}</span>
-      <h1>{{('vehicles1.title') | translate }}</h1>
-      <p>{{('vehicles1.subtitle') | translate }}</p>
+      <span class="eyebrow">{{ 'vehicles.eyebrow' | translate }}</span>
+      <h1>{{ 'vehicles.title' | translate }}</h1>
+      <p>{{ 'vehicles.description' | translate }}</p>
     </div>
 
-    <button
-      mat-flat-button
-      color="primary"
-      type="button"
-      class="add-button"
-      (click)="openNewDialog()">
+    <button mat-flat-button class="add-button" (click)="openNew()">
       <mat-icon>add</mat-icon>
-      {{('vehicles1.addVehicle') | translate }}
+      {{ 'vehicles.addButton' | translate }}
     </button>
   </div>
 
   <div class="summary-row">
     <div class="summary-card">
-      <span>{{('vehicles1.stats.totalRegistered') | translate }}</span>
+      <span>{{ 'vehicles.summary.total' | translate }}</span>
       <strong>{{ vehicleStore.vehicles().length }}</strong>
     </div>
-
     <div class="summary-card">
-      <span>{{('vehicles1.stats.inWorkshop') | translate }}</span>
-      <strong>{{ vehiclesInWorkshop() }}</strong>
+      <span>{{ 'vehicles.summary.inWorkshop' | translate }}</span>
+      <strong>{{ activeVehicleCount() }}</strong>
     </div>
-
     <div class="summary-card">
-      <span>{{('vehicles1.stats.ready') | translate }}</span>
-      <strong>{{ readyVehicles() }}</strong>
+      <span>{{ 'vehicles.summary.ready' | translate }}</span>
+      <strong>{{ readyVehicleCount() }}</strong>
     </div>
   </div>
 
   <app-vehicle-filters
     [search]="search()"
     [status]="selectedStatus()"
-    [statusOptions]="statusOptions"
-    (searchChange)="onSearchChange($event)"
-    (statusChange)="onStatusChange($event)">
-  </app-vehicle-filters>
+    [sortBy]="selectedSort()"
+    [statusOptions]="statusOptions()"
+    [sortOptions]="sortOptions()"
+    (searchChange)="search.set($event)"
+    (statusChange)="selectedStatus.set($event)"
+    (sortByChange)="selectedSort.set($event)"
+  ></app-vehicle-filters>
 
-  @if (vehicleStore.isLoading()) {
-    <div class="empty-state">
-      <mat-icon class="spin">sync</mat-icon>
-      <p>Cargando vehículos...</p>
-    </div>
-  } @else if (filteredVehicles().length) {
-    <div class="vehicles-grid">
-      @for (item of filteredVehicles(); track item.id) {
-        <app-vehicle-card
-          [vehicle]="item"
-          (edit)="editVehicle($event)"
-          (viewDetails)="goToVehicleDetails($event)">
-        </app-vehicle-card>
-      }
-    </div>
-  } @else {
-    <div class="empty-state">
-      <mat-icon>directions_car</mat-icon>
-      <h3>No se encontraron vehículos</h3>
-      <p>Prueba cambiando el filtro o registra un nuevo vehículo.</p>
-    </div>
-  }
+  <div *ngIf="vehicleStore.loading()" class="empty-state">
+    <mat-icon class="spin">refresh</mat-icon>
+    <p>{{ 'vehicles.loading' | translate }}</p>
+  </div>
+
+  <div *ngIf="!vehicleStore.loading() && filteredVehicles().length" class="vehicles-grid">
+    <app-vehicle-card
+      *ngFor="let item of filteredVehicles()"
+      [vehicle]="item"
+      (edit)="editVehicleItem($event)"
+      (viewDetail)="viewVehicleDetail($event)"
+    ></app-vehicle-card>
+  </div>
+
+  <div *ngIf="!vehicleStore.loading() && !filteredVehicles().length" class="empty-state">
+    <mat-icon>directions_car</mat-icon>
+    <h3>{{ 'vehicles.empty.title' | translate }}</h3>
+    <p>{{ 'vehicles.empty.description' | translate }}</p>
+  </div>
 
   <ng-template #vehicleDialog>
-    <h2 mat-dialog-title>{{ isEditing ? ('detailsVehicle.editVehicle' | translate) : ('detailsVehicle.newVehicle' | translate) }}</h2>
-
+    <div class="custom-dialog-header">
+      <h2 mat-dialog-title style="margin: 0;">{{ vehicle().id ? ('vehicles.form.editTitle' | translate) : ('vehicles.form.newTitle' | translate) }}</h2>
+    </div>
     <mat-dialog-content>
-      <div class="form-container">
-        <mat-form-field appearance="outline" class="full-width">
-          <mat-label>{{('detailsVehicle.ownerUser') | translate }}</mat-label>
-          <mat-select [(ngModel)]="currentVehicle.customerId" required>
-            @for (customer of customerStore.customers(); track customer.id) {
-              <mat-option [value]="customer.id">
-                {{ customer.fullName }}
-              </mat-option>
-            }
+      <div class="vehicle-form mt-3">
+        <div class="field">
+          <label>{{ 'vehicles.form.owner' | translate }} <span class="required">*</span></label>
+          <mat-select [(ngModel)]="vehicle().customerId" [placeholder]="'vehicles.form.selectCustomer' | translate" class="custom-form-input">
+            <mat-option *ngFor="let customer of customerStore.customers()" [value]="customer.id">{{ customer.fullName }}</mat-option>
           </mat-select>
-        </mat-form-field>
+        </div>
 
-        <div class="form-row">
-          <mat-form-field appearance="outline">
-            <mat-label>{{('detailsVehicle.licensePlate') | translate }}</mat-label>
-            <input
-              matInput
-              [(ngModel)]="currentVehicle.plate"
-              required
-              placeholder="ABC-123" />
-          </mat-form-field>
-
-          <mat-form-field appearance="outline">
-            <mat-label>{{('detailsVehicle.status') | translate }}</mat-label>
-            <mat-select [(ngModel)]="currentVehicle.status">
-              @for (status of statusOptions; track status) {
-                <mat-option [value]="status">
-                  {{ status }}
-                </mat-option>
-              }
+        <div class="double-grid">
+          <div class="field">
+            <label>{{ 'vehicles.form.plate' | translate }} <span class="required">*</span></label>
+            <input type="text" [(ngModel)]="vehicle().plate" class="custom-form-input" />
+          </div>
+          <div class="field">
+            <label>{{ 'vehicles.form.status' | translate }}</label>
+            <mat-select [(ngModel)]="vehicle().status" [placeholder]="'vehicles.form.status' | translate" class="custom-form-input">
+              <mat-option *ngFor="let opt of statusOptions()" [value]="opt.value">{{ opt.label }}</mat-option>
             </mat-select>
-          </mat-form-field>
+          </div>
         </div>
 
-        <div class="form-row">
-          <mat-form-field appearance="outline">
-            <mat-label>{{('detailsVehicle.brand') | translate }}</mat-label>
-            <input matInput [(ngModel)]="currentVehicle.brand" placeholder="Toyota" />
-          </mat-form-field>
-
-          <mat-form-field appearance="outline">
-            <mat-label>{{('detailsVehicle.model') | translate }}</mat-label>
-            <input matInput [(ngModel)]="currentVehicle.model" placeholder="Corolla" />
-          </mat-form-field>
+        <div class="double-grid">
+          <div class="field">
+            <label>{{ 'vehicles.form.brand' | translate }}</label>
+            <input type="text" [(ngModel)]="vehicle().brand" class="custom-form-input" />
+          </div>
+          <div class="field">
+            <label>{{ 'vehicles.form.model' | translate }}</label>
+            <input type="text" [(ngModel)]="vehicle().model" class="custom-form-input" />
+          </div>
         </div>
 
-        <div class="form-row">
-          <mat-form-field appearance="outline">
-            <mat-label>{{('detailsVehicle.year') | translate }}</mat-label>
-            <input matInput [(ngModel)]="currentVehicle.year" placeholder="2024" />
-          </mat-form-field>
+        <div class="double-grid">
+          <div class="field">
+            <label>{{ 'vehicles.form.year' | translate }}</label>
+            <input type="text" [(ngModel)]="vehicle().year" class="custom-form-input" />
+          </div>
+          <div class="field">
+            <label>{{ 'vehicles.form.color' | translate }}</label>
+            <input type="text" [(ngModel)]="vehicle().color" class="custom-form-input" />
+          </div>
+        </div>
 
-          <mat-form-field appearance="outline">
-            <mat-label>Color</mat-label>
-            <input matInput [(ngModel)]="currentVehicle.color" placeholder="Negro" />
-          </mat-form-field>
+        <div class="field">
+          <label>{{ 'vehicles.form.image' | translate }}</label>
+          <div class="file-upload-container">
+            <label for="file-upload" class="file-upload-btn">
+              <mat-icon>upload</mat-icon>
+              {{ 'vehicles.form.selectImage' | translate }}
+            </label>
+            <input id="file-upload" type="file" accept="image/*" (change)="handleImageUpload($event)" class="hidden-input" />
+            <div *ngIf="vehicle().image" class="preview-box">
+              <img [src]="vehicle().image" alt="preview" />
+            </div>
+          </div>
         </div>
       </div>
     </mat-dialog-content>
 
-    <mat-dialog-actions align="end">
-      <button mat-button type="button" (click)="closeDialog()">{{('detailsVehicle.cancel') | translate }}</button>
-
-      <button
-        mat-flat-button
-        color="primary"
-        type="button"
-        (click)="saveVehicle()"
-        [disabled]="!currentVehicle.plate || !currentVehicle.customerId">
-        {{('detailsVehicle.save') | translate }}
+    <mat-dialog-actions align="end" class="dialog-footer">
+      <button mat-button (click)="hideDialog()" style="color: #64748b;">{{ 'vehicles.form.cancel' | translate }}</button>
+      <button mat-flat-button class="save-btn" (click)="saveVehicle()">
+        <mat-icon>check</mat-icon>
+        {{ 'vehicles.form.save' | translate }}
       </button>
     </mat-dialog-actions>
   </ng-template>

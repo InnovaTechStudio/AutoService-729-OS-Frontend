@@ -1,12 +1,10 @@
-import { CommonModule } from '@angular/common';
 import { Component, EventEmitter, Input, Output } from '@angular/core';
+import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
-
-import { MatFormFieldModule } from '@angular/material/form-field';
-import { MatIconModule } from '@angular/material/icon';
 import { MatInputModule } from '@angular/material/input';
 import { MatSelectModule } from '@angular/material/select';
-import { TranslatePipe } from '@ngx-translate/core';
+import { MatIconModule } from '@angular/material/icon';
+import { TranslatePipe, TranslateService } from '@ngx-translate/core';
 
 @Component({
   selector: 'app-vehicle-filters',
@@ -14,7 +12,6 @@ import { TranslatePipe } from '@ngx-translate/core';
   imports: [
     CommonModule,
     FormsModule,
-    MatFormFieldModule,
     MatInputModule,
     MatSelectModule,
     MatIconModule,
@@ -24,18 +21,27 @@ import { TranslatePipe } from '@ngx-translate/core';
   styleUrl: './vehicle-filters.css',
 })
 export class VehicleFiltersComponent {
-  @Input() search = '';
+  @Input() search: string = '';
   @Input() status: string | null = null;
-  @Input() statusOptions: string[] = [];
+  @Input() sortBy: string | null = null;
+  @Input() statusOptions: any[] = [];
+  @Input() sortOptions: any[] = [];
 
   @Output() searchChange = new EventEmitter<string>();
   @Output() statusChange = new EventEmitter<string | null>();
+  @Output() sortByChange = new EventEmitter<string | null>();
 
-  protected onSearchChange(value: string): void {
+  constructor(public translate: TranslateService) {}
+
+  onSearchChange(value: string) {
     this.searchChange.emit(value);
   }
 
-  protected onStatusChange(value: string | null): void {
+  onStatusChange(value: string | null) {
     this.statusChange.emit(value);
+  }
+
+  onSortByChange(value: string | null) {
+    this.sortByChange.emit(value);
   }
 }

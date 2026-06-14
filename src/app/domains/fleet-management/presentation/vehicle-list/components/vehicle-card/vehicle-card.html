@@ -1,5 +1,10 @@
 <article class="vehicle-card">
-  <img [src]="vehicle.image" [alt]="vehicle.name" class="vehicle-image" />
+  <div class="image-wrapper">
+    <img [src]="vehicle.image" [alt]="vehicle.name" class="vehicle-image" />
+    <span class="status-badge custom-badge" [ngClass]="getSeverityClass(vehicle.severity)">
+      {{ vehicle.status }}
+    </span>
+  </div>
 
   <div class="vehicle-content">
     <div class="vehicle-header">
@@ -7,54 +12,28 @@
         <h3>{{ vehicle.name }}</h3>
         <p>{{ vehicle.owner }}</p>
       </div>
-
-      <button
-        mat-icon-button
-        type="button"
-        aria-label="Editar vehículo"
-        (click)="onEdit()">
-        <mat-icon>edit</mat-icon>
+      <button mat-icon-button (click)="edit.emit(vehicle.raw)">
+        <mat-icon style="color: #64748b;">edit</mat-icon>
       </button>
     </div>
 
     <div class="vehicle-meta">
-      <span>
-        <mat-icon>badge</mat-icon>
-        {{ vehicle.plate }}
-      </span>
-
-      <span>
-        <mat-icon>calendar_month</mat-icon>
-        {{ vehicle.year }}
-      </span>
-
-      <span>
-        <mat-icon>palette</mat-icon>
-        {{ vehicle.color }}
-      </span>
+      <span><mat-icon>badge</mat-icon>{{ vehicle.plate }}</span>
+      <span><mat-icon>calendar_month</mat-icon>{{ vehicle.year }}</span>
+      <span><mat-icon>palette</mat-icon>{{ vehicle.color }}</span>
     </div>
 
-    <div class="vehicle-status">
-      <span class="custom-badge" [ngClass]="getStatusClass(vehicle.status)">
-        {{ vehicle.status }}
-      </span>
-
-      <strong>{{ vehicle.progress }}%</strong>
+    <div class="vehicle-progress-container">
+      <div class="progress-label">
+        <span>{{ 'vehicles.card.progress' | translate }}</span>
+        <strong>{{ vehicle.progress }}%</strong>
+      </div>
+      <mat-progress-bar mode="determinate" [value]="vehicle.progress" class="vehicle-progress"></mat-progress-bar>
     </div>
 
-    <mat-progress-bar
-      mode="determinate"
-      [value]="vehicle.progress"
-      class="vehicle-progress">
-    </mat-progress-bar>
-
-    <button
-      mat-stroked-button
-      type="button"
-      class="details-button"
-      (click)="onViewDetails()">
-      {{('vehicles1.card.viewDetails') | translate }}
-      <mat-icon>arrow_forward</mat-icon>
+    <button mat-stroked-button class="details-button" (click)="viewDetail.emit(vehicle.raw)">
+      {{ 'vehicles.card.viewDetails' | translate }}
+      <mat-icon iconPositionEnd>arrow_forward</mat-icon>
     </button>
   </div>
 </article>

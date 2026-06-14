@@ -1,0 +1,216 @@
+import { Component, computed, inject, OnInit, signal, TemplateRef, ViewChild } from '@angular/core';
+import { CommonModule } from '@angular/common';
+import { ActivatedRoute, Router } from '@angular/router';
+import { FormsModule } from '@angular/forms';
+import { MatCardModule } from '@angular/material/card';
+import { MatButtonModule } from '@angular/material/button';
+import { MatIconModule } from '@angular/material/icon';
+import { MatDialog, MatDialogModule } from '@angular/material/dialog';
+import { MatInputModule } from '@angular/material/input';
+import { MatSelectModule } from '@angular/material/select';
+import { MatProgressBarModule } from '@angular/material/progress-bar';
+import { TranslatePipe, TranslateService } from '@ngx-translate/core';
+
+import { WorkOrderStore } from '../../../workshop-operations/application/work-order.store';
+import { TaskStore } from '../../../workshop-operations/application/task.store';
+import { VehicleStore } from '../../../fleet-management/application/vehicle.store';
+import { AuthState } from '../../../auth/application/auth.state';
+import { InventoryStore } from '../../../inventory-management/application/inventory.store';
+
+@Component({
+  selector: 'app-mechanic-order-execution',
+  standalone: true,
+  imports: [
+    CommonModule,
+    FormsModule,
+    MatCardModule,
+    MatButtonModule,
+    MatIconModule,
+    MatDialogModule,
+    MatInputModule,
+    MatSelectModule,
+    MatProgressBarModule,
+    TranslatePipe,
+  ],
+  templateUrl: './mechanic-order-execution.component.html',
+  styleUrl: './mechanic-order-execution.component.css',
+})
+export class MechanicOrderExecutionComponent implements OnInit {
+  private route = inject(ActivatedRoute);
+  public router = inject(Router);
+  public translate = inject(TranslateService);
+  private dialog = inject(MatDialog);
+
+  private workOrderStore = inject(WorkOrderStore);
+  private taskStore = inject(TaskStore);
+  private vehicleStore = inject(VehicleStore);
+  private authState = inject(AuthState);
+  public inventoryStore = inject(InventoryStore);
+
+  @ViewChild('taskDialogTemplate') taskDialogTemplate!: TemplateRef<any>;
+
+  orderId = this.route.snapshot.paramMap.get('id');
+  diagnosis = signal('');
+
+  priorities = [
+    { value: 'LOW', label: this.translate.instant('priorities.low') || 'Baja' },
+    { value: 'MEDIUM', label: this.translate.instant('priorities.medium') || 'Media' },
+    { value: 'HIGH', label: this.translate.instant('priorities.high') || 'Alta' },
+  ];
+
+  newTask = signal({
+    description: '',
+    priority: 'MEDIUM',
+    estimatedTime: 1.0,
+    laborPrice: 0.0,
+    parts: [] as any[],
+  });
+
+  async ngOnInit() {
+    await Promise.all([
+      this.workOrderStore.loadWorkOrders(),
+      this.taskStore.loadAllTasks(),
+      this.vehicleStore.loadVehicles(),
+      this.inventoryStore.loadItems(),
+    ]);
+  }
+
+  order = computed(() =>
+    this.workOrderStore.workOrders().find((o) => String(o.id) === String(this.orderId)),
+  );
+  vehicle = computed(() =>
+    this.vehicleStore.vehicles().find((v) => String(v.id) === String(this.order()?.vehicleId)),
+  );
+  tasks = computed(() =>
+    this.taskStore.tasks().filter((t) => String(t.workOrderId) === String(this.orderId)),
+  );
+  isOrderClosed = computed(() => this.order()?.status === 'FINISHED');
+
+  totalLabor = computed(() =>
+    this.tasks().reduce((sum, task) => sum + Number((task as any).laborPrice || 0), 0),
+  );
+
+  totalOrderCost = computed(() => {
+    return this.tasks().reduce((sum, task) => {
+      const labor = Number((task as any).laborPrice || 0);
+      const partsTotal = ((task as any).parts || []).reduce(
+        (pSum: number, part: any) =>
+          pSum + Number(part.unitPrice || 0) * Number(part.quantity || 1),
+        0,
+      );
+      return sum + labor + partsTotal;
+    }, 0);
+  });
+
+  completedTasks = computed(() => this.tasks().filter((t) => t.status === 'COMPLETED').length);
+  progress = computed(() =>
+    this.tasks().length ? Math.round((this.completedTasks() / this.tasks().length) * 100) : 0,
+  );
+  canFinishOrder = computed(
+    () => this.tasks().length > 0 && this.completedTasks() === this.tasks().length,
+  );
+
+  async updateOrderPrice() {
+    if (this.orderId) {
+      await this.workOrderStore.updateOrderAutoPrice(this.orderId, this.totalOrderCost());
+    }
+  }
+
+  openTaskDialog() {
+    this.newTask.set({
+      description: '',
+      priority: 'MEDIUM',
+      estimatedTime: 1.0,
+      laborPrice: 0.0,
+      parts: [],
+    });
+    this.dialog.open(this.taskDialogTemplate, {
+      width: '640px',
+      panelClass: 'custom-dialog-container',
+    });
+  }
+
+  closeDialog() {
+    this.dialog.closeAll();
+  }
+
+  addPart() {
+    this.newTask.update((t) => {
+      t.parts.push({ inventoryItemId: null, name: '', quantity: 1, unitPrice: 0 });
+      return t;
+    });
+  }
+
+  removePart(index: number) {
+    this.newTask.update((t) => {
+      t.parts.splice(index, 1);
+      return t;
+    });
+  }
+
+  onPartSelected(itemId: any, index: number) {
+    const item = this.inventoryStore.items().find((i) => String(i.id) === String(itemId));
+    if (item) {
+      this.newTask.update((t) => {
+        t.parts[index].name = item.name;
+        t.parts[index].unitPrice = item.unitPrice;
+        return t;
+      });
+    }
+  }
+
+  newTaskTotalCost = computed(() => {
+    const t = this.newTask();
+    const labor = Number(t.laborPrice || 0);
+    const parts = t.parts.reduce(
+      (sum, part) => sum + Number(part.unitPrice || 0) * Number(part.quantity || 1),
+      0,
+    );
+    return labor + parts;
+  });
+
+  async createTask() {
+    if (this.isOrderClosed() || !this.newTask().description) return;
+
+    const taskPayload: any = {
+      workOrderId: Number(this.orderId),
+      mechanicId: this.order()?.mechanicId,
+      ...this.newTask(),
+    };
+
+    await this.taskStore.addTask(taskPayload);
+    await this.updateOrderPrice();
+    this.closeDialog();
+  }
+
+  async completeTask(task: any) {
+    if (this.isOrderClosed()) return;
+    await this.taskStore.updateTask(task.id, { ...task, status: 'COMPLETED' });
+    await this.updateOrderPrice();
+  }
+
+  async finishOrder() {
+    const currentOrder = this.order();
+    if (!currentOrder) return;
+
+    await this.workOrderStore.updateWorkOrderChecklist(currentOrder.id!, {
+      ...currentOrder,
+      status: 'FINISHED',
+      qaChecklist: {
+        tasksCompleted: true,
+        sparePartsChecked: true,
+        diagnosisValidated: true,
+        cleaningDone: true,
+        finalTestDone: true,
+      },
+    });
+
+    await this.workOrderStore.loadWorkOrders();
+    this.router.navigate(['/mechanic/workspace']);
+  }
+
+  getPriorityLabel(priorityValue: string) {
+    const found = this.priorities.find((p) => p.value === priorityValue);
+    return found ? found.label : priorityValue;
+  }
+}

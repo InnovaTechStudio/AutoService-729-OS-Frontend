@@ -1,106 +1,71 @@
-<mat-sidenav-container class="admin-container">
+<div class="admin-layout">
 
-  <!-- SIDEBAR -->
-  <mat-sidenav
-    #drawer
-    [mode]="isMobile ? 'over' : 'side'"
-    [opened]="!isMobile"
-    class="sidebar">
-
+  <aside class="sidebar" *ngIf="!isMobile">
     <div class="logo-area">
-
-      <img
-        src="/AutoService-logo.jpg"
-        alt="Logo AutoService"
-        class="logo-img">
-
-      <div class="logo-text">
-        <h2>AutoService</h2>
-        <span class="subtitle">{{ ('dashboard.title') | translate }}</span>
-      </div>
-
+      <h2>{{ 'layout.brand' | translate }}</h2>
+      <span class="subtitle">{{ 'nav.controlPanel' | translate }}</span>
     </div>
 
-
-    <mat-nav-list class="menu">
-
-      <a mat-list-item routerLink="/admin/dashboard"
-         routerLinkActive="active-menu-item"
-         (click)="closeSidebarIfMobile(drawer)">
-        <mat-icon matListItemIcon>dashboard</mat-icon>
-        <span matListItemTitle>{{ ('sidebar.dashboard') | translate }}</span>
+    <nav class="menu">
+      <a routerLink="/" class="menu-item" routerLinkActive="router-link-exact-active" [routerLinkActiveOptions]="{exact: true}">
+        <mat-icon>home</mat-icon>
+        <span>{{ 'nav.dashboard' | translate }}</span>
       </a>
-
-      <a mat-list-item routerLink="/admin/customers"
-         routerLinkActive="active-menu-item"
-         (click)="closeSidebarIfMobile(drawer)">
-        <mat-icon matListItemIcon>people</mat-icon>
-        <span matListItemTitle>{{ ('sidebar.clients') | translate }}</span>
+      <a routerLink="/customers" class="menu-item" routerLinkActive="router-link-exact-active">
+        <mat-icon>people</mat-icon>
+        <span>{{ 'nav.customers' | translate }}</span>
       </a>
-
-      <a mat-list-item routerLink="/admin/vehicles"
-         routerLinkActive="active-menu-item"
-         (click)="closeSidebarIfMobile(drawer)">
-        <mat-icon matListItemIcon>directions_car</mat-icon>
-        <span matListItemTitle>{{ ('sidebar.vehicles') | translate }}</span>
+      <a routerLink="/vehicles" class="menu-item" routerLinkActive="router-link-exact-active">
+        <mat-icon>directions_car</mat-icon>
+        <span>{{ 'nav.vehicles' | translate }}</span>
       </a>
-
-      <a mat-list-item routerLink="/admin/work-orders"
-         routerLinkActive="active-menu-item"
-         (click)="closeSidebarIfMobile(drawer)">
-        <mat-icon matListItemIcon>assignment</mat-icon>
-        <span matListItemTitle>{{ ('sidebar.workOrders') | translate }}</span>
+      <a routerLink="/work-orders" class="menu-item" routerLinkActive="router-link-exact-active">
+        <mat-icon>assignment</mat-icon>
+        <span>{{ 'nav.workOrders' | translate }}</span>
       </a>
-
-      <a mat-list-item routerLink="/admin/tasks"
-         routerLinkActive="active-menu-item"
-         (click)="closeSidebarIfMobile(drawer)">
-        <mat-icon matListItemIcon>checklist</mat-icon>
-        <span matListItemTitle>{{ ('sidebar.tasks') | translate }}</span>
+      <a routerLink="/tasks" class="menu-item" routerLinkActive="router-link-exact-active">
+        <mat-icon>checklist</mat-icon>
+        <span>{{ 'nav.tasks' | translate }}</span>
       </a>
-
-      <a mat-list-item routerLink="/admin/mechanics"
-         routerLinkActive="active-menu-item"
-         (click)="closeSidebarIfMobile(drawer)">
-        <mat-icon matListItemIcon>engineering</mat-icon>
-        <span matListItemTitle>{{ ('sidebar.mechanics') | translate }}</span>
+      <a routerLink="/mechanics" class="menu-item" routerLinkActive="router-link-exact-active">
+        <mat-icon>engineering</mat-icon>
+        <span>{{ 'nav.mechanics' | translate }}</span>
       </a>
+      <a routerLink="/inventory" class="menu-item" routerLinkActive="router-link-exact-active">
+        <mat-icon>inventory_2</mat-icon>
+        <span>{{ 'nav.inventory' | translate }}</span>
+      </a>
+    </nav>
+  </aside>
 
-    </mat-nav-list>
+  <main class="main-content">
 
-  </mat-sidenav>
-  <mat-sidenav-content class="main-content">
-
-    <mat-toolbar class="topbar">
-
-      <!-- Button movile-->
-      <button
-        *ngIf="isMobile"
-        mat-icon-button
-        (click)="drawer.toggle()">
-
-        <mat-icon>menu</mat-icon>
-      </button>
-
-      <div class="welcome-msg">
-        <span class="text-gray">{{ 'toolbar.title' | translate}}</span>
-        <span class="fw-bold">{{ userName }}</span>
+    <header class="topbar">
+      <div class="topbar-left">
+        <span class="welcome-text">
+          {{ 'topbar.welcome' | translate }}
+          <strong>{{ authState.currentUser()?.name || ('topbar.admin' | translate) }}</strong>
+        </span>
       </div>
 
-      <span class="spacer"></span>
-      <app-language-switcher />
+      <div class="topbar-right">
+        <app-language-switcher></app-language-switcher>
 
-      <button mat-button color="warn" (click)="logout()">
-        <mat-icon>logout</mat-icon>
-        {{('toolbar.logout') | translate }}
-      </button>
+        <div class="user-info">
+          <mat-icon class="user-icon">person</mat-icon>
+          <span>{{ authState.currentUser()?.name || ('topbar.admin' | translate) }}</span>
+        </div>
 
-    </mat-toolbar>
+        <button mat-stroked-button color="warn" (click)="logout()" class="logout-btn">
+          <mat-icon>logout</mat-icon>
+          {{ 'topbar.logout' | translate }}
+        </button>
+      </div>
+    </header>
 
-    <div class="content-area">
+    <section class="content">
       <router-outlet></router-outlet>
-    </div>
+    </section>
 
-  </mat-sidenav-content>
-
-</mat-sidenav-container>
+  </main>
+</div>

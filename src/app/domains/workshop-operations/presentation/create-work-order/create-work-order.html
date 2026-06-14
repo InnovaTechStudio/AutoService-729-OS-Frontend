@@ -1,119 +1,68 @@
 <div class="create-wo-container">
-
-  <div class="header-actions">
-    <div class="title-group">
-      <button mat-icon-button (click)="goBack()">
-        <mat-icon>arrow_back</mat-icon>
-      </button>
-      <h1>{{ ('newWorkOrder.title') | translate}}</h1>
-    </div>
+  <div class="header-section">
+    <h1>{{ 'workOrders.create.title' | translate }}</h1>
+    <p>{{ 'workOrders.create.description' | translate }}</p>
   </div>
 
-  <div class="wo-grid">
+  <mat-card class="form-card">
+    <mat-card-content>
+      <div class="form-grid">
 
-    <div class="left-column">
-      <mat-card class="form-card">
-        <mat-card-header>
-          <mat-card-title>{{ ('newWorkOrder.generalData') | translate}}</mat-card-title>
-        </mat-card-header>
-
-        <mat-card-content class="pt-3">
-
+        <div class="field">
+          <label>{{ 'workOrders.create.vehicle' | translate }}</label>
           <mat-form-field appearance="outline" class="w-full">
-            <mat-label>{{ ('newWorkOrder.vehicle') | translate}}</mat-label>
-            <mat-select [(ngModel)]="newWO.vehicleId" (selectionChange)="onVehicleChange($event.value)" required>
-              @for (vehicle of vehicleStore.vehicles(); track vehicle.id) {
-                <mat-option [value]="vehicle.id">{{ vehicle.plate }} ({{ vehicle.brand }})</mat-option>
-              }
+            <mat-select [(ngModel)]="form.vehicleId" (selectionChange)="handleVehicleChange()" [placeholder]="'workOrders.create.vehiclePlaceholder' | translate">
+              <mat-option *ngFor="let v of vehicleStore.vehicles()" [value]="v.id">
+                {{ v.brand }} {{ v.model }} (Placa: {{ v.plate }})
+              </mat-option>
             </mat-select>
           </mat-form-field>
+        </div>
 
-          @if (selectedCustomerName) {
-            <mat-form-field appearance="outline" class="w-full">
-              <mat-label>Cliente Dueño</mat-label>
-              <input matInput [value]="selectedCustomerName" disabled>
-            </mat-form-field>
-          }
-
+        <div class="field">
+          <label>{{ 'workOrders.create.customer' | translate }}</label>
           <mat-form-field appearance="outline" class="w-full">
-            <mat-label>{{ ('newWorkOrder.problemDescription') | translate}}</mat-label>
-            <textarea matInput [(ngModel)]="newWO.description" rows="3" required></textarea>
+            <input matInput type="text" [ngModel]="autoCustomerName" disabled [placeholder]="'workOrders.create.customerPlaceholder' | translate">
           </mat-form-field>
+        </div>
 
-          <div class="form-row">
-            <mat-form-field appearance="outline" class="w-half">
-              <mat-label>{{ ('newWorkOrder.estimatedDate') | translate}}</mat-label>
-              <input matInput [matDatepicker]="picker" [(ngModel)]="newWO.estimatedDate" required>
-              <mat-datepicker-toggle matIconSuffix [for]="picker"></mat-datepicker-toggle>
-              <mat-datepicker #picker></mat-datepicker>
-            </mat-form-field>
+        <div class="field">
+          <label>{{ 'workOrders.create.mechanic' | translate }}</label>
+          <mat-form-field appearance="outline" class="w-full">
+            <mat-select [(ngModel)]="form.mechanicId" [placeholder]="'workOrders.create.mechanicPlaceholder' | translate">
+              <mat-option *ngFor="let m of mechanicStore.mechanics()" [value]="m.id">
+                {{ m.fullName }} ({{ m.specialty }})
+              </mat-option>
+            </mat-select>
+          </mat-form-field>
+        </div>
 
-            <mat-form-field appearance="outline" class="w-half">
-              <mat-label>{{ ('newWorkOrder.totalPrice') | translate}}</mat-label>
-              <span matTextPrefix>S/.&nbsp;</span>
-              <input matInput type="number" [(ngModel)]="newWO.price" required>
-            </mat-form-field>
-          </div>
+        <div class="field">
+          <label>{{ 'workOrders.create.estimatedDate' | translate }}</label>
+          <mat-form-field appearance="outline" class="w-full">
+            <input matInput type="date" [(ngModel)]="form.estimatedDate" [placeholder]="'workOrders.create.datePlaceholder' | translate">
+          </mat-form-field>
+        </div>
 
-        </mat-card-content>
-      </mat-card>
-    </div>
+        <div class="field full-width mt-3">
+          <label>{{ 'workOrders.create.problemDescription' | translate }}</label>
+          <mat-form-field appearance="outline" class="w-full">
+            <textarea matInput [(ngModel)]="form.description" rows="4" [placeholder]="'workOrders.create.problemPlaceholder' | translate"></textarea>
+          </mat-form-field>
+        </div>
 
-    <div class="right-column">
-      <mat-card class="form-card h-full">
+      </div>
 
-        <mat-card-header class="tasks-header">
-          <mat-card-title>{{ ('newWorkOrder.assignedTasks') | translate}}</mat-card-title>
-          <button mat-stroked-button color="primary" (click)="addTaskRow()">
-            <mat-icon>add</mat-icon> {{ ('newWorkOrder.addTask') | translate}}
-          </button>
-        </mat-card-header>
-
-        <mat-card-content class="pt-3">
-
-          <div class="tasks-list">
-            @for (task of tasks; track $index) {
-              <div class="task-row">
-
-                <mat-form-field appearance="outline" class="task-desc">
-                  <mat-label>Descripción de la tarea</mat-label>
-                  <input matInput [(ngModel)]="task.description" placeholder="Ej: Cambio de aceite">
-                </mat-form-field>
-
-                <mat-form-field appearance="outline" class="task-mech">
-                  <mat-label>Mecánico Asignado</mat-label>
-                  <mat-select [(ngModel)]="task.mechanicId">
-                    @for (mechanic of mechanicStore.mechanics(); track mechanic.id) {
-                      <mat-option [value]="mechanic.id">{{ mechanic.fullName }}</mat-option>
-                    }
-                  </mat-select>
-                </mat-form-field>
-
-                <button mat-icon-button color="warn" (click)="removeTaskRow($index)" class="delete-btn">
-                  <mat-icon>delete</mat-icon>
-                </button>
-              </div>
-            }
-
-            @if (tasks.length === 0) {
-              <div class="empty-state">
-                {{ ('newWorkOrder.emptyTasksMessage') | translate}}              </div>
-            }
-          </div>
-
-        </mat-card-content>
-      </mat-card>
-    </div>
-
-  </div>
-
-  <div class="footer-actions">
-    <button mat-button (click)="goBack()">{{ ('newWorkOrder.cancel') | translate}}</button>
-    <button mat-raised-button color="primary" (click)="saveFullWorkOrder()" [disabled]="isSaving || !newWO.vehicleId || tasks.length === 0">
-      <mat-icon *ngIf="!isSaving">save</mat-icon>
-      <mat-icon *ngIf="isSaving" class="spin">sync</mat-icon>
-      {{ isSaving ? 'Guardando...' : ('newWorkOrder.saveCompleteOrder' | translate) }}
-    </button>
-  </div>
-
+      <div class="actions">
+        <button mat-button (click)="cancel()" class="cancel-btn">
+          {{ 'actions.cancel' | translate }}
+        </button>
+        <button mat-flat-button color="primary" class="primary-btn" [disabled]="isSaving()" (click)="saveOrder()">
+          <mat-icon *ngIf="!isSaving()">check</mat-icon>
+          <mat-icon *ngIf="isSaving()" class="spin">refresh</mat-icon>
+          {{ 'workOrders.create.createButton' | translate }}
+        </button>
+      </div>
+    </mat-card-content>
+  </mat-card>
 </div>

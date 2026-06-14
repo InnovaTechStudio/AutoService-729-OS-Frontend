@@ -1,0 +1,106 @@
+<section class="inventory-page">
+  <div class="page-header">
+    <div>
+      <span class="eyebrow">{{ 'inventory.eyebrow' | translate }}</span>
+      <h1>{{ 'inventory.title' | translate }}</h1>
+      <p>{{ 'inventory.description' | translate }}</p>
+    </div>
+
+    <button mat-flat-button class="add-button" (click)="openNew()">
+      <mat-icon>add</mat-icon>
+      {{ 'inventory.newButton' | translate }}
+    </button>
+  </div>
+
+  <div class="toolbar">
+    <div class="search-box">
+      <mat-icon class="search-icon">search</mat-icon>
+      <input type="text" [ngModel]="search()" (ngModelChange)="search.set($event)" [placeholder]="'inventory.searchPlaceholder' | translate" class="custom-search-input">
+    </div>
+  </div>
+
+  <div class="table-card">
+    <div *ngIf="inventoryStore.loading()" class="empty-state">
+      <mat-icon class="spin">refresh</mat-icon>
+      <p>Cargando inventario...</p>
+    </div>
+
+    <div *ngIf="!inventoryStore.loading() && filteredItems().length > 0" class="inventory-grid">
+      <app-inventory-card *ngFor="let item of filteredItems()" [item]="item" (edit)="editItem($event)"></app-inventory-card>
+    </div>
+
+    <div *ngIf="!inventoryStore.loading() && filteredItems().length === 0" class="empty-state">
+      <mat-icon>inventory_2</mat-icon>
+      <p>No se encontraron materiales en el inventario.</p>
+    </div>
+  </div>
+
+  <ng-template #inventoryDialog>
+    <div class="custom-dialog-header">
+      <h2 mat-dialog-title style="margin: 0;">{{ itemForm().id ? ('inventory.editTitle' | translate) : ('inventory.newTitle' | translate) }}</h2>
+    </div>
+
+    <mat-dialog-content>
+      <div class="form-grid mt-3">
+        <div class="field">
+          <label>{{ 'inventory.form.name' | translate }} <span class="required">*</span></label>
+          <input type="text" [(ngModel)]="itemForm().name" [placeholder]="'inventory.form.namePlaceholder' | translate" class="custom-form-input">
+        </div>
+
+        <div class="row-grid">
+          <div class="field">
+            <label>{{ 'inventory.form.category' | translate }}</label>
+            <mat-select [(ngModel)]="itemForm().category" class="custom-form-input">
+              <mat-option *ngFor="let cat of categories()" [value]="cat.value">{{ cat.label }}</mat-option>
+            </mat-select>
+          </div>
+          <div class="field">
+            <label>{{ 'inventory.form.brand' | translate }}</label>
+            <input type="text" [(ngModel)]="itemForm().brand" [placeholder]="'inventory.form.brandPlaceholder' | translate" class="custom-form-input">
+          </div>
+        </div>
+
+        <div class="row-grid">
+          <div class="field">
+            <label>{{ 'inventory.form.stock' | translate }}</label>
+            <input type="number" [(ngModel)]="itemForm().stock" min="0" class="custom-form-input">
+          </div>
+          <div class="field">
+            <label>{{ 'inventory.form.minStock' | translate }}</label>
+            <input type="number" [(ngModel)]="itemForm().minStock" min="0" class="custom-form-input">
+          </div>
+        </div>
+
+        <div class="field">
+          <label>{{ 'inventory.form.unitPrice' | translate }} (S/)</label>
+          <input type="number" [(ngModel)]="itemForm().unitPrice" min="0" step="0.1" class="custom-form-input">
+        </div>
+
+        <div class="field">
+          <label>Imagen del Material</label>
+          <div class="file-upload-container">
+            <label for="inventory-image-upload" class="file-upload-btn">
+              <mat-icon>upload</mat-icon> Seleccionar Imagen
+            </label>
+            <input id="inventory-image-upload" type="file" accept="image/*" (change)="handleImageUpload($event)" class="hidden-input">
+            <div *ngIf="itemForm().image" class="preview-box">
+              <img [src]="itemForm().image" alt="preview">
+            </div>
+          </div>
+        </div>
+      </div>
+    </mat-dialog-content>
+
+    <mat-dialog-actions align="end" class="dialog-footer" style="justify-content: space-between;">
+      <div>
+        <button *ngIf="itemForm().id" mat-button color="warn" (click)="deleteItem()"><mat-icon>delete</mat-icon> Eliminar</button>
+      </div>
+      <div>
+        <button mat-button (click)="closeDialog()" style="color: #64748b;">{{ 'common.cancel' | translate }}</button>
+        <button mat-flat-button class="save-btn" (click)="saveItem()">
+          <mat-icon>save</mat-icon> {{ 'common.save' | translate }}
+        </button>
+      </div>
+    </mat-dialog-actions>
+  </ng-template>
+</section>

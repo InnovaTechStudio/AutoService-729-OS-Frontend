@@ -1,65 +1,38 @@
 <article class="mechanic-card">
-  <div class="load-line" [ngClass]="mechanic.loadClass"></div>
+  <div class="avatar-wrapper">
+    <div class="mechanic-avatar">{{ initials }}</div>
+  </div>
 
-  <div class="mechanic-top">
-    <div class="mechanic-profile">
-      <div class="mechanic-avatar">
-        <mat-icon>person</mat-icon>
-      </div>
-
-      <div>
+  <div class="mechanic-content">
+    <div class="mechanic-top">
+      <div class="name-container">
         <h3>{{ mechanic.fullName }}</h3>
-        <p>{{ mechanic.specialty }}</p>
+        <div class="tags-group">
+          <span class="custom-badge badge-info">{{ mechanic.specialty }}</span>
+          <span class="custom-badge" [ngClass]="capacityStatus.class">{{ capacityStatus.label }}</span>
+        </div>
       </div>
     </div>
 
-    <span class="workload-chip" [ngClass]="getWorkloadClass()">
-      {{ mechanic.workloadStatus }}
-    </span>
-  </div>
-
-  <div class="mechanic-stats">
-    <div>
-      <span>{{ 'staffManagement.labels.activeTasks' | translate}}</span>
-      <strong>{{ mechanic.activeTasks }} / {{ mechanic.maxCapacity }}</strong>
+    <div class="mechanic-account" *ngIf="mechanic.email">
+      <span><mat-icon>mail</mat-icon> {{ mechanic.email }}</span>
     </div>
 
-    <div>
-      <span>{{ 'staffManagement.labels.effectiveness' | translate}}</span>
-      <strong>{{ mechanic.effectiveness }}%</strong>
-    </div>
-  </div>
-
-  <div class="load-section">
-    <div class="load-label">
-      <span>{{ 'staffManagement.labels.workload' | translate}}</span>
-      <strong>{{ mechanic.loadPercentage }}%</strong>
+    <div class="workload-container">
+      <div class="workload-labels">
+        <span><mat-icon>work</mat-icon> {{ 'mechanic.workload.label' | translate }}</span>
+        <strong>{{ mechanic.currentLoad || 0 }} / {{ mechanic.maxCapacity }}</strong>
+      </div>
+      <mat-progress-bar mode="determinate" [value]="loadPercentage" class="workload-bar" [ngClass]="statusClass"></mat-progress-bar>
     </div>
 
-    <mat-progress-bar
-      mode="determinate"
-      [value]="mechanic.loadPercentage"
-      class="load-progress">
-    </mat-progress-bar>
-  </div>
-
-  <div class="mechanic-actions">
-    <button
-      mat-stroked-button
-      type="button"
-      class="action-button"
-      (click)="onEdit()">
-      <mat-icon>edit</mat-icon>
-      {{ 'staffManagement.actions.edit' | translate}}
-    </button>
-
-    <button
-      mat-stroked-button
-      color="warn"
-      type="button"
-      class="delete-button"
-      (click)="onDelete()">
-      <mat-icon>delete</mat-icon>
-    </button>
+    <div class="mechanic-actions">
+      <button mat-icon-button color="primary" (click)="edit.emit(mechanic)" [matTooltip]="'actions.editProfile' | translate">
+        <mat-icon>edit</mat-icon>
+      </button>
+      <button mat-icon-button color="warn" (click)="delete.emit(mechanic)" [matTooltip]="'actions.deleteMechanic' | translate">
+        <mat-icon>delete</mat-icon>
+      </button>
+    </div>
   </div>
 </article>

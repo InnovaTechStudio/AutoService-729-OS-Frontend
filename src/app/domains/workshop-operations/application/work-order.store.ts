@@ -1,11 +1,3 @@
-/**
- * WorkOrderStore
- * 
- * Reactive store that manages the status of Work Orders.
- * 
- * @service
- * @providedIn 'root'
- */
 import { Injectable, inject, signal } from '@angular/core';
 import { WorkOrderService } from '../infrastructure/services/work-order.service';
 import { WorkOrder } from '../domain/models/work-order.model';
@@ -14,49 +6,108 @@ import { WorkOrder } from '../domain/models/work-order.model';
 export class WorkOrderStore {
   private service = inject(WorkOrderService);
 
-  /** Reactive list of all work orders */
   readonly workOrders = signal<WorkOrder[]>([]);
+  readonly loading = signal<boolean>(false);
 
-  /** Indicates if information is being loaded */
-  readonly isLoading = signal<boolean>(false);
-
-  /**
-   * Loads all work orders from the backend.
-   */
-  loadWorkOrders() {
-    this.isLoading.set(true);
-    this.service.getAllOrders().subscribe({
-      next: (data) => { this.workOrders.set(data); this.isLoading.set(false); },
-      error: (err) => { console.error('Error cargando órdenes:', err); this.isLoading.set(false); }
+  loadWorkOrders(): Promise<void> {
+    this.loading.set(true);
+    return new Promise((resolve, reject) => {
+      this.service.getWorkOrders().subscribe({
+        next: (data) => {
+          this.workOrders.set(data);
+          this.loading.set(false);
+          resolve();
+        },
+        error: (err) => {
+          console.error('Error fetching work orders', err);
+          this.loading.set(false);
+          reject(err);
+        },
+      });
     });
   }
 
-  /**
-   * Creates a new work order.
-   * @returns Observable with the created order (useful for obtaining the ID)
-   */
-  addWorkOrder(order: WorkOrder) {
-    // Return the observable to be able to use the ID of the created order when creating tasks
-    return this.service.createOrder(order);
+  addWorkOrder(order: WorkOrder): Promise<WorkOrder> {
+    return new Promise((resolve, reject) => {
+      this.service.createWorkOrder(order).subscribe({
+        next: (newOrder) => {
+          this.workOrders.update((list) => [...list, newOrder]);
+          resolve(newOrder);
+        },
+        error: (err) => reject(err),
+      });
+    });
   }
 
-  /**
-   * Updates an existing work order.
-   */
-  updateWorkOrder(id: string, data: Partial<WorkOrder>) {
-    return this.service.updateOrder(id, data).subscribe({
-      next: (updatedOrder) => {
-        this.workOrders.update(list => {
-          const index = list.findIndex(wo => String(wo.id) === String(id));
-          if (index !== -1) {
-            const newList = [...list];
-            newList[index] = updatedOrder;
-            return newList;
-          }
-          return list;
-        });
-      },
-      error: (err) => console.error('Error actualizando orden:', err)
+  updateWorkOrder(id: string | number, data: Partial<WorkOrder>): Promise<void> {
+    return new Promise((resolve, reject) => {
+      this.service.updateWorkOrder(id, data).subscribe({
+        next: (updated) => {
+          this.workOrders.update((list) =>
+            list.map((o) => (String(o.id) === String(id) ? updated : o)),
+          );
+          resolve();
+        },
+        error: (err) => reject(err),
+      });
+    });
+  }
+
+  updateOrderAutoPrice(id: string | number, calculatedTotal: number): Promise<void> {
+    return new Promise((resolve, reject) => {
+      const existingOrder = this.workOrders().find((o) => String(o.id) === String(id));
+      if (!existingOrder) return reject('Order not found');
+
+      let newStatus = existingOrder.status;
+      if (newStatus === 'PENDING') newStatus = 'IN_PROGRESS';
+
+      const payload = {
+        description: existingOrder.description || 'Sin descripción', // <-- AGREGAR ESTA LÍNEA
+        estimatedDate: existingOrder.estimatedDate,
+        price: parseFloat(String(calculatedTotal)),
+        status: newStatus,
+        tasksCompleted: (existingOrder as any).qaChecklist?.tasksCompleted || false,
+        sparePartsChecked: (existingOrder as any).qaChecklist?.sparePartsChecked || false,
+        diagnosisValidated: (existingOrder as any).qaChecklist?.diagnosisValidated || false,
+        cleaningDone: (existingOrder as any).qaChecklist?.cleaningDone || false,
+        finalTestDone: (existingOrder as any).qaChecklist?.finalTestDone || false,
+      };
+
+      this.service.updateWorkOrder(id, payload).subscribe({
+        next: (updated) => {
+          this.workOrders.update((list) =>
+            list.map((o) => (String(o.id) === String(id) ? updated : o)),
+          );
+          resolve();
+        },
+        error: (err) => reject(err),
+      });
+    });
+  }
+
+  updateWorkOrderChecklist(id: string | number, updateData: any): Promise<void> {
+    return new Promise((resolve, reject) => {
+      const payload = {
+        description: updateData.description || 'Sin descripción', // <-- AGREGAR ESTA LÍNEA
+        estimatedDate: updateData.estimatedDate,
+        price: updateData.price,
+        status: updateData.status,
+        tasksCompleted: updateData.qaChecklist?.tasksCompleted || false,
+        sparePartsChecked: updateData.qaChecklist?.sparePartsChecked || false,
+        diagnosisValidated: updateData.qaChecklist?.diagnosisValidated || false,
+        cleaningDone: updateData.qaChecklist?.cleaningDone || false,
+        finalTestDone: updateData.qaChecklist?.finalTestDone || false,
+      };
+
+      this.service.updateWorkOrder(id, payload).subscribe({
+        next: (updated) => {
+          this.workOrders.update((list) =>
+            list.map((o) => (String(o.id) === String(id) ? updated : o)),
+          );
+          resolve();
+        },
+        error: (err) => reject(err),
+      });
     });
   }
 }

@@ -1,0 +1,153 @@
+<section class="admin-dashboard">
+  <div class="dashboard-header">
+    <div>
+      <span class="eyebrow">{{ 'dashboard.eyebrow' | translate }}</span>
+      <h1>{{ 'dashboard.title' | translate }}</h1>
+      <p>{{ 'dashboard.description' | translate }}</p>
+    </div>
+    <div class="header-actions">
+      <button mat-flat-button color="primary" (click)="goToCreate()">
+        <mat-icon>add</mat-icon> {{ 'dashboard.newOrder' | translate }}
+      </button>
+      <button mat-stroked-button (click)="goToOrders()">
+        <mat-icon>list</mat-icon> {{ 'dashboard.viewOrders' | translate }}
+      </button>
+    </div>
+  </div>
+
+  <div class="kpi-grid">
+    <mat-card class="metric-card metric-card--blue">
+      <div class="metric-content">
+        <div>
+          <span>{{ 'dashboard.metrics.activeVehicles' | translate }}</span>
+          <strong>{{ vehiclesInWorkshop() }}</strong>
+          <small>{{ 'dashboard.metrics.activeVehiclesSub' | translate }}</small>
+        </div>
+        <mat-icon>directions_car</mat-icon>
+      </div>
+    </mat-card>
+
+    <mat-card class="metric-card metric-card--indigo">
+      <div class="metric-content">
+        <div>
+          <span>{{ 'dashboard.metrics.activeOrders' | translate }}</span>
+          <strong>{{ activeOrdersCount() }}</strong>
+          <small>{{ 'dashboard.metrics.activeOrdersSub' | translate }}</small>
+        </div>
+        <mat-icon>edit_document</mat-icon>
+      </div>
+    </mat-card>
+
+    <mat-card class="metric-card metric-card--green">
+      <div class="metric-content">
+        <div>
+          <span>{{ 'dashboard.metrics.completed' | translate }}</span>
+          <strong>{{ completedOrdersCount() }}</strong>
+          <small>{{ 'dashboard.metrics.completedSub' | translate }}</small>
+        </div>
+        <mat-icon>check_circle</mat-icon>
+      </div>
+    </mat-card>
+
+    <mat-card class="metric-card metric-card--violet">
+      <div class="metric-content">
+        <div>
+          <span>{{ 'dashboard.metrics.projectedRevenue' | translate }}</span>
+          <strong>S/ {{ projectedIncome() | number:'1.2-2' }}</strong>
+          <small>{{ 'dashboard.metrics.projectedRevenueSub' | translate }}</small>
+        </div>
+        <mat-icon>trending_up</mat-icon>
+      </div>
+    </mat-card>
+  </div>
+
+  <div class="dashboard-grid">
+    <div class="main-column">
+      <mat-card class="panel-card income-card">
+        <div class="panel-heading">
+          <div>
+            <h2>{{ 'dashboard.panels.weeklyIncome.title' | translate }}</h2>
+            <p>{{ 'dashboard.panels.weeklyIncome.subtitle' | translate }}</p>
+          </div>
+          <strong class="total-income">S/ {{ weeklyIncomeData().total | number:'1.2-2' }}</strong>
+        </div>
+        <div class="chart-container">
+          <div class="bar-col" *ngFor="let col of weeklyIncomeData().data">
+            <div class="bar" [style.height.%]="col.height">
+              <div class="tooltip">S/ {{ col.value }}</div>
+            </div>
+            <span>{{ col.label }}</span>
+          </div>
+        </div>
+      </mat-card>
+
+      <mat-card class="panel-card">
+        <div class="panel-heading">
+          <div>
+            <h2>{{ 'dashboard.panels.activeVehicles.title' | translate }}</h2>
+            <p>{{ 'dashboard.panels.activeVehicles.subtitle' | translate }}</p>
+          </div>
+          <button mat-button color="primary" (click)="goToVehicles()">{{ 'dashboard.panels.activeVehicles.viewAll' | translate }}</button>
+        </div>
+        <div class="vehicle-list">
+          <div class="vehicle-item" *ngFor="let v of activeVehiclesList()">
+            <img [src]="v.image" alt="Vehicle" class="vehicle-image" />
+            <div class="vehicle-info">
+              <div class="vehicle-top">
+                <div>
+                  <span class="order-code">{{ v.orderCode }}</span>
+                  <h3 class="plate-text">{{ v.plate }}</h3>
+                  <small class="model-text">{{ v.name }}</small>
+                </div>
+                <strong>{{ v.progress }}%</strong>
+              </div>
+              <mat-progress-bar mode="determinate" [value]="v.progress"></mat-progress-bar>
+            </div>
+          </div>
+        </div>
+      </mat-card>
+    </div>
+
+    <div class="side-column">
+      <mat-card class="panel-card">
+        <div class="panel-heading">
+          <div>
+            <h2>{{ 'dashboard.panels.frequentServices.title' | translate }}</h2>
+            <p>{{ 'dashboard.panels.frequentServices.subtitle' | translate }}</p>
+          </div>
+        </div>
+        <div class="services-list">
+          <div class="service-item" *ngFor="let s of frequentServicesList()">
+            <div class="service-icon"><mat-icon>{{ s.icon }}</mat-icon></div>
+            <div class="service-info">
+              <div class="service-top">
+                <h3 class="service-name">{{ s.name }}</h3>
+                <span>{{ s.count }} {{ 'dashboard.panels.frequentServices.orders' | translate }}</span>
+              </div>
+              <mat-progress-bar mode="determinate" [value]="s.progress"></mat-progress-bar>
+            </div>
+          </div>
+        </div>
+      </mat-card>
+
+      <mat-card class="panel-card">
+        <div class="panel-heading">
+          <div>
+            <h2>{{ 'dashboard.panels.recentOrders.title' | translate }}</h2>
+            <p>{{ 'dashboard.panels.recentOrders.subtitle' | translate }}</p>
+          </div>
+          <button mat-icon-button (click)="goToOrders()"><mat-icon>arrow_forward</mat-icon></button>
+        </div>
+        <div class="recent-list">
+          <div class="recent-item" *ngFor="let order of recentOrders()">
+            <div class="recent-info">
+              <span style="font-weight: 800; color: #0f172a;">{{ order.trackingCode }}</span>
+              <span class="custom-badge" [ngClass]="'badge-' + getOrderSeverity(order.status)">{{ order.status }}</span>
+            </div>
+            <strong style="color: #0b1680;">S/ {{ order.price || 0 | number:'1.2-2' }}</strong>
+          </div>
+        </div>
+      </mat-card>
+    </div>
+  </div>
+</section>

@@ -1,31 +1,24 @@
-import { Component } from '@angular/core';
-import { MatButtonToggle, MatButtonToggleGroup } from '@angular/material/button-toggle';
+import { Component, computed } from '@angular/core';
+import { CommonModule } from '@angular/common';
 import { TranslateService } from '@ngx-translate/core';
+
 @Component({
   selector: 'app-language-switcher',
-  imports: [MatButtonToggle, MatButtonToggleGroup],
+  standalone: true,
+  imports: [CommonModule],
   templateUrl: './language-switcher.html',
   styleUrl: './language-switcher.css',
 })
 export class LanguageSwitcher {
-  /** Currently selected language code in the toggle group. */
-  currentLang = 'en';
-  /** Supported language codes available to users. */
-  languages = ['en', 'es'];
+  options = [
+    { label: 'ES', value: 'es', flag: '🇪🇸' },
+    { label: 'EN', value: 'en', flag: '🇺🇸' },
+  ];
 
-  /**
-   * @param translate - Translation service managing runtime locale state.
-   */
-  constructor(private translate: TranslateService) {
-    this.currentLang = translate.getCurrentLang();
-  }
+  constructor(public translate: TranslateService) {}
 
-  /**
-   * Changes the active application language.
-   *
-   * @param language - Locale code to activate.
-   */
-  useLanguage(language: string) {
-    this.translate.use(language);
+  switchLocale(value: string) {
+    this.translate.use(value);
+    localStorage.setItem('autoservice-locale', value);
   }
 }

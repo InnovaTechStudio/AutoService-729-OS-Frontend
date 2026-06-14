@@ -1,11 +1,9 @@
-import { CommonModule } from '@angular/common';
 import { Component, EventEmitter, Input, Output } from '@angular/core';
+import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
-
-import { MatFormFieldModule } from '@angular/material/form-field';
-import { MatIconModule } from '@angular/material/icon';
 import { MatInputModule } from '@angular/material/input';
 import { MatSelectModule } from '@angular/material/select';
+import { MatIconModule } from '@angular/material/icon';
 import { TranslatePipe } from '@ngx-translate/core';
 
 @Component({
@@ -14,10 +12,9 @@ import { TranslatePipe } from '@ngx-translate/core';
   imports: [
     CommonModule,
     FormsModule,
-    MatFormFieldModule,
-    MatIconModule,
     MatInputModule,
     MatSelectModule,
+    MatIconModule,
     TranslatePipe,
   ],
   templateUrl: './mechanic-filters.html',
@@ -31,11 +28,11 @@ export class MechanicFiltersComponent {
   @Output() searchChange = new EventEmitter<string>();
   @Output() specialtyChange = new EventEmitter<string | null>();
 
-  protected onSearchChange(value: string): void {
+  onSearchChange(value: string): void {
     this.searchChange.emit(value);
   }
 
-  protected onSpecialtyChange(value: string | null): void {
+  onSpecialtyChange(value: string | null): void {
     this.specialtyChange.emit(value);
   }
 }

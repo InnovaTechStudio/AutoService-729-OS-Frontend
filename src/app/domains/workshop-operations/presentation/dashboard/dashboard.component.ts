@@ -1,246 +1,150 @@
-/**
- * DashboardComponent
- *
- * Main component of the workshop's administrative dashboard.
- * Displays an executive summary with:
- * - Key statistics (vehicles in workshop, active orders, pending tasks)
- * - Quick view of active vehicles
- * - Recent orders
- * - Most frequent services
- * - Simple weekly income charts
- *
- * @component
- * @selector app-dashboard
- * @standalone true
- */
-import { CommonModule, CurrencyPipe } from '@angular/common';
-import { Component, OnInit, computed, inject } from '@angular/core';
-import { Router, RouterModule } from '@angular/router';
-
-import { MatButtonModule } from '@angular/material/button';
+import { Component, computed, inject, OnInit } from '@angular/core';
+import { CommonModule } from '@angular/common';
+import { Router } from '@angular/router';
 import { MatCardModule } from '@angular/material/card';
 import { MatIconModule } from '@angular/material/icon';
+import { MatButtonModule } from '@angular/material/button';
 import { MatProgressBarModule } from '@angular/material/progress-bar';
-
-import { VehicleStore } from '../../../fleet-management/application/vehicle.store';
+import { TranslateModule } from '@ngx-translate/core';
 import { WorkOrderStore } from '../../application/work-order.store';
 import { TaskStore } from '../../application/task.store';
-import { Vehicle } from '../../../fleet-management/domain/models/vehicle.model';
-import { WorkOrder } from '../../domain/models/work-order.model';
-import { TranslatePipe } from '@ngx-translate/core';
-
-interface DashboardVehiclePreview {
-  id: string;
-  name: string;
-  status: string;
-  progress: number;
-  image: string;
-}
-
-interface FrequentService {
-  name: string;
-  count: number;
-  amount: number;
-  progress: number;
-  icon: string;
-}
+import { VehicleStore } from '../../../fleet-management/application/vehicle.store';
 
 @Component({
   selector: 'app-dashboard',
   standalone: true,
   imports: [
     CommonModule,
-    RouterModule,
-    CurrencyPipe,
     MatCardModule,
     MatIconModule,
     MatButtonModule,
     MatProgressBarModule,
-    TranslatePipe,
+    TranslateModule,
   ],
-  templateUrl: './dashboard.component.html',
-  styleUrl: './dashboard.component.css',
+  templateUrl: './dashboard.html',
+  styleUrl: './dashboard.css',
 })
 export class DashboardComponent implements OnInit {
-  private readonly router = inject(Router);
-  private readonly vehicleStore = inject(VehicleStore);
-  private readonly workOrderStore = inject(WorkOrderStore);
-  private readonly taskStore = inject(TaskStore);
+  public workOrderStore = inject(WorkOrderStore);
+  public taskStore = inject(TaskStore);
+  public vehicleStore = inject(VehicleStore);
+  private router = inject(Router);
 
-  protected readonly fallbackVehicleImages = [
-    'https://images.unsplash.com/photo-1552519507-da3b142c6e3d?w=300&auto=format&fit=crop',
-    'https://images.unsplash.com/photo-1542362567-b07e54358753?w=300&auto=format&fit=crop',
-    'https://images.unsplash.com/photo-1492144534655-ae79c964c9d7?w=300&auto=format&fit=crop',
-    'https://images.unsplash.com/photo-1503376780353-7e6692767b70?w=300&auto=format&fit=crop',
-  ];
+  async ngOnInit() {
+    await Promise.all([
+      this.workOrderStore.loadWorkOrders(),
+      this.taskStore.loadAllTasks(),
+      this.vehicleStore.loadVehicles(),
+    ]);
+  }
 
-  // Signals directos de los stores
-  protected readonly vehicles = this.vehicleStore.vehicles;
-  protected readonly workOrders = this.workOrderStore.workOrders;
-  protected readonly tasks = this.taskStore.tasks;
-
-  protected readonly vehiclesInWorkshop = computed(
-    () => this.vehicles().filter((vehicle) => vehicle.status !== 'Entregado').length,
+  activeOrdersCount = computed(
+    () =>
+      this.workOrderStore.workOrders().filter((o) => ['PENDING', 'IN_PROGRESS'].includes(o.status))
+        .length,
+  );
+  completedOrdersCount = computed(
+    () =>
+      this.workOrderStore.workOrders().filter((o) => ['FINISHED', 'DELIVERED'].includes(o.status))
+        .length,
+  );
+  projectedIncome = computed(() =>
+    this.workOrderStore
+      .workOrders()
+      .filter((o) => o.status !== 'CANCELLED')
+      .reduce((sum, o) => sum + Number(o.price || 0), 0),
   );
 
-  protected readonly activeOrders = computed(
-    () => this.workOrders().filter((order) => order.status === 'En Proceso').length,
-  );
-
-  protected readonly completedOrders = computed(
-    () => this.workOrders().filter((order) => order.status === 'Finalizado').length,
-  );
-
-  protected readonly pendingTasks = computed(
-    () => this.tasks().filter((task) => task.status === 'Pendiente').length,
-  );
-
-  protected readonly projectedIncome = computed(() =>
-    this.workOrders().reduce((total, order) => total + Number(order.price || 0), 0),
-  );
-
-  protected readonly activeVehiclePreview = computed<DashboardVehiclePreview[]>(() => {
-    const sourceVehicles = this.vehicles().length ? this.vehicles() : this.getFallbackVehicles();
-
-    return sourceVehicles
-      .filter((vehicle) => vehicle.status !== 'Entregado')
-      .slice(0, 4)
-      .map((vehicle, index) => ({
-        id: String(vehicle.id ?? index),
-        name: `${vehicle.brand} ${vehicle.model}`,
-        status: this.getReadableVehicleStatus(vehicle.status),
-        progress: this.getProgressByStatus(vehicle.status),
-        image: this.fallbackVehicleImages[index % this.fallbackVehicleImages.length],
-      }));
+  vehiclesInWorkshop = computed(() => {
+    const activeVehicleIds = this.workOrderStore
+      .workOrders()
+      .filter((o) => ['PENDING', 'IN_PROGRESS'].includes(o.status))
+      .map((o) => o.vehicleId);
+    return new Set(activeVehicleIds).size;
   });
 
-  protected readonly recentOrders = computed(() => [...this.workOrders()].reverse().slice(0, 5));
+  recentOrders = computed(() => [...this.workOrderStore.workOrders()].reverse().slice(0, 5));
 
-  protected readonly frequentServices: FrequentService[] = [
-    {
-      name: 'Cambio de aceite',
-      count: 12,
-      amount: 540,
-      progress: 86,
-      icon: 'settings',
-    },
-    {
-      name: 'Reparación de frenos',
-      count: 8,
-      amount: 820,
-      progress: 68,
-      icon: 'build',
-    },
-    {
-      name: 'Rotación de neumáticos',
-      count: 5,
-      amount: 140,
-      progress: 44,
-      icon: 'sync',
-    },
-  ];
+  activeVehiclesList = computed(() => {
+    return this.workOrderStore
+      .workOrders()
+      .filter((o) => ['PENDING', 'IN_PROGRESS'].includes(o.status))
+      .slice(0, 4)
+      .map((order) => {
+        const vehicle = this.vehicleStore
+          .vehicles()
+          .find((v) => String(v.id) === String(order.vehicleId));
+        return {
+          orderCode: order.trackingCode,
+          plate: vehicle?.plate,
+          name: `${vehicle?.brand} ${vehicle?.model}`,
+          image:
+            vehicle?.image ||
+            'https://images.unsplash.com/photo-1552519507-da3b142c6e3d?w=200&auto=format&fit=crop',
+          progress: order.status === 'IN_PROGRESS' ? 65 : 20,
+        };
+      });
+  });
 
-  protected readonly weeklyIncomeBars = [
-    { day: 'Lun', value: 380 },
-    { day: 'Mar', value: 520 },
-    { day: 'Mié', value: 460 },
-    { day: 'Jue', value: 610 },
-    { day: 'Vie', value: 900 },
-    { day: 'Sáb', value: 300 },
-  ];
+  frequentServicesList = computed(() => {
+    const taskMap: Record<string, any> = {};
+    this.taskStore.tasks().forEach((task) => {
+      const desc = task.description || 'Servicio General';
+      if (!taskMap[desc]) taskMap[desc] = { name: desc, count: 0 };
+      taskMap[desc].count += 1;
+    });
+    const sorted = Object.values(taskMap)
+      .sort((a, b) => b.count - a.count)
+      .slice(0, 3);
+    const maxCount = sorted[0]?.count || 1;
+    const icons = ['settings', 'build', 'bolt'];
+    return sorted.map((s, i) => ({
+      ...s,
+      progress: Math.round((s.count / maxCount) * 100),
+      icon: icons[i % icons.length],
+    }));
+  });
 
-  ngOnInit(): void {
-    this.vehicleStore.loadVehicles();
-    this.workOrderStore.loadWorkOrders();
-    this.taskStore.loadAllTasks();
-  }
-  // MMethods for navigation
-  protected goToVehicles(): void {
-    this.router.navigate(['/admin/vehicles']);
-  }
-
-  protected goToOrders(): void {
-    this.router.navigate(['/admin/work-orders']);
-  }
-  // Auxiliary formatting methods
-  protected goToCreateOrder(): void {
-    this.router.navigate(['/admin/work-orders/new']);
-  }
-
-  protected getProgressWidth(value: number): string {
-    return `${Math.min(Math.max(value, 0), 100)}%`;
-  }
-
-  protected getBarHeight(value: number): string {
-    const maxValue = Math.max(...this.weeklyIncomeBars.map((item) => item.value));
-    const height = maxValue > 0 ? (value / maxValue) * 120 : 0;
-    return `${height}px`;
-  }
-
-  protected getStatusClass(status: string): string {
-    const normalized = status.toLowerCase();
-
-    if (normalized.includes('completado') || normalized.includes('listo')) {
-      return 'status-success';
+  weeklyIncomeData = computed(() => {
+    let totalWeek = 0;
+    const data = [];
+    for (let i = 5; i >= 0; i--) {
+      const currentDate = new Date();
+      currentDate.setDate(currentDate.getDate() - i);
+      const dateString = currentDate.toISOString().split('T')[0];
+      const dayTotal = this.workOrderStore
+        .workOrders()
+        .filter((o) => o.startDate === dateString)
+        .reduce((sum, o) => sum + Number(o.price || 0), 0);
+      data.push({
+        label: currentDate
+          .toLocaleDateString('es-ES', { weekday: 'short' })
+          .toUpperCase()
+          .replace('.', ''),
+        value: dayTotal,
+        height: 0,
+      });
+      totalWeek += dayTotal;
     }
+    const maxVal = Math.max(...data.map((d) => d.value), 1);
+    data.forEach((d) => (d.height = Math.max(Math.round((d.value / maxVal) * 100), 5))); // Altura mínima 5%
+    return { total: totalWeek, data };
+  });
 
-    if (normalized.includes('proceso') || normalized.includes('taller')) {
-      return 'status-info';
-    }
-
-    if (normalized.includes('pendiente')) {
-      return 'status-warning';
-    }
-
-    return 'status-secondary';
+  getOrderSeverity(status: string) {
+    if (status === 'FINISHED' || status === 'DELIVERED') return 'success';
+    if (status === 'IN_PROGRESS') return 'info';
+    if (status === 'CANCELLED') return 'danger';
+    return 'warning';
   }
 
-  private getProgressByStatus(status: string): number {
-    if (status === 'Listo') return 100;
-    if (status === 'En Taller') return 65;
-    if (status === 'Entregado') return 100;
-    return 10;
+  goToCreate() {
+    this.router.navigate(['/work-orders/new']);
   }
-
-  private getReadableVehicleStatus(status: string): string {
-    if (status === 'En Taller') return 'En proceso';
-    if (status === 'Listo') return 'Completado';
-    if (status === 'Entregado') return 'Entregado';
-    return 'Pendiente';
+  goToOrders() {
+    this.router.navigate(['/work-orders']);
   }
-
-  private getFallbackVehicles(): Vehicle[] {
-    return [
-      {
-        id: '1',
-        plate: 'ABC123',
-        brand: 'Audi',
-        model: 'A4 Premium',
-        year: '2024',
-        color: 'Negro',
-        status: 'En Taller',
-        customerId: '1',
-      },
-      {
-        id: '2',
-        plate: 'XYZ789',
-        brand: 'BMW',
-        model: 'X5',
-        year: '2023',
-        color: 'Azul',
-        status: 'En Taller',
-        customerId: '2',
-      },
-      {
-        id: '3',
-        plate: 'DEF456',
-        brand: 'Tesla',
-        model: 'Model 3',
-        year: '2024',
-        color: 'Gris',
-        status: 'Listo',
-        customerId: '3',
-      },
-    ];
+  goToVehicles() {
+    this.router.navigate(['/vehicles']);
   }
 }

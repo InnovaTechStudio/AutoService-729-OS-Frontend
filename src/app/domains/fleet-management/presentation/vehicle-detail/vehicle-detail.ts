@@ -1,44 +1,31 @@
-/**
- * VehicleDetailComponent
- *
- * Component for displaying detailed information about a vehicle. Shows all relevant information
- * about a vehicle within the workshop, including
- * - Basic vehicle data
- * - Owner information
- * - Active work order
- * - Progress of technical tasks
- * - Diagnosis and reported problems
- *
- * Uses Signals and `computed()` for efficient reactivity and automatic updates
- * without the need for manual subscriptions.
- *
- * @component
- * @selector app-vehicle-detail
- * @standalone true
- */
-import { CommonModule } from '@angular/common';
 import { Component, computed, inject, OnInit } from '@angular/core';
-import { ActivatedRoute, Router, RouterModule } from '@angular/router';
-
+import { CommonModule } from '@angular/common';
+import { ActivatedRoute, Router } from '@angular/router';
 import { MatButtonModule } from '@angular/material/button';
 import { MatCardModule } from '@angular/material/card';
 import { MatIconModule } from '@angular/material/icon';
 import { MatProgressBarModule } from '@angular/material/progress-bar';
+import { TranslatePipe, TranslateService } from '@ngx-translate/core';
 
 import { CustomerStore } from '../../../customer-management/application/customer.store';
-import { Vehicle } from '../../domain/models/vehicle.model';
 import { VehicleStore } from '../../application/vehicle.store';
 import { TaskStore } from '../../../workshop-operations/application/task.store';
 import { WorkOrderStore } from '../../../workshop-operations/application/work-order.store';
-import { Task, WorkOrder } from '../../../workshop-operations/domain/models/work-order.model';
-import { TranslatePipe } from '@ngx-translate/core';
+
+const VEHICLE_STATUS = { IN_WORKSHOP: 'IN_WORKSHOP', READY: 'READY', DELIVERED: 'DELIVERED' };
+const ORDER_STATUS = {
+  PENDING: 'PENDING',
+  IN_PROGRESS: 'IN_PROGRESS',
+  FINISHED: 'FINISHED',
+  DELIVERED: 'DELIVERED',
+};
+const TASK_STATUS = { PENDING: 'PENDING', IN_PROGRESS: 'IN_PROGRESS', COMPLETED: 'COMPLETED' };
 
 @Component({
   selector: 'app-vehicle-detail',
   standalone: true,
   imports: [
     CommonModule,
-    RouterModule,
     MatCardModule,
     MatIconModule,
     MatButtonModule,
@@ -49,220 +36,119 @@ import { TranslatePipe } from '@ngx-translate/core';
   styleUrl: './vehicle-detail.css',
 })
 export class VehicleDetailComponent implements OnInit {
-  private readonly route = inject(ActivatedRoute);
-  private readonly router = inject(Router);
+  private route = inject(ActivatedRoute);
+  private router = inject(Router);
+  public translate = inject(TranslateService);
 
-  private readonly vehicleStore = inject(VehicleStore);
-  private readonly customerStore = inject(CustomerStore);
-  private readonly workOrderStore = inject(WorkOrderStore);
-  private readonly taskStore = inject(TaskStore);
+  private vehicleStore = inject(VehicleStore);
+  private customerStore = inject(CustomerStore);
+  private workOrderStore = inject(WorkOrderStore);
+  private taskStore = inject(TaskStore);
 
-  /** ID of the vehicle obtained from the URL */
-  protected readonly vehicleId = this.route.snapshot.paramMap.get('id') ?? '';
+  vehicleId = this.route.snapshot.paramMap.get('id');
 
-  /** Current vehicle obtained from the store */
-  protected readonly vehicle = computed<Vehicle | undefined>(() =>
+  fallbackVehicleImages = [
+    'https://images.unsplash.com/photo-1552519507-da3b142c6e3d?w=800&auto=format&fit=crop',
+    'https://images.unsplash.com/photo-1542362567-b07e54358753?w=800&auto=format&fit=crop',
+    'https://images.unsplash.com/photo-1492144534655-ae79c964c9d7?w=800&auto=format&fit=crop',
+    'https://images.unsplash.com/photo-1503376780353-7e6692767b70?w=800&auto=format&fit=crop',
+  ];
+
+  async ngOnInit() {
+    await Promise.all([
+      this.vehicleStore.loadVehicles(),
+      this.customerStore.loadCustomers(),
+      this.workOrderStore.loadWorkOrders(),
+      this.taskStore.loadAllTasks(),
+    ]);
+  }
+
+  vehicle = computed(() =>
     this.vehicleStore.vehicles().find((item) => String(item.id) === String(this.vehicleId)),
   );
 
-  /** Name of the vehicle owner */
-  protected readonly ownerName = computed(() => {
-    const currentVehicle = this.vehicle();
-
-    if (!currentVehicle) {
-      return 'No asignado';
-    }
-
-    const customer = this.customerStore
-      .customers()
-      .find((item) => String(item.id) === String(currentVehicle.customerId));
-
-    return customer?.fullName ?? 'No asignado';
+  vehicleImage = computed(() => {
+    const v = this.vehicle();
+    if (!v) return '';
+    if (v.image) return v.image;
+    const index = this.vehicleStore
+      .vehicles()
+      .findIndex((item) => String(item.id) === String(this.vehicleId));
+    return this.fallbackVehicleImages[index >= 0 ? index % this.fallbackVehicleImages.length : 0];
   });
 
-  /** Active work order associated with the vehicle */
-  protected readonly activeWorkOrder = computed<WorkOrder | undefined>(() => {
-    const currentVehicle = this.vehicle();
-
-    if (!currentVehicle) {
-      return undefined;
-    }
-
-    return this.workOrderStore
-      .workOrders()
-      .find((order) => String(order.vehicleId) === String(currentVehicle.id));
+  owner = computed(() => {
+    const v = this.vehicle();
+    if (!v) return null;
+    return this.customerStore.customers().find((c) => String(c.id) === String(v.customerId));
   });
 
-  /** List of tasks associated with the active work order */
-  protected readonly vehicleTasks = computed<Task[]>(() => {
-    const currentOrder = this.activeWorkOrder();
-
-    if (!currentOrder) {
-      return [];
-    }
-
-    return this.taskStore
-      .tasks()
-      .filter((task) => String(task.workOrderId) === String(currentOrder.id));
-  });
-
-  /** Number of completed tasks */
-  protected readonly completedTasks = computed(
-    () => this.vehicleTasks().filter((task) => task.status === 'Completada').length,
+  relatedOrders = computed(() =>
+    this.workOrderStore.workOrders().filter((o) => String(o.vehicleId) === String(this.vehicleId)),
+  );
+  lastOrder = computed(() =>
+    this.relatedOrders().length ? this.relatedOrders()[this.relatedOrders().length - 1] : null,
+  );
+  relatedTasks = computed(() =>
+    this.lastOrder()
+      ? this.taskStore.tasks().filter((t) => String(t.workOrderId) === String(this.lastOrder()!.id))
+      : [],
   );
 
-  /** Overall progress percentage of the vehicle (based on tasks or status) */
-  protected readonly progress = computed(() => {
-    const tasks = this.vehicleTasks();
+  progress = computed(() => {
+    if (!this.relatedTasks().length) return this.getProgressByStatus(this.vehicle()?.status);
+    const completed = this.relatedTasks().filter((t) => t.status === TASK_STATUS.COMPLETED).length;
+    return Math.round((completed / this.relatedTasks().length) * 100);
+  });
 
-    if (tasks.length > 0) {
-      return Math.round((this.completedTasks() / tasks.length) * 100);
-    }
-
-    const currentVehicle = this.vehicle();
-
-    if (!currentVehicle) {
-      return 0;
-    }
-
-    if (currentVehicle.status === 'Listo' || currentVehicle.status === 'Entregado') {
+  getProgressByStatus(status: any): number {
+    if (
+      [
+        VEHICLE_STATUS.READY,
+        VEHICLE_STATUS.DELIVERED,
+        ORDER_STATUS.FINISHED,
+        ORDER_STATUS.DELIVERED,
+      ].includes(status)
+    )
       return 100;
-    }
-
-    return currentVehicle.status === 'En Taller' ? 65 : 10;
-  });
-
-  /** Problem reported by the client (description of the order) */
-  protected readonly problemReported = computed(
-    () =>
-      this.activeWorkOrder()?.description ??
-      'Ruido en el motor al acelerar en frío y pérdida leve de potencia.',
-  );
-
-  /** Current technical diagnosis based on the available information */
-  protected readonly technicalDiagnosis = computed(() => {
-    const order = this.activeWorkOrder();
-
-    if (!order) {
-      return 'Diagnóstico pendiente de registro técnico.';
-    }
-
-    if (this.vehicleTasks().length === 0) {
-      return 'Se requiere registrar tareas técnicas para completar el diagnóstico operativo.';
-    }
-
-    return 'Revisión técnica registrada. Se identificaron tareas asociadas al mantenimiento del vehículo.';
-  });
-
-  ngOnInit(): void {
-    this.vehicleStore.loadVehicles();
-    this.customerStore.loadCustomers();
-    this.workOrderStore.loadWorkOrders();
-    this.taskStore.loadAllTasks();
+    if ([VEHICLE_STATUS.IN_WORKSHOP, ORDER_STATUS.IN_PROGRESS].includes(status)) return 65;
+    if (status === ORDER_STATUS.PENDING) return 15;
+    return 0;
   }
 
-  /**
-   * Navigate back to the vehicle list.
-   */
-  protected goBack(): void {
-    this.router.navigate(['/admin/vehicles']);
+  getVehicleSeverity(status: any): string {
+    if (
+      [
+        VEHICLE_STATUS.READY,
+        VEHICLE_STATUS.DELIVERED,
+        ORDER_STATUS.FINISHED,
+        ORDER_STATUS.DELIVERED,
+      ].includes(status)
+    )
+      return 'badge-success';
+    if ([VEHICLE_STATUS.IN_WORKSHOP, ORDER_STATUS.IN_PROGRESS].includes(status))
+      return 'badge-info';
+    if (status === ORDER_STATUS.PENDING) return 'badge-warning';
+    return 'badge-secondary';
   }
 
-  /**
-   * Navigate to the creation or management of tasks for this vehicle.
-   */
-  protected goToNewTask(): void {
-    const order = this.activeWorkOrder();
-
-    if (order?.id) {
-      this.router.navigate(['/admin/tasks'], {
-        queryParams: {
-          workOrderId: order.id,
-          vehicleId: this.vehicleId,
-        },
-      });
-
-      return;
-    }
-
-    this.router.navigate(['/admin/tasks']);
+  getTaskSeverity(status: any): string {
+    if (status === TASK_STATUS.COMPLETED) return 'badge-success';
+    if (status === TASK_STATUS.IN_PROGRESS) return 'badge-info';
+    if (status === TASK_STATUS.PENDING) return 'badge-warning';
+    return 'badge-secondary';
   }
 
-  /**
-   * Navigate to the work order associated with the vehicle.
-   */
-  protected goToWorkOrder(): void {
-    const order = this.activeWorkOrder();
-
-    if (order?.id) {
-      this.router.navigate(['/admin/work-orders', order.id]);
-      return;
-    }
-
-    this.router.navigate(['/admin/work-orders']);
+  getStatusLabel(status: any, prefix = 'vehicles.statusOptions'): string {
+    if (!status) return '';
+    const key = String(status).toLowerCase();
+    return this.translate.instant(`${prefix}.${key}`);
   }
 
-  /**
-   * Returns the full name of the vehicle (Brand + Model).
-   * @param vehicle - Vehicle for which to get the name
-   */
-  protected getVehicleName(vehicle: Vehicle): string {
-    return `${vehicle.brand} ${vehicle.model}`;
+  goBack() {
+    this.router.navigate(['/vehicles']);
   }
-
-  /**
-   * Returns a friendly label based on the vehicle's status.
-   */
-  protected getStatusLabel(status: Vehicle['status']): string {
-    if (status === 'En Taller') {
-      return 'En curso';
-    }
-
-    if (status === 'Listo') {
-      return 'Completado';
-    }
-
-    return 'Entregado';
-  }
-
-  /**
-   * Returns a friendly label for the status of a task.
-   */
-  protected getTaskStatusLabel(status: Task['status']): string {
-    if (status === 'En Proceso') {
-      return 'En curso';
-    }
-
-    return status;
-  }
-
-  /**
-   * Returns the CSS class corresponding to the status of a task.
-   */
-  protected getTaskStatusClass(status: Task['status']): string {
-    if (status === 'Completada') {
-      return 'task-completed';
-    }
-
-    if (status === 'En Proceso') {
-      return 'task-progress';
-    }
-
-    return 'task-pending';
-  }
-
-  /**
-   * Returns the name of the Material icon for the status of a task.
-   */
-  protected getTaskIcon(status: Task['status']): string {
-    if (status === 'Completada') {
-      return 'check_circle';
-    }
-
-    if (status === 'En Proceso') {
-      return 'sync';
-    }
-
-    return 'schedule';
+  goToOrder(orderId: string | number | undefined) {
+    if (orderId) this.router.navigate([`/work-orders/${orderId}`]);
   }
 }

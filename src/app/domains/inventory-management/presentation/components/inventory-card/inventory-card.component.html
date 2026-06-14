@@ -1,0 +1,38 @@
+<article class="inventory-card">
+  <div class="image-wrapper">
+    <img *ngIf="item.image" [src]="item.image" [alt]="item.name" class="item-image" />
+    <div *ngIf="!item.image" class="item-image-placeholder">No Image</div>
+  </div>
+
+  <div class="card-content">
+    <div class="item-header">
+      <div class="header-top">
+        <span class="custom-badge badge-secondary">{{ item.sku || 'N/A' }}</span>
+        <span class="custom-badge" [ngClass]="getStockSeverityClass(item)">{{ getStockLabel(item) }}</span>
+      </div>
+      <h3>{{ item.name }}</h3>
+      <p>{{ getCategoryLabel(item.category) }} · {{ item.brand }}</p>
+    </div>
+
+    <div class="item-info">
+      <div>
+        <span>{{ 'inventory.card.stock' | translate }}</span>
+        <strong>{{ item.stock }}</strong>
+      </div>
+      <div>
+        <span>{{ 'inventory.card.minStock' | translate }}</span>
+        <strong>{{ item.minStock }}</strong>
+      </div>
+      <div>
+        <span>{{ 'inventory.card.price' | translate }}</span>
+        <strong class="price">S/ {{ item.unitPrice | number:'1.2-2' }}</strong>
+      </div>
+    </div>
+
+    <div class="card-actions">
+      <button mat-stroked-button color="primary" class="edit-button" (click)="edit.emit(item)">
+        {{ 'actions.edit' | translate }}
+      </button>
+    </div>
+  </div>
+</article>

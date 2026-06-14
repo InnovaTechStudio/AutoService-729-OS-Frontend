@@ -1,87 +1,62 @@
 <div class="login-layout">
   <div class="hero-section">
     <div class="hero-content">
-
-      <h1>AutoService</h1>
-
-      <p>
-        {{ ('app.description') | translate}}
-      </p>
-
-      <div class="hero-features">
-
-        <div class="feature-item">
-          <mat-icon>build</mat-icon>
-          {{ ('features.efficientManagement') | translate}}
-        </div>
-
-        <div class="feature-item">
-          <mat-icon>verified_user</mat-icon>
-          {{ ('features.secureAccess') | translate}}
-        </div>
-
-        <div class="feature-item">
-          <mat-icon>speed</mat-icon>
-          {{ ('features.realTimeControl') | translate}}
-        </div>
-
-      </div>
+      <h1>{{ isRegister ? ('login.registerHeroTitle' | translate) : ('login.title' | translate) }}</h1>
+      <p>{{ isRegister ? ('login.registerHeroSubtitle' | translate) : ('login.subtitle' | translate) }}</p>
     </div>
   </div>
-  <div class="form-section">
-    <app-language-switcher></app-language-switcher>
-    <div class="login-box">
-      <div class="login-header">
-        <div class="form-logo">
-          <img src="/AutoService-logo.jpg" alt="AutoService Logo" />
-          <span>AutoService</span>
 
-        </div>
-        <h2>{{ ('auth.welcome') | translate}}</h2>
-        <span class="badge">{{ ('auth.adminMode') | translate}}</span>
-        <p>{{ ('auth.loginSubtitle') | translate}}</p>
+  <div class="form-section">
+    <div class="login-box">
+      <div class="lang-switcher-wrapper">
+        <app-language-switcher></app-language-switcher>
       </div>
 
+      <div class="login-header">
+        <h2>{{ isRegister ? ('login.registerTitle' | translate) : ('login.welcome' | translate) }}</h2>
+        <p>{{ isRegister ? ('login.registerDescription' | translate) : ('login.description' | translate) }}</p>
+      </div>
 
-      <form (ngSubmit)="handleLogin()" class="login-form">
+      <form (ngSubmit)="handleSubmit()" class="login-form">
 
-        <div class="input-group">
+        <div class="input-group" *ngIf="isRegister">
+          <label for="workshopName">{{ 'login.workshopName' | translate }}</label>
           <mat-form-field appearance="outline" class="w-full">
-            <mat-label>{{ ('auth.email') | translate}}</mat-label>
-            <input matInput type="email" [(ngModel)]="email" name="email" placeholder="admin@autoservice.com" required>
+            <input matInput id="workshopName" [(ngModel)]="form.workshopName" name="workshopName" [placeholder]="'login.workshopPlaceholder' | translate">
           </mat-form-field>
         </div>
 
         <div class="input-group">
+          <label for="email">{{ 'login.email' | translate }}</label>
           <mat-form-field appearance="outline" class="w-full">
-            <mat-label>{{ ('auth.password') | translate}}</mat-label>
-            <input matInput [type]="hidePassword ? 'password' : 'text'" [(ngModel)]="password" name="password" placeholder="••••••••" required>
+            <input matInput id="email" type="email" [(ngModel)]="form.email" name="email" [placeholder]="'login.emailPlaceholder' | translate">
+          </mat-form-field>
+        </div>
+
+        <div class="input-group">
+          <label for="password">{{ 'login.password' | translate }}</label>
+          <mat-form-field appearance="outline" class="w-full">
+            <input matInput id="password" [type]="hidePassword ? 'password' : 'text'" [(ngModel)]="form.password" name="password" [placeholder]="'login.passwordPlaceholder' | translate">
             <button mat-icon-button matSuffix (click)="hidePassword = !hidePassword" type="button">
-              <mat-icon>{{hidePassword ? 'visibility_off' : 'visibility'}}</mat-icon>
+              <mat-icon>{{ hidePassword ? 'visibility_off' : 'visibility' }}</mat-icon>
             </button>
-
           </mat-form-field>
-          <div class="form-options">
-            <a href="#" class="forgot-link">
-              {{ ('auth.forgotPassword') | translate}}
-            </a>
-
-          </div>
         </div>
 
-        @if (errorMessage) {
-          <div class="error-message">
-            <mat-icon style="font-size: 18px; width: 18px; height: 18px;">error_outline</mat-icon>
-            {{ errorMessage }}
-          </div>
-        }
+        <div *ngIf="errorMessage" class="error-message">
+          <mat-icon style="font-size: 18px; width: 18px; height: 18px;">error_outline</mat-icon>
+          {{ errorMessage }}
+        </div>
 
         <button mat-flat-button color="primary" type="submit" [disabled]="isLoading" class="w-full mt-3 submit-btn">
-          {{ isLoading ? 'Iniciando...' : ('auth.loginButton' | translate) }}
+          {{ isRegister ? ('login.registerButton' | translate) : ('login.submit' | translate) }}
         </button>
-        <div class="register-link">
-          {{ ('auth.noAccount') | translate}}
-          <a href="#">{{ ('auth.requestAccess') | translate}}</a>
+
+        <div class="text-center mt-4">
+          <span class="text-color-secondary">{{ isRegister ? ('login.hasAccount' | translate) : ('login.noWorkshop' | translate) }}</span><br>
+          <a href="#" (click)="toggleMode(); $event.preventDefault()" class="font-bold text-primary toggle-link">
+            {{ isRegister ? ('login.loginHere' | translate) : ('login.registerHere' | translate) }}
+          </a>
         </div>
       </form>
     </div>

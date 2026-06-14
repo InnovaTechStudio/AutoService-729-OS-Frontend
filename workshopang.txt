@@ -1,0 +1,1628 @@
+===== src/app/domains/workshop-operations/application/task.store.ts =====
+import { Injectable, inject, signal } from '@angular/core';
+import { WorkOrderService } from '../infrastructure/services/work-order.service';
+import { Task } from '../domain/models/task.model';
+
+@Injectable({ providedIn: 'root' })
+export class TaskStore {
+  private service = inject(WorkOrderService);
+
+  readonly tasks = signal<Task[]>([]);
+  readonly loading = signal<boolean>(false);
+
+  loadAllTasks(): Promise<void> {
+    this.loading.set(true);
+    return new Promise((resolve, reject) => {
+      this.service.getTasks().subscribe({
+        next: (data) => {
+          this.tasks.set(data);
+          this.loading.set(false);
+          resolve();
+        },
+        error: (err) => {
+          console.error('Error fetching tasks', err);
+          this.loading.set(false);
+          reject(err);
+        },
+      });
+    });
+  }
+
+  addTask(task: Task): Promise<Task> {
+    return new Promise((resolve, reject) => {
+      this.service.createTask(task).subscribe({
+        next: (newTask) => {
+          this.tasks.update((list) => [...list, newTask]);
+          resolve(newTask);
+        },
+        error: (err) => reject(err),
+      });
+    });
+  }
+
+  updateTask(id: string | number, data: Partial<Task>): Promise<void> {
+    return new Promise((resolve, reject) => {
+      this.service.updateTask(id, data).subscribe({
+        next: (updated) => {
+          this.tasks.update((list) => list.map((t) => (String(t.id) === String(id) ? updated : t)));
+          resolve();
+        },
+        error: (err) => reject(err),
+      });
+    });
+  }
+
+  approveTask(id: string | number): Promise<void> {
+    return new Promise((resolve, reject) => {
+      const payload = {
+        adminReviewStatus: 'APPROVED',
+        customerReportStatus: 'VISIBLE',
+      };
+      this.service.patchTask(id, payload).subscribe({
+        next: (updated) => {
+          this.tasks.update((list) => list.map((t) => (String(t.id) === String(id) ? updated : t)));
+          resolve();
+        },
+        error: (err) => reject(err),
+      });
+    });
+  }
+
+  rejectTask(id: string | number): Promise<void> {
+    return new Promise((resolve, reject) => {
+      const payload = {
+        status: 'IN_PROGRESS',
+        adminReviewStatus: 'REJECTED',
+      };
+      this.service.patchTask(id, payload).subscribe({
+        next: (updated) => {
+          this.tasks.update((list) => list.map((t) => (String(t.id) === String(id) ? updated : t)));
+          resolve();
+        },
+        error: (err) => reject(err),
+      });
+    });
+  }
+
+  deleteTask(id: string | number): Promise<void> {
+    return new Promise((resolve, reject) => {
+      this.service.deleteTask(id).subscribe({
+        next: () => {
+          this.tasks.update((list) => list.filter((t) => String(t.id) !== String(id)));
+          resolve();
+        },
+        error: (err) => reject(err),
+      });
+    });
+  }
+}
+
+
+===== src/app/domains/workshop-operations/application/work-order.store.ts =====
+import { Injectable, inject, signal } from '@angular/core';
+import { WorkOrderService } from '../infrastructure/services/work-order.service';
+import { WorkOrder } from '../domain/models/work-order.model';
+
+@Injectable({ providedIn: 'root' })
+export class WorkOrderStore {
+  private service = inject(WorkOrderService);
+
+  readonly workOrders = signal<WorkOrder[]>([]);
+  readonly loading = signal<boolean>(false);
+
+  loadWorkOrders(): Promise<void> {
+    this.loading.set(true);
+    return new Promise((resolve, reject) => {
+      this.service.getWorkOrders().subscribe({
+        next: (data) => {
+          this.workOrders.set(data);
+          this.loading.set(false);
+          resolve();
+        },
+        error: (err) => {
+          console.error('Error fetching work orders', err);
+          this.loading.set(false);
+          reject(err);
+        },
+      });
+    });
+  }
+
+  addWorkOrder(order: WorkOrder): Promise<WorkOrder> {
+    return new Promise((resolve, reject) => {
+      this.service.createWorkOrder(order).subscribe({
+        next: (newOrder) => {
+          this.workOrders.update((list) => [...list, newOrder]);
+          resolve(newOrder);
+        },
+        error: (err) => reject(err),
+      });
+    });
+  }
+
+  updateWorkOrder(id: string | number, data: Partial<WorkOrder>): Promise<void> {
+    return new Promise((resolve, reject) => {
+      this.service.updateWorkOrder(id, data).subscribe({
+        next: (updated) => {
+          this.workOrders.update((list) =>
+            list.map((o) => (String(o.id) === String(id) ? updated : o)),
+          );
+          resolve();
+        },
+        error: (err) => reject(err),
+      });
+    });
+  }
+
+  updateOrderAutoPrice(id: string | number, calculatedTotal: number): Promise<void> {
+    return new Promise((resolve, reject) => {
+      const existingOrder = this.workOrders().find((o) => String(o.id) === String(id));
+      if (!existingOrder) return reject('Order not found');
+
+      let newStatus = existingOrder.status;
+      if (newStatus === 'PENDING') newStatus = 'IN_PROGRESS';
+
+      const payload = {
+        estimatedDate: existingOrder.estimatedDate,
+        price: parseFloat(String(calculatedTotal)),
+        status: newStatus,
+        tasksCompleted: (existingOrder as any).qaChecklist?.tasksCompleted || false,
+        sparePartsChecked: (existingOrder as any).qaChecklist?.sparePartsChecked || false,
+        diagnosisValidated: (existingOrder as any).qaChecklist?.diagnosisValidated || false,
+        cleaningDone: (existingOrder as any).qaChecklist?.cleaningDone || false,
+        finalTestDone: (existingOrder as any).qaChecklist?.finalTestDone || false,
+      };
+
+      this.service.updateWorkOrder(id, payload).subscribe({
+        next: (updated) => {
+          this.workOrders.update((list) =>
+            list.map((o) => (String(o.id) === String(id) ? updated : o)),
+          );
+          resolve();
+        },
+        error: (err) => reject(err),
+      });
+    });
+  }
+
+  updateWorkOrderChecklist(id: string | number, updateData: any): Promise<void> {
+    return new Promise((resolve, reject) => {
+      const payload = {
+        estimatedDate: updateData.estimatedDate,
+        price: updateData.price,
+        status: updateData.status,
+        tasksCompleted: updateData.qaChecklist?.tasksCompleted || false,
+        sparePartsChecked: updateData.qaChecklist?.sparePartsChecked || false,
+        diagnosisValidated: updateData.qaChecklist?.diagnosisValidated || false,
+        cleaningDone: updateData.qaChecklist?.cleaningDone || false,
+        finalTestDone: updateData.qaChecklist?.finalTestDone || false,
+      };
+
+      this.service.updateWorkOrder(id, payload).subscribe({
+        next: (updated) => {
+          this.workOrders.update((list) =>
+            list.map((o) => (String(o.id) === String(id) ? updated : o)),
+          );
+          resolve();
+        },
+        error: (err) => reject(err),
+      });
+    });
+  }
+}
+
+
+===== src/app/domains/workshop-operations/domain/models/task.model.ts =====
+export interface Task {
+  id?: string | number;
+  description: string;
+  status: string; // 'PENDING', 'IN_PROGRESS', 'COMPLETED'
+  priority: string; // 'LOW', 'MEDIUM', 'HIGH'
+  estimatedTime: number;
+  laborPrice: number;
+  customerExplanation?: string;
+  adminReviewStatus?: string; // 'PENDING', 'APPROVED', 'REJECTED'
+  workOrderId: string | number;
+  mechanicId?: string | number | null;
+  parts?: any[];
+}
+
+
+===== src/app/domains/workshop-operations/domain/models/work-order.model.ts =====
+export interface WorkOrder {
+  id?: string | number;
+  trackingCode?: string;
+  status: string; // 'PENDING', 'IN_PROGRESS', 'FINISHED', 'DELIVERED', 'CANCELLED'
+  startDate: string | Date;
+  estimatedDate?: string | Date;
+  price: number;
+  vehicleId: string | number;
+  workshopId?: string | number;
+  customerId?: string | number;
+  mechanicId?: number | string;
+  description?: string;
+}
+
+
+===== src/app/domains/workshop-operations/infrastructure/services/work-order.service.ts =====
+import { Injectable, inject } from '@angular/core';
+import { HttpClient } from '@angular/common/http';
+import { Observable } from 'rxjs';
+import { environment } from '../../../../../environments/environment';
+import { WorkOrder } from '../../domain/models/work-order.model';
+import { Task } from '../../domain/models/task.model';
+
+@Injectable({ providedIn: 'root' })
+export class WorkOrderService {
+  private http = inject(HttpClient);
+  private apiUrl = `${environment.apiUrl}/api/v1`;
+
+  // --- Work Orders ---
+  getWorkOrders(): Observable<WorkOrder[]> {
+    return this.http.get<WorkOrder[]>(`${this.apiUrl}/work-orders`);
+  }
+
+  getWorkOrderById(id: string | number): Observable<WorkOrder> {
+    return this.http.get<WorkOrder>(`${this.apiUrl}/work-orders/${id}`);
+  }
+
+  createWorkOrder(data: WorkOrder): Observable<WorkOrder> {
+    return this.http.post<WorkOrder>(`${this.apiUrl}/work-orders`, data);
+  }
+
+  updateWorkOrder(id: string | number, data: Partial<WorkOrder>): Observable<WorkOrder> {
+    return this.http.put<WorkOrder>(`${this.apiUrl}/work-orders/${id}`, data);
+  }
+
+  // --- Tasks ---
+  getTasks(): Observable<Task[]> {
+    return this.http.get<Task[]>(`${this.apiUrl}/tasks`);
+  }
+
+  createTask(data: Task): Observable<Task> {
+    return this.http.post<Task>(`${this.apiUrl}/tasks`, data);
+  }
+
+  updateTask(id: string | number, data: Partial<Task>): Observable<Task> {
+    return this.http.put<Task>(`${this.apiUrl}/tasks/${id}`, data);
+  }
+
+  deleteTask(id: string | number): Observable<void> {
+    return this.http.delete<void>(`${this.apiUrl}/tasks/${id}`);
+  }
+
+  patchTask(id: string | number, data: any): Observable<Task> {
+    return this.http.patch<Task>(`${this.apiUrl}/tasks/${id}`, data);
+  }
+}
+
+
+===== src/app/domains/workshop-operations/presentation/create-work-order/create-work-order.css =====
+.create-wo-container {
+  max-width: 800px;
+  padding: 2rem;
+  margin: 0 auto;
+}
+
+.header-section {
+  margin-bottom: 2rem;
+}
+
+.header-section h1 {
+  margin: 0;
+  font-size: 2rem;
+  color: #0f172a;
+}
+
+.header-section p {
+  margin-top: 0.5rem;
+  color: #64748b;
+}
+
+.form-card {
+  border-radius: 16px;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.05);
+  padding: 1rem;
+}
+
+.form-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 1.5rem;
+}
+
+.field {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.field label {
+  font-size: 0.9rem;
+  font-weight: 600;
+  color: #334155;
+}
+
+.full-width {
+  grid-column: 1 / -1;
+}
+
+.locked-input {
+  opacity: 1 !important;
+  color: #64748b !important;
+  background-color: #f1f5f9 !important;
+  border-color: #e2e8f0 !important;
+  cursor: not-allowed;
+}
+
+.mt-3 {
+  margin-top: 1rem;
+}
+
+.actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 1rem;
+  padding-top: 1.5rem;
+  margin-top: 2.5rem;
+  border-top: 1px solid #e2e8f0;
+}
+
+.primary-btn {
+  background: #0b1680;
+  color: white;
+}
+
+
+===== src/app/domains/workshop-operations/presentation/create-work-order/create-work-order.html =====
+<section class="create-wo-container">
+  <div class="header-section">
+    <h1>{{ 'workOrders.create.title' | translate }}</h1>
+    <p>{{ 'workOrders.create.description' | translate }}</p>
+  </div>
+
+  <mat-card class="form-card">
+    <mat-card-content>
+      <div class="form-grid">
+
+        <div class="field">
+          <label>{{ 'workOrders.create.vehicle' | translate }}</label>
+          <mat-select [(ngModel)]="form.vehicleId" (ngModelChange)="handleVehicleChange()" [placeholder]="'workOrders.create.vehiclePlaceholder' | translate" class="custom-form-input w-full">
+            <mat-option *ngFor="let v of vehicleStore.vehicles()" [value]="v.id">
+              {{ v.brand }} {{ v.model }} (Placa: {{ v.plate }})
+            </mat-option>
+          </mat-select>
+        </div>
+
+        <div class="field">
+          <label>{{ 'workOrders.create.customer' | translate }}</label>
+          <input type="text" [ngModel]="autoCustomerName" disabled class="custom-form-input w-full locked-input" [placeholder]="'workOrders.create.customerPlaceholder' | translate">
+        </div>
+
+        <div class="field">
+          <label>{{ 'workOrders.create.mechanic' | translate }}</label>
+          <mat-select [(ngModel)]="form.mechanicId" [placeholder]="'workOrders.create.mechanicPlaceholder' | translate" class="custom-form-input w-full">
+            <mat-option *ngFor="let m of mechanicStore.mechanics()" [value]="m.id">
+              {{ m.fullName }} ({{ m.specialty }})
+            </mat-option>
+          </mat-select>
+        </div>
+
+        <div class="field">
+          <label>{{ 'workOrders.create.estimatedDate' | translate }}</label>
+          <input type="date" [(ngModel)]="form.estimatedDate" class="custom-form-input w-full" [placeholder]="'workOrders.create.datePlaceholder' | translate">
+        </div>
+
+        <div class="field full-width mt-3">
+          <label>{{ 'workOrders.create.problemDescription' | translate }}</label>
+          <textarea [(ngModel)]="form.description" rows="4" class="custom-form-input w-full" [placeholder]="'workOrders.create.problemPlaceholder' | translate"></textarea>
+        </div>
+
+      </div>
+
+      <div class="actions">
+        <button mat-button (click)="cancel()" style="color: #64748b;">
+          {{ 'actions.cancel' | translate }}
+        </button>
+        <button mat-flat-button class="primary-btn" [disabled]="isSaving()" (click)="saveOrder()">
+          <mat-icon *ngIf="!isSaving()">check</mat-icon>
+          <mat-icon *ngIf="isSaving()" class="spin">refresh</mat-icon>
+          {{ 'workOrders.create.createButton' | translate }}
+        </button>
+      </div>
+    </mat-card-content>
+  </mat-card>
+</section>
+
+
+===== src/app/domains/workshop-operations/presentation/create-work-order/create-work-order.ts =====
+import { Component, inject, OnInit, signal } from '@angular/core';
+import { CommonModule } from '@angular/common';
+import { Router } from '@angular/router';
+import { FormsModule } from '@angular/forms';
+import { MatCardModule } from '@angular/material/card';
+import { MatButtonModule } from '@angular/material/button';
+import { MatInputModule } from '@angular/material/input';
+import { MatSelectModule } from '@angular/material/select';
+import { MatIconModule } from '@angular/material/icon';
+import { TranslatePipe, TranslateService } from '@ngx-translate/core';
+
+import { WorkOrderStore } from '../../application/work-order.store';
+import { CustomerStore } from '../../../customer-management/application/customer.store';
+import { VehicleStore } from '../../../fleet-management/application/vehicle.store';
+import { MechanicStore } from '../../../staff-coordination/application/mechanic.store';
+import { WorkOrder } from '../../domain/models/work-order.model';
+
+@Component({
+  selector: 'app-create-work-order',
+  standalone: true,
+  imports: [
+    CommonModule,
+    FormsModule,
+    MatCardModule,
+    MatButtonModule,
+    MatInputModule,
+    MatSelectModule,
+    MatIconModule,
+    TranslatePipe,
+  ],
+  templateUrl: './create-work-order.html',
+  styleUrl: './create-work-order.css',
+})
+export class CreateWorkOrderComponent implements OnInit {
+  private router = inject(Router);
+  public translate = inject(TranslateService);
+
+  private workOrderStore = inject(WorkOrderStore);
+  public customerStore = inject(CustomerStore);
+  public vehicleStore = inject(VehicleStore);
+  public mechanicStore = inject(MechanicStore);
+
+  form = {
+    customerId: null as string | number | null,
+    vehicleId: null as string | number | null,
+    mechanicId: null as string | number | null,
+    estimatedDate: '',
+    description: '',
+  };
+
+  autoCustomerName = '';
+  isSaving = signal(false);
+
+  async ngOnInit() {
+    await Promise.all([
+      this.customerStore.loadCustomers(),
+      this.vehicleStore.loadVehicles(),
+      this.mechanicStore.loadMechanics(),
+    ]);
+  }
+
+  handleVehicleChange() {
+    const selectedVehicle = this.vehicleStore.vehicles().find((v) => v.id === this.form.vehicleId);
+
+    if (!selectedVehicle) {
+      this.form.customerId = null;
+      this.autoCustomerName = '';
+      return;
+    }
+
+    this.form.customerId = selectedVehicle.customerId;
+
+    const customer = this.customerStore
+      .customers()
+      .find((c) => String(c.id) === String(selectedVehicle.customerId));
+
+    this.autoCustomerName = customer
+      ? customer.fullName
+      : this.translate.instant('workOrders.create.customerNotFound');
+  }
+
+  generateTrackingCode(): string {
+    const prefix = 'ORD';
+    const year = new Date().getFullYear();
+    const random = Math.floor(1000 + Math.random() * 9000);
+    return `${prefix}-${year}-${random}`;
+  }
+
+  async saveOrder() {
+    if (
+      !this.form.customerId ||
+      !this.form.vehicleId ||
+      !this.form.mechanicId ||
+      !this.form.estimatedDate
+    ) {
+      return;
+    }
+
+    this.isSaving.set(true);
+    try {
+      const payload: WorkOrder = {
+        trackingCode: this.generateTrackingCode(),
+        status: 'PENDING',
+        startDate: new Date().toISOString().split('T')[0],
+        estimatedDate: this.form.estimatedDate,
+        price: 0,
+        vehicleId: this.form.vehicleId as number,
+        customerId: this.form.customerId as number,
+        mechanicId: this.form.mechanicId as number,
+        description: this.form.description || 'Sin descripción inicial',
+      };
+
+      const newOrder = await this.workOrderStore.addWorkOrder(payload);
+      this.router.navigate([`/work-orders/${newOrder.id}`]);
+    } catch (error) {
+      console.error(error);
+    } finally {
+      this.isSaving.set(false);
+    }
+  }
+
+  cancel() {
+    this.router.navigate(['/work-orders']);
+  }
+}
+
+
+===== src/app/domains/workshop-operations/presentation/dashboard/dashboard.component.ts =====
+import { Component, computed, inject, OnInit } from '@angular/core';
+import { CommonModule } from '@angular/common';
+import { Router } from '@angular/router';
+import { MatCardModule } from '@angular/material/card';
+import { MatIconModule } from '@angular/material/icon';
+import { MatButtonModule } from '@angular/material/button';
+import { MatProgressBarModule } from '@angular/material/progress-bar';
+import { TranslateModule } from '@ngx-translate/core';
+import { WorkOrderStore } from '../../application/work-order.store';
+import { TaskStore } from '../../application/task.store';
+import { VehicleStore } from '../../../fleet-management/application/vehicle.store';
+
+@Component({
+  selector: 'app-dashboard',
+  standalone: true,
+  imports: [
+    CommonModule,
+    MatCardModule,
+    MatIconModule,
+    MatButtonModule,
+    MatProgressBarModule,
+    TranslateModule,
+  ],
+  templateUrl: './dashboard.html',
+  styleUrl: './dashboard.css',
+})
+export class DashboardComponent implements OnInit {
+  public workOrderStore = inject(WorkOrderStore);
+  public taskStore = inject(TaskStore);
+  public vehicleStore = inject(VehicleStore);
+  private router = inject(Router);
+
+  async ngOnInit() {
+    await Promise.all([
+      this.workOrderStore.loadWorkOrders(),
+      this.taskStore.loadAllTasks(),
+      this.vehicleStore.loadVehicles(),
+    ]);
+  }
+
+  activeOrdersCount = computed(
+    () =>
+      this.workOrderStore.workOrders().filter((o) => ['PENDING', 'IN_PROGRESS'].includes(o.status))
+        .length,
+  );
+  completedOrdersCount = computed(
+    () =>
+      this.workOrderStore.workOrders().filter((o) => ['FINISHED', 'DELIVERED'].includes(o.status))
+        .length,
+  );
+  projectedIncome = computed(() =>
+    this.workOrderStore
+      .workOrders()
+      .filter((o) => o.status !== 'CANCELLED')
+      .reduce((sum, o) => sum + Number(o.price || 0), 0),
+  );
+
+  vehiclesInWorkshop = computed(() => {
+    const activeVehicleIds = this.workOrderStore
+      .workOrders()
+      .filter((o) => ['PENDING', 'IN_PROGRESS'].includes(o.status))
+      .map((o) => o.vehicleId);
+    return new Set(activeVehicleIds).size;
+  });
+
+  recentOrders = computed(() => [...this.workOrderStore.workOrders()].reverse().slice(0, 5));
+
+  activeVehiclesList = computed(() => {
+    return this.workOrderStore
+      .workOrders()
+      .filter((o) => ['PENDING', 'IN_PROGRESS'].includes(o.status))
+      .slice(0, 4)
+      .map((order) => {
+        const vehicle = this.vehicleStore
+          .vehicles()
+          .find((v) => String(v.id) === String(order.vehicleId));
+        return {
+          orderCode: order.trackingCode,
+          plate: vehicle?.plate,
+          name: `${vehicle?.brand} ${vehicle?.model}`,
+          image:
+            vehicle?.image ||
+            'https://images.unsplash.com/photo-1552519507-da3b142c6e3d?w=200&auto=format&fit=crop',
+          progress: order.status === 'IN_PROGRESS' ? 65 : 20,
+        };
+      });
+  });
+
+  frequentServicesList = computed(() => {
+    const taskMap: Record<string, any> = {};
+    this.taskStore.tasks().forEach((task) => {
+      const desc = task.description || 'Servicio General';
+      if (!taskMap[desc]) taskMap[desc] = { name: desc, count: 0 };
+      taskMap[desc].count += 1;
+    });
+    const sorted = Object.values(taskMap)
+      .sort((a, b) => b.count - a.count)
+      .slice(0, 3);
+    const maxCount = sorted[0]?.count || 1;
+    const icons = ['settings', 'build', 'bolt'];
+    return sorted.map((s, i) => ({
+      ...s,
+      progress: Math.round((s.count / maxCount) * 100),
+      icon: icons[i % icons.length],
+    }));
+  });
+
+  weeklyIncomeData = computed(() => {
+    let totalWeek = 0;
+    const data = [];
+    for (let i = 5; i >= 0; i--) {
+      const currentDate = new Date();
+      currentDate.setDate(currentDate.getDate() - i);
+      const dateString = currentDate.toISOString().split('T')[0];
+      const dayTotal = this.workOrderStore
+        .workOrders()
+        .filter((o) => o.startDate === dateString)
+        .reduce((sum, o) => sum + Number(o.price || 0), 0);
+      data.push({
+        label: currentDate
+          .toLocaleDateString('es-ES', { weekday: 'short' })
+          .toUpperCase()
+          .replace('.', ''),
+        value: dayTotal,
+        height: 0,
+      });
+      totalWeek += dayTotal;
+    }
+    const maxVal = Math.max(...data.map((d) => d.value), 1);
+    data.forEach((d) => (d.height = Math.max(Math.round((d.value / maxVal) * 100), 5))); // Altura mínima 5%
+    return { total: totalWeek, data };
+  });
+
+  getOrderSeverity(status: string) {
+    if (status === 'FINISHED' || status === 'DELIVERED') return 'success';
+    if (status === 'IN_PROGRESS') return 'info';
+    if (status === 'CANCELLED') return 'danger';
+    return 'warning';
+  }
+
+  goToCreate() {
+    this.router.navigate(['/work-orders/new']);
+  }
+  goToOrders() {
+    this.router.navigate(['/work-orders']);
+  }
+  goToVehicles() {
+    this.router.navigate(['/vehicles']);
+  }
+}
+
+
+===== src/app/domains/workshop-operations/presentation/dashboard/dashboard.css =====
+.admin-dashboard { padding: 0.5rem; }
+.dashboard-header { display: flex; align-items: flex-start; justify-content: space-between; margin-bottom: 2rem; }
+.dashboard-header h1 { margin: 0; font-size: 2.2rem; color: #0f172a; line-height: 1.1; }
+.dashboard-header p { margin: 0.5rem 0 0; color: #64748b; }
+.eyebrow { color: #0b1680; font-weight: 800; text-transform: uppercase; letter-spacing: 0.08em; font-size: 0.78rem; display: block; margin-bottom: 0.5rem; }
+.header-actions { display: flex; gap: 1rem; }
+
+.kpi-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 1.25rem; margin-bottom: 2rem; }
+.metric-card { border-radius: 20px; box-shadow: 0 4px 15px rgba(0,0,0,0.03); border: 1px solid #e8edf5; }
+.metric-content { display: flex; justify-content: space-between; padding: 1.5rem; border-left: 6px solid transparent; border-radius: 20px; }
+.metric-content span { font-weight: 700; color: #64748b; font-size: 0.92rem; }
+.metric-content strong { display: block; font-size: 2rem; color: #0f172a; margin: 0.5rem 0; line-height: 1; }
+.metric-content small { color: #94a3b8; font-size: 0.85rem; }
+.metric-content mat-icon { width: 46px; height: 46px; font-size: 28px; display: grid; place-items: center; border-radius: 16px; }
+
+.metric-card--blue .metric-content { border-left-color: #2563eb; }
+.metric-card--blue mat-icon { color: #2563eb; background: #dbeafe; }
+.metric-card--indigo .metric-content { border-left-color: #0b1680; }
+.metric-card--indigo mat-icon { color: #0b1680; background: #e0e7ff; }
+.metric-card--green .metric-content { border-left-color: #16a34a; }
+.metric-card--green mat-icon { color: #16a34a; background: #dcfce7; }
+.metric-card--violet .metric-content { border-left-color: #7c3aed; }
+.metric-card--violet mat-icon { color: #7c3aed; background: #ede9fe; }
+
+.dashboard-grid { display: grid; grid-template-columns: 1.5fr 1fr; gap: 1.5rem; }
+.main-column, .side-column { display: flex; flex-direction: column; gap: 1.5rem; }
+
+.panel-card { border-radius: 24px; padding: 1.5rem; box-shadow: 0 14px 34px rgba(15, 23, 42, 0.06); border: 1px solid #e8edf5; }
+.income-card { background: linear-gradient(180deg, #ffffff 0%, #f8fbff 100%); }
+.panel-heading { display: flex; justify-content: space-between; margin-bottom: 1.5rem; align-items: flex-start; }
+.panel-heading h2 { margin: 0; font-size: 1.28rem; color: #0f172a; }
+.panel-heading p { color: #64748b; margin: 0.25rem 0 0; font-size: 0.95rem; }
+.total-income { font-size: 1.4rem; color: #0b1680; }
+
+.chart-container { display: flex; align-items: flex-end; justify-content: space-around; height: 220px; padding-top: 1rem; border-bottom: 1px dashed #e2e8f0; margin-bottom: 1rem; }
+.bar-col { display: flex; flex-direction: column; align-items: center; justify-content: flex-end; height: 100%; width: 45px; }
+.bar { width: 100%; background: #0b1680; border-radius: 6px 6px 0 0; position: relative; transition: height 0.5s ease; cursor: pointer; }
+.bar:hover { background: #1e3a8a; }
+.bar:hover .tooltip { opacity: 1; transform: translateX(-50%) translateY(-5px); }
+.tooltip { position: absolute; top: -35px; left: 50%; transform: translateX(-50%); background: #0f172a; color: white; padding: 6px 10px; border-radius: 6px; font-size: 0.8rem; font-weight: bold; opacity: 0; transition: all 0.2s ease; pointer-events: none; white-space: nowrap; z-index: 10; }
+.bar-col span { margin-top: 12px; font-size: 0.85rem; color: #64748b; font-weight: bold; }
+
+.vehicle-list, .services-list, .recent-list { display: flex; flex-direction: column; gap: 1rem; }
+.vehicle-item { display: flex; gap: 1.2rem; align-items: center; padding: 1rem; border: 1px solid #e2e8f0; border-radius: 16px; }
+.vehicle-image { width: 85px; height: 65px; object-fit: cover; border-radius: 12px; }
+.vehicle-info { flex: 1; display: flex; flex-direction: column; gap: 0.75rem; }
+.vehicle-top { display: flex; justify-content: space-between; align-items: flex-start; }
+.order-code { font-size: 0.75rem; font-weight: 800; color: #64748b; display: block; margin-bottom: 0.2rem; }
+.plate-text { margin: 0; font-size: 1.1rem; font-weight: bold; color: #0f172a; }
+.model-text { color: #64748b; font-size: 0.85rem; }
+
+.service-item { display: flex; gap: 1.2rem; align-items: center; padding: 1.2rem; border: 1px solid #e2e8f0; border-radius: 16px; }
+.service-icon mat-icon { color: #0b1680; background: #e0e7ff; padding: 12px; border-radius: 12px; width: auto; height: auto; display: grid; place-items: center; }
+.service-info { flex: 1; display: flex; flex-direction: column; gap: 0.75rem; }
+.service-top { display: flex; justify-content: space-between; align-items: center; }
+.service-name { margin: 0; font-size: 1rem; font-weight: 600; color: #0f172a; }
+
+.recent-item { display: flex; justify-content: space-between; align-items: center; padding: 1.2rem; border: 1px solid #e2e8f0; border-radius: 16px; }
+.recent-info { display: flex; flex-direction: column; gap: 0.5rem; }
+
+.custom-badge { padding: 4px 8px; border-radius: 6px; font-size: 0.75rem; font-weight: 800; letter-spacing: 0.05em; text-transform: uppercase; width: fit-content; }
+.badge-success { background: #dcfce7; color: #166534; border: 1px solid #bbf7d0; }
+.badge-info { background: #dbeafe; color: #1e40af; border: 1px solid #bfdbfe; }
+.badge-warning { background: #fef3c7; color: #92400e; border: 1px solid #fde68a; }
+.badge-danger { background: #fee2e2; color: #b91c1c; border: 1px solid #fecaca; }
+
+@media (max-width: 1024px) {
+  .kpi-grid { grid-template-columns: repeat(2, 1fr); }
+  .dashboard-grid { grid-template-columns: 1fr; }
+}
+@media (max-width: 768px) {
+  .kpi-grid { grid-template-columns: 1fr; }
+  .dashboard-header { flex-direction: column; }
+}
+
+
+===== src/app/domains/workshop-operations/presentation/dashboard/dashboard.html =====
+<section class="admin-dashboard">
+  <div class="dashboard-header">
+    <div>
+      <span class="eyebrow">{{ 'dashboard.eyebrow' | translate }}</span>
+      <h1>{{ 'dashboard.title' | translate }}</h1>
+      <p>{{ 'dashboard.description' | translate }}</p>
+    </div>
+    <div class="header-actions">
+      <button mat-flat-button color="primary" (click)="goToCreate()">
+        <mat-icon>add</mat-icon> {{ 'dashboard.newOrder' | translate }}
+      </button>
+      <button mat-stroked-button (click)="goToOrders()">
+        <mat-icon>list</mat-icon> {{ 'dashboard.viewOrders' | translate }}
+      </button>
+    </div>
+  </div>
+
+  <div class="kpi-grid">
+    <mat-card class="metric-card metric-card--blue">
+      <div class="metric-content">
+        <div>
+          <span>{{ 'dashboard.metrics.activeVehicles' | translate }}</span>
+          <strong>{{ vehiclesInWorkshop() }}</strong>
+          <small>{{ 'dashboard.metrics.activeVehiclesSub' | translate }}</small>
+        </div>
+        <mat-icon>directions_car</mat-icon>
+      </div>
+    </mat-card>
+
+    <mat-card class="metric-card metric-card--indigo">
+      <div class="metric-content">
+        <div>
+          <span>{{ 'dashboard.metrics.activeOrders' | translate }}</span>
+          <strong>{{ activeOrdersCount() }}</strong>
+          <small>{{ 'dashboard.metrics.activeOrdersSub' | translate }}</small>
+        </div>
+        <mat-icon>edit_document</mat-icon>
+      </div>
+    </mat-card>
+
+    <mat-card class="metric-card metric-card--green">
+      <div class="metric-content">
+        <div>
+          <span>{{ 'dashboard.metrics.completed' | translate }}</span>
+          <strong>{{ completedOrdersCount() }}</strong>
+          <small>{{ 'dashboard.metrics.completedSub' | translate }}</small>
+        </div>
+        <mat-icon>check_circle</mat-icon>
+      </div>
+    </mat-card>
+
+    <mat-card class="metric-card metric-card--violet">
+      <div class="metric-content">
+        <div>
+          <span>{{ 'dashboard.metrics.projectedRevenue' | translate }}</span>
+          <strong>S/ {{ projectedIncome() | number:'1.2-2' }}</strong>
+          <small>{{ 'dashboard.metrics.projectedRevenueSub' | translate }}</small>
+        </div>
+        <mat-icon>trending_up</mat-icon>
+      </div>
+    </mat-card>
+  </div>
+
+  <div class="dashboard-grid">
+    <div class="main-column">
+      <mat-card class="panel-card income-card">
+        <div class="panel-heading">
+          <div>
+            <h2>{{ 'dashboard.panels.weeklyIncome.title' | translate }}</h2>
+            <p>{{ 'dashboard.panels.weeklyIncome.subtitle' | translate }}</p>
+          </div>
+          <strong class="total-income">S/ {{ weeklyIncomeData().total | number:'1.2-2' }}</strong>
+        </div>
+        <div class="chart-container">
+          <div class="bar-col" *ngFor="let col of weeklyIncomeData().data">
+            <div class="bar" [style.height.%]="col.height">
+              <div class="tooltip">S/ {{ col.value }}</div>
+            </div>
+            <span>{{ col.label }}</span>
+          </div>
+        </div>
+      </mat-card>
+
+      <mat-card class="panel-card">
+        <div class="panel-heading">
+          <div>
+            <h2>{{ 'dashboard.panels.activeVehicles.title' | translate }}</h2>
+            <p>{{ 'dashboard.panels.activeVehicles.subtitle' | translate }}</p>
+          </div>
+          <button mat-button color="primary" (click)="goToVehicles()">{{ 'dashboard.panels.activeVehicles.viewAll' | translate }}</button>
+        </div>
+        <div class="vehicle-list">
+          <div class="vehicle-item" *ngFor="let v of activeVehiclesList()">
+            <img [src]="v.image" alt="Vehicle" class="vehicle-image" />
+            <div class="vehicle-info">
+              <div class="vehicle-top">
+                <div>
+                  <span class="order-code">{{ v.orderCode }}</span>
+                  <h3 class="plate-text">{{ v.plate }}</h3>
+                  <small class="model-text">{{ v.name }}</small>
+                </div>
+                <strong>{{ v.progress }}%</strong>
+              </div>
+              <mat-progress-bar mode="determinate" [value]="v.progress"></mat-progress-bar>
+            </div>
+          </div>
+        </div>
+      </mat-card>
+    </div>
+
+    <div class="side-column">
+      <mat-card class="panel-card">
+        <div class="panel-heading">
+          <div>
+            <h2>{{ 'dashboard.panels.frequentServices.title' | translate }}</h2>
+            <p>{{ 'dashboard.panels.frequentServices.subtitle' | translate }}</p>
+          </div>
+        </div>
+        <div class="services-list">
+          <div class="service-item" *ngFor="let s of frequentServicesList()">
+            <div class="service-icon"><mat-icon>{{ s.icon }}</mat-icon></div>
+            <div class="service-info">
+              <div class="service-top">
+                <h3 class="service-name">{{ s.name }}</h3>
+                <span>{{ s.count }} {{ 'dashboard.panels.frequentServices.orders' | translate }}</span>
+              </div>
+              <mat-progress-bar mode="determinate" [value]="s.progress"></mat-progress-bar>
+            </div>
+          </div>
+        </div>
+      </mat-card>
+
+      <mat-card class="panel-card">
+        <div class="panel-heading">
+          <div>
+            <h2>{{ 'dashboard.panels.recentOrders.title' | translate }}</h2>
+            <p>{{ 'dashboard.panels.recentOrders.subtitle' | translate }}</p>
+          </div>
+          <button mat-icon-button (click)="goToOrders()"><mat-icon>arrow_forward</mat-icon></button>
+        </div>
+        <div class="recent-list">
+          <div class="recent-item" *ngFor="let order of recentOrders()">
+            <div class="recent-info">
+              <span style="font-weight: 800; color: #0f172a;">{{ order.trackingCode }}</span>
+              <span class="custom-badge" [ngClass]="'badge-' + getOrderSeverity(order.status)">{{ order.status }}</span>
+            </div>
+            <strong style="color: #0b1680;">S/ {{ order.price || 0 | number:'1.2-2' }}</strong>
+          </div>
+        </div>
+      </mat-card>
+    </div>
+  </div>
+</section>
+
+
+===== src/app/domains/workshop-operations/presentation/tasks-view/tasks-view.css =====
+.tasks-page { min-height: 100vh; font-family: Inter, system-ui, sans-serif; }
+.page-header { margin-bottom: 2rem; }
+.eyebrow { color: #0b1680; font-size: 0.78rem; font-weight: 800; text-transform: uppercase; display: block; margin-bottom: 0.5rem; }
+.page-header h1 { margin: 0; font-size: 2.2rem; color: #0f172a; font-weight: 700; }
+.page-header p { margin: 0.5rem 0 0; color: #64748b; }
+
+.tasks-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(350px, 1fr)); gap: 1.5rem; }
+.review-card { background: white; border: 1px solid #e2e8f0; border-radius: 20px; padding: 1.5rem; box-shadow: 0 4px 15px rgba(0,0,0,0.03); }
+.card-top { display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem; }
+.order-badge { background: #eef2ff; color: #0b1680; padding: 0.3rem 0.8rem; border-radius: 8px; font-weight: 700; font-size: 0.85rem; }
+.mechanic-name { display: flex; align-items: center; gap: 0.3rem; color: #475569; font-size: 0.9rem; }
+.mechanic-name mat-icon { font-size: 1.2rem; width: 1.2rem; height: 1.2rem; }
+.review-card h3 { margin: 0 0 1rem; font-size: 1.2rem; color: #0f172a; }
+.details-box { background: #f8fafc; padding: 1rem; border-radius: 12px; margin-bottom: 1.5rem; border: 1px dashed #cbd5e1; }
+.details-box strong { color: #334155; font-size: 0.85rem; display: block; margin-bottom: 0.3rem; }
+.details-box p { margin: 0; color: #475569; font-size: 0.95rem; }
+.actions { display: flex; justify-content: flex-end; gap: 1rem; }
+.actions button { border-radius: 10px; padding: 0 1.5rem; }
+
+.empty-state { text-align: center; padding: 3rem; background: white; border-radius: 20px; border: 1px dashed #cbd5e1; }
+.empty-state mat-icon { font-size: 3rem; width: 3rem; height: 3rem; margin-bottom: 1rem; }
+.empty-state h3 { margin: 0 0 0.5rem; color: #0f172a; font-size: 1.5rem; }
+.empty-state p { margin: 0; color: #64748b; }
+.spin { animation: spin 1s linear infinite; }
+@keyframes spin { 100% { transform: rotate(360deg); } }
+
+
+===== src/app/domains/workshop-operations/presentation/tasks-view/tasks-view.html =====
+<section class="tasks-page">
+  <div class="page-header">
+    <span class="eyebrow">Control de Calidad</span>
+    <h1>Revisión de Tareas</h1>
+    <p>Aprueba o rechaza las tareas que los mecánicos han marcado como completadas.</p>
+  </div>
+
+  <div *ngIf="taskStore.loading()" class="empty-state">
+    <mat-icon class="spin">refresh</mat-icon>
+    <p>Cargando tareas...</p>
+  </div>
+
+  <div *ngIf="!taskStore.loading() && tasksToReview().length" class="tasks-grid">
+    <div *ngFor="let task of tasksToReview()" class="review-card">
+      <div class="card-top">
+        <span class="order-badge">Orden: {{ task.orderCode }}</span>
+        <span class="mechanic-name"><mat-icon>person</mat-icon> {{ task.mechanicName }}</span>
+      </div>
+
+      <h3>{{ task.description }}</h3>
+
+      <div class="details-box">
+        <strong>Explicación del Mecánico:</strong>
+        <p>{{ task.customerExplanation || 'Sin observaciones detalladas.' }}</p>
+      </div>
+
+      <div class="actions">
+        <button mat-stroked-button color="warn" (click)="rejectTask(task.id)">Rechazar</button>
+        <button mat-flat-button style="background: #16a34a; color: white;" (click)="approveTask(task.id)">Aprobar Tarea</button>
+      </div>
+    </div>
+  </div>
+
+  <div *ngIf="!taskStore.loading() && tasksToReview().length === 0" class="empty-state">
+    <mat-icon style="color: #16a34a;">check_circle</mat-icon>
+    <h3>Todo al día</h3>
+    <p>No hay tareas pendientes de revisión.</p>
+  </div>
+</section>
+
+
+===== src/app/domains/workshop-operations/presentation/tasks-view/tasks-view.ts =====
+import { Component, computed, inject, OnInit } from '@angular/core';
+import { CommonModule } from '@angular/common';
+import { MatButtonModule } from '@angular/material/button';
+import { MatIconModule } from '@angular/material/icon';
+import { TranslatePipe } from '@ngx-translate/core';
+
+import { TaskStore } from '../../application/task.store';
+import { WorkOrderStore } from '../../application/work-order.store';
+import { MechanicStore } from '../../../staff-coordination/application/mechanic.store';
+
+@Component({
+  selector: 'app-tasks-view',
+  standalone: true,
+  imports: [CommonModule, MatButtonModule, MatIconModule],
+  templateUrl: './tasks-view.html',
+  styleUrl: './tasks-view.css',
+})
+export class TasksViewComponent implements OnInit {
+  public taskStore = inject(TaskStore);
+  private workOrderStore = inject(WorkOrderStore);
+  private mechanicStore = inject(MechanicStore);
+
+  async ngOnInit() {
+    await Promise.all([
+      this.taskStore.loadAllTasks(),
+      this.workOrderStore.loadWorkOrders(),
+      this.mechanicStore.loadMechanics(),
+    ]);
+  }
+
+  // Mostramos solo tareas marcadas como completadas por el mecánico pero aún pendientes de revisión
+  tasksToReview = computed(() => {
+    return this.taskStore
+      .tasks()
+      .filter((t) => t.status === 'COMPLETED' && t.adminReviewStatus === 'PENDING')
+      .map((t) => {
+        const order = this.workOrderStore
+          .workOrders()
+          .find((o) => String(o.id) === String(t.workOrderId));
+        const mechanic = this.mechanicStore
+          .mechanics()
+          .find((m) => String(m.id) === String(t.mechanicId));
+        return {
+          ...t,
+          orderCode: order?.trackingCode || 'Desconocida',
+          mechanicName: mechanic?.fullName || 'Desconocido',
+        };
+      });
+  });
+
+  async approveTask(id: string | number | undefined) {
+    if (id) await this.taskStore.approveTask(id);
+  }
+
+  async rejectTask(id: string | number | undefined) {
+    if (id) await this.taskStore.rejectTask(id);
+  }
+}
+
+
+===== src/app/domains/workshop-operations/presentation/work-order-detail/work-order-detail.css =====
+.order-detail-page { min-height: 100vh; font-family: Inter, system-ui, sans-serif; }
+.page-header { display: flex; align-items: center; gap: 1rem; margin-bottom: 2rem; }
+.eyebrow { color: #0b1680; font-size: 0.78rem; font-weight: 800; text-transform: uppercase; }
+.page-header h1 { margin: 0; font-size: 2rem; color: #0f172a; font-weight: 700; }
+.header-badge { font-size: 1rem; padding: 0.5rem 1rem; margin-left: auto; }
+.grid-layout { display: grid; grid-template-columns: 1fr 350px; gap: 1.5rem; }
+.card { background: white; border-radius: 20px; border: 1px solid #e8edf5; padding: 1.5rem; margin-bottom: 1.5rem; box-shadow: 0 4px 15px rgba(0,0,0,0.03); }
+.card h2 { margin: 0 0 1.5rem; font-size: 1.2rem; color: #0f172a; }
+.card-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.5rem; }
+.card-header h2 { margin: 0; }
+.tasks-list { display: flex; flex-direction: column; gap: 1rem; }
+.task-item { display: flex; justify-content: space-between; align-items: center; padding: 1.2rem; background: #f8fafc; border-radius: 12px; border: 1px solid #e2e8f0; }
+.task-info h4 { margin: 0 0 0.5rem; font-size: 1.1rem; color: #1e293b; }
+.task-meta { display: flex; gap: 0.8rem; align-items: center; font-size: 0.85rem; color: #64748b; }
+.task-price { font-weight: 800; color: #0f172a; font-size: 1.1rem; }
+.vehicle-info { display: flex; gap: 1rem; align-items: center; }
+.vehicle-info mat-icon { font-size: 2.5rem; width: 2.5rem; height: 2.5rem; color: #0b1680; }
+.vehicle-info h3 { margin: 0; font-size: 1.2rem; }
+.plate-badge { display: inline-block; background: #eef2ff; color: #0b1680; padding: 0.2rem 0.6rem; border-radius: 6px; font-weight: 700; font-size: 0.85rem; margin-top: 0.3rem; }
+.info-row { display: flex; justify-content: space-between; padding: 0.8rem 0; border-bottom: 1px solid #f1f5f9; color: #475569; }
+.total-row { border: none; font-size: 1.2rem; color: #0b1680; margin-top: 0.5rem; }
+
+.custom-badge { display: inline-flex; width: fit-content; padding: 0.25rem 0.65rem; border-radius: 999px; font-size: 0.7rem; font-weight: 900; text-transform: uppercase; letter-spacing: 0.05em; }
+.badge-success { color: #047857; background: #d1fae5; }
+.badge-info { color: #1d4ed8; background: #dbeafe; }
+.badge-warning { color: #92400e; background: #fef3c7; }
+.badge-secondary { color: #475569; background: #e2e8f0; }
+.empty-state { text-align: center; padding: 2rem; color: #94a3b8; border: 1px dashed #cbd5e1; border-radius: 12px; }
+
+.form-grid { display: flex; flex-direction: column; gap: 1rem; }
+.field { display: flex; flex-direction: column; gap: 0.4rem; }
+.field label { font-size: 0.85rem; font-weight: 700; color: #374151; }
+.custom-form-input { padding: 0.9rem; border-radius: 12px; border: 1px solid #d1d5db; background: #f9fafb; font-size: 1rem; outline: none; }
+.double-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; }
+.mt-3 { margin-top: 1rem; }
+.dialog-footer { padding: 1rem 1.5rem !important; border-top: 1px solid #f1f5f9; margin-top: 1rem; }
+::ng-deep .custom-dialog-container .mat-mdc-dialog-container .mdc-dialog__surface { border-radius: 24px !important; }
+@media (max-width: 900px) { .grid-layout { grid-template-columns: 1fr; } }
+
+
+===== src/app/domains/workshop-operations/presentation/work-order-detail/work-order-detail.html =====
+<section class="order-detail-page">
+  <header class="page-header">
+    <button mat-icon-button (click)="goBack()" style="background: white;"><mat-icon>arrow_back</mat-icon></button>
+    <div>
+      <span class="eyebrow">Detalle de Orden</span>
+      <h1>Orden {{ order()?.trackingCode }}</h1>
+    </div>
+    <span class="custom-badge header-badge" [ngClass]="getSeverityClass(order()?.status)">{{ order()?.status }}</span>
+  </header>
+
+  <div class="grid-layout">
+    <div class="main-panel">
+      <div class="card tasks-card">
+        <div class="card-header">
+          <h2>Tareas Asignadas</h2>
+          <button mat-flat-button color="primary" (click)="openTaskDialog()"><mat-icon>add</mat-icon> Nueva Tarea</button>
+        </div>
+
+        <div class="tasks-list">
+          <div *ngFor="let task of tasks()" class="task-item">
+            <div class="task-info">
+              <h4>{{ task.description }}</h4>
+              <div class="task-meta">
+                <span class="custom-badge badge-secondary"><mat-icon style="font-size: 14px; width: 14px; height: 14px;">person</mat-icon> {{ getMechanicName(task.mechanicId) }}</span>
+                <span class="custom-badge" [ngClass]="getSeverityClass(task.status)">{{ task.status }}</span>
+                <span><mat-icon style="font-size: 14px; width: 14px; height: 14px;">schedule</mat-icon> {{ task.estimatedTime }}h</span>
+              </div>
+            </div>
+            <div class="task-price">S/ {{ task.laborPrice | number:'1.2-2' }}</div>
+          </div>
+          <div *ngIf="tasks().length === 0" class="empty-state">No hay tareas asignadas a esta orden.</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="side-panel">
+      <div class="card vehicle-card">
+        <h2>Vehículo</h2>
+        <div class="vehicle-info">
+          <mat-icon>directions_car</mat-icon>
+          <div>
+            <h3>{{ vehicle()?.brand }} {{ vehicle()?.model }}</h3>
+            <span class="plate-badge">{{ vehicle()?.plate }}</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="card summary-card">
+        <h2>Resumen</h2>
+        <div class="info-row">
+          <span>Ingreso:</span>
+          <strong>{{ order()?.startDate | date }}</strong>
+        </div>
+        <div class="info-row">
+          <span>Entrega Est.:</span>
+          <strong>{{ order()?.estimatedDate | date }}</strong>
+        </div>
+        <div class="info-row total-row">
+          <span>Total:</span>
+          <strong>S/ {{ order()?.price | number:'1.2-2' }}</strong>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <ng-template #taskDialog>
+    <div class="custom-dialog-header"><h2 mat-dialog-title style="margin:0;">Asignar Tarea</h2></div>
+    <mat-dialog-content>
+      <div class="form-grid mt-3">
+        <div class="field">
+          <label>Descripción de Tarea</label>
+          <input type="text" [(ngModel)]="newTask().description" class="custom-form-input">
+        </div>
+        <div class="field">
+          <label>Mecánico Asignado</label>
+          <mat-select [(ngModel)]="newTask().mechanicId" class="custom-form-input">
+            <mat-option *ngFor="let m of mechanicStore.mechanics()" [value]="m.id">{{ m.fullName }} ({{ m.specialty }})</mat-option>
+          </mat-select>
+        </div>
+        <div class="double-grid">
+          <div class="field">
+            <label>Prioridad</label>
+            <mat-select [(ngModel)]="newTask().priority" class="custom-form-input">
+              <mat-option *ngFor="let p of priorities" [value]="p.value">{{ p.label }}</mat-option>
+            </mat-select>
+          </div>
+          <div class="field">
+            <label>Tiempo Est. (Horas)</label>
+            <input type="number" [(ngModel)]="newTask().estimatedTime" class="custom-form-input">
+          </div>
+        </div>
+        <div class="field">
+          <label>Costo de Mano de Obra (S/)</label>
+          <input type="number" [(ngModel)]="newTask().laborPrice" class="custom-form-input">
+        </div>
+      </div>
+    </mat-dialog-content>
+    <mat-dialog-actions align="end" class="dialog-footer">
+      <button mat-button (click)="closeDialog()">Cancelar</button>
+      <button mat-flat-button color="primary" (click)="saveTask()">Guardar Tarea</button>
+    </mat-dialog-actions>
+  </ng-template>
+</section>
+
+
+===== src/app/domains/workshop-operations/presentation/work-order-detail/work-order-detail.ts =====
+import { Component, computed, inject, OnInit, signal, TemplateRef, ViewChild } from '@angular/core';
+import { CommonModule } from '@angular/common';
+import { ActivatedRoute, Router } from '@angular/router';
+import { FormsModule } from '@angular/forms';
+import { MatButtonModule } from '@angular/material/button';
+import { MatIconModule } from '@angular/material/icon';
+import { MatDialog, MatDialogModule } from '@angular/material/dialog';
+import { MatInputModule } from '@angular/material/input';
+import { MatSelectModule } from '@angular/material/select';
+import { TranslatePipe, TranslateService } from '@ngx-translate/core';
+
+import { WorkOrderStore } from '../../application/work-order.store';
+import { TaskStore } from '../../application/task.store';
+import { VehicleStore } from '../../../fleet-management/application/vehicle.store';
+import { MechanicStore } from '../../../staff-coordination/application/mechanic.store';
+
+@Component({
+  selector: 'app-work-order-detail',
+  standalone: true,
+  imports: [
+    CommonModule,
+    FormsModule,
+    MatButtonModule,
+    MatIconModule,
+    MatDialogModule,
+    MatInputModule,
+    MatSelectModule
+  ],
+  templateUrl: './work-order-detail.html',
+  styleUrl: './work-order-detail.css',
+})
+export class WorkOrderDetailComponent implements OnInit {
+  private route = inject(ActivatedRoute);
+  private router = inject(Router);
+  public translate = inject(TranslateService);
+  private dialog = inject(MatDialog);
+
+  private workOrderStore = inject(WorkOrderStore);
+  public taskStore = inject(TaskStore);
+  private vehicleStore = inject(VehicleStore);
+  public mechanicStore = inject(MechanicStore);
+
+  @ViewChild('taskDialog') taskDialogTemplate!: TemplateRef<any>;
+
+  orderId = this.route.snapshot.paramMap.get('id');
+
+  newTask = signal({
+    description: '',
+    priority: 'MEDIUM',
+    estimatedTime: 1,
+    laborPrice: 0,
+    mechanicId: null,
+  });
+
+  priorities = [
+    { value: 'LOW', label: 'Baja' },
+    { value: 'MEDIUM', label: 'Media' },
+    { value: 'HIGH', label: 'Alta' },
+  ];
+
+  async ngOnInit() {
+    await Promise.all([
+      this.workOrderStore.loadWorkOrders(),
+      this.taskStore.loadAllTasks(),
+      this.vehicleStore.loadVehicles(),
+      this.mechanicStore.loadMechanics(),
+    ]);
+  }
+
+  order = computed(() =>
+    this.workOrderStore.workOrders().find((o) => String(o.id) === String(this.orderId)),
+  );
+  vehicle = computed(() =>
+    this.vehicleStore.vehicles().find((v) => String(v.id) === String(this.order()?.vehicleId)),
+  );
+  tasks = computed(() =>
+    this.taskStore.tasks().filter((t) => String(t.workOrderId) === String(this.orderId)),
+  );
+
+  getSeverityClass(status: string | undefined): string {
+    if (status === 'FINISHED' || status === 'COMPLETED' || status === 'DELIVERED')
+      return 'badge-success';
+    if (status === 'IN_PROGRESS') return 'badge-info';
+    return 'badge-warning';
+  }
+
+  getMechanicName(id: string | number | null | undefined): string {
+    if (!id) return 'Sin asignar';
+    const m = this.mechanicStore.mechanics().find((x) => String(x.id) === String(id));
+    return m ? m.fullName : 'Desconocido';
+  }
+
+  goBack() {
+    this.router.navigate(['/work-orders']);
+  }
+
+  openTaskDialog() {
+    this.newTask.set({
+      description: '',
+      priority: 'MEDIUM',
+      estimatedTime: 1,
+      laborPrice: 0,
+      mechanicId: null,
+    });
+    this.dialog.open(this.taskDialogTemplate, {
+      width: '500px',
+      panelClass: 'custom-dialog-container',
+    });
+  }
+
+  closeDialog() {
+    this.dialog.closeAll();
+  }
+
+  async saveTask() {
+    if (!this.newTask().description || !this.newTask().mechanicId) return;
+
+    await this.taskStore.addTask({
+      ...this.newTask(),
+      workOrderId: this.orderId!,
+      status: 'PENDING',
+      adminReviewStatus: 'PENDING',
+    });
+    this.closeDialog();
+  }
+}
+
+
+===== src/app/domains/workshop-operations/presentation/work-order-list/work-order-list.css =====
+.work-orders-page { min-height: 100vh; font-family: Inter, system-ui, sans-serif; }
+.page-header { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 2rem; }
+.eyebrow { color: #0b1680; font-size: 0.78rem; font-weight: 800; text-transform: uppercase; letter-spacing: 0.08em; display: block; margin-bottom: 0.5rem; }
+.page-header h1 { margin: 0; color: #0f172a; font-size: 2.2rem; line-height: 1.1; font-weight: 700; }
+.page-header p { margin: 0.5rem 0 0; color: #64748b; }
+.add-btn { background: #0b1680 !important; color: white !important; border-radius: 14px !important; padding: 1.5rem 1.5rem !important; font-weight: 600; display: flex; align-items: center; gap: 0.5rem; }
+
+.toolbar { display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.5rem; gap: 1rem; flex-wrap: wrap; }
+.search-box { position: relative; display: flex; align-items: center; flex: 1; max-width: 400px; background: white; padding: 0.1rem; border-radius: 12px; border: 1px solid #e2e8f0; }
+.search-icon { position: absolute; left: 1rem; color: #9ca3af; z-index: 10; pointer-events: none; }
+.custom-search-input { width: 100%; border: none; outline: none; padding: 0.9rem 1rem 0.9rem 3.5rem; border-radius: 12px; font-size: 1rem; color: #374151; background: transparent; }
+
+::ng-deep .custom-toggle-group { border-radius: 12px !important; border: 1px solid #e2e8f0 !important; background: white; }
+::ng-deep .custom-toggle-group .mat-button-toggle-checked { background-color: #f1f5f9; color: #0b1680; font-weight: 700; }
+
+.kanban-board { display: flex; gap: 1.5rem; overflow-x: auto; padding-bottom: 1rem; }
+.kanban-column { flex: 1; min-width: 300px; background: #f8fafc; border-radius: 16px; border: 1px solid #e2e8f0; display: flex; flex-direction: column; }
+.column-header { display: flex; justify-content: space-between; align-items: center; padding: 1rem 1.25rem; border-bottom: 3px solid; background: white; border-radius: 16px 16px 0 0; }
+.column-header h3 { margin: 0; font-size: 1rem; font-weight: 700; color: #1e293b; }
+.count-badge { padding: 0.2rem 0.6rem; border-radius: 999px; font-size: 0.8rem; font-weight: 800; }
+.column-body { padding: 1rem; display: flex; flex-direction: column; gap: 1rem; flex: 1; }
+.kanban-card { background: white; border-radius: 12px; padding: 1.25rem; border: 1px solid #e2e8f0; box-shadow: 0 4px 6px rgba(0,0,0,0.02); cursor: pointer; transition: transform 0.2s, box-shadow 0.2s; }
+.kanban-card:hover { transform: translateY(-2px); box-shadow: 0 8px 15px rgba(0,0,0,0.05); border-color: #cbd5e1; }
+.card-top { display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.5rem; }
+.card-top strong { color: #0f172a; font-size: 0.95rem; }
+.date { font-size: 0.8rem; color: #64748b; }
+.kanban-card h4 { margin: 0 0 0.8rem; font-size: 1.1rem; color: #1e293b; }
+.card-meta { display: flex; flex-direction: column; gap: 0.5rem; margin-bottom: 1rem; }
+.plate-badge { display: inline-block; background: #eef2ff; color: #0b1680; padding: 0.2rem 0.5rem; border-radius: 6px; font-size: 0.8rem; font-weight: 700; width: fit-content; }
+.customer { display: flex; align-items: center; gap: 0.3rem; font-size: 0.85rem; color: #475569; }
+.card-footer { display: flex; justify-content: flex-end; border-top: 1px dashed #e2e8f0; padding-top: 0.8rem; }
+.price { font-weight: 800; color: #0f172a; }
+.empty-column { text-align: center; padding: 2rem; color: #94a3b8; font-size: 0.9rem; border: 1px dashed #cbd5e1; border-radius: 12px; }
+
+.table-container { background: white; border-radius: 20px; border: 1px solid #e8edf5; overflow-x: auto; box-shadow: 0 4px 15px rgba(0,0,0,0.03); }
+.clean-table { width: 100%; border-collapse: collapse; text-align: left; }
+.clean-table th { padding: 1.25rem 1rem; color: #64748b; font-weight: 600; text-transform: uppercase; font-size: 0.8rem; border-bottom: 1px solid #e2e8f0; background: #f8fafc; }
+.clean-table td { padding: 1rem; border-bottom: 1px solid #f8fafc; color: #334155; }
+.text-center { text-align: center; }
+
+.custom-badge { display: inline-flex; width: fit-content; padding: 0.25rem 0.65rem; border-radius: 999px; font-size: 0.7rem; font-weight: 900; text-transform: uppercase; letter-spacing: 0.05em; }
+.badge-success { color: #047857; background: #d1fae5; }
+.badge-info { color: #1d4ed8; background: #dbeafe; }
+.badge-warning { color: #92400e; background: #fef3c7; }
+
+.empty-state { text-align: center; padding: 3rem; color: #64748b; background: white; border-radius: 20px; border: 1px dashed #cbd5e1; }
+.empty-state mat-icon { font-size: 3rem; width: 3rem; height: 3rem; color: #0b1680; margin-bottom: 1rem; }
+.spin { animation: spin 1s linear infinite; }
+@keyframes spin { 100% { transform: rotate(360deg); } }
+@media (max-width: 768px) { .page-header { flex-direction: column; gap: 1rem; } .add-btn { width: 100%; justify-content: center; } .toolbar { flex-direction: column; align-items: stretch; } .search-box { max-width: 100%; } }
+
+
+===== src/app/domains/workshop-operations/presentation/work-order-list/work-order-list.html =====
+<section class="work-orders-page">
+  <div class="page-header">
+    <div>
+      <span class="eyebrow">{{ 'workOrders.eyebrow' | translate }}</span>
+      <h1>{{ 'workOrders.title' | translate }}</h1>
+      <p>{{ 'workOrders.description' | translate }}</p>
+    </div>
+    <button mat-flat-button class="add-btn" (click)="goToCreate()">
+      <mat-icon>add</mat-icon>
+      {{ 'workOrders.newOrder' | translate }}
+    </button>
+  </div>
+
+  <div class="toolbar">
+    <div class="search-box">
+      <mat-icon class="search-icon">search</mat-icon>
+      <input type="text" [ngModel]="searchQuery()" (ngModelChange)="searchQuery.set($event)" [placeholder]="'workOrders.searchPlaceholder' | translate" class="custom-search-input">
+    </div>
+
+    <mat-button-toggle-group [ngModel]="viewMode()" (ngModelChange)="viewMode.set($event)" class="custom-toggle-group">
+      <mat-button-toggle value="kanban"><mat-icon>view_column</mat-icon> Kanban</mat-button-toggle>
+      <mat-button-toggle value="list"><mat-icon>view_list</mat-icon> Lista</mat-button-toggle>
+    </mat-button-toggle-group>
+  </div>
+
+  <div *ngIf="workOrderStore.loading()" class="empty-state">
+    <mat-icon class="spin">refresh</mat-icon>
+    <p>Cargando órdenes de trabajo...</p>
+  </div>
+
+  <div *ngIf="!workOrderStore.loading() && viewMode() === 'kanban'" class="kanban-board">
+    <div *ngFor="let col of columns" class="kanban-column">
+      <div class="column-header" [style.borderBottomColor]="col.color">
+        <h3>{{ col.title }}</h3>
+        <span class="count-badge" [style.backgroundColor]="col.bg" [style.color]="col.color">
+          {{ getOrdersByStatus(col.id).length }}
+        </span>
+      </div>
+
+      <div class="column-body">
+        <div *ngFor="let order of getOrdersByStatus(col.id)" class="kanban-card" (click)="goToDetail(order.id)">
+          <div class="card-top">
+            <strong>{{ order.trackingCode }}</strong>
+            <span class="date">{{ order.startDate | date:'dd MMM' }}</span>
+          </div>
+          <h4>{{ order.vehicleName }}</h4>
+          <div class="card-meta">
+            <span class="plate-badge">{{ order.vehiclePlate }}</span>
+            <span class="customer"><mat-icon style="font-size: 1rem; width: 1rem; height: 1rem;">person</mat-icon> {{ order.customerName }}</span>
+          </div>
+          <div class="card-footer">
+            <span class="price">S/ {{ order.price | number:'1.2-2' }}</span>
+          </div>
+        </div>
+        <div *ngIf="getOrdersByStatus(col.id).length === 0" class="empty-column">
+          Sin órdenes
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div *ngIf="!workOrderStore.loading() && viewMode() === 'list'" class="table-container">
+    <table class="clean-table">
+      <thead>
+      <tr>
+        <th>Código</th>
+        <th>Vehículo</th>
+        <th>Cliente</th>
+        <th>Fecha Ingreso</th>
+        <th>Estado</th>
+        <th>Total</th>
+        <th>Acciones</th>
+      </tr>
+      </thead>
+      <tbody>
+      <tr *ngFor="let order of mappedOrders()">
+        <td><strong>{{ order.trackingCode }}</strong></td>
+        <td>
+          <div style="display: flex; flex-direction: column;">
+            <span>{{ order.vehicleName }}</span>
+            <span style="font-size: 0.8rem; color: #64748b;">{{ order.vehiclePlate }}</span>
+          </div>
+        </td>
+        <td>{{ order.customerName }}</td>
+        <td>{{ order.startDate | date }}</td>
+        <td>
+            <span class="custom-badge" [ngClass]="getSeverityClass(order.status)">
+              {{ getStatusLabel(order.status) }}
+            </span>
+        </td>
+        <td style="font-weight: 700; color: #0f172a;">S/ {{ order.price | number:'1.2-2' }}</td>
+        <td>
+          <button mat-icon-button (click)="goToDetail(order.id)" style="color: #0b1680;">
+            <mat-icon>arrow_forward</mat-icon>
+          </button>
+        </td>
+      </tr>
+      <tr *ngIf="mappedOrders().length === 0">
+        <td colspan="7" class="text-center" style="padding: 3rem; color: #64748b;">No se encontraron órdenes.</td>
+      </tr>
+      </tbody>
+    </table>
+  </div>
+</section>
+
+
+===== src/app/domains/workshop-operations/presentation/work-order-list/work-order-list.ts =====
+import { Component, computed, inject, OnInit, signal } from '@angular/core';
+import { CommonModule } from '@angular/common';
+import { Router } from '@angular/router';
+import { FormsModule } from '@angular/forms';
+import { MatButtonModule } from '@angular/material/button';
+import { MatIconModule } from '@angular/material/icon';
+import { MatInputModule } from '@angular/material/input';
+import { MatButtonToggleModule } from '@angular/material/button-toggle';
+import { TranslatePipe, TranslateService } from '@ngx-translate/core';
+
+import { WorkOrderStore } from '../../application/work-order.store';
+import { VehicleStore } from '../../../fleet-management/application/vehicle.store';
+import { CustomerStore } from '../../../customer-management/application/customer.store';
+
+@Component({
+  selector: 'app-work-order-list',
+  standalone: true,
+  imports: [
+    CommonModule,
+    FormsModule,
+    MatButtonModule,
+    MatIconModule,
+    MatInputModule,
+    MatButtonToggleModule,
+    TranslatePipe,
+  ],
+  templateUrl: './work-order-list.html',
+  styleUrl: './work-order-list.css',
+})
+export class WorkOrderListComponent implements OnInit {
+  private router = inject(Router);
+  public translate = inject(TranslateService);
+
+  public workOrderStore = inject(WorkOrderStore);
+  private vehicleStore = inject(VehicleStore);
+  private customerStore = inject(CustomerStore);
+
+  viewMode = signal<'kanban' | 'list'>('kanban');
+  searchQuery = signal('');
+
+  columns = [
+    { id: 'PENDING', title: 'Pendiente', color: '#f59e0b', bg: '#fef3c7' },
+    { id: 'IN_PROGRESS', title: 'En Proceso', color: '#3b82f6', bg: '#dbeafe' },
+    { id: 'FINISHED', title: 'Finalizado', color: '#10b981', bg: '#d1fae5' },
+    { id: 'DELIVERED', title: 'Entregado', color: '#64748b', bg: '#e2e8f0' },
+  ];
+
+  async ngOnInit() {
+    await Promise.all([
+      this.workOrderStore.loadWorkOrders(),
+      this.vehicleStore.loadVehicles(),
+      this.customerStore.loadCustomers(),
+    ]);
+  }
+
+  mappedOrders = computed(() => {
+    const term = this.searchQuery().toLowerCase();
+
+    return this.workOrderStore
+      .workOrders()
+      .map((order) => {
+        const vehicle = this.vehicleStore
+          .vehicles()
+          .find((v) => String(v.id) === String(order.vehicleId));
+        const customer = this.customerStore
+          .customers()
+          .find((c) => String(c.id) === String(vehicle?.customerId));
+
+        return {
+          ...order,
+          vehiclePlate: vehicle?.plate || 'N/A',
+          vehicleName: vehicle ? `${vehicle.brand} ${vehicle.model}` : 'Vehículo Desconocido',
+          customerName: customer?.fullName || 'Sin Asignar',
+        };
+      })
+      .filter(
+        (order) =>
+          !term ||
+          order.trackingCode?.toLowerCase().includes(term) ||
+          order.vehiclePlate.toLowerCase().includes(term) ||
+          order.customerName.toLowerCase().includes(term),
+      );
+  });
+
+  getOrdersByStatus(statusId: string) {
+    return this.mappedOrders().filter((o) => o.status === statusId);
+  }
+
+  getSeverityClass(status: string): string {
+    if (status === 'FINISHED' || status === 'DELIVERED') return 'badge-success';
+    if (status === 'IN_PROGRESS') return 'badge-info';
+    return 'badge-warning';
+  }
+
+  getStatusLabel(status: string): string {
+    const found = this.columns.find((c) => c.id === status);
+    return found ? found.title : status;
+  }
+
+  goToCreate() {
+    this.router.navigate(['/work-orders/new']);
+  }
+
+  goToDetail(id: string | number | undefined) {
+    if (id) this.router.navigate([`/work-orders/${id}`]);
+  }
+}
+
+

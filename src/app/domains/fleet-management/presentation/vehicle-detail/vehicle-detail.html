@@ -1,168 +1,123 @@
 <section class="vehicle-detail-page">
-  <header class="page-header">
-    <button mat-icon-button type="button" aria-label="Volver a vehículos" (click)="goBack()">
-      <mat-icon>arrow_back</mat-icon>
-    </button>
-
+  <div class="detail-header">
     <div>
-      <p class="eyebrow">{{ ('detailsVehicle.fleetManagement') | translate }}</p>
-      <h1>{{ ('detailsVehicle.vehicleDetails') | translate }}</h1>
-      <span>{{ ('detailsVehicle.vehicleSubtitle') | translate }}</span>
+      <button mat-icon-button class="back-button" (click)="goBack()"><mat-icon>arrow_back</mat-icon></button>
+      <span class="eyebrow">{{ 'vehicleDetail.technicalDetail' | translate }}</span>
+      <h1 *ngIf="vehicle()">{{ vehicle()!.brand }} {{ vehicle()!.model }}</h1>
+      <p *ngIf="vehicle()">{{ 'vehicleDetail.description' | translate }}</p>
     </div>
-  </header>
 
-  @if (vehicle(); as currentVehicle) {
-    <div class="detail-grid">
-      <mat-card class="identity-card">
-        <mat-card-content>
-          <div class="identity-head">
-            <div>
-              <span class="label">{{ ('detailsVehicle.identification') | translate }}</span>
-              <h2>{{ getVehicleName(currentVehicle) }}</h2>
-              <p class="plate">{{ currentVehicle.plate }}</p>
-            </div>
+    <span *ngIf="vehicle()" class="custom-badge status-tag" [ngClass]="getVehicleSeverity(vehicle()!.status)">
+      {{ getStatusLabel(vehicle()!.status) }}
+    </span>
+  </div>
 
-            <div class="car-icon">
-              <mat-icon>directions_car</mat-icon>
-            </div>
-          </div>
+  <div *ngIf="!vehicle()" class="empty-state">
+    <mat-icon class="spin">refresh</mat-icon>
+    <p>{{ 'vehicleDetail.loading' | translate }}</p>
+  </div>
 
-          <div class="owner-row">
-            <mat-icon>person</mat-icon>
-            <div>
-              <span>{{ ('detailsVehicle.owner') | translate }}</span>
-              <strong>{{ ownerName() }}</strong>
-            </div>
-          </div>
-
-          <div class="vehicle-meta">
-            <span>
-              <mat-icon>calendar_month</mat-icon>
-              {{ currentVehicle.year }}
-            </span>
-
-            <span>
-              <mat-icon>palette</mat-icon>
-              {{ currentVehicle.color }}
-            </span>
-          </div>
-        </mat-card-content>
-      </mat-card>
-
-      <mat-card class="status-card">
-        <mat-card-content>
-          <span class="label">{{ ('detailsVehicle.currentStatus') | translate }}</span>
-
-          <div class="status-head">
-            <h2>{{ getStatusLabel(currentVehicle.status) }}</h2>
+  <div *ngIf="vehicle()" class="detail-grid">
+    <mat-card class="hero-card">
+      <img [src]="vehicleImage()" [alt]="vehicle()!.brand" class="vehicle-photo" />
+      <div class="hero-info">
+        <div>
+          <span class="plate-badge">{{ vehicle()!.plate }}</span>
+          <h2>{{ vehicle()!.brand }} {{ vehicle()!.model }}</h2>
+          <p>{{ vehicle()!.year }} · {{ vehicle()!.color }}</p>
+        </div>
+        <div class="progress-block">
+          <div class="progress-label">
+            <span>{{ 'vehicleDetail.operationalProgress' | translate }}</span>
             <strong>{{ progress() }}%</strong>
           </div>
+          <mat-progress-bar mode="determinate" [value]="progress()" class="main-progress"></mat-progress-bar>
+        </div>
+      </div>
+    </mat-card>
 
-          <mat-progress-bar
-            mode="determinate"
-            [value]="progress()">
-          </mat-progress-bar>
-
-          <p>
-            {{ ('detailsVehicle.progressDescription') | translate }}
-          </p>
-        </mat-card-content>
+    <div class="side-column">
+      <mat-card class="info-card">
+        <h3>{{ 'vehicleDetail.owner' | translate }}</h3>
+        <div class="info-row">
+          <span>{{ 'common.name' | translate }}</span>
+          <strong>{{ owner()?.fullName || ('vehicleDetail.unassigned' | translate) }}</strong>
+        </div>
+        <div class="info-row">
+          <span>{{ 'common.phone' | translate }}</span>
+          <strong>{{ owner()?.phone || ('vehicleDetail.notRegistered' | translate) }}</strong>
+        </div>
+        <div class="info-row">
+          <span>{{ 'common.email' | translate }}</span>
+          <strong>{{ owner()?.email || ('vehicleDetail.notRegistered' | translate) }}</strong>
+        </div>
       </mat-card>
 
-      <mat-card class="diagnosis-card">
-        <mat-card-content>
-          <section class="info-block">
-            <div class="section-title">
-              <mat-icon>warning_amber</mat-icon>
-              <h3>{{ ('detailsVehicle.reportedProblem') | translate }}</h3>
-            </div>
-
-            <p class="note-box">
-              {{ problemReported() }}
-            </p>
-          </section>
-
-          <section class="info-block">
-            <div class="section-title">
-              <mat-icon>engineering</mat-icon>
-              <h3>{{ ('detailsVehicle.technicalDiagnosis') | translate }}</h3>
-            </div>
-
-            <p class="note-box">
-              {{ technicalDiagnosis() }}
-            </p>
-          </section>
-        </mat-card-content>
-      </mat-card>
-
-      <mat-card class="tasks-card">
-        <mat-card-header>
-          <mat-card-title>
-            <mat-icon>assignment</mat-icon>
-            {{ ('detailsVehicle.maintenanceTasks') | translate }}
-          </mat-card-title>
-
-          <mat-card-subtitle>
-            {{ vehicleTasks().length }} tareas registradas
-          </mat-card-subtitle>
-        </mat-card-header>
-
-        <mat-card-content>
-          @if (vehicleTasks().length > 0) {
-            <div class="task-list">
-              @for (task of vehicleTasks(); track task.id) {
-                <article class="task-item">
-                  <div class="task-icon" [ngClass]="getTaskStatusClass(task.status)">
-                    <mat-icon>{{ getTaskIcon(task.status) }}</mat-icon>
-                  </div>
-
-                  <div class="task-body">
-                    <strong>{{ task.description }}</strong>
-                    <span [ngClass]="getTaskStatusClass(task.status)">
-                      {{ getTaskStatusLabel(task.status) }}
-                    </span>
-                  </div>
-
-                  <button
-                    mat-icon-button
-                    type="button"
-                    aria-label="Editar tarea"
-                    (click)="goToWorkOrder()">
-                    <mat-icon>edit</mat-icon>
-                  </button>
-                </article>
-              }
-            </div>
-          } @else {
-            <div class="empty-tasks">
-              <mat-icon>assignment_late</mat-icon>
-              <p>{{ ('detailsVehicle.noTasksRegistered') | translate }}</p>
-            </div>
-          }
-
-          <button
-            mat-flat-button
-            color="primary"
-            type="button"
-            class="add-task-button"
-            (click)="goToNewTask()">
-            <mat-icon>add</mat-icon>
-            {{ ('detailsVehicle.addTask') | translate }}
+      <mat-card class="info-card">
+        <h3>{{ 'vehicleDetail.lastOrder' | translate }}</h3>
+        <div *ngIf="lastOrder()">
+          <div class="info-row">
+            <span>{{ 'common.code' | translate }}</span>
+            <strong>{{ lastOrder()!.trackingCode }}</strong>
+          </div>
+          <div class="info-row">
+            <span>{{ 'vehicleDetail.estimatedDelivery' | translate }}</span>
+            <strong>{{ lastOrder()!.estimatedDate || ('vehicleDetail.notDefined' | translate) }}</strong>
+          </div>
+          <button mat-stroked-button class="order-button" (click)="goToOrder(lastOrder()!.id)">
+            {{ 'vehicleDetail.viewOrder' | translate }}
+            <mat-icon iconPositionEnd>arrow_forward</mat-icon>
           </button>
-        </mat-card-content>
+        </div>
+        <p *ngIf="!lastOrder()" class="muted">{{ 'vehicleDetail.noOrders' | translate }}</p>
       </mat-card>
     </div>
-  } @else {
-    <mat-card class="not-found-card">
-      <mat-card-content>
-        <mat-icon>directions_car</mat-icon>
-        <h2>{{ ('detailsVehicle.vehicleNotFound') | translate }}</h2>
-        <p>{{ ('detailsVehicle.vehicleNotFoundDescription') | translate }}</p>
 
-        <button mat-flat-button color="primary" type="button" (click)="goBack()">
-          {{ ('detailsVehicle.backToVehicles') | translate }}
-        </button>
-      </mat-card-content>
+    <mat-card class="orders-card">
+      <div class="section-heading">
+        <h3>{{ 'vehicleDetail.relatedOrders' | translate }}</h3>
+        <p>{{ 'vehicleDetail.orderHistory' | translate }}</p>
+      </div>
+
+      <div class="clean-table-container">
+        <table class="clean-table">
+          <thead>
+          <tr>
+            <th>{{ 'common.code' | translate }}</th>
+            <th>{{ 'common.status' | translate }}</th>
+            <th>{{ 'vehicleDetail.entryDate' | translate }}</th>
+            <th>{{ 'vehicleDetail.delivery' | translate }}</th>
+            <th>{{ 'common.action' | translate }}</th>
+          </tr>
+          </thead>
+          <tbody>
+          <tr *ngFor="let order of relatedOrders()">
+            <td>{{ order.trackingCode }}</td>
+            <td><span class="custom-badge" [ngClass]="getVehicleSeverity(order.status)">{{ getStatusLabel(order.status, 'workOrders.statusOptions') }}</span></td>
+            <td>{{ order.startDate | date }}</td>
+            <td>{{ order.estimatedDate | date }}</td>
+            <td><button mat-icon-button (click)="goToOrder(order.id)"><mat-icon>search</mat-icon></button></td>
+          </tr>
+          </tbody>
+        </table>
+      </div>
     </mat-card>
-  }
+
+    <mat-card class="tasks-card">
+      <div class="section-heading">
+        <h3>{{ 'vehicleDetail.relatedTasks' | translate }}</h3>
+        <p>{{ 'vehicleDetail.taskDescription' | translate }}</p>
+      </div>
+      <div *ngIf="relatedTasks().length" class="task-list">
+        <div *ngFor="let task of relatedTasks()" class="task-item">
+          <div>
+            <h4>{{ task.description }}</h4>
+            <p>{{ 'vehicleDetail.orderLabel' | translate }} #{{ task.workOrderId }}</p>
+          </div>
+          <span class="custom-badge" [ngClass]="getTaskSeverity(task.status)">{{ getStatusLabel(task.status, 'taskStatus') }}</span>
+        </div>
+      </div>
+      <div *ngIf="!relatedTasks().length" class="mini-empty">{{ 'vehicleDetail.noTasks' | translate }}</div>
+    </mat-card>
+  </div>
 </section>

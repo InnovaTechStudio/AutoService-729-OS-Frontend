@@ -1,292 +1,142 @@
+import { Component, computed, inject, OnInit, signal, TemplateRef, ViewChild } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { Component, computed, inject, OnInit, signal } from '@angular/core';
-
+import { FormsModule } from '@angular/forms';
 import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
+import { MatDialog, MatDialogModule } from '@angular/material/dialog';
+import { MatInputModule } from '@angular/material/input';
+import { MatSelectModule } from '@angular/material/select';
+import { TranslatePipe, TranslateService } from '@ngx-translate/core';
 
-import { TaskStore } from '../../../workshop-operations/application/task.store';
-import { Task } from '../../../workshop-operations/domain/models/work-order.model';
 import { MechanicStore } from '../../application/mechanic.store';
+import { AuthState } from '../../../auth/application/auth.state';
 import { Mechanic } from '../../domain/models/mechanic.model';
-import { MechanicCardComponent, MechanicCardView } from './components/mechanic-card/mechanic-card';
-import { MechanicDialogComponent } from './components/mechanic-dialog/mechanic-dialog';
 import { MechanicFiltersComponent } from './components/mechanic-filters/mechanic-filters';
-import { TranslatePipe } from '@ngx-translate/core';
+import { MechanicCardComponent } from './components/mechanic-card/mechanic-card';
 
-/**
- * MechanicsViewComponent
- *
- * Main standalone view for managing workshop mechanics.
- *
- * It connects the mechanic and task stores with the UI, providing mechanic
- * listing, filtering, workload calculation, effectiveness metrics, and dialog
- * actions for creating, editing, and deleting mechanics.
- *
- * @component
- * @standalone
- * @selector app-mechanics-view
- */
 @Component({
   selector: 'app-mechanics-view',
   standalone: true,
   imports: [
     CommonModule,
+    FormsModule,
     MatButtonModule,
     MatIconModule,
+    MatDialogModule,
+    MatInputModule,
+    MatSelectModule,
     MechanicFiltersComponent,
     MechanicCardComponent,
-    MechanicDialogComponent,
     TranslatePipe,
   ],
   templateUrl: './mechanics-view.html',
   styleUrl: './mechanics-view.css',
 })
 export class MechanicsViewComponent implements OnInit {
-  /**
-   * Store responsible for managing mechanic data.
-   */
-  protected readonly mechanicStore = inject(MechanicStore);
+  mechanicStore = inject(MechanicStore);
+  authState = inject(AuthState);
+  private dialog = inject(MatDialog);
+  public translate = inject(TranslateService);
 
-  /**
-   * Store responsible for managing workshop task data.
-   */
-  protected readonly taskStore = inject(TaskStore);
+  @ViewChild('mechanicDialog') mechanicDialogTemplate!: TemplateRef<any>;
 
-  protected readonly displayDialog = signal(false);
-  protected readonly search = signal('');
-  protected readonly selectedSpecialty = signal<string | null>(null);
+  mechanicForm = signal<Mechanic>(this.getEmptyMechanic());
+  search = signal('');
+  selectedSpecialty = signal<string | null>(null);
 
-  /**
-   * Mechanic model used by the create and edit dialog form.
-   */
-  protected mechanicForm: Mechanic = this.getEmptyMechanic();
+  specialtyOptions = computed(() => [
+    this.translate.instant('mechanics.specialties.general'),
+    this.translate.instant('mechanics.specialties.electrical'),
+    this.translate.instant('mechanics.specialties.brakes'),
+    this.translate.instant('mechanics.specialties.tires'),
+  ]);
 
-  /**
-   * Available mechanic specialties displayed in the filter and form controls.
-   */
-  protected readonly specialtyOptions = [
-    'Mecánica General',
-    'Electricidad',
-    'Planchado y Pintura',
-    'Electrónica',
-    'Frenos y Suspensión',
-    'Motor y Transmisión',
-  ];
+  adminDomain = computed(() => {
+    const email = this.authState.currentUser()?.email;
+    if (!email) return '@taller.com';
+    return `@${email.split('@')[1]}`;
+  });
 
-  /**
-   * Computed mechanic view models enriched with workload and effectiveness data.
-   */
-  protected readonly mechanicsView = computed<MechanicCardView[]>(() =>
-    this.mechanicStore.mechanics().map((mechanic) => {
-      const maxCapacity = Number(mechanic.maxCapacity || 5);
-      const activeTasks = this.getActiveTasksCount(String(mechanic.id));
-      const loadPercentage = this.calculateLoadPercentage(String(mechanic.id), maxCapacity);
-
-      return {
-        id: String(mechanic.id),
-        raw: mechanic,
-        fullName: mechanic.fullName,
-        specialty: mechanic.specialty || 'Mecánica General',
-        maxCapacity,
-        activeTasks,
-        loadPercentage,
-        workloadStatus: this.getWorkloadStatus(loadPercentage),
-        loadClass: this.getLoadClass(loadPercentage),
-        effectiveness: this.calculateEffectiveness(String(mechanic.id)),
-      };
-    }),
-  );
-
-  /**
-   * Computed list of mechanics filtered by search term and selected specialty.
-   */
-  protected readonly filteredMechanics = computed(() => {
+  filteredMechanics = computed(() => {
     const term = this.search().toLowerCase().trim();
-    const selectedSpecialty = this.selectedSpecialty();
-
-    return this.mechanicsView().filter((mechanic) => {
+    return this.mechanicStore.mechanics().filter((m) => {
       const matchesSearch =
-        !term ||
-        mechanic.fullName.toLowerCase().includes(term) ||
-        mechanic.specialty.toLowerCase().includes(term);
-
-      const matchesSpecialty = !selectedSpecialty || mechanic.specialty === selectedSpecialty;
-
+        !term || m.fullName?.toLowerCase().includes(term) || m.email?.toLowerCase().includes(term);
+      const matchesSpecialty =
+        !this.selectedSpecialty() || m.specialty === this.selectedSpecialty();
       return matchesSearch && matchesSpecialty;
     });
   });
 
-  /**
-   * Number of mechanics with available workload capacity.
-   */
-  protected readonly availableMechanics = computed(
-    () => this.mechanicsView().filter((mechanic) => mechanic.loadPercentage < 70).length,
-  );
-
-  /**
-   * Number of mechanics with high workload.
-   */
-  protected readonly highLoadMechanics = computed(
-    () => this.mechanicsView().filter((mechanic) => mechanic.loadPercentage >= 70).length,
-  );
-
-  /**
-   * Loads mechanics and tasks when the view is initialized.
-   */
-  ngOnInit(): void {
+  ngOnInit() {
     this.mechanicStore.loadMechanics();
+  }
 
-    if (this.taskStore.tasks().length === 0) {
-      this.taskStore.loadAllTasks();
+  openNew() {
+    this.mechanicForm.set(this.getEmptyMechanic());
+    this.mechanicStore.error.set(null);
+    this.dialog.open(this.mechanicDialogTemplate, {
+      width: '450px',
+      panelClass: 'custom-dialog-container',
+    });
+  }
+
+  openEdit(mech: Mechanic) {
+    this.mechanicForm.set({ ...mech });
+    this.mechanicStore.error.set(null);
+    this.dialog.open(this.mechanicDialogTemplate, {
+      width: '450px',
+      panelClass: 'custom-dialog-container',
+    });
+  }
+
+  hideDialog() {
+    this.dialog.closeAll();
+    this.mechanicStore.error.set(null);
+  }
+
+  async confirmDelete(mech: Mechanic) {
+    const confirmed = window.confirm(
+      this.translate.instant('mechanics.confirm.delete', { name: mech.fullName }),
+    );
+    if (!confirmed || !mech.id) return;
+    await this.mechanicStore.deleteMechanic(mech.id);
+  }
+
+  async saveMechanic() {
+    this.mechanicStore.error.set(null);
+    try {
+      const mech = this.mechanicForm();
+      if (mech.id) {
+        await this.mechanicStore.updateMechanic(mech.id, mech);
+        this.hideDialog();
+        return;
+      }
+
+      const hasRequiredFields = mech.fullName && mech.username && mech.password;
+      if (!hasRequiredFields) return;
+
+      const fullEmail = `${mech.username!.trim()}${this.adminDomain()}`;
+      const payload: Mechanic = {
+        fullName: mech.fullName,
+        specialty: mech.specialty,
+        maxCapacity: mech.maxCapacity,
+        email: fullEmail,
+        password: mech.password,
+      };
+
+      await this.mechanicStore.addMechanic(payload);
+      this.hideDialog();
+    } catch (error: any) {
+      if (error?.status === 400) {
+        this.mechanicStore.error.set(this.translate.instant('mechanics.errors.invalidData'));
+      } else {
+        this.mechanicStore.error.set(this.translate.instant('mechanics.errors.server'));
+      }
     }
   }
 
-  protected onSearchChange(value: string): void {
-    this.search.set(value);
-  }
-
-  protected onSpecialtyChange(value: string | null): void {
-    this.selectedSpecialty.set(value);
-  }
-
-  /**
-   * Opens the dialog with an empty mechanic form.
-   */
-  protected openDialog(): void {
-    this.mechanicForm = this.getEmptyMechanic();
-    this.displayDialog.set(true);
-  }
-
-  /**
-   * Opens the dialog with the selected mechanic data.
-   *
-   * @param mechanic - Mechanic selected for editing.
-   */
-  protected editMechanic(mechanic: Mechanic): void {
-    this.mechanicForm = {
-      ...mechanic,
-      maxCapacity: mechanic.maxCapacity || 5,
-      status: mechanic.status || 'Disponible',
-    };
-    this.displayDialog.set(true);
-  }
-
-  /**
-   * Closes the dialog and resets the mechanic form.
-   */
-  protected hideDialog(): void {
-    this.displayDialog.set(false);
-    this.mechanicForm = this.getEmptyMechanic();
-  }
-
-  /**
-   * Saves the mechanic form by creating a new mechanic or updating an existing one.
-   */
-  protected saveMechanic(): void {
-    if (!this.mechanicForm.fullName || !this.mechanicForm.specialty) {
-      return;
-    }
-
-    if (this.mechanicForm.id) {
-      this.mechanicStore.updateMechanic(this.mechanicForm.id, this.mechanicForm);
-    } else {
-      this.mechanicStore.addMechanic(this.mechanicForm);
-    }
-
-    this.hideDialog();
-  }
-
-  /**
-   * Deletes the selected mechanic after user confirmation.
-   *
-   * @param mechanic - Mechanic selected for deletion.
-   */
-  protected deleteMechanic(mechanic: Mechanic): void {
-    if (!mechanic.id) {
-      return;
-    }
-
-    const confirmed = window.confirm(`¿Eliminar a ${mechanic.fullName}?`);
-
-    if (!confirmed) {
-      return;
-    }
-
-    this.mechanicStore.deleteMechanic(mechanic.id);
-  }
-
-  /**
-   * Gets the number of active tasks assigned to a mechanic.
-   *
-   * @param mechanicId - Identifier of the mechanic.
-   * @returns Number of assigned tasks that are not completed.
-   */
-  private getActiveTasksCount(mechanicId: string): number {
-    return this.taskStore
-      .tasks()
-      .filter(
-        (task) => String(task.mechanicId) === String(mechanicId) && task.status !== 'Completada',
-      ).length;
-  }
-
-  /**
-   * Calculates the mechanic workload percentage based on active tasks and capacity.
-   *
-   * @param mechanicId - Identifier of the mechanic.
-   * @param maxCapacity - Maximum task capacity of the mechanic.
-   * @returns Workload percentage limited to a maximum of 100.
-   */
-  private calculateLoadPercentage(mechanicId: string, maxCapacity: number): number {
-    const max = Number(maxCapacity) || 1;
-    const count = this.getActiveTasksCount(mechanicId);
-
-    return Math.min(Math.round((count / max) * 100), 100);
-  }
-
-  private getWorkloadStatus(loadPercentage: number): string {
-    if (loadPercentage >= 100) return 'Al máximo';
-    if (loadPercentage >= 70) return 'Carga alta';
-    return 'Disponible';
-  }
-
-  private getLoadClass(loadPercentage: number): string {
-    if (loadPercentage >= 100) return 'load-high';
-    if (loadPercentage >= 70) return 'load-medium';
-    return 'load-low';
-  }
-
-  /**
-   * Calculates the effectiveness percentage of a mechanic.
-   *
-   * @param mechanicId - Identifier of the mechanic.
-   * @returns Percentage of completed tasks assigned to the mechanic.
-   */
-  private calculateEffectiveness(mechanicId: string): number {
-    const mechanicTasks: Task[] = this.taskStore
-      .tasks()
-      .filter((task) => String(task.mechanicId) === String(mechanicId));
-
-    if (!mechanicTasks.length) {
-      return 0;
-    }
-
-    const completed = mechanicTasks.filter((task) => task.status === 'Completada').length;
-
-    return Math.round((completed / mechanicTasks.length) * 100);
-  }
-
-  /**
-   * Creates an empty mechanic model with default values.
-   *
-   * @returns Default mechanic object used by the dialog form.
-   */
   private getEmptyMechanic(): Mechanic {
-    return {
-      fullName: '',
-      specialty: 'Mecánica General',
-      phone: '',
-      status: 'Disponible',
-      maxCapacity: 5,
-    };
+    return { fullName: '', specialty: '', maxCapacity: 3, username: '', password: '' };
   }
 }

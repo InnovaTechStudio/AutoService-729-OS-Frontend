@@ -1,101 +1,39 @@
 <section class="tasks-page">
-  <div class="tasks-header">
-    <div>
-      <span class="eyebrow">{{ 'taskBoard.section' | translate}}</span>
-      <h1>{{ 'taskBoard.title' | translate}}</h1>
-      <p>
-        {{ 'taskBoard.description' | translate}}      </p>
-    </div>
+  <div class="page-header">
+    <span class="eyebrow">Control de Calidad</span>
+    <h1>Revisión de Tareas</h1>
+    <p>Aprueba o rechaza las tareas que los mecánicos han marcado como completadas.</p>
+  </div>
 
-    <div class="header-actions">
-      <button
-        mat-icon-button
-        type="button"
-        [disabled]="taskStore.isLoading()"
-        (click)="loadAllData()">
-        <mat-icon [class.spin]="taskStore.isLoading()">refresh</mat-icon>
-      </button>
+  <div *ngIf="taskStore.loading()" class="empty-state">
+    <mat-icon class="spin">refresh</mat-icon>
+    <p>Cargando tareas...</p>
+  </div>
 
-      <button
-        mat-flat-button
-        color="primary"
-        type="button"
-        class="add-button"
-        (click)="openDialog()">
-        <mat-icon>add</mat-icon>
-        {{ 'taskBoard.newTask' | translate}}
-      </button>
+  <div *ngIf="!taskStore.loading() && tasksToReview().length" class="tasks-grid">
+    <div *ngFor="let task of tasksToReview()" class="review-card">
+      <div class="card-top">
+        <span class="order-badge">Orden: {{ task.orderCode }}</span>
+        <span class="mechanic-name"><mat-icon>person</mat-icon> {{ task.mechanicName }}</span>
+      </div>
+
+      <h3>{{ task.description }}</h3>
+
+      <div class="details-box">
+        <strong>Explicación del Mecánico:</strong>
+        <p>{{ task.customerExplanation || 'Sin observaciones detalladas.' }}</p>
+      </div>
+
+      <div class="actions">
+        <button mat-stroked-button color="warn" (click)="rejectTask(task.id)">Rechazar</button>
+        <button mat-flat-button style="background: #16a34a; color: white;" (click)="approveTask(task.id)">Aprobar Tarea</button>
+      </div>
     </div>
   </div>
 
-  <div class="summary-row">
-    <div class="summary-card">
-      <span>{{ 'taskBoard.stats.totalTasks' | translate}}</span>
-      <strong>{{ taskStore.tasks().length }}</strong>
-    </div>
-
-    <div class="summary-card">
-      <span>{{ 'taskBoard.stats.pending' | translate}}</span>
-      <strong>{{ pendingTasks() }}</strong>
-    </div>
-
-    <div class="summary-card">
-      <span>{{ 'taskBoard.stats.inProgress' | translate}}</span>
-      <strong>{{ inProgressTasks() }}</strong>
-    </div>
-
-    <div class="summary-card success">
-      <span>{{ 'taskBoard.stats.completed' | translate}}</span>
-      <strong>{{ completedTasks() }}</strong>
-    </div>
+  <div *ngIf="!taskStore.loading() && tasksToReview().length === 0" class="empty-state">
+    <mat-icon style="color: #16a34a;">check_circle</mat-icon>
+    <h3>Todo al día</h3>
+    <p>No hay tareas pendientes de revisión.</p>
   </div>
-
-  <app-task-filters
-    [search]="search()"
-    [status]="selectedStatus()"
-    [mechanicId]="selectedMechanicId()"
-    [statusOptions]="statusOptions"
-    [mechanicOptions]="mechanicStore.mechanics()"
-    (searchChange)="onSearchChange($event)"
-    (statusChange)="onStatusFilterChange($event)"
-    (mechanicIdChange)="onMechanicFilterChange($event)">
-  </app-task-filters>
-
-  @if (taskStore.isLoading()) {
-    <div class="empty-state">
-      <mat-icon class="spin">sync</mat-icon>
-      <p>Cargando tareas...</p>
-    </div>
-  } @else if (filteredTasks().length) {
-    <div class="tasks-grid">
-      @for (task of filteredTasks(); track task.id) {
-        <app-task-card
-          [task]="task"
-          [statusOptions]="statusOptions"
-          (statusChange)="onStatusChange($event)"
-          (edit)="editTask($event)"
-          (delete)="deleteTask($event)"
-          (goOrder)="goToWorkOrder($event)">
-        </app-task-card>
-      }
-    </div>
-  } @else {
-    <div class="empty-state">
-      <mat-icon>checklist</mat-icon>
-      <h3>No se encontraron tareas</h3>
-      <p>Prueba cambiando filtros o registra una nueva tarea.</p>
-    </div>
-  }
-
-  @if (displayDialog()) {
-    <app-task-dialog
-      [task]="taskForm"
-      [workOrderOptions]="workOrderStore.workOrders()"
-      [mechanicOptions]="mechanicStore.mechanics()"
-      [statusOptions]="statusOptions"
-      [priorityOptions]="priorityOptions"
-      (save)="saveTask()"
-      (cancel)="hideDialog()">
-    </app-task-dialog>
-  }
 </section>

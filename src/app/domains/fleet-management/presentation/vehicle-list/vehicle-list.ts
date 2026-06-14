@@ -1,40 +1,24 @@
-/**
- * VehicleListComponent
- *
- * Main component for managing and displaying the vehicle list
- * from the workshop. It allows:
- * - Display all vehicles in card format (`VehicleCardComponent`)
- * - Filter by textual search and status
- * - Create new vehicles
- * - Edit existing vehicles through a modal
- * - Navigate to the detail of each vehicle
- *
- * Uses Signals and `computed()` to manage the state and filters in a
- * reactive and efficient manner.
- *
- * @component
- * @selector app-vehicle-list
- * @standalone true
- */
-
-import { CommonModule } from '@angular/common';
 import { Component, computed, inject, OnInit, signal, TemplateRef, ViewChild } from '@angular/core';
+import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { Router } from '@angular/router';
-
 import { MatButtonModule } from '@angular/material/button';
 import { MatDialog, MatDialogModule } from '@angular/material/dialog';
-import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatIconModule } from '@angular/material/icon';
-import { MatInputModule } from '@angular/material/input';
 import { MatSelectModule } from '@angular/material/select';
+import { TranslatePipe, TranslateService } from '@ngx-translate/core';
 
 import { CustomerStore } from '../../../customer-management/application/customer.store';
 import { VehicleStore } from '../../application/vehicle.store';
+import { WorkOrderStore } from '../../../workshop-operations/application/work-order.store';
+import { TaskStore } from '../../../workshop-operations/application/task.store';
 import { Vehicle } from '../../domain/models/vehicle.model';
-import { VehicleCardComponent, VehicleCardView } from './components/vehicle-card/vehicle-card';
+import { VehicleCardComponent } from './components/vehicle-card/vehicle-card';
 import { VehicleFiltersComponent } from './components/vehicle-filters/vehicle-filters';
-import { TranslatePipe } from '@ngx-translate/core';
+
+const VEHICLE_STATUS = { IN_WORKSHOP: 'IN_WORKSHOP', READY: 'READY', DELIVERED: 'DELIVERED' };
+const ORDER_STATUS = { FINISHED: 'FINISHED', DELIVERED: 'DELIVERED', CANCELLED: 'CANCELLED' };
+const REVIEW_STATUS = { APPROVED: 'APPROVED' };
 
 @Component({
   selector: 'app-vehicle-list',
@@ -45,8 +29,6 @@ import { TranslatePipe } from '@ngx-translate/core';
     MatButtonModule,
     MatIconModule,
     MatDialogModule,
-    MatInputModule,
-    MatFormFieldModule,
     MatSelectModule,
     VehicleCardComponent,
     VehicleFiltersComponent,
@@ -56,195 +38,221 @@ import { TranslatePipe } from '@ngx-translate/core';
   styleUrl: './vehicle-list.css',
 })
 export class VehicleListComponent implements OnInit {
-  protected readonly vehicleStore = inject(VehicleStore);
-  protected readonly customerStore = inject(CustomerStore);
-  private readonly dialog = inject(MatDialog);
-  private readonly router = inject(Router);
+  vehicleStore = inject(VehicleStore);
+  customerStore = inject(CustomerStore);
+  workOrderStore = inject(WorkOrderStore);
+  taskStore = inject(TaskStore);
 
-  /** Reference to the template of the vehicle creation/editing modal */
-  @ViewChild('vehicleDialog') vehicleDialogTemplate!: TemplateRef<unknown>;
+  private dialog = inject(MatDialog);
+  private router = inject(Router);
+  public translate = inject(TranslateService);
 
-  /** Current vehicle being created or edited */
-  protected currentVehicle: Vehicle = this.getEmptyVehicle();
-  protected isEditing = false;
+  @ViewChild('vehicleDialog') vehicleDialogTemplate!: TemplateRef<any>;
 
-  /** Search term entered by the user */
-  protected readonly search = signal('');
+  vehicle = signal<Vehicle>(this.getEmptyVehicle());
+  isEditing = signal(false);
 
-  /** Selected status for filtering vehicles */
-  protected readonly selectedStatus = signal<string | null>(null);
+  search = signal('');
+  selectedStatus = signal<string | null>(null);
+  selectedSort = signal<string | null>(null);
 
-  /** Available options for filtering by status */
-  protected readonly statusOptions = ['En Taller', 'Listo', 'Entregado'];
+  statusOptions = computed(() => [
+    {
+      label: this.translate.instant('vehicles.statusOptions.in_workshop'),
+      value: VEHICLE_STATUS.IN_WORKSHOP,
+    },
+    { label: this.translate.instant('vehicles.statusOptions.ready'), value: VEHICLE_STATUS.READY },
+    {
+      label: this.translate.instant('vehicles.statusOptions.delivered'),
+      value: VEHICLE_STATUS.DELIVERED,
+    },
+  ]);
 
-  /** Backup vehicle images (Unsplash) */
-  private readonly carImages = [
+  sortOptions = computed(() => [
+    { label: this.translate.instant('vehicles.sortOptions.progressDesc'), value: 'progress-desc' },
+    { label: this.translate.instant('vehicles.sortOptions.progressAsc'), value: 'progress-asc' },
+  ]);
+
+  carImages = [
     'https://images.unsplash.com/photo-1552519507-da3b142c6e3d?w=500&auto=format&fit=crop',
     'https://images.unsplash.com/photo-1542362567-b07e54358753?w=500&auto=format&fit=crop',
     'https://images.unsplash.com/photo-1492144534655-ae79c964c9d7?w=500&auto=format&fit=crop',
     'https://images.unsplash.com/photo-1503376780353-7e6692767b70?w=500&auto=format&fit=crop',
   ];
 
-  /** Enriched view of the vehicles to display in the cards */
-  protected readonly vehiclesView = computed<VehicleCardView[]>(() =>
-    this.vehicleStore.vehicles().map((item, index) => ({
-      id: String(item.id ?? index),
-      raw: item,
-      name: `${item.brand || 'Vehículo'} ${item.model || ''}`,
-      plate: item.plate || 'Sin placa',
-      owner: this.getCustomerName(item.customerId),
-      status: item.status || 'En Taller',
-      progress: this.getProgress(item.status),
-      year: item.year || 'N/A',
-      color: item.color || 'N/A',
-      image: this.carImages[index % this.carImages.length],
-    })),
-  );
+  async ngOnInit() {
+    try {
+      await Promise.all([
+        this.customerStore.loadCustomers(),
+        this.vehicleStore.loadVehicles(),
+        this.workOrderStore.loadWorkOrders(),
+        this.taskStore.loadAllTasks(),
+      ]);
+    } catch (e) {
+      console.error(e);
+    }
+  }
 
-  /** Filtered list of vehicles based on search and status */
-  protected readonly filteredVehicles = computed(() => {
+  getCustomerName(id: string | number | null): string {
+    const customer = this.customerStore.customers().find((c) => String(c.id) === String(id));
+    return customer ? customer.fullName : this.translate.instant('common.noAssigned');
+  }
+
+  getSeverity(status: string): string {
+    switch (status) {
+      case VEHICLE_STATUS.IN_WORKSHOP:
+        return 'info';
+      case VEHICLE_STATUS.READY:
+        return 'success';
+      case VEHICLE_STATUS.DELIVERED:
+        return 'secondary';
+      default:
+        return 'warning';
+    }
+  }
+
+  getStatusLabel(status: string): string {
+    const key = String(status).toLowerCase();
+    return this.translate.instant(`vehicles.statusOptions.${key}`);
+  }
+
+  getProgress(vehicleId: string | number, status: string): number {
+    if ([VEHICLE_STATUS.READY, VEHICLE_STATUS.DELIVERED].includes(status)) return 100;
+
+    const activeOrder = this.workOrderStore
+      .workOrders()
+      .find(
+        (o) =>
+          String(o.vehicleId) === String(vehicleId) &&
+          ![ORDER_STATUS.FINISHED, ORDER_STATUS.DELIVERED, ORDER_STATUS.CANCELLED].includes(
+            o.status,
+          ),
+      );
+    if (!activeOrder) return 0;
+
+    const orderTasks = this.taskStore
+      .tasks()
+      .filter((t) => String(t.workOrderId) === String(activeOrder.id));
+    if (!orderTasks.length) return 0;
+
+    const approvedTasks = orderTasks.filter(
+      (t) => (t as any).adminReviewStatus === REVIEW_STATUS.APPROVED,
+    ).length;
+    return Math.round((approvedTasks / orderTasks.length) * 100);
+  }
+
+  vehiclesView = computed(() => {
+    return this.vehicleStore.vehicles().map((item, index) => {
+      const rawStatus = item.status || VEHICLE_STATUS.IN_WORKSHOP;
+      return {
+        id: item.id,
+        raw: item,
+        name: `${item.brand} ${item.model || ''}`,
+        plate: item.plate,
+        owner: this.getCustomerName(item.customerId),
+        status: this.getStatusLabel(rawStatus),
+        rawStatus: rawStatus,
+        severity: this.getSeverity(rawStatus),
+        progress: this.getProgress(item.id!, rawStatus),
+        year: item.year || 'N/A',
+        color: item.color || 'N/A',
+        image: item.image || this.carImages[index % this.carImages.length],
+      };
+    });
+  });
+
+  filteredVehicles = computed(() => {
     const term = this.search().toLowerCase().trim();
-    const selectedStatus = this.selectedStatus();
-
-    return this.vehiclesView().filter((item) => {
+    let result = this.vehiclesView().filter((item) => {
       const matchesSearch =
         !term ||
         item.name.toLowerCase().includes(term) ||
         item.plate.toLowerCase().includes(term) ||
         item.owner.toLowerCase().includes(term);
-
-      const matchesStatus = !selectedStatus || item.status === selectedStatus;
-
+      const matchesStatus = !this.selectedStatus() || item.rawStatus === this.selectedStatus();
       return matchesSearch && matchesStatus;
     });
+
+    if (this.selectedSort() === 'progress-desc') {
+      result.sort((a, b) => b.progress - a.progress);
+    } else if (this.selectedSort() === 'progress-asc') {
+      result.sort((a, b) => a.progress - b.progress);
+    }
+    return result;
   });
 
-  /** Count of vehicles currently in the workshop */
-  protected readonly vehiclesInWorkshop = computed(
-    () => this.vehicleStore.vehicles().filter((vehicle) => vehicle.status === 'En Taller').length,
+  activeVehicleCount = computed(
+    () =>
+      this.vehicleStore.vehicles().filter((v) => v.status === VEHICLE_STATUS.IN_WORKSHOP).length,
+  );
+  readyVehicleCount = computed(
+    () => this.vehicleStore.vehicles().filter((v) => v.status === VEHICLE_STATUS.READY).length,
   );
 
-  /** Count of vehicles ready for delivery */
-  protected readonly readyVehicles = computed(
-    () => this.vehicleStore.vehicles().filter((vehicle) => vehicle.status === 'Listo').length,
-  );
-
-  ngOnInit(): void {
-    this.vehicleStore.loadVehicles();
-
-    // Load clients only if they are not loaded
-    if (this.customerStore.customers().length === 0) {
-      this.customerStore.loadCustomers();
-    }
+  openNew() {
+    this.vehicle.set(this.getEmptyVehicle());
+    this.isEditing.set(false);
+    this.dialog.open(this.vehicleDialogTemplate, {
+      width: '40rem',
+      panelClass: 'custom-dialog-container',
+    });
   }
 
-  /**
-   * Updates the search term.
-   * @param value - Text entered in the search field
-   */
-  protected onSearchChange(value: string): void {
-    this.search.set(value);
-  }
-
-  /**
-   * Updates the selected status filter.
-   * @param value - Selected status
-   */
-  protected onStatusChange(value: string | null): void {
-    this.selectedStatus.set(value);
-  }
-
-  /**
-   * Opens the modal to register a new vehicle.
-   */
-  protected openNewDialog(): void {
-    this.currentVehicle = this.getEmptyVehicle();
-    this.isEditing = false;
-    this.dialog.open(this.vehicleDialogTemplate, { width: '560px' });
-  }
-
-  /**
-   * Opens the modal to edit an existing vehicle.
-   * @param vehicle - Vehicle to edit
-   */
-  protected editVehicle(vehicle: Vehicle): void {
-    this.currentVehicle = { ...vehicle };
-    this.isEditing = true;
-    this.dialog.open(this.vehicleDialogTemplate, { width: '560px' });
-  }
-
-  /**
-   * Closes the creation/editing modal.
-   */
-  protected closeDialog(): void {
+  hideDialog() {
     this.dialog.closeAll();
   }
 
-  /**
-   * Saves or updates a vehicle based on the mode (create or edit).
-   */
-  protected saveVehicle(): void {
-    if (!this.currentVehicle.plate || !this.currentVehicle.customerId) {
-      return;
-    }
-
-    if (this.isEditing && this.currentVehicle.id) {
-      this.vehicleStore.updateVehicle(this.currentVehicle.id, this.currentVehicle);
-    } else {
-      this.vehicleStore.addVehicle(this.currentVehicle);
-    }
-
-    this.closeDialog();
+  editVehicleItem(selectedVehicle: Vehicle) {
+    this.vehicle.set({ ...selectedVehicle, imageFile: null });
+    this.isEditing.set(true);
+    this.dialog.open(this.vehicleDialogTemplate, {
+      width: '40rem',
+      panelClass: 'custom-dialog-container',
+    });
   }
 
-  /**
-   * Browse to the complete details of the selected vehicle.
-   * @param vehicle - View of the selected vehicle
-   */
-  protected goToVehicleDetails(vehicle: VehicleCardView): void {
-    this.router.navigate(['/admin/vehicles', vehicle.id]);
-  }
-
-  /**
-   * Gets the name of the owner client.
-   * @param customerId - ID of the client
-   * @returns Full name or "Not assigned"
-   */
-  protected getCustomerName(customerId: string): string {
-    const customer = this.customerStore
-      .customers()
-      .find((item) => String(item.id) === String(customerId));
-
-    return customer ? customer.fullName : 'No asignado';
-  }
-
-  /**
-   * Returns the progress percentage based on the vehicle's status.
-   */
-  private getProgress(status: string): number {
-    switch (status) {
-      case 'En Taller':
-        return 65;
-      case 'Listo':
-      case 'Entregado':
-        return 100;
-      default:
-        return 15;
+  async saveVehicle() {
+    try {
+      const v = this.vehicle();
+      if (v.plate && v.customerId) {
+        if (v.id) {
+          await this.vehicleStore.updateVehicle(v.id, v);
+        } else {
+          await this.vehicleStore.addVehicle(v);
+        }
+        this.hideDialog();
+      }
+    } catch (error) {
+      console.error(error);
     }
   }
 
-  /**
-   * Returns an empty Vehicle object to initialize forms.
-   */
+  handleImageUpload(event: any) {
+    const file = event.target.files[0];
+    if (!file) return;
+
+    const reader = new FileReader();
+    reader.onload = () => {
+      this.vehicle.update((v) => ({ ...v, imageFile: file, image: reader.result as string }));
+    };
+    reader.readAsDataURL(file);
+  }
+
+  viewVehicleDetail(selectedVehicle: Vehicle) {
+    this.router.navigate([`/admin/vehicles/${selectedVehicle.id}`]);
+  }
+
   private getEmptyVehicle(): Vehicle {
     return {
+      status: VEHICLE_STATUS.IN_WORKSHOP,
       plate: '',
       brand: '',
       model: '',
       year: '',
       color: '',
-      status: 'En Taller',
-      customerId: '',
+      image: '',
+      imageFile: null,
+      customerId: null,
     };
   }
 }

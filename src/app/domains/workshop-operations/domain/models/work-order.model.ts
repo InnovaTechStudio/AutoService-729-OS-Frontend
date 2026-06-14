@@ -1,113 +1,18 @@
-/**
- * Domain models for Work Orders and Tasks.
- *
- * Contains the main interfaces related to the workflow
- * in the mechanical workshop.
- *
- * @module WorkOrder Models
- */
-
-/**
- * Represents a Work Order in the workshop.
- *
- * It is the main document that records the entry of a vehicle
- * and groups all associated tasks.
- *
- * @interface
- * @model
- */
 export interface WorkOrder {
-
-  /** Unique ID of the work order */
-  id?: string;
-
-  /** ID of the workshop to which it belongs */
-  workshopId?: string;
-
-  /** Unique tracking code */
+  id?: string | number;
   trackingCode?: string;
-
-  /** ID of the vehicle to which the order corresponds */
-  vehicleId: string;
-
-  /** ID of the owner customer */
-  customerId: string;
-
-  /** Detailed description of the problem reported or work requested */
-  description: string;
-
-  /** Current status of the order */
-  status: 'Pendiente' | 'En Proceso' | 'Finalizado' | 'Cancelado';
-
-  /** Start date of the order */
-  startDate: string;
-
-  /** Estimated completion date */
-  estimatedDate: string;
-
-  /** Total estimated or agreed price */
-  price?: number;
-}
-
-/**
- * Represents an individual Task within a Work Order.
- *
- * @interface
- * @model
- */
-/**
- * Represents an individual Task within a Work Order.
- *
- * @interface
- * @model
- */
-export interface Task {
-
-  /** Unique ID of the task */
-  id?: string;
-
-  /** ID of the workshop */
-  workshopId?: string;
-
-  /** ID of the work order to which this task belongs */
-  workOrderId: string;
-
-  /** Detailed description of the task */
-  description: string;
-
-  /** Current status of the task */
-  status: 'Pendiente' | 'En Proceso' | 'Completada';
-
-  /** ID of the mechanic assigned to the task */
-  mechanicId: string;
-
-  /** Priority level of the task */
-  priority?: 'Baja' | 'Media' | 'Alta' | 'Crítica';
-
-  /** Estimated time in hours */
-  estimatedTime?: number;
-
-  /** Optional evidence photo of the task */
-  photo?: string;
-
-  /** Technical diagnosis written by the mechanic */
-  technicalDiagnosis?: string;
-
-  /** Customer-friendly explanation generated from the mechanic diagnosis */
-  customerExplanation?: string;
-
-  /** Internal observation for the administrator */
-  internalObservation?: string;
-
-  /** Indicates whether the mechanic registered simulated evidence */
-  evidenceRegistered?: boolean;
-
-  /** Indicates if the mechanic update was sent to admin review */
-  adminReviewStatus?: 'Sin enviar' | 'Enviado al Administrador';
-
-  /** Indicates if the customer explanation is visible for the customer */
-  customerReportStatus?: 'No visible' | 'Visible para Cliente';
-
-  /** Date and time when the mechanic completed the task */
-  completedAt?: string;
+  status: string; // 'PENDING', 'IN_PROGRESS', 'FINISHED', 'DELIVERED', 'CANCELLED'
+  startDate: string | Date;
+  estimatedDate?: string | Date;
+  price: number;
+  vehicleId: string | number;
+  workshopId?: string | number;
+  customerId?: string | number;
+  mechanicId?: number | string;
+  description?: string;
+  tasksCompleted?: boolean;
+  sparePartsChecked?: boolean;
+  diagnosisValidated?: boolean;
+  cleaningDone?: boolean;
+  finalTestDone?: boolean;
 }

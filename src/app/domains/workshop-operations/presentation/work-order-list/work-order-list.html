@@ -1,72 +1,104 @@
 <section class="work-orders-page">
-  <div class="work-orders-header">
+  <div class="page-header">
     <div>
-      <span class="eyebrow">{{ ('workOrder.workshopOperation') | translate}}</span>
-      <h1>{{ ('workOrder.workOrders') | translate}}</h1>
-      <p>
-        {{ ('workOrder.workOrdersSubtitle') | translate}}      </p>
+      <span class="eyebrow">{{ 'workOrders.eyebrow' | translate }}</span>
+      <h1>{{ 'workOrders.title' | translate }}</h1>
+      <p>{{ 'workOrders.description' | translate }}</p>
     </div>
-
-    <button
-      mat-flat-button
-      color="primary"
-      type="button"
-      class="add-button"
-      (click)="goToCreateOrder()">
+    <button mat-flat-button class="add-btn" (click)="goToCreate()">
       <mat-icon>add</mat-icon>
-      {{ ('workOrder.newOrder') | translate}}
+      {{ 'workOrders.newOrder' | translate }}
     </button>
   </div>
 
-  <div class="summary-row">
-    <div class="summary-card">
-      <span>{{ ('workOrder.totalOrders') | translate}}</span>
-      <strong>{{ workOrderStore.workOrders().length }}</strong>
+  <div class="toolbar">
+    <div class="search-box">
+      <mat-icon class="search-icon">search</mat-icon>
+      <input type="text" [ngModel]="searchQuery()" (ngModelChange)="searchQuery.set($event)" [placeholder]="'workOrders.searchPlaceholder' | translate" class="custom-search-input">
     </div>
 
-    <div class="summary-card">
-      <span>{{ ('workOrder.inProgress') | translate}}</span>
-      <strong>{{ activeOrders() }}</strong>
-    </div>
+    <mat-button-toggle-group [ngModel]="viewMode()" (ngModelChange)="viewMode.set($event)" class="custom-toggle-group">
+      <mat-button-toggle value="kanban"><mat-icon>view_column</mat-icon> Kanban</mat-button-toggle>
+      <mat-button-toggle value="list"><mat-icon>view_list</mat-icon> Lista</mat-button-toggle>
+    </mat-button-toggle-group>
+  </div>
 
-    <div class="summary-card warning">
-      <span>{{ ('workOrder.delayRisk') | translate}}</span>
-      <strong>{{ riskOrders() }}</strong>
-    </div>
+  <div *ngIf="workOrderStore.loading()" class="empty-state">
+    <mat-icon class="spin">refresh</mat-icon>
+    <p>Cargando órdenes de trabajo...</p>
+  </div>
 
-    <div class="summary-card">
-      <span>{{ ('workOrder.completed') | translate}}</span>
-      <strong>{{ completedOrders() }}</strong>
+  <div *ngIf="!workOrderStore.loading() && viewMode() === 'kanban'" class="kanban-board">
+    <div *ngFor="let col of columns" class="kanban-column">
+      <div class="column-header" [style.borderBottomColor]="col.color">
+        <h3>{{ col.title }}</h3>
+        <span class="count-badge" [style.backgroundColor]="col.bg" [style.color]="col.color">
+          {{ getOrdersByStatus(col.id).length }}
+        </span>
+      </div>
+
+      <div class="column-body">
+        <div *ngFor="let order of getOrdersByStatus(col.id)" class="kanban-card" (click)="goToDetail(order.id)">
+          <div class="card-top">
+            <strong>{{ order.trackingCode }}</strong>
+            <span class="date">{{ order.startDate | date:'dd MMM' }}</span>
+          </div>
+          <h4>{{ order.vehicleName }}</h4>
+          <div class="card-meta">
+            <span class="plate-badge">{{ order.vehiclePlate }}</span>
+            <span class="customer"><mat-icon style="font-size: 1rem; width: 1rem; height: 1rem;">person</mat-icon> {{ order.customerName }}</span>
+          </div>
+          <div class="card-footer">
+            <span class="price">S/ {{ order.price | number:'1.2-2' }}</span>
+          </div>
+        </div>
+        <div *ngIf="getOrdersByStatus(col.id).length === 0" class="empty-column">
+          Sin órdenes
+        </div>
+      </div>
     </div>
   </div>
 
-  <app-work-order-filters
-    [search]="search()"
-    [status]="selectedStatus()"
-    [statusOptions]="statusOptions"
-    (searchChange)="onSearchChange($event)"
-    (statusChange)="onStatusChange($event)">
-  </app-work-order-filters>
-
-  @if (workOrderStore.isLoading()) {
-    <div class="empty-state">
-      <mat-icon class="spin">sync</mat-icon>
-      <p>Cargando órdenes...</p>
-    </div>
-  } @else if (filteredOrders().length) {
-    <div class="orders-grid">
-      @for (order of filteredOrders(); track order.id) {
-        <app-work-order-card
-          [order]="order"
-          (viewDetail)="viewDetail($event)">
-        </app-work-order-card>
-      }
-    </div>
-  } @else {
-    <div class="empty-state">
-      <mat-icon>assignment</mat-icon>
-      <h3>No se encontraron órdenes</h3>
-      <p>Prueba cambiando el filtro o crea una nueva orden.</p>
-    </div>
-  }
+  <div *ngIf="!workOrderStore.loading() && viewMode() === 'list'" class="table-container">
+    <table class="clean-table">
+      <thead>
+      <tr>
+        <th>Código</th>
+        <th>Vehículo</th>
+        <th>Cliente</th>
+        <th>Fecha Ingreso</th>
+        <th>Estado</th>
+        <th>Total</th>
+        <th>Acciones</th>
+      </tr>
+      </thead>
+      <tbody>
+      <tr *ngFor="let order of mappedOrders()">
+        <td><strong>{{ order.trackingCode }}</strong></td>
+        <td>
+          <div style="display: flex; flex-direction: column;">
+            <span>{{ order.vehicleName }}</span>
+            <span style="font-size: 0.8rem; color: #64748b;">{{ order.vehiclePlate }}</span>
+          </div>
+        </td>
+        <td>{{ order.customerName }}</td>
+        <td>{{ order.startDate | date }}</td>
+        <td>
+            <span class="custom-badge" [ngClass]="getSeverityClass(order.status)">
+              {{ getStatusLabel(order.status) }}
+            </span>
+        </td>
+        <td style="font-weight: 700; color: #0f172a;">S/ {{ order.price | number:'1.2-2' }}</td>
+        <td>
+          <button mat-icon-button (click)="goToDetail(order.id)" style="color: #0b1680;">
+            <mat-icon>arrow_forward</mat-icon>
+          </button>
+        </td>
+      </tr>
+      <tr *ngIf="mappedOrders().length === 0">
+        <td colspan="7" class="text-center" style="padding: 3rem; color: #64748b;">No se encontraron órdenes.</td>
+      </tr>
+      </tbody>
+    </table>
+  </div>
 </section>

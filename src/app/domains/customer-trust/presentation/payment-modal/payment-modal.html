@@ -1,95 +1,57 @@
-<div class="dialog-header">
-  <h2 mat-dialog-title>Proceso de Pago</h2>
-  <button class="close-btn" (click)="closeModal()">
-    <mat-icon>close</mat-icon>
-  </button>
+<div class="custom-dialog-header" style="background: #0f172a; color: white;">
+  <h2 mat-dialog-title style="margin: 0; color: white;">Pago de Servicio</h2>
 </div>
 
-<mat-dialog-content class="payment-dialog-content">
-  <div class="payment-container">
+<mat-dialog-content class="payment-content">
+  <div class="payment-summary">
+    <div class="summary-row">
+      <span>Taller:</span>
+      <strong>{{ workshop?.name || 'AutoService Central' }}</strong>
+    </div>
+    <div class="summary-row">
+      <span>Orden #:</span>
+      <strong>{{ order?.trackingCode }}</strong>
+    </div>
+    <div class="summary-row total-row">
+      <span>Total a Pagar:</span>
+      <h2>S/ {{ order?.price | number:'1.2-2' }}</h2>
+    </div>
+  </div>
 
-    <!-- TOTAL -->
-    <div class="payment-total">
-      <span>Total a pagar</span>
-      <h2>${{ amount }}</h2>
+  <div class="payment-form mt-3">
+    <div class="field">
+      <label>Número de Tarjeta</label>
+      <input type="text" [(ngModel)]="paymentData.cardNumber" placeholder="0000 0000 0000 0000" class="custom-form-input font-mono" maxlength="19">
     </div>
 
-    <!-- METHODS -->
-    <div class="methods-grid">
-
-      <div
-          class="method-card"
-          [class.active]="selectedMethod === 'Yape'"
-          (click)="selectedMethod = 'Yape'"
-      >
-        <img src="https://img.logo.dev/name/Yape?token=pk_N7BjeKbxQY2n_ta1Keni5Q&retina=true" alt="Yape"/>
-        <span>Yape</span>
-      </div>
-
-      <div
-          class="method-card"
-          [class.active]="selectedMethod === 'Plin'"
-          (click)="selectedMethod = 'Plin'"
-      >
-        <img src="https://thf.bing.com/th/id/OIP.CE4sOegvUrcoWtMDwQfGDQHaHa?w=179&h=180&c=7&r=0&o=7&cb=thfc1&pid=1.7&rm=3" alt="Plin"/>
-        <span>Plin</span>
-      </div>
-
-      <div
-          class="method-card"
-          [class.active]="selectedMethod === 'Tarjeta'"
-          (click)="selectedMethod = 'Tarjeta'"
-      >
-        <img src="https://img.logo.dev/name/Bcp?token=pk_N7BjeKbxQY2n_ta1Keni5Q&retina=true" alt="Tarjeta" />
-        <span>Tarjeta</span>
-      </div>
-
-      <div
-          class="method-card"
-          [class.active]="selectedMethod === 'Efectivo'"
-          (click)="selectedMethod = 'Efectivo'"
-      >
-        <mat-icon class="method-icon">payments</mat-icon>
-        <span>Efectivo</span>
-      </div>
-
+    <div class="field">
+      <label>Titular de la Tarjeta</label>
+      <input type="text" [(ngModel)]="paymentData.cardHolder" placeholder="Nombre como aparece en la tarjeta" class="custom-form-input">
     </div>
 
-    <!-- CARD FORM -->
-    @if (selectedMethod === 'Tarjeta') {
-      <div class="card-form">
-        <div class="form-group">
-          <label>Número de tarjeta</label>
-          <input type="text" class="custom-input" placeholder="1234 5678 9012 3456" />
-        </div>
-
-        <div class="row">
-          <div class="form-group">
-            <label>Fecha</label>
-            <input type="text" class="custom-input" placeholder="MM/YY" />
-          </div>
-
-          <div class="form-group">
-            <label>CVV</label>
-            <input type="text" class="custom-input" placeholder="123" />
-          </div>
-        </div>
+    <div class="double-grid">
+      <div class="field">
+        <label>Expiración (MM/AA)</label>
+        <input type="text" [(ngModel)]="paymentData.expiryDate" placeholder="MM/AA" class="custom-form-input" maxlength="5">
       </div>
-    }
-
-    <!-- QR -->
-    @if (selectedMethod === 'Yape' || selectedMethod === 'Plin') {
-      <div class="qr-box">
-        <mat-icon class="qr-icon">qr_code_2</mat-icon>
-        <p>Escanea el QR para pagar</p>
+      <div class="field">
+        <label>CVV</label>
+        <input type="password" [(ngModel)]="paymentData.cvv" placeholder="123" class="custom-form-input" maxlength="4">
       </div>
-    }
+    </div>
+  </div>
 
+  <div class="secure-badge">
+    <mat-icon style="color: #16a34a; font-size: 1.2rem; width: 1.2rem; height: 1.2rem;">lock</mat-icon>
+    <span>Pago seguro encriptado de extremo a extremo.</span>
   </div>
 </mat-dialog-content>
 
-<mat-dialog-actions class="dialog-actions">
-  <button class="pay-btn" (click)="processPayment()">
-    <mat-icon>check</mat-icon> Confirmar Pago
+<mat-dialog-actions align="end" class="dialog-footer">
+  <button mat-button (click)="close()" [disabled]="isProcessing" style="color: #64748b;">Cancelar</button>
+  <button mat-flat-button class="pay-btn" (click)="simulatePayment()" [disabled]="isProcessing">
+    <mat-icon *ngIf="!isProcessing">payment</mat-icon>
+    <mat-icon *ngIf="isProcessing" class="spin">refresh</mat-icon>
+    {{ isProcessing ? 'Procesando...' : 'Pagar S/ ' + (order?.price | number:'1.2-2') }}
   </button>
 </mat-dialog-actions>

@@ -1,0 +1,169 @@
+<div class="mechanic-order-page">
+  <header class="page-header">
+    <button mat-icon-button (click)="router.navigate(['/mechanic/workspace'])">
+      <mat-icon>arrow_back</mat-icon>
+    </button>
+    <div>
+      <h1>{{ 'mechanicOrder.order' | translate }} {{ order()?.trackingCode }}</h1>
+      <p>{{ 'mechanicOrder.manageDescription' | translate }}</p>
+    </div>
+  </header>
+
+  <mat-card class="vehicle-card mb-4">
+    <mat-card-content>
+      <div class="vehicle-info">
+        <mat-icon class="vehicle-icon">directions_car</mat-icon>
+        <div>
+          <h2>{{ vehicle()?.brand }} {{ vehicle()?.model }}</h2>
+          <span>{{ vehicle()?.plate }}</span>
+        </div>
+      </div>
+    </mat-card-content>
+  </mat-card>
+
+  <mat-card class="diagnosis-card mb-4">
+    <mat-card-content>
+      <h3>{{ 'mechanicOrder.diagnosis' | translate }}</h3>
+      <textarea
+        [disabled]="isOrderClosed()"
+        [(ngModel)]="diagnosis"
+        rows="4"
+        class="custom-textarea w-full"
+        [placeholder]="'mechanicOrder.diagnosisPlaceholder' | translate">
+      </textarea>
+    </mat-card-content>
+  </mat-card>
+
+  <mat-card class="tasks-card mb-4">
+    <mat-card-content>
+      <div class="section-header">
+        <h3>{{ 'mechanicOrder.tasks' | translate }}</h3>
+        <button mat-flat-button color="primary" [disabled]="isOrderClosed()" (click)="openTaskDialog()">
+          <mat-icon>add</mat-icon>
+          {{ 'mechanicOrder.newTask' | translate }}
+        </button>
+      </div>
+
+      <div *ngIf="tasks().length" class="tasks-list">
+        <div *ngFor="let task of tasks()" class="task-item">
+          <div class="task-content">
+            <h4>{{ task.description }}</h4>
+            <div class="task-meta">
+              <span class="custom-badge" [ngClass]="task.status === 'COMPLETED' ? 'badge-success' : 'badge-warning'">
+                {{ task.status === 'COMPLETED' ? ('tasks.summary.completed' | translate) : task.status }}
+              </span>
+              <span class="custom-badge badge-info">{{ getPriorityLabel($any(task).priority || 'MEDIUM') }}</span>
+              <span class="time-label"><mat-icon style="font-size:1rem; width:1rem; height:1rem;">schedule</mat-icon> {{ $any(task).estimatedTime }}h</span>
+              <strong class="price-label">S/ {{ $any(task).laborPrice }}</strong>
+            </div>
+
+            <div *ngIf="$any(task).parts && $any(task).parts.length > 0" class="task-parts">
+              <small class="parts-title"><mat-icon style="font-size:1rem; width:1rem; height:1rem;">inventory_2</mat-icon> Materiales:</small>
+              <div class="parts-tags">
+                <span *ngFor="let p of $any(task).parts" class="custom-badge badge-secondary">
+                  {{ p.quantity }}x {{ p.name }}
+                </span>
+              </div>
+            </div>
+          </div>
+
+          <button *ngIf="task.status !== 'COMPLETED' && !isOrderClosed()" mat-mini-fab style="background-color: #16a34a; color: white;" (click)="completeTask(task)">
+            <mat-icon>check</mat-icon>
+          </button>
+        </div>
+      </div>
+      <div *ngIf="!tasks().length" class="empty-state">{{ 'mechanicOrder.noTasks' | translate }}</div>
+    </mat-card-content>
+  </mat-card>
+
+  <mat-card class="summary-card">
+    <mat-card-content>
+      <div class="summary-row">
+        <span>{{ 'mechanicOrder.totalLabor' | translate }}</span>
+        <strong>S/ {{ totalLabor() | number:'1.2-2' }}</strong>
+      </div>
+      <div class="summary-row highlight-total">
+        <span>Costo Total (Inc. Materiales)</span>
+        <strong>S/ {{ totalOrderCost() | number:'1.2-2' }}</strong>
+      </div>
+      <div class="summary-row">
+        <span>{{ 'mechanicOrder.tasksLabel' | translate }}</span>
+        <strong>{{ completedTasks() }} / {{ tasks().length }}</strong>
+      </div>
+      <div class="summary-row">
+        <span>{{ 'mechanicOrder.progress' | translate }}</span>
+        <strong>{{ progress() }}%</strong>
+      </div>
+      <mat-progress-bar mode="determinate" [value]="progress()" class="mb-3"></mat-progress-bar>
+
+      <button *ngIf="canFinishOrder() && order()?.status !== 'FINISHED'" mat-flat-button style="background-color: #16a34a; color: white; width: 100%; padding: 1.5rem;" (click)="finishOrder()">
+        <mat-icon>check_circle</mat-icon>
+        {{ 'mechanicOrder.finishOrder' | translate }}
+      </button>
+    </mat-card-content>
+  </mat-card>
+
+  <ng-template #taskDialogTemplate>
+    <div class="custom-dialog-header">
+      <h2 mat-dialog-title style="margin: 0;">{{ 'mechanicOrder.dialog.newTask' | translate }}</h2>
+    </div>
+
+    <mat-dialog-content>
+      <div class="dialog-form mt-3">
+        <div class="field">
+          <label>{{ 'mechanicOrder.dialog.description' | translate }}</label>
+          <input type="text" [(ngModel)]="newTask().description" class="custom-form-input" [placeholder]="'mechanicOrder.dialog.descriptionPlaceholder' | translate">
+        </div>
+
+        <div class="double-grid">
+          <div class="field">
+            <label>{{ 'mechanicOrder.dialog.priority' | translate }}</label>
+            <mat-select [(ngModel)]="newTask().priority" class="custom-form-input">
+              <mat-option *ngFor="let p of priorities" [value]="p.value">{{ p.label }}</mat-option>
+            </mat-select>
+          </div>
+          <div class="field">
+            <label>{{ 'mechanicOrder.dialog.estimatedTime' | translate }}</label>
+            <input type="number" [(ngModel)]="newTask().estimatedTime" class="custom-form-input" min="0.1" step="0.5">
+          </div>
+        </div>
+
+        <div class="field">
+          <label>{{ 'mechanicOrder.dialog.laborPrice' | translate }}</label>
+          <input type="number" [(ngModel)]="newTask().laborPrice" class="custom-form-input" min="0">
+        </div>
+
+        <hr class="divider">
+
+        <div class="inventory-section">
+          <div class="section-head">
+            <label><mat-icon style="font-size:1.2rem; width:1.2rem; height:1.2rem; vertical-align: middle;">inventory_2</mat-icon> Materiales / Repuestos</label>
+            <button mat-stroked-button color="primary" (click)="addPart()"><mat-icon>add</mat-icon> Añadir</button>
+          </div>
+
+          <div *ngFor="let part of newTask().parts; let i = index" class="part-row">
+            <mat-select [(ngModel)]="part.inventoryItemId" (selectionChange)="onPartSelected($event.value, i)" class="custom-form-input" placeholder="Buscar repuesto...">
+              <mat-option *ngFor="let item of inventoryStore.items()" [value]="item.id">{{ item.name }} (Stock: {{ item.stock }})</mat-option>
+            </mat-select>
+            <input type="number" [(ngModel)]="part.quantity" class="custom-form-input text-center" min="1" style="width: 80px;">
+            <div class="part-subtotal">S/. {{ ((part.unitPrice || 0) * (part.quantity || 1)) | number:'1.2-2' }}</div>
+            <button mat-icon-button color="warn" (click)="removePart(i)"><mat-icon>delete</mat-icon></button>
+          </div>
+          <div *ngIf="newTask().parts.length === 0" class="empty-parts">Sin materiales asignados. Pulsa en "Añadir".</div>
+        </div>
+
+        <div class="total-preview">
+          <span>Costo Estimado Tarea:</span>
+          <h2>S/. {{ newTaskTotalCost() | number:'1.2-2' }}</h2>
+        </div>
+      </div>
+    </mat-dialog-content>
+
+    <mat-dialog-actions align="end" class="dialog-footer">
+      <button mat-button (click)="closeDialog()" style="color: #64748b;">Cancelar</button>
+      <button mat-flat-button style="background: #0b1680; color: white;" (click)="createTask()">
+        <mat-icon>save</mat-icon> {{ 'mechanicOrder.dialog.save' | translate }}
+      </button>
+    </mat-dialog-actions>
+  </ng-template>
+</div>

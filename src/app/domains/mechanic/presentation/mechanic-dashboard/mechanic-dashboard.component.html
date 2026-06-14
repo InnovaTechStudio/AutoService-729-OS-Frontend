@@ -1,0 +1,93 @@
+<section class="mechanic-page">
+  <header class="mechanic-header">
+    <div>
+      <span class="eyebrow">{{ 'mechanicDashboard.eyebrow' | translate }}</span>
+      <h1>{{ 'mechanicDashboard.title' | translate }}</h1>
+      <p>{{ 'mechanicDashboard.description' | translate }}</p>
+    </div>
+
+    <mat-card class="profile-card">
+      <mat-card-content>
+        <div class="profile-content">
+          <mat-icon style="font-size: 3rem; width: 3rem; height: 3rem; color: #64748b; background: #e2e8f0; border-radius: 50%;">account_circle</mat-icon>
+          <div>
+            <strong>{{ me()?.fullName }}</strong>
+            <span>{{ me()?.specialty }}</span>
+            <small>{{ 'mechanicDashboard.shiftActive' | translate }}</small>
+          </div>
+        </div>
+      </mat-card-content>
+    </mat-card>
+  </header>
+
+  <section class="summary-grid">
+    <mat-card class="summary-card">
+      <mat-card-content>
+        <span>{{ 'mechanicDashboard.pending' | translate }}</span>
+        <strong>{{ stats().pending }}</strong>
+      </mat-card-content>
+    </mat-card>
+    <mat-card class="summary-card">
+      <mat-card-content>
+        <span>{{ 'mechanicDashboard.inProgress' | translate }}</span>
+        <strong>{{ stats().inProgress }}</strong>
+      </mat-card-content>
+    </mat-card>
+    <mat-card class="summary-card">
+      <mat-card-content>
+        <span>{{ 'mechanicDashboard.completed' | translate }}</span>
+        <strong>{{ stats().completed }}</strong>
+      </mat-card-content>
+    </mat-card>
+  </section>
+
+  <mat-card class="orders-card">
+    <mat-card-content>
+      <div class="section-header">
+        <h2>{{ 'mechanicDashboard.assignedOrders' | translate }}</h2>
+      </div>
+
+      <div *ngIf="myOrders().length" class="orders-grid">
+        <article *ngFor="let order of myOrders()" class="order-card">
+          <div class="order-top">
+            <span class="custom-badge badge-secondary">{{ order.trackingCode }}</span>
+            <span class="custom-badge" [ngClass]="getSeverityClass(order.status)">{{ order.status }}</span>
+          </div>
+
+          <h3>{{ getVehicleDetails(order.vehicleId) }}</h3>
+          <p class="description">{{ order.description }}</p>
+
+          <div class="progress-block">
+            <div class="progress-label">
+              {{ getCompletedTasks(order.id) }} / {{ getTotalTasks(order.id) }} {{ 'mechanicDashboard.tasksCompletedLabel' | translate }}
+            </div>
+            <mat-progress-bar mode="determinate" [value]="getProgress(order.id)"></mat-progress-bar>
+          </div>
+
+          <div class="order-metrics">
+            <div>
+              <small>{{ 'mechanicDashboard.tasks' | translate }}</small>
+              <strong>{{ getTaskCount(order.id) }}</strong>
+            </div>
+            <div>
+              <small>{{ 'mechanicDashboard.labor' | translate }}</small>
+              <strong>S/ {{ getLaborTotal(order.id) | number:'1.2-2' }}</strong>
+            </div>
+          </div>
+
+          <button mat-stroked-button color="primary" style="width: 100%; border-radius: 8px; font-weight: 600;" (click)="goToOrder(order.id)">
+            <mat-icon>visibility</mat-icon> {{ 'mechanicDashboard.viewOrder' | translate }}
+          </button>
+        </article>
+      </div>
+
+      <div *ngIf="!myOrders().length" class="empty-state">
+        {{ 'mechanicDashboard.empty' | translate }}
+      </div>
+    </mat-card-content>
+  </mat-card>
+
+  <button mat-stroked-button color="warn" class="logout-button" (click)="logout()">
+    <mat-icon>logout</mat-icon> {{ 'mechanicDashboard.logout' | translate }}
+  </button>
+</section>

@@ -1,0 +1,5617 @@
+===== src/app/app.config.ts =====
+import { ApplicationConfig } from '@angular/core';
+import { provideRouter, withComponentInputBinding } from '@angular/router';
+import { provideHttpClient, withInterceptors } from '@angular/common/http';
+import { provideAnimations } from '@angular/platform-browser/animations';
+
+import { provideTranslateService } from '@ngx-translate/core';
+import { provideTranslateHttpLoader } from '@ngx-translate/http-loader';
+
+import { routes } from './app.routes';
+import { jwtInterceptor } from './shared/infrastructure/interceptors/jwt.interceptor';
+
+/**
+ * Global application configuration for Angular Standalone architecture.
+ * Configures Routing, HTTP Clients with custom interceptors, Animations, and Internationalization (i18n).
+ */
+export const appConfig: ApplicationConfig = {
+  providers: [
+    provideRouter(routes, withComponentInputBinding()),
+    provideHttpClient(withInterceptors([jwtInterceptor])),
+    provideAnimations(),
+
+    provideTranslateService({
+      loader: provideTranslateHttpLoader({
+        prefix: './assets/i18n/',
+        suffix: '.json',
+      }),
+      fallbackLang: 'es',
+    }),
+  ],
+};
+
+
+
+===== src/app/app.html =====
+<router-outlet></router-outlet>
+
+
+
+===== src/app/app.routes.ts =====
+import { Routes } from '@angular/router';
+
+import { LoginComponent } from './domains/auth/presentation/login/login.component';
+import { authGuard } from './domains/auth/infrastructure/auth.guard';
+
+import { AdminLayoutComponent } from './shared/presentation/admin-layout/admin-layout.component';
+
+import { TrackingViewComponent } from './domains/customer-trust/presentation/tracking-view/tracking-view';
+
+import { MechanicDashboardComponent } from './domains/mechanic/presentation/mechanic-dashboard/mechanic-dashboard.compontent';
+import { MechanicOrderExecutionComponent } from './domains/mechanic/presentation/mechanic-order-execution/mechanic-order-execution.component';
+
+import { DashboardComponent } from './domains/workshop-operations/presentation/dashboard/dashboard.component';
+import { TasksViewComponent } from './domains/workshop-operations/presentation/tasks-view/tasks-view';
+import { WorkOrderListComponent } from './domains/workshop-operations/presentation/work-order-list/work-order-list';
+import { CreateWorkOrderComponent } from './domains/workshop-operations/presentation/create-work-order/create-work-order';
+import { WorkOrderDetailComponent } from './domains/workshop-operations/presentation/work-order-detail/work-order-detail';
+
+import { CustomerListComponent } from './domains/customer-management/presentation/customer-list/customer-list';
+
+import { VehicleListComponent } from './domains/fleet-management/presentation/vehicle-list/vehicle-list';
+import { VehicleDetailComponent } from './domains/fleet-management/presentation/vehicle-detail/vehicle-detail';
+
+import { MechanicsViewComponent } from './domains/staff-coordination/presentation/mechanics-view/mechanics-view';
+
+import { InventoryViewComponent } from './domains/inventory-management/presentation/components/presentation/inventory-view/inventory-view.component';
+
+export const routes: Routes = [
+  { path: 'login', component: LoginComponent },
+  { path: 'tracking', component: TrackingViewComponent },
+
+  {
+    path: 'mechanic/workspace',
+    component: MechanicDashboardComponent,
+    canActivate: [authGuard],
+  },
+  {
+    path: 'mechanic/order/:id',
+    component: MechanicOrderExecutionComponent,
+    canActivate: [authGuard],
+  },
+
+  {
+    path: '',
+    component: AdminLayoutComponent,
+    canActivate: [authGuard],
+    children: [
+      { path: '', component: DashboardComponent, pathMatch: 'full' },
+      { path: 'customers', component: CustomerListComponent },
+      { path: 'vehicles', component: VehicleListComponent },
+      { path: 'vehicles/:id', component: VehicleDetailComponent },
+      { path: 'work-orders', component: WorkOrderListComponent },
+      { path: 'work-orders/new', component: CreateWorkOrderComponent },
+      { path: 'work-orders/:id', component: WorkOrderDetailComponent },
+      { path: 'tasks', component: TasksViewComponent },
+      { path: 'mechanics', component: MechanicsViewComponent },
+      { path: 'inventory', component: InventoryViewComponent },
+    ],
+  },
+
+  { path: '**', redirectTo: '/login' },
+];
+
+
+
+===== src/app/app.spec.ts =====
+/**
+ *
+ *
+ * Unit tests for the root component of the application (AppComponent)
+ *
+ * Test file (spec) to validate the correct functionality
+ * of the main component `AppComponent` using the Angular testing
+ * framework (Jasmine + Karma).
+ *
+ * @file app.spec.ts
+ * @test AppComponent
+ *
+ *
+ */
+import { TestBed } from '@angular/core/testing';
+import { App } from './app';
+
+describe('App', () => {
+
+  /**
+ *
+ *
+ * Initial configuration before each test.
+ * Sets up the test module with the component to be tested.
+ *
+ *
+ */
+  beforeEach(async () => {
+    await TestBed.configureTestingModule({
+      imports: [App],
+    }).compileComponents();
+  });
+
+  /**
+ *
+ *
+ * Verifies that the component is created correctly.
+ *
+ *
+ */
+  it('should create the app', () => {
+    const fixture = TestBed.createComponent(App);
+    const app = fixture.componentInstance;
+    expect(app).toBeTruthy();
+  });
+
+  /**
+ *
+ *
+ * Verifies that the application title is rendered correctly
+ * in the template.
+ *
+ *
+ */
+  it('should render title', async () => {
+    const fixture = TestBed.createComponent(App);
+    await fixture.whenStable();
+    const compiled = fixture.nativeElement as HTMLElement;
+    expect(compiled.querySelector('h1')?.textContent).toContain('Hello, autoservice-front');
+  });
+});
+
+
+
+===== src/app/app.ts =====
+/**
+ *
+ *
+ * AppComponent (Componente Raíz)
+ *
+ * Main component and entry point of the entire application.
+ * Contains only the `RouterOutlet` to render the views
+ * according to the route configuration defined in `app.routes.ts`.
+ *
+ * @component
+ * @selector app-root
+ * @standalone true
+ *
+ *
+ */
+import { Component, signal } from '@angular/core';
+import { RouterOutlet } from '@angular/router';
+
+@Component({
+  selector: 'app-root',
+  standalone: true,
+  imports: [RouterOutlet],
+  /**
+ *
+ * Verify that the file is app.html
+ *
+ */
+  templateUrl: './app.html',
+  styleUrl: './app.css'
+})
+
+/**
+ *
+ * Application title (used mainly for debugging)
+ *
+ */
+export class App { 
+  protected readonly title = signal('autoservice-front');
+}
+
+
+
+===== src/app/domains/auth/application/auth.state.ts =====
+import { Injectable, signal, computed } from '@angular/core';
+import { User } from '../domain/auth.entity';
+
+@Injectable({ providedIn: 'root' })
+export class AuthState {
+  private readonly userSignal = signal<User | null>(this.loadUserFromStorage());
+  private readonly tokenSignal = signal<string | null>(this.loadTokenFromStorage());
+
+  readonly currentUser = this.userSignal.asReadonly();
+  readonly currentToken = this.tokenSignal.asReadonly();
+
+  readonly isAuthenticated = computed(() => !!this.tokenSignal());
+  readonly userRole = computed(() => this.userSignal()?.role || 'admin');
+  readonly currentWorkshopId = computed(() => this.userSignal()?.workshopId || null);
+
+  setSession(user: User, token: string): void {
+    localStorage.setItem('user', JSON.stringify(user));
+    localStorage.setItem('token', token);
+    this.userSignal.set(user);
+    this.tokenSignal.set(token);
+  }
+
+  clearSession(): void {
+    localStorage.removeItem('user');
+    localStorage.removeItem('token');
+    this.userSignal.set(null);
+    this.tokenSignal.set(null);
+  }
+
+  private loadUserFromStorage(): User | null {
+    const userJson = localStorage.getItem('user');
+    return userJson ? JSON.parse(userJson) : null;
+  }
+
+  private loadTokenFromStorage(): string | null {
+    return localStorage.getItem('token');
+  }
+}
+
+
+
+===== src/app/domains/auth/domain/auth.entity.ts =====
+export interface User {
+  id: number;
+  email: string;
+  role: string;
+  workshopId?: number;
+  mechanicId?: number;
+  name?: string;
+}
+
+export interface AuthResponse extends User {
+  token: string;
+}
+
+
+
+===== src/app/domains/auth/infrastructure/auth.guard.ts =====
+import { inject } from '@angular/core';
+import { CanActivateFn, Router } from '@angular/router';
+import { AuthState } from '../application/auth.state';
+
+/**
+ * Authentication Guard to protect private system routes.
+ * Checks the central AuthState to verify if a valid session exists.
+ *
+ * @function authGuard
+ */
+export const authGuard: CanActivateFn = () => {
+  const authState = inject(AuthState);
+  const router = inject(Router);
+
+  if (authState.isAuthenticated()) {
+    return true;
+  }
+
+  router.navigate(['/login']);
+  return false;
+};
+
+
+
+===== src/app/domains/auth/infrastructure/auth.service.ts =====
+import { Injectable, inject } from '@angular/core';
+import { HttpClient } from '@angular/common/http';
+import { Router } from '@angular/router';
+import { Observable, tap } from 'rxjs';
+import { environment } from '../../../../environments/environment';
+import { AuthResponse } from '../domain/auth.entity';
+import { AuthState } from '../application/auth.state';
+
+@Injectable({ providedIn: 'root' })
+export class AuthService {
+  private http = inject(HttpClient);
+  private router = inject(Router);
+  private authState = inject(AuthState);
+  private readonly API_URL = `${environment.apiUrl}/api/v1/auth`;
+
+  login(email: string, password: string): Observable<AuthResponse> {
+    return this.http.post<AuthResponse>(`${this.API_URL}/sign-in`, { email, password }).pipe(
+      tap((response) => {
+        const user = {
+          id: response.id,
+          email: response.email,
+          role: response.role,
+          workshopId: response.workshopId,
+          mechanicId: response.mechanicId,
+          name: response.name,
+        };
+        this.authState.setSession(user, response.token);
+      }),
+    );
+  }
+
+  registerWorkshop(workshopName: string, email: string, password: string): Observable<any> {
+    return this.http.post<any>(`${this.API_URL}/register-workshop`, {
+      workshopName,
+      email,
+      password,
+    });
+  }
+
+  logout(): void {
+    this.authState.clearSession();
+    this.router.navigate(['/login']);
+  }
+}
+
+
+
+===== src/app/domains/auth/presentation/login/login.component.html =====
+<div class="login-layout">
+  <div class="hero-section">
+    <div class="hero-content">
+      <h1>{{ isRegister ? ('login.registerHeroTitle' | translate) : ('login.title' | translate) }}</h1>
+      <p>{{ isRegister ? ('login.registerHeroSubtitle' | translate) : ('login.subtitle' | translate) }}</p>
+    </div>
+  </div>
+
+  <div class="form-section">
+    <div class="login-box">
+      <div class="lang-switcher-wrapper">
+        <app-language-switcher></app-language-switcher>
+      </div>
+
+      <div class="login-header">
+        <h2>{{ isRegister ? ('login.registerTitle' | translate) : ('login.welcome' | translate) }}</h2>
+        <p>{{ isRegister ? ('login.registerDescription' | translate) : ('login.description' | translate) }}</p>
+      </div>
+
+      <form (ngSubmit)="handleSubmit()" class="login-form">
+
+        <div class="input-group" *ngIf="isRegister">
+          <label for="workshopName">{{ 'login.workshopName' | translate }}</label>
+          <mat-form-field appearance="outline" class="w-full">
+            <input matInput id="workshopName" [(ngModel)]="form.workshopName" name="workshopName" [placeholder]="'login.workshopPlaceholder' | translate">
+          </mat-form-field>
+        </div>
+
+        <div class="input-group">
+          <label for="email">{{ 'login.email' | translate }}</label>
+          <mat-form-field appearance="outline" class="w-full">
+            <input matInput id="email" type="email" [(ngModel)]="form.email" name="email" [placeholder]="'login.emailPlaceholder' | translate">
+          </mat-form-field>
+        </div>
+
+        <div class="input-group">
+          <label for="password">{{ 'login.password' | translate }}</label>
+          <mat-form-field appearance="outline" class="w-full">
+            <input matInput id="password" [type]="hidePassword ? 'password' : 'text'" [(ngModel)]="form.password" name="password" [placeholder]="'login.passwordPlaceholder' | translate">
+            <button mat-icon-button matSuffix (click)="hidePassword = !hidePassword" type="button">
+              <mat-icon>{{ hidePassword ? 'visibility_off' : 'visibility' }}</mat-icon>
+            </button>
+          </mat-form-field>
+        </div>
+
+        <div *ngIf="errorMessage" class="error-message">
+          <mat-icon style="font-size: 18px; width: 18px; height: 18px;">error_outline</mat-icon>
+          {{ errorMessage }}
+        </div>
+
+        <button mat-flat-button color="primary" type="submit" [disabled]="isLoading" class="w-full mt-3 submit-btn">
+          {{ isRegister ? ('login.registerButton' | translate) : ('login.submit' | translate) }}
+        </button>
+
+        <div class="text-center mt-4">
+          <span class="text-color-secondary">{{ isRegister ? ('login.hasAccount' | translate) : ('login.noWorkshop' | translate) }}</span><br>
+          <a href="#" (click)="toggleMode(); $event.preventDefault()" class="font-bold text-primary toggle-link">
+            {{ isRegister ? ('login.loginHere' | translate) : ('login.registerHere' | translate) }}
+          </a>
+        </div>
+      </form>
+    </div>
+  </div>
+</div>
+
+
+
+===== src/app/domains/auth/presentation/login/login.component.ts =====
+import { Component, inject } from '@angular/core';
+import { Router } from '@angular/router';
+import { FormsModule } from '@angular/forms';
+import { MatInputModule } from '@angular/material/input';
+import { MatButtonModule } from '@angular/material/button';
+import { MatIconModule } from '@angular/material/icon';
+import { TranslatePipe, TranslateService } from '@ngx-translate/core';
+import { AuthService } from '../../infrastructure/auth.service';
+import { AuthState } from '../../application/auth.state';
+import { LanguageSwitcher } from '../../../../shared/presentation/language-switcher/language-switcher';
+import { CommonModule } from '@angular/common';
+
+@Component({
+  selector: 'app-login',
+  standalone: true,
+  imports: [
+    CommonModule,
+    FormsModule,
+    MatInputModule,
+    MatButtonModule,
+    MatIconModule,
+    TranslatePipe,
+    LanguageSwitcher,
+  ],
+  templateUrl: './login.component.html',
+  styleUrl: './login.component.css',
+})
+export class LoginComponent {
+  private router = inject(Router);
+  private authService = inject(AuthService);
+  private authState = inject(AuthState);
+  private translate = inject(TranslateService);
+
+  isRegister = false;
+
+  form = {
+    workshopName: '',
+    email: '',
+    password: '',
+  };
+
+  hidePassword = true;
+  isLoading = false;
+  errorMessage = '';
+
+  toggleMode(): void {
+    this.isRegister = !this.isRegister;
+    this.errorMessage = '';
+    this.form = { workshopName: '', email: '', password: '' };
+  }
+
+  handleSubmit(): void {
+    if (!this.form.email || !this.form.password) return;
+
+    if (this.isRegister && !this.form.workshopName) return;
+
+    this.isLoading = true;
+    this.errorMessage = '';
+
+    if (this.isRegister) {
+      this.authService
+        .registerWorkshop(this.form.workshopName, this.form.email, this.form.password)
+        .subscribe({
+          next: () => {
+            this.authService.login(this.form.email, this.form.password).subscribe({
+              next: () => {
+                this.isLoading = false;
+                this.router.navigate(['/']);
+              },
+              error: () => this.handleError(),
+            });
+          },
+          error: () => this.handleError('auth.registerError'),
+        });
+    } else {
+      this.authService.login(this.form.email, this.form.password).subscribe({
+        next: () => {
+          this.isLoading = false;
+          if (this.authState.userRole() === 'mechanic') {
+            this.router.navigate(['/mechanic/workspace']);
+          } else {
+            this.router.navigate(['/']);
+          }
+        },
+        error: () => this.handleError('auth.loginError'),
+      });
+    }
+  }
+
+  private handleError(i18nKey: string = 'auth.loginError'): void {
+    this.isLoading = false;
+    this.errorMessage = this.translate.instant(i18nKey);
+  }
+}
+
+
+
+===== src/app/domains/customer-management/application/customer.store.ts =====
+import { Injectable, inject, signal } from '@angular/core';
+import { CustomerService } from '../infrastructure/services/customer.service';
+import { Customer } from '../domain/models/customer.model';
+
+@Injectable({ providedIn: 'root' })
+export class CustomerStore {
+  private customerService = inject(CustomerService);
+
+  readonly customers = signal<Customer[]>([]);
+  readonly isLoading = signal<boolean>(false);
+
+  loadCustomers() {
+    this.isLoading.set(true);
+    this.customerService.getAll().subscribe({
+      next: (data) => {
+        this.customers.set(data);
+        this.isLoading.set(false);
+      },
+      error: (err) => {
+        console.error('Error al cargar clientes:', err);
+        this.isLoading.set(false);
+      },
+    });
+  }
+
+  addCustomer(customer: Customer): Promise<void> {
+    return new Promise((resolve, reject) => {
+      this.customerService.create(customer).subscribe({
+        next: (newCustomer) => {
+          this.customers.update((list) => [...list, newCustomer]);
+          resolve();
+        },
+        error: (err) => reject(err),
+      });
+    });
+  }
+
+  updateCustomer(id: string | number, customerData: Partial<Customer>): Promise<void> {
+    return new Promise((resolve, reject) => {
+      this.customerService.update(id, customerData).subscribe({
+        next: (updatedCustomer) => {
+          this.customers.update((list) => list.map((c) => (c.id === id ? updatedCustomer : c)));
+          resolve();
+        },
+        error: (err) => reject(err),
+      });
+    });
+  }
+
+  deleteCustomer(id: string | number): Promise<void> {
+    return new Promise((resolve, reject) => {
+      this.customerService.delete(id).subscribe({
+        next: () => {
+          this.customers.update((list) => list.filter((c) => c.id !== id));
+          resolve();
+        },
+        error: (err) => reject(err),
+      });
+    });
+  }
+}
+
+
+
+===== src/app/domains/customer-management/domain/models/customer.model.ts =====
+/**
+ *
+ * Interface that represents a Customer in the system.
+ *
+ * Contains the basic contact information of customers
+ * associated with a workshop.
+ *
+ * @interface
+ * @model
+ *
+ */
+
+export interface Customer {
+  /**
+ * Unique ID of the customer (generated by json-server)
+ */
+  id?: string|number;
+  /**
+ * ID of the workshop to which this customer belongs
+ */
+  workshopId?: string;
+  /**
+ * Full name of the customer
+ */
+  fullName: string;
+  /**
+ * National Identity Document (DNI)
+ */
+  dni: string;
+  /**
+ * Email address of the customer
+ */
+  email: string;
+  /**
+ * Contact phone number of the customer
+ */
+  phone: string;
+}
+
+
+
+===== src/app/domains/customer-management/infrastructure/services/customer.service.ts =====
+import { Injectable, inject } from '@angular/core';
+import { HttpClient } from '@angular/common/http';
+import { Observable } from 'rxjs';
+import { environment } from '../../../../../environments/environment';
+import { Customer } from '../../domain/models/customer.model';
+
+@Injectable({ providedIn: 'root' })
+export class CustomerService {
+  private http = inject(HttpClient);
+  private apiUrl = `${environment.apiUrl}/api/v1/customers`;
+
+  getAll(): Observable<Customer[]> {
+    return this.http.get<Customer[]>(this.apiUrl);
+  }
+
+  getById(id: string | number): Observable<Customer> {
+    return this.http.get<Customer>(`${this.apiUrl}/${id}`);
+  }
+
+  create(customer: Customer): Observable<Customer> {
+    return this.http.post<Customer>(this.apiUrl, customer);
+  }
+
+  update(id: string | number, data: Partial<Customer>): Observable<Customer> {
+    return this.http.put<Customer>(`${this.apiUrl}/${id}`, data);
+  }
+
+  delete(id: string | number): Observable<void> {
+    return this.http.delete<void>(`${this.apiUrl}/${id}`);
+  }
+}
+
+
+
+===== src/app/domains/customer-management/presentation/customer-list/customer-list.html =====
+<div class="customer-management">
+  <div class="top-section">
+    <div class="customer-header">
+      <div>
+        <span class="eyebrow">{{ 'customers.eyebrow' | translate }}</span>
+        <h1>{{ 'customers.title' | translate }}</h1>
+        <p>{{ 'customers.description' | translate }}</p>
+      </div>
+    </div>
+
+    <button mat-flat-button class="add-btn" (click)="openAddModal()">
+      <mat-icon>add</mat-icon>
+      {{ 'customers.registerButton' | translate }}
+    </button>
+  </div>
+
+  <div class="search-container">
+    <mat-icon>search</mat-icon>
+    <input type="text" [ngModel]="searchTerm()" (ngModelChange)="searchTerm.set($event)" [placeholder]="'customers.search' | translate" class="custom-search-input">
+  </div>
+
+  <div class="table-wrapper">
+    <table mat-table [dataSource]="filteredCustomers()">
+
+      <ng-container matColumnDef="fullName">
+        <th mat-header-cell *matHeaderCellDef>{{ 'customers.columns.fullName' | translate }}</th>
+        <td mat-cell *matCellDef="let element"> {{element.fullName}} </td>
+      </ng-container>
+
+      <ng-container matColumnDef="dni">
+        <th mat-header-cell *matHeaderCellDef>{{ 'customers.columns.dni' | translate }}</th>
+        <td mat-cell *matCellDef="let element"> {{element.dni}} </td>
+      </ng-container>
+
+      <ng-container matColumnDef="email">
+        <th mat-header-cell *matHeaderCellDef>{{ 'customers.columns.email' | translate }}</th>
+        <td mat-cell *matCellDef="let element"> {{element.email}} </td>
+      </ng-container>
+
+      <ng-container matColumnDef="phone">
+        <th mat-header-cell *matHeaderCellDef>{{ 'customers.columns.phone' | translate }}</th>
+        <td mat-cell *matCellDef="let element"> {{element.phone}} </td>
+      </ng-container>
+
+      <ng-container matColumnDef="actions">
+        <th mat-header-cell *matHeaderCellDef>{{ 'customers.columns.actions' | translate }}</th>
+        <td mat-cell *matCellDef="let element">
+          <div class="actions">
+            <button mat-icon-button class="action-btn outline-btn" (click)="openEditModal(element)">
+              <mat-icon>edit</mat-icon>
+            </button>
+            <button mat-icon-button class="action-btn danger-btn" (click)="openDeleteModal(element)">
+              <mat-icon>delete</mat-icon>
+            </button>
+          </div>
+        </td>
+      </ng-container>
+
+      <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
+      <tr mat-row *matRowDef="let row; columns: displayedColumns;"></tr>
+    </table>
+  </div>
+
+  <ng-template #customerFormDialog>
+    <div class="custom-dialog-header">
+      <h2 mat-dialog-title style="margin: 0;">{{ editMode ? ('customers.form.editTitle' | translate) : ('customers.form.registerTitle' | translate) }}</h2>
+    </div>
+
+    <mat-dialog-content>
+      <div class="customer-form p-fluid mt-3">
+        <div class="field">
+          <label for="fullName">{{ 'customers.form.fullName' | translate }} <span class="required">*</span></label>
+          <input type="text" id="fullName" [(ngModel)]="customerForm.fullName" [placeholder]="'customers.form.fullNamePlaceholder' | translate" class="custom-form-input">
+        </div>
+
+        <div class="double-grid">
+          <div class="field">
+            <label for="dni">{{ 'customers.form.dni' | translate }} <span class="required">*</span></label>
+            <input type="text" id="dni" [(ngModel)]="customerForm.dni" [placeholder]="'customers.form.dniPlaceholder' | translate" class="custom-form-input">
+          </div>
+
+          <div class="field">
+            <label for="phone">{{ 'customers.form.phone' | translate }}</label>
+            <input type="text" id="phone" [(ngModel)]="customerForm.phone" [placeholder]="'customers.form.phonePlaceholder' | translate" class="custom-form-input">
+          </div>
+        </div>
+
+        <div class="field">
+          <label for="email">{{ 'customers.form.email' | translate }}</label>
+          <input type="email" id="email" [(ngModel)]="customerForm.email" [placeholder]="'customers.form.emailPlaceholder' | translate" class="custom-form-input">
+        </div>
+      </div>
+    </mat-dialog-content>
+
+    <mat-dialog-actions align="end" class="dialog-footer">
+      <button mat-button (click)="closeDialog()" style="color: #64748b;">{{ 'customers.form.cancel' | translate }}</button>
+      <button mat-flat-button class="save-btn" (click)="saveCustomer()">
+        <mat-icon>check</mat-icon>
+        {{ editMode ? ('customers.form.update' | translate) : ('customers.form.save' | translate) }}
+      </button>
+    </mat-dialog-actions>
+  </ng-template>
+
+  <ng-template #deleteConfirmDialog>
+    <mat-dialog-content>
+      <div class="delete-container">
+        <div class="delete-icon">
+          <mat-icon>warning</mat-icon>
+        </div>
+        <h2>{{ 'customers.delete.title' | translate }}</h2>
+        <p>{{ 'customers.delete.description' | translate }}</p>
+        <strong>{{ customerForm.fullName }}</strong>
+
+        <div class="delete-actions">
+          <button mat-stroked-button (click)="closeDialog()">{{ 'customers.delete.cancel' | translate }}</button>
+          <button mat-flat-button color="warn" (click)="confirmDelete()">{{ 'customers.delete.confirm' | translate }}</button>
+        </div>
+      </div>
+    </mat-dialog-content>
+  </ng-template>
+</div>
+
+
+
+===== src/app/domains/customer-management/presentation/customer-list/customer-list.ts =====
+import { Component, inject, OnInit, TemplateRef, ViewChild, computed, signal } from '@angular/core';
+import { CommonModule } from '@angular/common';
+import { FormsModule } from '@angular/forms';
+import { MatTableModule } from '@angular/material/table';
+import { MatButtonModule } from '@angular/material/button';
+import { MatIconModule } from '@angular/material/icon';
+import { MatDialog, MatDialogModule } from '@angular/material/dialog';
+import { MatInputModule } from '@angular/material/input';
+import { TranslatePipe, TranslateService } from '@ngx-translate/core';
+
+import { CustomerStore } from '../../application/customer.store';
+import { Customer } from '../../domain/models/customer.model';
+
+@Component({
+  selector: 'app-customer-list',
+  standalone: true,
+  imports: [
+    CommonModule,
+    FormsModule,
+    MatTableModule,
+    MatButtonModule,
+    MatIconModule,
+    MatDialogModule,
+    MatInputModule,
+    TranslatePipe,
+  ],
+  templateUrl: './customer-list.html',
+  styleUrl: './customer-list.css',
+})
+export class CustomerListComponent implements OnInit {
+  customerStore = inject(CustomerStore);
+  private dialog = inject(MatDialog);
+  private translate = inject(TranslateService);
+
+  displayedColumns: string[] = ['fullName', 'dni', 'email', 'phone', 'actions'];
+
+  searchTerm = signal('');
+
+  filteredCustomers = computed(() => {
+    const search = this.searchTerm().toLowerCase();
+    const customers = this.customerStore.customers();
+    if (!search) return customers;
+
+    return customers.filter(
+      (customer) =>
+        customer.fullName.toLowerCase().includes(search) ||
+        customer.email.toLowerCase().includes(search) ||
+        customer.dni.toLowerCase().includes(search) ||
+        customer.phone.toLowerCase().includes(search),
+    );
+  });
+
+  @ViewChild('customerFormDialog') customerDialogTemplate!: TemplateRef<any>;
+  @ViewChild('deleteConfirmDialog') deleteDialogTemplate!: TemplateRef<any>;
+
+  customerForm: Customer = this.getEmptyCustomer();
+  editMode = false;
+  selectedCustomerId: string | number | null = null;
+
+  ngOnInit() {
+    this.customerStore.loadCustomers();
+  }
+
+  openAddModal() {
+    this.editMode = false;
+    this.customerForm = this.getEmptyCustomer();
+    this.dialog.open(this.customerDialogTemplate, {
+      width: '40rem',
+      panelClass: 'custom-dialog-container',
+    });
+  }
+
+  openEditModal(customer: Customer) {
+    this.editMode = true;
+    this.selectedCustomerId = customer.id!;
+    this.customerForm = { ...customer };
+    this.dialog.open(this.customerDialogTemplate, {
+      width: '40rem',
+      panelClass: 'custom-dialog-container',
+    });
+  }
+
+  async saveCustomer() {
+    try {
+      if (this.editMode && this.selectedCustomerId) {
+        await this.customerStore.updateCustomer(this.selectedCustomerId, this.customerForm);
+      } else {
+        await this.customerStore.addCustomer(this.customerForm);
+      }
+      this.dialog.closeAll();
+    } catch (error) {
+      alert(this.translate.instant('customers.errors.createError'));
+    }
+  }
+
+  openDeleteModal(customer: Customer) {
+    this.selectedCustomerId = customer.id!;
+    this.customerForm = { ...customer };
+    this.dialog.open(this.deleteDialogTemplate, {
+      width: '28rem',
+      disableClose: true,
+      panelClass: 'custom-dialog-container',
+    });
+  }
+
+  async confirmDelete() {
+    if (!this.selectedCustomerId) return;
+    try {
+      await this.customerStore.deleteCustomer(this.selectedCustomerId);
+      this.dialog.closeAll();
+    } catch (error) {
+      alert(this.translate.instant('customers.errors.deleteError'));
+    }
+  }
+
+  closeDialog() {
+    this.dialog.closeAll();
+  }
+
+  private getEmptyCustomer(): Customer {
+    return { fullName: '', dni: '', email: '', phone: '' };
+  }
+}
+
+
+
+===== src/app/domains/customer-trust/application/tracking.store.ts =====
+import { Injectable, inject, signal } from '@angular/core';
+import { TrackingService } from '../infrastructure/services/tracking.service';
+
+@Injectable({ providedIn: 'root' })
+export class TrackingStore {
+  private service = inject(TrackingService);
+
+  readonly order = signal<any | null>(null);
+  readonly vehicle = signal<any | null>(null);
+  readonly tasks = signal<any[]>([]);
+  readonly customer = signal<any | null>(null);
+  readonly workshop = signal<any | null>(null);
+
+  readonly loading = signal<boolean>(false);
+  readonly error = signal<string | null>(null);
+
+  async searchOrder(trackingCode: string): Promise<void> {
+    if (!trackingCode) return;
+
+    this.loading.set(true);
+    this.error.set(null);
+    this.clearData();
+
+    try {
+      const orders = await this.service.getOrderByCode(trackingCode).toPromise();
+      if (!orders || orders.length === 0) {
+        this.error.set('tracking.errors.notFound');
+        this.loading.set(false);
+        return;
+      }
+
+      const foundOrder = orders[0];
+      this.order.set(foundOrder);
+
+      const [tasksRes, vehicleRes, workshopRes] = await Promise.all([
+        this.service.getTasksByOrder(foundOrder.id).toPromise(),
+        this.service.getVehicle(foundOrder.vehicleId).toPromise(),
+        this.service
+          .getWorkshop(foundOrder.workshopId || 1)
+          .toPromise()
+          .catch(() => null),
+      ]);
+
+      this.tasks.set(tasksRes || []);
+      this.vehicle.set(vehicleRes || null);
+      this.workshop.set(workshopRes || null);
+
+      if (vehicleRes?.customerId) {
+        const customerRes = await this.service.getCustomer(vehicleRes.customerId).toPromise();
+        this.customer.set(customerRes || null);
+      }
+
+      this.loading.set(false);
+    } catch (err) {
+      console.error(err);
+      this.error.set('tracking.errors.serverError');
+      this.loading.set(false);
+    }
+  }
+
+  async processPayment(): Promise<void> {
+    const currentOrder = this.order();
+    if (!currentOrder) return;
+
+    this.loading.set(true);
+    try {
+      await this.service.processPayment(currentOrder.id).toPromise();
+      this.order.update((o) => ({ ...o, status: 'DELIVERED' }));
+      this.loading.set(false);
+    } catch (err) {
+      console.error(err);
+      this.error.set('tracking.errors.paymentFailed');
+      this.loading.set(false);
+      throw err;
+    }
+  }
+
+  clearData() {
+    this.order.set(null);
+    this.vehicle.set(null);
+    this.tasks.set([]);
+    this.customer.set(null);
+    this.workshop.set(null);
+  }
+}
+
+
+
+===== src/app/domains/customer-trust/infrastructure/services/tracking.service.ts =====
+import { Injectable, inject } from '@angular/core';
+import { HttpClient } from '@angular/common/http';
+import { Observable } from 'rxjs';
+import { environment } from '../../../../../environments/environment';
+
+@Injectable({ providedIn: 'root' })
+export class TrackingService {
+  private http = inject(HttpClient);
+  private apiUrl = `${environment.apiUrl}/api/v1`;
+
+  getOrderByCode(trackingCode: string): Observable<any[]> {
+    return this.http.get<any[]>(`${this.apiUrl}/work-orders?trackingCode=${trackingCode}`);
+  }
+
+  getVehicle(vehicleId: string | number): Observable<any> {
+    return this.http.get<any>(`${this.apiUrl}/vehicles/${vehicleId}`);
+  }
+
+  getTasksByOrder(workOrderId: string | number): Observable<any[]> {
+    return this.http.get<any[]>(`${this.apiUrl}/tasks?workOrderId=${workOrderId}`);
+  }
+
+  getCustomer(customerId: string | number): Observable<any> {
+    return this.http.get<any>(`${this.apiUrl}/customers/${customerId}`);
+  }
+
+  getWorkshop(workshopId: string | number): Observable<any> {
+    // Si la API es diferente, ajústalo. Asumimos plural 'workshops'
+    return this.http.get<any>(`${this.apiUrl}/workshops/${workshopId}`);
+  }
+
+  processPayment(workOrderId: string | number): Observable<any> {
+    return this.http.patch<any>(`${this.apiUrl}/work-orders/${workOrderId}`, {
+      status: 'DELIVERED',
+    });
+  }
+}
+
+
+
+===== src/app/domains/customer-trust/presentation/payment-modal/payment-modal.html =====
+<div class="custom-dialog-header" style="background: #0f172a; color: white;">
+  <h2 mat-dialog-title style="margin: 0; color: white;">Pago de Servicio</h2>
+</div>
+
+<mat-dialog-content class="payment-content">
+  <div class="payment-summary">
+    <div class="summary-row">
+      <span>Taller:</span>
+      <strong>{{ workshop?.name || 'AutoService Central' }}</strong>
+    </div>
+    <div class="summary-row">
+      <span>Orden #:</span>
+      <strong>{{ order?.trackingCode }}</strong>
+    </div>
+    <div class="summary-row total-row">
+      <span>Total a Pagar:</span>
+      <h2>S/ {{ order?.price | number:'1.2-2' }}</h2>
+    </div>
+  </div>
+
+  <div class="payment-form mt-3">
+    <div class="field">
+      <label>Número de Tarjeta</label>
+      <input type="text" [(ngModel)]="paymentData.cardNumber" placeholder="0000 0000 0000 0000" class="custom-form-input font-mono" maxlength="19">
+    </div>
+
+    <div class="field">
+      <label>Titular de la Tarjeta</label>
+      <input type="text" [(ngModel)]="paymentData.cardHolder" placeholder="Nombre como aparece en la tarjeta" class="custom-form-input">
+    </div>
+
+    <div class="double-grid">
+      <div class="field">
+        <label>Expiración (MM/AA)</label>
+        <input type="text" [(ngModel)]="paymentData.expiryDate" placeholder="MM/AA" class="custom-form-input" maxlength="5">
+      </div>
+      <div class="field">
+        <label>CVV</label>
+        <input type="password" [(ngModel)]="paymentData.cvv" placeholder="123" class="custom-form-input" maxlength="4">
+      </div>
+    </div>
+  </div>
+
+  <div class="secure-badge">
+    <mat-icon style="color: #16a34a; font-size: 1.2rem; width: 1.2rem; height: 1.2rem;">lock</mat-icon>
+    <span>Pago seguro encriptado de extremo a extremo.</span>
+  </div>
+</mat-dialog-content>
+
+<mat-dialog-actions align="end" class="dialog-footer">
+  <button mat-button (click)="close()" [disabled]="isProcessing" style="color: #64748b;">Cancelar</button>
+  <button mat-flat-button class="pay-btn" (click)="simulatePayment()" [disabled]="isProcessing">
+    <mat-icon *ngIf="!isProcessing">payment</mat-icon>
+    <mat-icon *ngIf="isProcessing" class="spin">refresh</mat-icon>
+    {{ isProcessing ? 'Procesando...' : 'Pagar S/ ' + (order?.price | number:'1.2-2') }}
+  </button>
+</mat-dialog-actions>
+
+
+
+===== src/app/domains/customer-trust/presentation/payment-modal/payment-modal.ts =====
+import { Component, inject } from '@angular/core';
+import { CommonModule } from '@angular/common';
+import { FormsModule } from '@angular/forms';
+import { MAT_DIALOG_DATA, MatDialogRef, MatDialogModule } from '@angular/material/dialog';
+import { MatButtonModule } from '@angular/material/button';
+import { MatInputModule } from '@angular/material/input';
+import { MatIconModule } from '@angular/material/icon';
+import { TranslatePipe } from '@ngx-translate/core';
+
+@Component({
+  selector: 'app-payment-modal',
+  standalone: true,
+  imports: [
+    CommonModule,
+    FormsModule,
+    MatDialogModule,
+    MatButtonModule,
+    MatInputModule,
+    MatIconModule,
+  ],
+  templateUrl: './payment-modal.html',
+  styleUrl: './payment-modal.css',
+})
+export class PaymentModalComponent {
+  public dialogRef = inject(MatDialogRef<PaymentModalComponent>);
+  public data = inject(MAT_DIALOG_DATA);
+
+  order = this.data.order;
+  workshop = this.data.workshop;
+
+  paymentData = {
+    cardNumber: '',
+    cardHolder: '',
+    expiryDate: '',
+    cvv: '',
+  };
+
+  isProcessing = false;
+
+  close() {
+    this.dialogRef.close(false);
+  }
+
+  simulatePayment() {
+    if (!this.paymentData.cardNumber || !this.paymentData.cvv) return;
+
+    this.isProcessing = true;
+    setTimeout(() => {
+      this.isProcessing = false;
+      this.dialogRef.close(true); // Retorna true en caso de éxito
+    }, 2000);
+  }
+}
+
+
+
+===== src/app/domains/customer-trust/presentation/tracking-view/tracking-view.html =====
+<div class="tracking-layout">
+  <header class="public-header no-print">
+    <div class="header-content">
+      <div class="logo">
+        <mat-icon style="color: #0b1680; font-size: 2rem; width: 2rem; height: 2rem;">directions_car</mat-icon>
+        <span style="font-weight: 800; font-size: 1.2rem; color: #0f172a;">AutoService</span>
+      </div>
+      <app-language-switcher></app-language-switcher>
+    </div>
+  </header>
+
+  <main class="tracking-main no-print">
+    <div class="search-section">
+      <h1>Sigue el estado de tu vehículo</h1>
+      <p>Ingresa el código de seguimiento proporcionado por tu taller para conocer el progreso de reparación en tiempo real.</p>
+
+      <div class="search-box">
+        <mat-icon class="search-icon">search</mat-icon>
+        <input type="text" [(ngModel)]="trackingCode" (keyup.enter)="search()" placeholder="Ej: ORD-2023-XYZ" class="tracking-input">
+        <button mat-flat-button class="search-btn" (click)="search()" [disabled]="trackingStore.loading()">
+          <mat-icon *ngIf="trackingStore.loading()" class="spin">refresh</mat-icon>
+          Buscar
+        </button>
+      </div>
+
+      <div *ngIf="trackingStore.error()" class="error-msg">
+        <mat-icon>error_outline</mat-icon> {{ trackingStore.error() | translate }}
+      </div>
+    </div>
+
+    <div *ngIf="trackingStore.order()" class="result-section">
+      <div class="result-grid">
+        <div class="main-panel">
+          <div class="status-card">
+            <div class="card-header">
+              <div>
+                <span class="eyebrow">Estado de Orden</span>
+                <h2>{{ trackingStore.vehicle()?.brand }} {{ trackingStore.vehicle()?.model }}</h2>
+                <span class="custom-badge badge-secondary">{{ trackingStore.vehicle()?.plate }}</span>
+              </div>
+              <span class="custom-badge status-badge" [ngClass]="getSeverityClass(trackingStore.order()?.status)">
+                {{ trackingStore.order()?.status }}
+              </span>
+            </div>
+
+            <div class="progress-container">
+              <div class="progress-labels">
+                <span>Ingreso</span>
+                <span>En Diagnóstico</span>
+                <span>En Progreso</span>
+                <span>Listo</span>
+              </div>
+              <mat-progress-bar mode="determinate" [value]="progressPercentage()"></mat-progress-bar>
+            </div>
+          </div>
+
+          <div class="tasks-card">
+            <h3>Detalle de Tareas</h3>
+            <div class="tasks-list">
+              <div *ngFor="let task of trackingStore.tasks()" class="task-item">
+                <div class="task-info">
+                  <mat-icon [style.color]="task.status === 'COMPLETED' ? '#16a34a' : '#64748b'">
+                    {{ task.status === 'COMPLETED' ? 'check_circle' : 'pending' }}
+                  </mat-icon>
+                  <div>
+                    <h4>{{ task.description }}</h4>
+                    <p *ngIf="task.customerExplanation">{{ task.customerExplanation }}</p>
+                  </div>
+                </div>
+                <span class="custom-badge" [ngClass]="getSeverityClass(task.status)">{{ task.status }}</span>
+              </div>
+            </div>
+            <div *ngIf="!trackingStore.tasks().length" class="empty-tasks">
+              No hay tareas registradas aún.
+            </div>
+          </div>
+        </div>
+
+        <div class="side-panel">
+          <div class="info-card">
+            <h3>Resumen de Orden</h3>
+            <div class="info-row">
+              <span>Código:</span>
+              <strong>{{ trackingStore.order()?.trackingCode }}</strong>
+            </div>
+            <div class="info-row">
+              <span>Ingreso:</span>
+              <strong>{{ trackingStore.order()?.startDate | date }}</strong>
+            </div>
+            <div class="info-row">
+              <span>Entrega Estimada:</span>
+              <strong>{{ trackingStore.order()?.estimatedDate | date }}</strong>
+            </div>
+            <div class="info-row total-row">
+              <span>Monto Total Estimado:</span>
+              <strong class="text-primary">S/ {{ trackingStore.order()?.price | number:'1.2-2' }}</strong>
+            </div>
+
+            <button *ngIf="orderIsFinished()" mat-flat-button class="pay-btn" (click)="openPaymentModal()">
+              <mat-icon>credit_card</mat-icon> Pagar Orden
+            </button>
+
+            <div *ngIf="orderIsDelivered()" class="success-box">
+              <mat-icon>check_circle</mat-icon>
+              <span>¡Orden pagada y entregada!</span>
+            </div>
+
+            <button mat-stroked-button color="primary" class="print-btn w-full mt-3" (click)="printReceipt()">
+              <mat-icon>print</mat-icon> Imprimir Resumen
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </main>
+
+  <div class="print-only print-container">
+    <div *ngIf="trackingStore.order()">
+      <div class="receipt-header">
+        <h1>AutoService</h1>
+        <p>Resumen de Servicio Automotriz</p>
+        <p class="receipt-date">Fecha de impresión: {{ trackingStore.order()?.startDate | date }}</p>
+      </div>
+
+      <table class="receipt-table-info">
+        <tr>
+          <td width="50%">
+            <strong>CLIENTE:</strong><br>
+            {{ trackingStore.customer()?.fullName || 'N/A' }}<br>
+            DNI: {{ trackingStore.customer()?.dni || 'N/A' }}<br>
+            Tel: {{ trackingStore.customer()?.phone || 'N/A' }}
+          </td>
+          <td width="50%" class="text-right">
+            <strong>TALLER:</strong><br>
+            {{ trackingStore.workshop()?.name || 'AutoService Central' }}<br>
+            ORDEN #: {{ trackingStore.order()?.trackingCode }}
+          </td>
+        </tr>
+      </table>
+
+      <hr style="border: 1px dashed #cbd5e1; margin: 15px 0;">
+
+      <table class="receipt-table-info">
+        <tr>
+          <td><strong>VEHÍCULO:</strong> {{ trackingStore.vehicle()?.brand }} {{ trackingStore.vehicle()?.model }}</td>
+          <td><strong>PLACA:</strong> {{ trackingStore.vehicle()?.plate }}</td>
+        </tr>
+        <tr>
+          <td><strong>ESTADO ACTUAL:</strong> {{ trackingStore.order()?.status }}</td>
+          <td><strong>ENTREGA:</strong> {{ trackingStore.order()?.estimatedDate | date }}</td>
+        </tr>
+      </table>
+
+      <table class="receipt-main-table">
+        <thead>
+        <tr>
+          <th>Tarea Asignada</th>
+          <th>Estado</th>
+          <th>Mano de Obra</th>
+        </tr>
+        </thead>
+        <tbody>
+        <ng-container *ngFor="let task of trackingStore.tasks()">
+          <tr class="task-row">
+            <td>
+              <strong>{{ task.description }}</strong>
+              <div *ngIf="task.customerExplanation" style="font-size: 9pt; color: #64748b; margin-top: 4px;">Nota: {{ task.customerExplanation }}</div>
+
+              <div *ngIf="$any(task).parts?.length" class="print-parts-detail">
+                <span style="font-size: 8.5pt; font-weight: bold; color: #475569;">Repuestos:</span>
+                <ul>
+                  <li *ngFor="let part of $any(task).parts">- {{ part.quantity }}x {{ part.name }} (S/{{ part.unitPrice }})</li>
+                </ul>
+              </div>
+            </td>
+            <td>{{ task.status }}</td>
+            <td class="text-right font-mono">S/ {{ task.laborPrice | number:'1.2-2' }}</td>
+          </tr>
+        </ng-container>
+        </tbody>
+      </table>
+
+      <div class="receipt-summary">
+        <div>
+          <h2>TOTAL ESTIMADO: S/ {{ trackingStore.order()?.price | number:'1.2-2' }}</h2>
+          <p style="font-size: 9pt; color: #64748b;">El monto incluye mano de obra y repuestos aplicados.</p>
+        </div>
+      </div>
+
+      <div style="text-align: center; margin-top: 40px; font-size: 9pt; color: #94a3b8;">
+        Este documento es informativo y no representa un comprobante fiscal válido.
+      </div>
+    </div>
+  </div>
+</div>
+
+
+
+===== src/app/domains/customer-trust/presentation/tracking-view/tracking-view.ts =====
+import { Component, computed, inject } from '@angular/core';
+import { CommonModule } from '@angular/common';
+import { FormsModule } from '@angular/forms';
+import { MatButtonModule } from '@angular/material/button';
+import { MatIconModule } from '@angular/material/icon';
+import { MatInputModule } from '@angular/material/input';
+import { MatProgressBarModule } from '@angular/material/progress-bar';
+import { MatDialog } from '@angular/material/dialog';
+import { TranslateModule, TranslateService } from '@ngx-translate/core';
+import { LanguageSwitcher } from '../../../../shared/presentation/language-switcher/language-switcher';
+import { TrackingStore } from '../../application/tracking.store';
+import { PaymentModalComponent } from '../payment-modal/payment-modal';
+
+@Component({
+  selector: 'app-tracking-view',
+  standalone: true,
+  imports: [
+    CommonModule,
+    FormsModule,
+    MatButtonModule,
+    MatIconModule,
+    MatInputModule,
+    MatProgressBarModule,
+    TranslateModule,
+    LanguageSwitcher,
+  ],
+  templateUrl: './tracking-view.html',
+  styleUrl: './tracking-view.css',
+})
+export class TrackingViewComponent {
+  public trackingStore = inject(TrackingStore);
+  public translate = inject(TranslateService);
+  private dialog = inject(MatDialog);
+
+  trackingCode = '';
+
+  progressPercentage = computed(() => {
+    const order = this.trackingStore.order();
+    const tasks = this.trackingStore.tasks();
+
+    if (!order) return 0;
+    if (order.status === 'FINISHED' || order.status === 'DELIVERED') return 100;
+    if (!tasks || tasks.length === 0) return 0;
+
+    const completed = tasks.filter((t: any) => t.status === 'COMPLETED').length;
+    return Math.round((completed / tasks.length) * 100);
+  });
+
+  orderIsFinished = computed(() => this.trackingStore.order()?.status === 'FINISHED');
+  orderIsDelivered = computed(() => this.trackingStore.order()?.status === 'DELIVERED');
+
+  search() {
+    if (this.trackingCode.trim()) {
+      this.trackingStore.searchOrder(this.trackingCode.trim());
+    }
+  }
+
+  getSeverityClass(status: string): string {
+    if (status === 'FINISHED' || status === 'COMPLETED' || status === 'DELIVERED')
+      return 'badge-success';
+    if (status === 'IN_PROGRESS') return 'badge-info';
+    return 'badge-warning';
+  }
+
+  openPaymentModal() {
+    const dialogRef = this.dialog.open(PaymentModalComponent, {
+      width: '450px',
+      panelClass: 'custom-dialog-container',
+      data: {
+        order: this.trackingStore.order(),
+        workshop: this.trackingStore.workshop(),
+      },
+    });
+
+    dialogRef.afterClosed().subscribe(async (success) => {
+      if (success) {
+        await this.trackingStore.processPayment();
+      }
+    });
+  }
+
+  printReceipt() {
+    window.print();
+  }
+}
+
+
+
+===== src/app/domains/fleet-management/application/vehicle.store.ts =====
+import { Injectable, inject, signal } from '@angular/core';
+import { VehicleService } from '../infrastructure/services/vehicle.service';
+import { Vehicle } from '../domain/models/vehicle.model';
+
+@Injectable({ providedIn: 'root' })
+export class VehicleStore {
+  private vehicleService = inject(VehicleService);
+
+  readonly vehicles = signal<Vehicle[]>([]);
+  readonly loading = signal<boolean>(false);
+
+  loadVehicles(): Promise<void> {
+    this.loading.set(true);
+    return new Promise((resolve, reject) => {
+      this.vehicleService.getAll().subscribe({
+        next: (data) => {
+          this.vehicles.set(data);
+          this.loading.set(false);
+          resolve();
+        },
+        error: (err) => {
+          console.error('vehicles.errors.load', err);
+          this.loading.set(false);
+          reject(err);
+        },
+      });
+    });
+  }
+
+  addVehicle(vehicle: Vehicle): Promise<Vehicle> {
+    return new Promise((resolve, reject) => {
+      this.vehicleService.create(vehicle).subscribe({
+        next: (newVehicle) => {
+          this.vehicles.update((list) => [...list, newVehicle]);
+          resolve(newVehicle);
+        },
+        error: (err) => {
+          console.error('vehicles.errors.create', err);
+          reject(err);
+        },
+      });
+    });
+  }
+
+  updateVehicle(id: string | number, vehicleData: Partial<Vehicle>): Promise<void> {
+    return new Promise((resolve, reject) => {
+      this.vehicleService.update(id, vehicleData).subscribe({
+        next: (updatedVehicle) => {
+          this.vehicles.update((list) =>
+            list.map((v) => (String(v.id) === String(id) ? updatedVehicle : v)),
+          );
+          resolve();
+        },
+        error: (err) => {
+          console.error('vehicles.errors.update', err);
+          reject(err);
+        },
+      });
+    });
+  }
+}
+
+
+
+===== src/app/domains/fleet-management/domain/models/vehicle.model.ts =====
+export interface Vehicle {
+  id?: string | number;
+  plate: string;
+  brand: string;
+  model: string;
+  year: string | number;
+  color: string;
+  status: string;
+  customerId: string | number | null;
+  image?: string;
+  imageFile?: File | null;
+}
+
+
+
+===== src/app/domains/fleet-management/infrastructure/services/vehicle.service.ts =====
+import { Injectable, inject } from '@angular/core';
+import { HttpClient } from '@angular/common/http';
+import { Observable } from 'rxjs';
+import { Vehicle } from '../../domain/models/vehicle.model';
+import { environment } from '../../../../../environments/environment';
+
+@Injectable({ providedIn: 'root' })
+export class VehicleService {
+  private http = inject(HttpClient);
+  private apiUrl = `${environment.apiUrl}/api/v1/vehicles`;
+
+  getAll(): Observable<Vehicle[]> {
+    return this.http.get<Vehicle[]>(this.apiUrl);
+  }
+
+  getById(id: string | number): Observable<Vehicle> {
+    return this.http.get<Vehicle>(`${this.apiUrl}/${id}`);
+  }
+
+  create(vehicle: Vehicle): Observable<Vehicle> {
+    return this.http.post<Vehicle>(this.apiUrl, vehicle);
+  }
+
+  update(id: string | number, data: Partial<Vehicle>): Observable<Vehicle> {
+    return this.http.put<Vehicle>(`${this.apiUrl}/${id}`, data);
+  }
+}
+
+
+
+===== src/app/domains/fleet-management/presentation/vehicle-detail/vehicle-detail.html =====
+<section class="vehicle-detail-page">
+  <div class="detail-header">
+    <div>
+      <button mat-icon-button class="back-button" (click)="goBack()"><mat-icon>arrow_back</mat-icon></button>
+      <span class="eyebrow">{{ 'vehicleDetail.technicalDetail' | translate }}</span>
+      <h1 *ngIf="vehicle()">{{ vehicle()!.brand }} {{ vehicle()!.model }}</h1>
+      <p *ngIf="vehicle()">{{ 'vehicleDetail.description' | translate }}</p>
+    </div>
+
+    <span *ngIf="vehicle()" class="custom-badge status-tag" [ngClass]="getVehicleSeverity(vehicle()!.status)">
+      {{ getStatusLabel(vehicle()!.status) }}
+    </span>
+  </div>
+
+  <div *ngIf="!vehicle()" class="empty-state">
+    <mat-icon class="spin">refresh</mat-icon>
+    <p>{{ 'vehicleDetail.loading' | translate }}</p>
+  </div>
+
+  <div *ngIf="vehicle()" class="detail-grid">
+    <mat-card class="hero-card">
+      <img [src]="vehicleImage()" [alt]="vehicle()!.brand" class="vehicle-photo" />
+      <div class="hero-info">
+        <div>
+          <span class="plate-badge">{{ vehicle()!.plate }}</span>
+          <h2>{{ vehicle()!.brand }} {{ vehicle()!.model }}</h2>
+          <p>{{ vehicle()!.year }} · {{ vehicle()!.color }}</p>
+        </div>
+        <div class="progress-block">
+          <div class="progress-label">
+            <span>{{ 'vehicleDetail.operationalProgress' | translate }}</span>
+            <strong>{{ progress() }}%</strong>
+          </div>
+          <mat-progress-bar mode="determinate" [value]="progress()" class="main-progress"></mat-progress-bar>
+        </div>
+      </div>
+    </mat-card>
+
+    <div class="side-column">
+      <mat-card class="info-card">
+        <h3>{{ 'vehicleDetail.owner' | translate }}</h3>
+        <div class="info-row">
+          <span>{{ 'common.name' | translate }}</span>
+          <strong>{{ owner()?.fullName || ('vehicleDetail.unassigned' | translate) }}</strong>
+        </div>
+        <div class="info-row">
+          <span>{{ 'common.phone' | translate }}</span>
+          <strong>{{ owner()?.phone || ('vehicleDetail.notRegistered' | translate) }}</strong>
+        </div>
+        <div class="info-row">
+          <span>{{ 'common.email' | translate }}</span>
+          <strong>{{ owner()?.email || ('vehicleDetail.notRegistered' | translate) }}</strong>
+        </div>
+      </mat-card>
+
+      <mat-card class="info-card">
+        <h3>{{ 'vehicleDetail.lastOrder' | translate }}</h3>
+        <div *ngIf="lastOrder()">
+          <div class="info-row">
+            <span>{{ 'common.code' | translate }}</span>
+            <strong>{{ lastOrder()!.trackingCode }}</strong>
+          </div>
+          <div class="info-row">
+            <span>{{ 'vehicleDetail.estimatedDelivery' | translate }}</span>
+            <strong>{{ lastOrder()!.estimatedDate || ('vehicleDetail.notDefined' | translate) }}</strong>
+          </div>
+          <button mat-stroked-button class="order-button" (click)="goToOrder(lastOrder()!.id)">
+            {{ 'vehicleDetail.viewOrder' | translate }}
+            <mat-icon iconPositionEnd>arrow_forward</mat-icon>
+          </button>
+        </div>
+        <p *ngIf="!lastOrder()" class="muted">{{ 'vehicleDetail.noOrders' | translate }}</p>
+      </mat-card>
+    </div>
+
+    <mat-card class="orders-card">
+      <div class="section-heading">
+        <h3>{{ 'vehicleDetail.relatedOrders' | translate }}</h3>
+        <p>{{ 'vehicleDetail.orderHistory' | translate }}</p>
+      </div>
+
+      <div class="clean-table-container">
+        <table class="clean-table">
+          <thead>
+          <tr>
+            <th>{{ 'common.code' | translate }}</th>
+            <th>{{ 'common.status' | translate }}</th>
+            <th>{{ 'vehicleDetail.entryDate' | translate }}</th>
+            <th>{{ 'vehicleDetail.delivery' | translate }}</th>
+            <th>{{ 'common.action' | translate }}</th>
+          </tr>
+          </thead>
+          <tbody>
+          <tr *ngFor="let order of relatedOrders()">
+            <td>{{ order.trackingCode }}</td>
+            <td><span class="custom-badge" [ngClass]="getVehicleSeverity(order.status)">{{ getStatusLabel(order.status, 'workOrders.statusOptions') }}</span></td>
+            <td>{{ order.startDate | date }}</td>
+            <td>{{ order.estimatedDate | date }}</td>
+            <td><button mat-icon-button (click)="goToOrder(order.id)"><mat-icon>search</mat-icon></button></td>
+          </tr>
+          </tbody>
+        </table>
+      </div>
+    </mat-card>
+
+    <mat-card class="tasks-card">
+      <div class="section-heading">
+        <h3>{{ 'vehicleDetail.relatedTasks' | translate }}</h3>
+        <p>{{ 'vehicleDetail.taskDescription' | translate }}</p>
+      </div>
+      <div *ngIf="relatedTasks().length" class="task-list">
+        <div *ngFor="let task of relatedTasks()" class="task-item">
+          <div>
+            <h4>{{ task.description }}</h4>
+            <p>{{ 'vehicleDetail.orderLabel' | translate }} #{{ task.workOrderId }}</p>
+          </div>
+          <span class="custom-badge" [ngClass]="getTaskSeverity(task.status)">{{ getStatusLabel(task.status, 'taskStatus') }}</span>
+        </div>
+      </div>
+      <div *ngIf="!relatedTasks().length" class="mini-empty">{{ 'vehicleDetail.noTasks' | translate }}</div>
+    </mat-card>
+  </div>
+</section>
+
+
+
+===== src/app/domains/fleet-management/presentation/vehicle-detail/vehicle-detail.ts =====
+import { Component, computed, inject, OnInit } from '@angular/core';
+import { CommonModule } from '@angular/common';
+import { ActivatedRoute, Router } from '@angular/router';
+import { MatButtonModule } from '@angular/material/button';
+import { MatCardModule } from '@angular/material/card';
+import { MatIconModule } from '@angular/material/icon';
+import { MatProgressBarModule } from '@angular/material/progress-bar';
+import { TranslatePipe, TranslateService } from '@ngx-translate/core';
+
+import { CustomerStore } from '../../../customer-management/application/customer.store';
+import { VehicleStore } from '../../application/vehicle.store';
+import { TaskStore } from '../../../workshop-operations/application/task.store';
+import { WorkOrderStore } from '../../../workshop-operations/application/work-order.store';
+
+const VEHICLE_STATUS = { IN_WORKSHOP: 'IN_WORKSHOP', READY: 'READY', DELIVERED: 'DELIVERED' };
+const ORDER_STATUS = {
+  PENDING: 'PENDING',
+  IN_PROGRESS: 'IN_PROGRESS',
+  FINISHED: 'FINISHED',
+  DELIVERED: 'DELIVERED',
+};
+const TASK_STATUS = { PENDING: 'PENDING', IN_PROGRESS: 'IN_PROGRESS', COMPLETED: 'COMPLETED' };
+
+@Component({
+  selector: 'app-vehicle-detail',
+  standalone: true,
+  imports: [
+    CommonModule,
+    MatCardModule,
+    MatIconModule,
+    MatButtonModule,
+    MatProgressBarModule,
+    TranslatePipe,
+  ],
+  templateUrl: './vehicle-detail.html',
+  styleUrl: './vehicle-detail.css',
+})
+export class VehicleDetailComponent implements OnInit {
+  private route = inject(ActivatedRoute);
+  private router = inject(Router);
+  public translate = inject(TranslateService);
+
+  private vehicleStore = inject(VehicleStore);
+  private customerStore = inject(CustomerStore);
+  private workOrderStore = inject(WorkOrderStore);
+  private taskStore = inject(TaskStore);
+
+  vehicleId = this.route.snapshot.paramMap.get('id');
+
+  fallbackVehicleImages = [
+    'https://images.unsplash.com/photo-1552519507-da3b142c6e3d?w=800&auto=format&fit=crop',
+    'https://images.unsplash.com/photo-1542362567-b07e54358753?w=800&auto=format&fit=crop',
+    'https://images.unsplash.com/photo-1492144534655-ae79c964c9d7?w=800&auto=format&fit=crop',
+    'https://images.unsplash.com/photo-1503376780353-7e6692767b70?w=800&auto=format&fit=crop',
+  ];
+
+  async ngOnInit() {
+    await Promise.all([
+      this.vehicleStore.loadVehicles(),
+      this.customerStore.loadCustomers(),
+      this.workOrderStore.loadWorkOrders(),
+      this.taskStore.loadAllTasks(),
+    ]);
+  }
+
+  vehicle = computed(() =>
+    this.vehicleStore.vehicles().find((item) => String(item.id) === String(this.vehicleId)),
+  );
+
+  vehicleImage = computed(() => {
+    const v = this.vehicle();
+    if (!v) return '';
+    if (v.image) return v.image;
+    const index = this.vehicleStore
+      .vehicles()
+      .findIndex((item) => String(item.id) === String(this.vehicleId));
+    return this.fallbackVehicleImages[index >= 0 ? index % this.fallbackVehicleImages.length : 0];
+  });
+
+  owner = computed(() => {
+    const v = this.vehicle();
+    if (!v) return null;
+    return this.customerStore.customers().find((c) => String(c.id) === String(v.customerId));
+  });
+
+  relatedOrders = computed(() =>
+    this.workOrderStore.workOrders().filter((o) => String(o.vehicleId) === String(this.vehicleId)),
+  );
+  lastOrder = computed(() =>
+    this.relatedOrders().length ? this.relatedOrders()[this.relatedOrders().length - 1] : null,
+  );
+  relatedTasks = computed(() =>
+    this.lastOrder()
+      ? this.taskStore.tasks().filter((t) => String(t.workOrderId) === String(this.lastOrder()!.id))
+      : [],
+  );
+
+  progress = computed(() => {
+    if (!this.relatedTasks().length) return this.getProgressByStatus(this.vehicle()?.status);
+    const completed = this.relatedTasks().filter((t) => t.status === TASK_STATUS.COMPLETED).length;
+    return Math.round((completed / this.relatedTasks().length) * 100);
+  });
+
+  getProgressByStatus(status: any): number {
+    if (
+      [
+        VEHICLE_STATUS.READY,
+        VEHICLE_STATUS.DELIVERED,
+        ORDER_STATUS.FINISHED,
+        ORDER_STATUS.DELIVERED,
+      ].includes(status)
+    )
+      return 100;
+    if ([VEHICLE_STATUS.IN_WORKSHOP, ORDER_STATUS.IN_PROGRESS].includes(status)) return 65;
+    if (status === ORDER_STATUS.PENDING) return 15;
+    return 0;
+  }
+
+  getVehicleSeverity(status: any): string {
+    if (
+      [
+        VEHICLE_STATUS.READY,
+        VEHICLE_STATUS.DELIVERED,
+        ORDER_STATUS.FINISHED,
+        ORDER_STATUS.DELIVERED,
+      ].includes(status)
+    )
+      return 'badge-success';
+    if ([VEHICLE_STATUS.IN_WORKSHOP, ORDER_STATUS.IN_PROGRESS].includes(status))
+      return 'badge-info';
+    if (status === ORDER_STATUS.PENDING) return 'badge-warning';
+    return 'badge-secondary';
+  }
+
+  getTaskSeverity(status: any): string {
+    if (status === TASK_STATUS.COMPLETED) return 'badge-success';
+    if (status === TASK_STATUS.IN_PROGRESS) return 'badge-info';
+    if (status === TASK_STATUS.PENDING) return 'badge-warning';
+    return 'badge-secondary';
+  }
+
+  getStatusLabel(status: any, prefix = 'vehicles.statusOptions'): string {
+    if (!status) return '';
+    const key = String(status).toLowerCase();
+    return this.translate.instant(`${prefix}.${key}`);
+  }
+
+  goBack() {
+    this.router.navigate(['/vehicles']);
+  }
+  goToOrder(orderId: string | number | undefined) {
+    if (orderId) this.router.navigate([`/work-orders/${orderId}`]);
+  }
+}
+
+
+
+===== src/app/domains/fleet-management/presentation/vehicle-list/components/vehicle-card/vehicle-card.html =====
+<article class="vehicle-card">
+  <div class="image-wrapper">
+    <img [src]="vehicle.image" [alt]="vehicle.name" class="vehicle-image" />
+    <span class="status-badge custom-badge" [ngClass]="getSeverityClass(vehicle.severity)">
+      {{ vehicle.status }}
+    </span>
+  </div>
+
+  <div class="vehicle-content">
+    <div class="vehicle-header">
+      <div>
+        <h3>{{ vehicle.name }}</h3>
+        <p>{{ vehicle.owner }}</p>
+      </div>
+      <button mat-icon-button (click)="edit.emit(vehicle.raw)">
+        <mat-icon style="color: #64748b;">edit</mat-icon>
+      </button>
+    </div>
+
+    <div class="vehicle-meta">
+      <span><mat-icon>badge</mat-icon>{{ vehicle.plate }}</span>
+      <span><mat-icon>calendar_month</mat-icon>{{ vehicle.year }}</span>
+      <span><mat-icon>palette</mat-icon>{{ vehicle.color }}</span>
+    </div>
+
+    <div class="vehicle-progress-container">
+      <div class="progress-label">
+        <span>{{ 'vehicles.card.progress' | translate }}</span>
+        <strong>{{ vehicle.progress }}%</strong>
+      </div>
+      <mat-progress-bar mode="determinate" [value]="vehicle.progress" class="vehicle-progress"></mat-progress-bar>
+    </div>
+
+    <button mat-stroked-button class="details-button" (click)="viewDetail.emit(vehicle.raw)">
+      {{ 'vehicles.card.viewDetails' | translate }}
+      <mat-icon iconPositionEnd>arrow_forward</mat-icon>
+    </button>
+  </div>
+</article>
+
+
+
+===== src/app/domains/fleet-management/presentation/vehicle-list/components/vehicle-card/vehicle-card.ts =====
+import { Component, EventEmitter, Input, Output } from '@angular/core';
+import { CommonModule } from '@angular/common';
+import { MatButtonModule } from '@angular/material/button';
+import { MatIconModule } from '@angular/material/icon';
+import { MatProgressBarModule } from '@angular/material/progress-bar';
+import { TranslatePipe } from '@ngx-translate/core';
+
+@Component({
+  selector: 'app-vehicle-card',
+  standalone: true,
+  imports: [CommonModule, MatButtonModule, MatIconModule, MatProgressBarModule, TranslatePipe],
+  templateUrl: './vehicle-card.html',
+  styleUrl: './vehicle-card.css',
+})
+export class VehicleCardComponent {
+  @Input({ required: true }) vehicle!: any;
+  @Output() edit = new EventEmitter<any>();
+  @Output() viewDetail = new EventEmitter<any>();
+
+  getSeverityClass(severity: string): string {
+    return `badge-${severity}`;
+  }
+}
+
+
+
+===== src/app/domains/fleet-management/presentation/vehicle-list/components/vehicle-filters/vehicle-filters.html =====
+<div class="vehicle-filters">
+  <div class="search-box">
+    <mat-icon class="search-icon">search</mat-icon>
+    <input
+      type="text"
+      [ngModel]="search"
+      (ngModelChange)="onSearchChange($event)"
+      [placeholder]="'vehicles.filters.searchPlaceholder' | translate"
+      class="custom-search-input"
+    />
+  </div>
+
+  <mat-form-field appearance="outline" class="filter-select">
+    <mat-label>{{ 'vehicles.filters.statusPlaceholder' | translate }}</mat-label>
+    <mat-select [ngModel]="status" (ngModelChange)="onStatusChange($event)">
+      <mat-option [value]="null">{{ 'vehicles.filters.statusPlaceholder' | translate }}</mat-option>
+      <mat-option *ngFor="let option of statusOptions" [value]="option.value">
+        {{ option.label }}
+      </mat-option>
+    </mat-select>
+  </mat-form-field>
+
+  <mat-form-field appearance="outline" class="filter-select">
+    <mat-label>{{ 'vehicles.filters.sortPlaceholder' | translate }}</mat-label>
+    <mat-select [ngModel]="sortBy" (ngModelChange)="onSortByChange($event)">
+      <mat-option [value]="null">{{ 'vehicles.filters.sortPlaceholder' | translate }}</mat-option>
+      <mat-option *ngFor="let option of sortOptions" [value]="option.value">
+        {{ option.label }}
+      </mat-option>
+    </mat-select>
+  </mat-form-field>
+</div>
+
+
+
+===== src/app/domains/fleet-management/presentation/vehicle-list/components/vehicle-filters/vehicle-filters.ts =====
+import { Component, EventEmitter, Input, Output } from '@angular/core';
+import { CommonModule } from '@angular/common';
+import { FormsModule } from '@angular/forms';
+import { MatInputModule } from '@angular/material/input';
+import { MatSelectModule } from '@angular/material/select';
+import { MatIconModule } from '@angular/material/icon';
+import { TranslatePipe, TranslateService } from '@ngx-translate/core';
+
+@Component({
+  selector: 'app-vehicle-filters',
+  standalone: true,
+  imports: [
+    CommonModule,
+    FormsModule,
+    MatInputModule,
+    MatSelectModule,
+    MatIconModule,
+    TranslatePipe,
+  ],
+  templateUrl: './vehicle-filters.html',
+  styleUrl: './vehicle-filters.css',
+})
+export class VehicleFiltersComponent {
+  @Input() search: string = '';
+  @Input() status: string | null = null;
+  @Input() sortBy: string | null = null;
+  @Input() statusOptions: any[] = [];
+  @Input() sortOptions: any[] = [];
+
+  @Output() searchChange = new EventEmitter<string>();
+  @Output() statusChange = new EventEmitter<string | null>();
+  @Output() sortByChange = new EventEmitter<string | null>();
+
+  constructor(public translate: TranslateService) {}
+
+  onSearchChange(value: string) {
+    this.searchChange.emit(value);
+  }
+
+  onStatusChange(value: string | null) {
+    this.statusChange.emit(value);
+  }
+
+  onSortByChange(value: string | null) {
+    this.sortByChange.emit(value);
+  }
+}
+
+
+
+===== src/app/domains/fleet-management/presentation/vehicle-list/vehicle-list.html =====
+<section class="vehicle-page">
+  <div class="vehicle-header">
+    <div>
+      <span class="eyebrow">{{ 'vehicles.eyebrow' | translate }}</span>
+      <h1>{{ 'vehicles.title' | translate }}</h1>
+      <p>{{ 'vehicles.description' | translate }}</p>
+    </div>
+
+    <button mat-flat-button class="add-button" (click)="openNew()">
+      <mat-icon>add</mat-icon>
+      {{ 'vehicles.addButton' | translate }}
+    </button>
+  </div>
+
+  <div class="summary-row">
+    <div class="summary-card">
+      <span>{{ 'vehicles.summary.total' | translate }}</span>
+      <strong>{{ vehicleStore.vehicles().length }}</strong>
+    </div>
+    <div class="summary-card">
+      <span>{{ 'vehicles.summary.inWorkshop' | translate }}</span>
+      <strong>{{ activeVehicleCount() }}</strong>
+    </div>
+    <div class="summary-card">
+      <span>{{ 'vehicles.summary.ready' | translate }}</span>
+      <strong>{{ readyVehicleCount() }}</strong>
+    </div>
+  </div>
+
+  <app-vehicle-filters
+    [search]="search()"
+    [status]="selectedStatus()"
+    [sortBy]="selectedSort()"
+    [statusOptions]="statusOptions()"
+    [sortOptions]="sortOptions()"
+    (searchChange)="search.set($event)"
+    (statusChange)="selectedStatus.set($event)"
+    (sortByChange)="selectedSort.set($event)"
+  ></app-vehicle-filters>
+
+  <div *ngIf="vehicleStore.loading()" class="empty-state">
+    <mat-icon class="spin">refresh</mat-icon>
+    <p>{{ 'vehicles.loading' | translate }}</p>
+  </div>
+
+  <div *ngIf="!vehicleStore.loading() && filteredVehicles().length" class="vehicles-grid">
+    <app-vehicle-card
+      *ngFor="let item of filteredVehicles()"
+      [vehicle]="item"
+      (edit)="editVehicleItem($event)"
+      (viewDetail)="viewVehicleDetail($event)"
+    ></app-vehicle-card>
+  </div>
+
+  <div *ngIf="!vehicleStore.loading() && !filteredVehicles().length" class="empty-state">
+    <mat-icon>directions_car</mat-icon>
+    <h3>{{ 'vehicles.empty.title' | translate }}</h3>
+    <p>{{ 'vehicles.empty.description' | translate }}</p>
+  </div>
+
+  <ng-template #vehicleDialog>
+    <div class="custom-dialog-header">
+      <h2 mat-dialog-title style="margin: 0;">{{ vehicle().id ? ('vehicles.form.editTitle' | translate) : ('vehicles.form.newTitle' | translate) }}</h2>
+    </div>
+    <mat-dialog-content>
+      <div class="vehicle-form mt-3">
+        <div class="field">
+          <label>{{ 'vehicles.form.owner' | translate }} <span class="required">*</span></label>
+          <mat-select [(ngModel)]="vehicle().customerId" [placeholder]="'vehicles.form.selectCustomer' | translate" class="custom-form-input">
+            <mat-option *ngFor="let customer of customerStore.customers()" [value]="customer.id">{{ customer.fullName }}</mat-option>
+          </mat-select>
+        </div>
+
+        <div class="double-grid">
+          <div class="field">
+            <label>{{ 'vehicles.form.plate' | translate }} <span class="required">*</span></label>
+            <input type="text" [(ngModel)]="vehicle().plate" class="custom-form-input" />
+          </div>
+          <div class="field">
+            <label>{{ 'vehicles.form.status' | translate }}</label>
+            <mat-select [(ngModel)]="vehicle().status" [placeholder]="'vehicles.form.status' | translate" class="custom-form-input">
+              <mat-option *ngFor="let opt of statusOptions()" [value]="opt.value">{{ opt.label }}</mat-option>
+            </mat-select>
+          </div>
+        </div>
+
+        <div class="double-grid">
+          <div class="field">
+            <label>{{ 'vehicles.form.brand' | translate }}</label>
+            <input type="text" [(ngModel)]="vehicle().brand" class="custom-form-input" />
+          </div>
+          <div class="field">
+            <label>{{ 'vehicles.form.model' | translate }}</label>
+            <input type="text" [(ngModel)]="vehicle().model" class="custom-form-input" />
+          </div>
+        </div>
+
+        <div class="double-grid">
+          <div class="field">
+            <label>{{ 'vehicles.form.year' | translate }}</label>
+            <input type="text" [(ngModel)]="vehicle().year" class="custom-form-input" />
+          </div>
+          <div class="field">
+            <label>{{ 'vehicles.form.color' | translate }}</label>
+            <input type="text" [(ngModel)]="vehicle().color" class="custom-form-input" />
+          </div>
+        </div>
+
+        <div class="field">
+          <label>{{ 'vehicles.form.image' | translate }}</label>
+          <div class="file-upload-container">
+            <label for="file-upload" class="file-upload-btn">
+              <mat-icon>upload</mat-icon>
+              {{ 'vehicles.form.selectImage' | translate }}
+            </label>
+            <input id="file-upload" type="file" accept="image/*" (change)="handleImageUpload($event)" class="hidden-input" />
+            <div *ngIf="vehicle().image" class="preview-box">
+              <img [src]="vehicle().image" alt="preview" />
+            </div>
+          </div>
+        </div>
+      </div>
+    </mat-dialog-content>
+
+    <mat-dialog-actions align="end" class="dialog-footer">
+      <button mat-button (click)="hideDialog()" style="color: #64748b;">{{ 'vehicles.form.cancel' | translate }}</button>
+      <button mat-flat-button class="save-btn" (click)="saveVehicle()">
+        <mat-icon>check</mat-icon>
+        {{ 'vehicles.form.save' | translate }}
+      </button>
+    </mat-dialog-actions>
+  </ng-template>
+</section>
+
+
+
+===== src/app/domains/fleet-management/presentation/vehicle-list/vehicle-list.ts =====
+import { Component, computed, inject, OnInit, signal, TemplateRef, ViewChild } from '@angular/core';
+import { CommonModule } from '@angular/common';
+import { FormsModule } from '@angular/forms';
+import { Router } from '@angular/router';
+import { MatButtonModule } from '@angular/material/button';
+import { MatDialog, MatDialogModule } from '@angular/material/dialog';
+import { MatIconModule } from '@angular/material/icon';
+import { MatSelectModule } from '@angular/material/select';
+import { TranslatePipe, TranslateService } from '@ngx-translate/core';
+
+import { CustomerStore } from '../../../customer-management/application/customer.store';
+import { VehicleStore } from '../../application/vehicle.store';
+import { WorkOrderStore } from '../../../workshop-operations/application/work-order.store';
+import { TaskStore } from '../../../workshop-operations/application/task.store';
+import { Vehicle } from '../../domain/models/vehicle.model';
+import { VehicleCardComponent } from './components/vehicle-card/vehicle-card';
+import { VehicleFiltersComponent } from './components/vehicle-filters/vehicle-filters';
+
+const VEHICLE_STATUS = { IN_WORKSHOP: 'IN_WORKSHOP', READY: 'READY', DELIVERED: 'DELIVERED' };
+const ORDER_STATUS = { FINISHED: 'FINISHED', DELIVERED: 'DELIVERED', CANCELLED: 'CANCELLED' };
+const REVIEW_STATUS = { APPROVED: 'APPROVED' };
+
+@Component({
+  selector: 'app-vehicle-list',
+  standalone: true,
+  imports: [
+    CommonModule,
+    FormsModule,
+    MatButtonModule,
+    MatIconModule,
+    MatDialogModule,
+    MatSelectModule,
+    VehicleCardComponent,
+    VehicleFiltersComponent,
+    TranslatePipe,
+  ],
+  templateUrl: './vehicle-list.html',
+  styleUrl: './vehicle-list.css',
+})
+export class VehicleListComponent implements OnInit {
+  vehicleStore = inject(VehicleStore);
+  customerStore = inject(CustomerStore);
+  workOrderStore = inject(WorkOrderStore);
+  taskStore = inject(TaskStore);
+
+  private dialog = inject(MatDialog);
+  private router = inject(Router);
+  public translate = inject(TranslateService);
+
+  @ViewChild('vehicleDialog') vehicleDialogTemplate!: TemplateRef<any>;
+
+  vehicle = signal<Vehicle>(this.getEmptyVehicle());
+  isEditing = signal(false);
+
+  search = signal('');
+  selectedStatus = signal<string | null>(null);
+  selectedSort = signal<string | null>(null);
+
+  statusOptions = computed(() => [
+    {
+      label: this.translate.instant('vehicles.statusOptions.in_workshop'),
+      value: VEHICLE_STATUS.IN_WORKSHOP,
+    },
+    { label: this.translate.instant('vehicles.statusOptions.ready'), value: VEHICLE_STATUS.READY },
+    {
+      label: this.translate.instant('vehicles.statusOptions.delivered'),
+      value: VEHICLE_STATUS.DELIVERED,
+    },
+  ]);
+
+  sortOptions = computed(() => [
+    { label: this.translate.instant('vehicles.sortOptions.progressDesc'), value: 'progress-desc' },
+    { label: this.translate.instant('vehicles.sortOptions.progressAsc'), value: 'progress-asc' },
+  ]);
+
+  carImages = [
+    'https://images.unsplash.com/photo-1552519507-da3b142c6e3d?w=500&auto=format&fit=crop',
+    'https://images.unsplash.com/photo-1542362567-b07e54358753?w=500&auto=format&fit=crop',
+    'https://images.unsplash.com/photo-1492144534655-ae79c964c9d7?w=500&auto=format&fit=crop',
+    'https://images.unsplash.com/photo-1503376780353-7e6692767b70?w=500&auto=format&fit=crop',
+  ];
+
+  async ngOnInit() {
+    try {
+      await Promise.all([
+        this.customerStore.loadCustomers(),
+        this.vehicleStore.loadVehicles(),
+        this.workOrderStore.loadWorkOrders(),
+        this.taskStore.loadAllTasks(),
+      ]);
+    } catch (e) {
+      console.error(e);
+    }
+  }
+
+  getCustomerName(id: string | number | null): string {
+    const customer = this.customerStore.customers().find((c) => String(c.id) === String(id));
+    return customer ? customer.fullName : this.translate.instant('common.noAssigned');
+  }
+
+  getSeverity(status: string): string {
+    switch (status) {
+      case VEHICLE_STATUS.IN_WORKSHOP:
+        return 'info';
+      case VEHICLE_STATUS.READY:
+        return 'success';
+      case VEHICLE_STATUS.DELIVERED:
+        return 'secondary';
+      default:
+        return 'warning';
+    }
+  }
+
+  getStatusLabel(status: string): string {
+    const key = String(status).toLowerCase();
+    return this.translate.instant(`vehicles.statusOptions.${key}`);
+  }
+
+  getProgress(vehicleId: string | number, status: string): number {
+    if ([VEHICLE_STATUS.READY, VEHICLE_STATUS.DELIVERED].includes(status)) return 100;
+
+    const activeOrder = this.workOrderStore
+      .workOrders()
+      .find(
+        (o) =>
+          String(o.vehicleId) === String(vehicleId) &&
+          ![ORDER_STATUS.FINISHED, ORDER_STATUS.DELIVERED, ORDER_STATUS.CANCELLED].includes(
+            o.status,
+          ),
+      );
+    if (!activeOrder) return 0;
+
+    const orderTasks = this.taskStore
+      .tasks()
+      .filter((t) => String(t.workOrderId) === String(activeOrder.id));
+    if (!orderTasks.length) return 0;
+
+    const approvedTasks = orderTasks.filter(
+      (t) => (t as any).adminReviewStatus === REVIEW_STATUS.APPROVED,
+    ).length;
+    return Math.round((approvedTasks / orderTasks.length) * 100);
+  }
+
+  vehiclesView = computed(() => {
+    return this.vehicleStore.vehicles().map((item, index) => {
+      const rawStatus = item.status || VEHICLE_STATUS.IN_WORKSHOP;
+      return {
+        id: item.id,
+        raw: item,
+        name: `${item.brand} ${item.model || ''}`,
+        plate: item.plate,
+        owner: this.getCustomerName(item.customerId),
+        status: this.getStatusLabel(rawStatus),
+        rawStatus: rawStatus,
+        severity: this.getSeverity(rawStatus),
+        progress: this.getProgress(item.id!, rawStatus),
+        year: item.year || 'N/A',
+        color: item.color || 'N/A',
+        image: item.image || this.carImages[index % this.carImages.length],
+      };
+    });
+  });
+
+  filteredVehicles = computed(() => {
+    const term = this.search().toLowerCase().trim();
+    let result = this.vehiclesView().filter((item) => {
+      const matchesSearch =
+        !term ||
+        item.name.toLowerCase().includes(term) ||
+        item.plate.toLowerCase().includes(term) ||
+        item.owner.toLowerCase().includes(term);
+      const matchesStatus = !this.selectedStatus() || item.rawStatus === this.selectedStatus();
+      return matchesSearch && matchesStatus;
+    });
+
+    if (this.selectedSort() === 'progress-desc') {
+      result.sort((a, b) => b.progress - a.progress);
+    } else if (this.selectedSort() === 'progress-asc') {
+      result.sort((a, b) => a.progress - b.progress);
+    }
+    return result;
+  });
+
+  activeVehicleCount = computed(
+    () =>
+      this.vehicleStore.vehicles().filter((v) => v.status === VEHICLE_STATUS.IN_WORKSHOP).length,
+  );
+  readyVehicleCount = computed(
+    () => this.vehicleStore.vehicles().filter((v) => v.status === VEHICLE_STATUS.READY).length,
+  );
+
+  openNew() {
+    this.vehicle.set(this.getEmptyVehicle());
+    this.isEditing.set(false);
+    this.dialog.open(this.vehicleDialogTemplate, {
+      width: '40rem',
+      panelClass: 'custom-dialog-container',
+    });
+  }
+
+  hideDialog() {
+    this.dialog.closeAll();
+  }
+
+  editVehicleItem(selectedVehicle: Vehicle) {
+    this.vehicle.set({ ...selectedVehicle, imageFile: null });
+    this.isEditing.set(true);
+    this.dialog.open(this.vehicleDialogTemplate, {
+      width: '40rem',
+      panelClass: 'custom-dialog-container',
+    });
+  }
+
+  async saveVehicle() {
+    try {
+      const v = this.vehicle();
+      if (v.plate && v.customerId) {
+        if (v.id) {
+          await this.vehicleStore.updateVehicle(v.id, v);
+        } else {
+          await this.vehicleStore.addVehicle(v);
+        }
+        this.hideDialog();
+      }
+    } catch (error) {
+      console.error(error);
+    }
+  }
+
+  handleImageUpload(event: any) {
+    const file = event.target.files[0];
+    if (!file) return;
+
+    const reader = new FileReader();
+    reader.onload = () => {
+      this.vehicle.update((v) => ({ ...v, imageFile: file, image: reader.result as string }));
+    };
+    reader.readAsDataURL(file);
+  }
+
+  viewVehicleDetail(selectedVehicle: Vehicle) {
+    this.router.navigate([`/admin/vehicles/${selectedVehicle.id}`]);
+  }
+
+  private getEmptyVehicle(): Vehicle {
+    return {
+      status: VEHICLE_STATUS.IN_WORKSHOP,
+      plate: '',
+      brand: '',
+      model: '',
+      year: '',
+      color: '',
+      image: '',
+      imageFile: null,
+      customerId: null,
+    };
+  }
+}
+
+
+
+===== src/app/domains/inventory-management/application/inventory.store.ts =====
+import { Injectable, inject, signal } from '@angular/core';
+import { InventoryService } from '../infrastructure/services/inventory.service';
+import { InventoryItem } from '../domain/models/inventory-item.model';
+
+@Injectable({ providedIn: 'root' })
+export class InventoryStore {
+  private service = inject(InventoryService);
+
+  readonly items = signal<InventoryItem[]>([]);
+  readonly loading = signal<boolean>(false);
+
+  loadItems(): Promise<void> {
+    this.loading.set(true);
+    return new Promise((resolve, reject) => {
+      this.service.getAll().subscribe({
+        next: (data) => {
+          this.items.set(data.map((item) => this.normalizeItem(item)));
+          this.loading.set(false);
+          resolve();
+        },
+        error: (err) => {
+          console.error('Error cargando inventario:', err);
+          this.loading.set(false);
+          reject(err);
+        },
+      });
+    });
+  }
+
+  addItem(itemData: InventoryItem): Promise<void> {
+    return new Promise((resolve, reject) => {
+      const newItem = this.normalizeItem(itemData);
+      this.service.create(newItem).subscribe({
+        next: (response) => {
+          this.items.update((list) => [...list, this.normalizeItem(response)]);
+          resolve();
+        },
+        error: (err) => reject(err),
+      });
+    });
+  }
+
+  updateItem(id: string | number, itemData: InventoryItem): Promise<void> {
+    return new Promise((resolve, reject) => {
+      const payload = this.normalizeItem(itemData);
+      this.service.update(id, payload).subscribe({
+        next: (response) => {
+          this.items.update((list) =>
+            list.map((i) => (String(i.id) === String(id) ? this.normalizeItem(response) : i)),
+          );
+          resolve();
+        },
+        error: (err) => reject(err),
+      });
+    });
+  }
+
+  deleteItem(id: string | number): Promise<void> {
+    return new Promise((resolve, reject) => {
+      this.service.delete(id).subscribe({
+        next: () => {
+          this.items.update((list) => list.filter((i) => String(i.id) !== String(id)));
+          resolve();
+        },
+        error: (err) => reject(err),
+      });
+    });
+  }
+
+  private normalizeItem(data: any): InventoryItem {
+    return {
+      id: data.id || null,
+      sku: data.sku || null,
+      name: data.name || '',
+      category: data.category || 'SPARE_PART',
+      brand: data.brand || 'GENERIC',
+      unitPrice: parseFloat(data.unitPrice) || 0.0,
+      stock: parseInt(data.stock) || 0,
+      minStock: parseInt(data.minStock) || 5,
+      image: data.image || data.Image || '',
+    };
+  }
+}
+
+
+
+===== src/app/domains/inventory-management/domain/models/inventory-item.model.ts =====
+export interface InventoryItem {
+  id?: string | number;
+  sku?: string;
+  name: string;
+  category: string;
+  brand: string;
+  unitPrice: number;
+  stock: number;
+  minStock: number;
+  image?: string;
+}
+
+
+
+===== src/app/domains/inventory-management/infrastructure/services/inventory.service.ts =====
+import { Injectable, inject } from '@angular/core';
+import { HttpClient } from '@angular/common/http';
+import { Observable } from 'rxjs';
+import { environment } from '../../../../../environments/environment';
+import { InventoryItem } from '../../domain/models/inventory-item.model';
+
+@Injectable({ providedIn: 'root' })
+export class InventoryService {
+  private http = inject(HttpClient);
+  private apiUrl = `${environment.apiUrl}/api/v1/inventory-items`;
+
+  getAll(): Observable<InventoryItem[]> {
+    return this.http.get<InventoryItem[]>(this.apiUrl);
+  }
+
+  getById(id: string | number): Observable<InventoryItem> {
+    return this.http.get<InventoryItem>(`${this.apiUrl}/${id}`);
+  }
+
+  create(data: InventoryItem): Observable<InventoryItem> {
+    const payload = { ...data, image: data.image || '' };
+    return this.http.post<InventoryItem>(this.apiUrl, payload);
+  }
+
+  update(id: string | number, data: InventoryItem): Observable<InventoryItem> {
+    const payload = { ...data, image: data.image || '' };
+    return this.http.put<InventoryItem>(`${this.apiUrl}/${id}`, payload);
+  }
+
+  delete(id: string | number): Observable<void> {
+    return this.http.delete<void>(`${this.apiUrl}/${id}`);
+  }
+}
+
+
+
+===== src/app/domains/inventory-management/presentation/components/inventory-card/inventory-card.component.html =====
+<article class="inventory-card">
+  <div class="image-wrapper">
+    <img *ngIf="item.image" [src]="item.image" [alt]="item.name" class="item-image" />
+    <div *ngIf="!item.image" class="item-image-placeholder">No Image</div>
+  </div>
+
+  <div class="card-content">
+    <div class="item-header">
+      <div class="header-top">
+        <span class="custom-badge badge-secondary">{{ item.sku || 'N/A' }}</span>
+        <span class="custom-badge" [ngClass]="getStockSeverityClass(item)">{{ getStockLabel(item) }}</span>
+      </div>
+      <h3>{{ item.name }}</h3>
+      <p>{{ getCategoryLabel(item.category) }} · {{ item.brand }}</p>
+    </div>
+
+    <div class="item-info">
+      <div>
+        <span>{{ 'inventory.card.stock' | translate }}</span>
+        <strong>{{ item.stock }}</strong>
+      </div>
+      <div>
+        <span>{{ 'inventory.card.minStock' | translate }}</span>
+        <strong>{{ item.minStock }}</strong>
+      </div>
+      <div>
+        <span>{{ 'inventory.card.price' | translate }}</span>
+        <strong class="price">S/ {{ item.unitPrice | number:'1.2-2' }}</strong>
+      </div>
+    </div>
+
+    <div class="card-actions">
+      <button mat-stroked-button color="primary" class="edit-button" (click)="edit.emit(item)">
+        {{ 'actions.edit' | translate }}
+      </button>
+    </div>
+  </div>
+</article>
+
+
+
+===== src/app/domains/inventory-management/presentation/components/inventory-card/inventory-card.component.ts =====
+import { Component, EventEmitter, Input, Output, inject } from '@angular/core';
+import { CommonModule } from '@angular/common';
+import { MatButtonModule } from '@angular/material/button';
+import { TranslatePipe, TranslateService } from '@ngx-translate/core';
+import { InventoryItem } from '../../../domain/models/inventory-item.model';
+
+@Component({
+  selector: 'app-inventory-card',
+  standalone: true,
+  imports: [CommonModule, MatButtonModule, TranslatePipe],
+  templateUrl: './inventory-card.component.html',
+  styleUrl: './inventory-card.component.css',
+})
+export class InventoryCardComponent {
+  @Input({ required: true }) item!: InventoryItem;
+  @Output() edit = new EventEmitter<InventoryItem>();
+
+  public translate = inject(TranslateService);
+
+  getCategoryLabel(categoryValue: string): string {
+    const key = String(categoryValue).toLowerCase();
+    return this.translate.instant(`inventory.categories.${key}`);
+  }
+
+  getStockSeverityClass(item: InventoryItem): string {
+    if (item.stock === 0) return 'badge-danger';
+    if (item.stock <= item.minStock) return 'badge-warning';
+    return 'badge-success';
+  }
+
+  getStockLabel(item: InventoryItem): string {
+    if (item.stock === 0) return this.translate.instant('inventory.status.outOfStock') || 'Agotado';
+    if (item.stock <= item.minStock)
+      return this.translate.instant('inventory.status.lowStock') || 'Poco Stock';
+    return this.translate.instant('inventory.status.inStock') || 'En Stock';
+  }
+}
+
+
+
+===== src/app/domains/inventory-management/presentation/components/presentation/inventory-view/inventory-view.component.html =====
+<section class="inventory-page">
+  <div class="page-header">
+    <div>
+      <span class="eyebrow">{{ 'inventory.eyebrow' | translate }}</span>
+      <h1>{{ 'inventory.title' | translate }}</h1>
+      <p>{{ 'inventory.description' | translate }}</p>
+    </div>
+
+    <button mat-flat-button class="add-button" (click)="openNew()">
+      <mat-icon>add</mat-icon>
+      {{ 'inventory.newButton' | translate }}
+    </button>
+  </div>
+
+  <div class="toolbar">
+    <div class="search-box">
+      <mat-icon class="search-icon">search</mat-icon>
+      <input type="text" [ngModel]="search()" (ngModelChange)="search.set($event)" [placeholder]="'inventory.searchPlaceholder' | translate" class="custom-search-input">
+    </div>
+  </div>
+
+  <div class="table-card">
+    <div *ngIf="inventoryStore.loading()" class="empty-state">
+      <mat-icon class="spin">refresh</mat-icon>
+      <p>Cargando inventario...</p>
+    </div>
+
+    <div *ngIf="!inventoryStore.loading() && filteredItems().length > 0" class="inventory-grid">
+      <app-inventory-card *ngFor="let item of filteredItems()" [item]="item" (edit)="editItem($event)"></app-inventory-card>
+    </div>
+
+    <div *ngIf="!inventoryStore.loading() && filteredItems().length === 0" class="empty-state">
+      <mat-icon>inventory_2</mat-icon>
+      <p>No se encontraron materiales en el inventario.</p>
+    </div>
+  </div>
+
+  <ng-template #inventoryDialog>
+    <div class="custom-dialog-header">
+      <h2 mat-dialog-title style="margin: 0;">{{ itemForm().id ? ('inventory.editTitle' | translate) : ('inventory.newTitle' | translate) }}</h2>
+    </div>
+
+    <mat-dialog-content>
+      <div class="form-grid mt-3">
+        <div class="field">
+          <label>{{ 'inventory.form.name' | translate }} <span class="required">*</span></label>
+          <input type="text" [(ngModel)]="itemForm().name" [placeholder]="'inventory.form.namePlaceholder' | translate" class="custom-form-input">
+        </div>
+
+        <div class="row-grid">
+          <div class="field">
+            <label>{{ 'inventory.form.category' | translate }}</label>
+            <mat-select [(ngModel)]="itemForm().category" class="custom-form-input">
+              <mat-option *ngFor="let cat of categories()" [value]="cat.value">{{ cat.label }}</mat-option>
+            </mat-select>
+          </div>
+          <div class="field">
+            <label>{{ 'inventory.form.brand' | translate }}</label>
+            <input type="text" [(ngModel)]="itemForm().brand" [placeholder]="'inventory.form.brandPlaceholder' | translate" class="custom-form-input">
+          </div>
+        </div>
+
+        <div class="row-grid">
+          <div class="field">
+            <label>{{ 'inventory.form.stock' | translate }}</label>
+            <input type="number" [(ngModel)]="itemForm().stock" min="0" class="custom-form-input">
+          </div>
+          <div class="field">
+            <label>{{ 'inventory.form.minStock' | translate }}</label>
+            <input type="number" [(ngModel)]="itemForm().minStock" min="0" class="custom-form-input">
+          </div>
+        </div>
+
+        <div class="field">
+          <label>{{ 'inventory.form.unitPrice' | translate }} (S/)</label>
+          <input type="number" [(ngModel)]="itemForm().unitPrice" min="0" step="0.1" class="custom-form-input">
+        </div>
+
+        <div class="field">
+          <label>Imagen del Material</label>
+          <div class="file-upload-container">
+            <label for="inventory-image-upload" class="file-upload-btn">
+              <mat-icon>upload</mat-icon> Seleccionar Imagen
+            </label>
+            <input id="inventory-image-upload" type="file" accept="image/*" (change)="handleImageUpload($event)" class="hidden-input">
+            <div *ngIf="itemForm().image" class="preview-box">
+              <img [src]="itemForm().image" alt="preview">
+            </div>
+          </div>
+        </div>
+      </div>
+    </mat-dialog-content>
+
+    <mat-dialog-actions align="end" class="dialog-footer" style="justify-content: space-between;">
+      <div>
+        <button *ngIf="itemForm().id" mat-button color="warn" (click)="deleteItem()"><mat-icon>delete</mat-icon> Eliminar</button>
+      </div>
+      <div>
+        <button mat-button (click)="closeDialog()" style="color: #64748b;">{{ 'common.cancel' | translate }}</button>
+        <button mat-flat-button class="save-btn" (click)="saveItem()">
+          <mat-icon>save</mat-icon> {{ 'common.save' | translate }}
+        </button>
+      </div>
+    </mat-dialog-actions>
+  </ng-template>
+</section>
+
+
+
+===== src/app/domains/inventory-management/presentation/components/presentation/inventory-view/inventory-view.component.ts =====
+import { Component, computed, inject, OnInit, signal, TemplateRef, ViewChild } from '@angular/core';
+import { CommonModule } from '@angular/common';
+import { FormsModule } from '@angular/forms';
+import { MatButtonModule } from '@angular/material/button';
+import { MatIconModule } from '@angular/material/icon';
+import { MatInputModule } from '@angular/material/input';
+import { MatSelectModule } from '@angular/material/select';
+import { MatDialog, MatDialogModule } from '@angular/material/dialog';
+import { TranslatePipe, TranslateService } from '@ngx-translate/core';
+
+import { InventoryStore } from '../../../../application/inventory.store';
+import { InventoryItem } from '../../../../domain/models/inventory-item.model';
+import { InventoryCardComponent } from '../../inventory-card/inventory-card.component';
+
+const INVENTORY_CATEGORIES = {
+  SPARE_PART: 'SPARE_PART',
+  OIL: 'OIL',
+  SUPPLY: 'SUPPLY',
+  TOOL: 'TOOL',
+};
+
+@Component({
+  selector: 'app-inventory-view',
+  standalone: true,
+  imports: [
+    CommonModule,
+    FormsModule,
+    MatButtonModule,
+    MatIconModule,
+    MatInputModule,
+    MatSelectModule,
+    MatDialogModule,
+    TranslatePipe,
+    InventoryCardComponent,
+  ],
+  templateUrl: './inventory-view.component.html',
+  styleUrl: './inventory-view.component.css',
+})
+export class InventoryViewComponent implements OnInit {
+  public inventoryStore = inject(InventoryStore);
+  private dialog = inject(MatDialog);
+  public translate = inject(TranslateService);
+
+  @ViewChild('inventoryDialog') inventoryDialogTemplate!: TemplateRef<any>;
+
+  search = signal('');
+  itemForm = signal<InventoryItem>(this.getEmptyItem());
+
+  categories = computed(() => [
+    {
+      value: INVENTORY_CATEGORIES.SPARE_PART,
+      label: this.translate.instant('inventory.categories.spare_part'),
+    },
+    { value: INVENTORY_CATEGORIES.OIL, label: this.translate.instant('inventory.categories.oil') },
+    {
+      value: INVENTORY_CATEGORIES.SUPPLY,
+      label: this.translate.instant('inventory.categories.supply'),
+    },
+    {
+      value: INVENTORY_CATEGORIES.TOOL,
+      label: this.translate.instant('inventory.categories.tool'),
+    },
+  ]);
+
+  filteredItems = computed(() => {
+    const term = this.search().toLowerCase().trim();
+    return this.inventoryStore
+      .items()
+      .filter(
+        (item) =>
+          item.name.toLowerCase().includes(term) ||
+          (item.sku && item.sku.toLowerCase().includes(term)),
+      );
+  });
+
+  ngOnInit() {
+    this.inventoryStore.loadItems();
+  }
+
+  openNew() {
+    this.itemForm.set(this.getEmptyItem());
+    this.dialog.open(this.inventoryDialogTemplate, {
+      width: '450px',
+      panelClass: 'custom-dialog-container',
+    });
+  }
+
+  editItem(item: InventoryItem) {
+    this.itemForm.set({ ...item });
+    this.dialog.open(this.inventoryDialogTemplate, {
+      width: '450px',
+      panelClass: 'custom-dialog-container',
+    });
+  }
+
+  async saveItem() {
+    const currentItem = this.itemForm();
+    if (!currentItem.name) return;
+
+    if (currentItem.id) {
+      await this.inventoryStore.updateItem(currentItem.id, currentItem);
+    } else {
+      await this.inventoryStore.addItem(currentItem);
+    }
+    this.dialog.closeAll();
+  }
+
+  async deleteItem() {
+    const currentItem = this.itemForm();
+    if (confirm(this.translate.instant('inventory.deleteConfirm', { name: currentItem.name }))) {
+      if (currentItem.id) {
+        await this.inventoryStore.deleteItem(currentItem.id);
+        this.dialog.closeAll();
+      }
+    }
+  }
+
+  handleImageUpload(event: any) {
+    const file = event.target.files[0];
+    if (!file) return;
+
+    const reader = new FileReader();
+    reader.onload = (e: any) => {
+      this.itemForm.update((item) => ({ ...item, image: e.target.result }));
+    };
+    reader.readAsDataURL(file);
+  }
+
+  closeDialog() {
+    this.dialog.closeAll();
+  }
+
+  private getEmptyItem(): InventoryItem {
+    return {
+      name: '',
+      category: INVENTORY_CATEGORIES.SPARE_PART,
+      brand: '',
+      unitPrice: 0,
+      stock: 10,
+      minStock: 3,
+      image: '',
+    };
+  }
+}
+
+
+
+===== src/app/domains/mechanic/presentation/mechanic-dashboard/mechanic-dashboard.component.html =====
+<div class="mechanic-dashboard-page">
+  <div class="mechanic-header">
+    <h1>{{ 'mechanicDashboard.welcome' | translate }} {{ me()?.fullName }}</h1>
+    <p>{{ 'mechanicDashboard.subtitle' | translate }}</p>
+  </div>
+
+  <mat-card class="profile-card mb-4">
+    <mat-card-content class="profile-content">
+      <mat-icon style="font-size: 3rem; width: 3rem; height: 3rem; color: #0b1680;">account_circle</mat-icon>
+      <div>
+        <h2>{{ me()?.fullName }}</h2>
+        <span>{{ me()?.specialty }}</span>
+        <small>{{ 'mechanicDashboard.statusActive' | translate }}</small>
+      </div>
+    </mat-card-content>
+  </mat-card>
+
+  <div class="summary-grid">
+    <mat-card class="summary-card">
+      <mat-card-content>
+        <span>{{ 'mechanicDashboard.stats.activeOrders' | translate }}</span>
+        <strong>{{ stats().activeOrders }}</strong>
+      </mat-card-content>
+    </mat-card>
+    <mat-card class="summary-card">
+      <mat-card-content>
+        <span>{{ 'mechanicDashboard.stats.pendingTasks' | translate }}</span>
+        <strong>{{ stats().pendingTasks }}</strong>
+      </mat-card-content>
+    </mat-card>
+    <mat-card class="summary-card">
+      <mat-card-content>
+        <span>{{ 'mechanicDashboard.stats.completedTasks' | translate }}</span>
+        <strong>{{ stats().completedTasks }}</strong>
+      </mat-card-content>
+    </mat-card>
+  </div>
+
+  <mat-card class="orders-card">
+    <mat-card-content>
+      <div class="section-header">
+        <h2>{{ 'mechanicDashboard.assignedOrders' | translate }}</h2>
+      </div>
+      <div *ngIf="myOrders().length" class="orders-grid">
+        <div *ngFor="let order of myOrders()" class="order-card" style="border: 1px solid #e2e8f0; border-radius: 16px; padding: 1.25rem;">
+          <div class="order-top" style="display: flex; justify-content: space-between;">
+            <div>
+              <h3 style="margin:0;">{{ 'mechanicDashboard.orderLabel' | translate }} {{ order.trackingCode }}</h3>
+              <span style="color:#64748b; font-size:0.9rem;">{{ order.startDate | date }}</span>
+            </div>
+            <button mat-flat-button color="primary" (click)="goToOrder(order.id)">
+              {{ 'mechanicDashboard.viewDetails' | translate }} <mat-icon iconPositionEnd>arrow_forward</mat-icon>
+            </button>
+          </div>
+
+          <div class="progress-block" style="margin-top: 1.2rem;">
+            <div class="progress-label" style="display: flex; justify-content: space-between; font-size: 0.85rem; color: #64748b; margin-bottom: 0.5rem; font-weight: 700;">
+              <span>{{ getCompletedTasks(order.id) }} / {{ getTotalTasks(order.id) }} {{ 'mechanicDashboard.tasksCompletedLabel' | translate }}</span>
+              <strong style="color: #0b1680;">{{ getProgress(order.id) }}%</strong>
+            </div>
+            <mat-progress-bar mode="determinate" [value]="getProgress(order.id)"></mat-progress-bar>
+          </div>
+        </div>
+      </div>
+      <div *ngIf="!myOrders().length" class="empty-state" style="text-align:center; color:#64748b; padding: 2rem;">
+        {{ 'mechanicDashboard.noOrders' | translate }}
+      </div>
+    </mat-card-content>
+  </mat-card>
+</div>
+
+
+
+===== src/app/domains/mechanic/presentation/mechanic-dashboard/mechanic-dashboard.compontent.ts =====
+import { Component, computed, inject, OnInit } from '@angular/core';
+import { CommonModule } from '@angular/common';
+import { Router } from '@angular/router';
+import { MatCardModule } from '@angular/material/card';
+import { MatButtonModule } from '@angular/material/button';
+import { MatIconModule } from '@angular/material/icon';
+import { MatProgressBarModule } from '@angular/material/progress-bar';
+import { TranslateModule } from '@ngx-translate/core';
+import { WorkOrderStore } from '../../../workshop-operations/application/work-order.store';
+import { TaskStore } from '../../../workshop-operations/application/task.store';
+import { AuthState } from '../../../auth/application/auth.state';
+import { MechanicStore } from '../../../staff-coordination/application/mechanic.store';
+
+@Component({
+  selector: 'app-mechanic-dashboard',
+  standalone: true,
+  imports: [
+    CommonModule,
+    MatCardModule,
+    MatButtonModule,
+    MatIconModule,
+    MatProgressBarModule,
+    TranslateModule,
+  ],
+  templateUrl: './mechanic-dashboard.component.html',
+  styleUrl: './mechanic-dashboard.component.css',
+})
+export class MechanicDashboardComponent implements OnInit {
+  private workOrderStore = inject(WorkOrderStore);
+  private taskStore = inject(TaskStore);
+  private mechanicStore = inject(MechanicStore);
+  private authState = inject(AuthState);
+  private router = inject(Router);
+
+  async ngOnInit() {
+    await Promise.all([
+      this.workOrderStore.loadWorkOrders(),
+      this.taskStore.loadAllTasks(),
+      this.mechanicStore.loadMechanics(),
+    ]);
+  }
+
+  me = computed(() => {
+    const mechanicId = this.authState.currentUser()?.mechanicId;
+    return this.mechanicStore.mechanics().find((m) => String(m.id) === String(mechanicId));
+  });
+
+  myOrders = computed(() => {
+    const mechanicId = this.authState.currentUser()?.mechanicId;
+    return this.workOrderStore
+      .workOrders()
+      .filter((o) => String(o.mechanicId) === String(mechanicId));
+  });
+
+  stats = computed(() => {
+    const orders = this.myOrders();
+    const myTasks = this.taskStore
+      .tasks()
+      .filter((t) => orders.some((o) => String(o.id) === String(t.workOrderId)));
+    return {
+      activeOrders: orders.filter((o) => ['PENDING', 'IN_PROGRESS'].includes(o.status)).length,
+      pendingTasks: myTasks.filter((t) => t.status !== 'COMPLETED').length,
+      completedTasks: myTasks.filter((t) => t.status === 'COMPLETED').length,
+    };
+  });
+
+  getCompletedTasks(orderId: string | number | undefined) {
+    if (!orderId) return 0;
+    return this.taskStore
+      .tasks()
+      .filter((t) => String(t.workOrderId) === String(orderId) && t.status === 'COMPLETED').length;
+  }
+
+  getTotalTasks(orderId: string | number | undefined) {
+    if (!orderId) return 0;
+    return this.taskStore.tasks().filter((t) => String(t.workOrderId) === String(orderId)).length;
+  }
+
+  getProgress(orderId: string | number | undefined) {
+    const total = this.getTotalTasks(orderId);
+    if (!total) return 0;
+    return Math.round((this.getCompletedTasks(orderId) / total) * 100);
+  }
+
+  goToOrder(id: string | number | undefined) {
+    if (id) this.router.navigate([`/mechanic/order/${id}`]);
+  }
+}
+
+
+
+===== src/app/domains/mechanic/presentation/mechanic-order-execution/mechanic-order-execution.component.html =====
+<div class="mechanic-order-page">
+  <header class="page-header">
+    <button mat-icon-button (click)="router.navigate(['/mechanic/workspace'])">
+      <mat-icon>arrow_back</mat-icon>
+    </button>
+    <div>
+      <h1>{{ 'mechanicOrder.order' | translate }} {{ order()?.trackingCode }}</h1>
+      <p>{{ 'mechanicOrder.manageDescription' | translate }}</p>
+    </div>
+  </header>
+
+  <mat-card class="vehicle-card mb-4">
+    <mat-card-content>
+      <div class="vehicle-info">
+        <mat-icon class="vehicle-icon">directions_car</mat-icon>
+        <div>
+          <h2>{{ vehicle()?.brand }} {{ vehicle()?.model }}</h2>
+          <span>{{ vehicle()?.plate }}</span>
+        </div>
+      </div>
+    </mat-card-content>
+  </mat-card>
+
+  <mat-card class="diagnosis-card mb-4">
+    <mat-card-content>
+      <h3>{{ 'mechanicOrder.diagnosis' | translate }}</h3>
+      <textarea
+        [disabled]="isOrderClosed()"
+        [(ngModel)]="diagnosis"
+        rows="4"
+        class="custom-textarea w-full"
+        [placeholder]="'mechanicOrder.diagnosisPlaceholder' | translate">
+      </textarea>
+    </mat-card-content>
+  </mat-card>
+
+  <mat-card class="tasks-card mb-4">
+    <mat-card-content>
+      <div class="section-header">
+        <h3>{{ 'mechanicOrder.tasks' | translate }}</h3>
+        <button mat-flat-button color="primary" [disabled]="isOrderClosed()" (click)="openTaskDialog()">
+          <mat-icon>add</mat-icon>
+          {{ 'mechanicOrder.newTask' | translate }}
+        </button>
+      </div>
+
+      <div *ngIf="tasks().length" class="tasks-list">
+        <div *ngFor="let task of tasks()" class="task-item">
+          <div class="task-content">
+            <h4>{{ task.description }}</h4>
+            <div class="task-meta">
+              <span class="custom-badge" [ngClass]="task.status === 'COMPLETED' ? 'badge-success' : 'badge-warning'">
+                {{ task.status === 'COMPLETED' ? ('tasks.summary.completed' | translate) : task.status }}
+              </span>
+              <span class="custom-badge badge-info">{{ getPriorityLabel($any(task).priority || 'MEDIUM') }}</span>
+              <span class="time-label"><mat-icon style="font-size:1rem; width:1rem; height:1rem;">schedule</mat-icon> {{ $any(task).estimatedTime }}h</span>
+              <strong class="price-label">S/ {{ $any(task).laborPrice }}</strong>
+            </div>
+
+            <div *ngIf="$any(task).parts && $any(task).parts.length > 0" class="task-parts">
+              <small class="parts-title"><mat-icon style="font-size:1rem; width:1rem; height:1rem;">inventory_2</mat-icon> Materiales:</small>
+              <div class="parts-tags">
+                <span *ngFor="let p of $any(task).parts" class="custom-badge badge-secondary">
+                  {{ p.quantity }}x {{ p.name }}
+                </span>
+              </div>
+            </div>
+          </div>
+
+          <button *ngIf="task.status !== 'COMPLETED' && !isOrderClosed()" mat-mini-fab style="background-color: #16a34a; color: white;" (click)="completeTask(task)">
+            <mat-icon>check</mat-icon>
+          </button>
+        </div>
+      </div>
+      <div *ngIf="!tasks().length" class="empty-state">{{ 'mechanicOrder.noTasks' | translate }}</div>
+    </mat-card-content>
+  </mat-card>
+
+  <mat-card class="summary-card">
+    <mat-card-content>
+      <div class="summary-row">
+        <span>{{ 'mechanicOrder.totalLabor' | translate }}</span>
+        <strong>S/ {{ totalLabor() | number:'1.2-2' }}</strong>
+      </div>
+      <div class="summary-row highlight-total">
+        <span>Costo Total (Inc. Materiales)</span>
+        <strong>S/ {{ totalOrderCost() | number:'1.2-2' }}</strong>
+      </div>
+      <div class="summary-row">
+        <span>{{ 'mechanicOrder.tasksLabel' | translate }}</span>
+        <strong>{{ completedTasks() }} / {{ tasks().length }}</strong>
+      </div>
+      <div class="summary-row">
+        <span>{{ 'mechanicOrder.progress' | translate }}</span>
+        <strong>{{ progress() }}%</strong>
+      </div>
+      <mat-progress-bar mode="determinate" [value]="progress()" class="mb-3"></mat-progress-bar>
+
+      <button *ngIf="canFinishOrder() && order()?.status !== 'FINISHED'" mat-flat-button style="background-color: #16a34a; color: white; width: 100%; padding: 1.5rem;" (click)="finishOrder()">
+        <mat-icon>check_circle</mat-icon>
+        {{ 'mechanicOrder.finishOrder' | translate }}
+      </button>
+    </mat-card-content>
+  </mat-card>
+
+  <ng-template #taskDialogTemplate>
+    <div class="custom-dialog-header">
+      <h2 mat-dialog-title style="margin: 0;">{{ 'mechanicOrder.dialog.newTask' | translate }}</h2>
+    </div>
+
+    <mat-dialog-content>
+      <div class="dialog-form mt-3">
+        <div class="field">
+          <label>{{ 'mechanicOrder.dialog.description' | translate }}</label>
+          <input type="text" [(ngModel)]="newTask().description" class="custom-form-input" [placeholder]="'mechanicOrder.dialog.descriptionPlaceholder' | translate">
+        </div>
+
+        <div class="double-grid">
+          <div class="field">
+            <label>{{ 'mechanicOrder.dialog.priority' | translate }}</label>
+            <mat-select [(ngModel)]="newTask().priority" class="custom-form-input">
+              <mat-option *ngFor="let p of priorities" [value]="p.value">{{ p.label }}</mat-option>
+            </mat-select>
+          </div>
+          <div class="field">
+            <label>{{ 'mechanicOrder.dialog.estimatedTime' | translate }}</label>
+            <input type="number" [(ngModel)]="newTask().estimatedTime" class="custom-form-input" min="0.1" step="0.5">
+          </div>
+        </div>
+
+        <div class="field">
+          <label>{{ 'mechanicOrder.dialog.laborPrice' | translate }}</label>
+          <input type="number" [(ngModel)]="newTask().laborPrice" class="custom-form-input" min="0">
+        </div>
+
+        <hr class="divider">
+
+        <div class="inventory-section">
+          <div class="section-head">
+            <label><mat-icon style="font-size:1.2rem; width:1.2rem; height:1.2rem; vertical-align: middle;">inventory_2</mat-icon> Materiales / Repuestos</label>
+            <button mat-stroked-button color="primary" (click)="addPart()"><mat-icon>add</mat-icon> Añadir</button>
+          </div>
+
+          <div *ngFor="let part of newTask().parts; let i = index" class="part-row">
+            <mat-select [(ngModel)]="part.inventoryItemId" (selectionChange)="onPartSelected($event.value, i)" class="custom-form-input" placeholder="Buscar repuesto...">
+              <mat-option *ngFor="let item of inventoryStore.items()" [value]="item.id">{{ item.name }} (Stock: {{ item.stock }})</mat-option>
+            </mat-select>
+            <input type="number" [(ngModel)]="part.quantity" class="custom-form-input text-center" min="1" style="width: 80px;">
+            <div class="part-subtotal">S/. {{ ((part.unitPrice || 0) * (part.quantity || 1)) | number:'1.2-2' }}</div>
+            <button mat-icon-button color="warn" (click)="removePart(i)"><mat-icon>delete</mat-icon></button>
+          </div>
+          <div *ngIf="newTask().parts.length === 0" class="empty-parts">Sin materiales asignados. Pulsa en "Añadir".</div>
+        </div>
+
+        <div class="total-preview">
+          <span>Costo Estimado Tarea:</span>
+          <h2>S/. {{ newTaskTotalCost() | number:'1.2-2' }}</h2>
+        </div>
+      </div>
+    </mat-dialog-content>
+
+    <mat-dialog-actions align="end" class="dialog-footer">
+      <button mat-button (click)="closeDialog()" style="color: #64748b;">Cancelar</button>
+      <button mat-flat-button style="background: #0b1680; color: white;" (click)="createTask()">
+        <mat-icon>save</mat-icon> {{ 'mechanicOrder.dialog.save' | translate }}
+      </button>
+    </mat-dialog-actions>
+  </ng-template>
+</div>
+
+
+
+===== src/app/domains/mechanic/presentation/mechanic-order-execution/mechanic-order-execution.component.ts =====
+import { Component, computed, inject, OnInit, signal, TemplateRef, ViewChild } from '@angular/core';
+import { CommonModule } from '@angular/common';
+import { ActivatedRoute, Router } from '@angular/router';
+import { FormsModule } from '@angular/forms';
+import { MatCardModule } from '@angular/material/card';
+import { MatButtonModule } from '@angular/material/button';
+import { MatIconModule } from '@angular/material/icon';
+import { MatDialog, MatDialogModule } from '@angular/material/dialog';
+import { MatInputModule } from '@angular/material/input';
+import { MatSelectModule } from '@angular/material/select';
+import { MatProgressBarModule } from '@angular/material/progress-bar';
+import { TranslatePipe, TranslateService } from '@ngx-translate/core';
+
+import { WorkOrderStore } from '../../../workshop-operations/application/work-order.store';
+import { TaskStore } from '../../../workshop-operations/application/task.store';
+import { VehicleStore } from '../../../fleet-management/application/vehicle.store';
+import { AuthState } from '../../../auth/application/auth.state';
+import { InventoryStore } from '../../../inventory-management/application/inventory.store';
+
+@Component({
+  selector: 'app-mechanic-order-execution',
+  standalone: true,
+  imports: [
+    CommonModule,
+    FormsModule,
+    MatCardModule,
+    MatButtonModule,
+    MatIconModule,
+    MatDialogModule,
+    MatInputModule,
+    MatSelectModule,
+    MatProgressBarModule,
+    TranslatePipe,
+  ],
+  templateUrl: './mechanic-order-execution.component.html',
+  styleUrl: './mechanic-order-execution.component.css',
+})
+export class MechanicOrderExecutionComponent implements OnInit {
+  private route = inject(ActivatedRoute);
+  public router = inject(Router);
+  public translate = inject(TranslateService);
+  private dialog = inject(MatDialog);
+
+  private workOrderStore = inject(WorkOrderStore);
+  private taskStore = inject(TaskStore);
+  private vehicleStore = inject(VehicleStore);
+  private authState = inject(AuthState);
+  public inventoryStore = inject(InventoryStore);
+
+  @ViewChild('taskDialogTemplate') taskDialogTemplate!: TemplateRef<any>;
+
+  orderId = this.route.snapshot.paramMap.get('id');
+  diagnosis = signal('');
+
+  priorities = [
+    { value: 'LOW', label: this.translate.instant('priorities.low') || 'Baja' },
+    { value: 'MEDIUM', label: this.translate.instant('priorities.medium') || 'Media' },
+    { value: 'HIGH', label: this.translate.instant('priorities.high') || 'Alta' },
+  ];
+
+  newTask = signal({
+    description: '',
+    priority: 'MEDIUM',
+    estimatedTime: 1.0,
+    laborPrice: 0.0,
+    parts: [] as any[],
+  });
+
+  async ngOnInit() {
+    await Promise.all([
+      this.workOrderStore.loadWorkOrders(),
+      this.taskStore.loadAllTasks(),
+      this.vehicleStore.loadVehicles(),
+      this.inventoryStore.loadItems(),
+    ]);
+  }
+
+  order = computed(() =>
+    this.workOrderStore.workOrders().find((o) => String(o.id) === String(this.orderId)),
+  );
+  vehicle = computed(() =>
+    this.vehicleStore.vehicles().find((v) => String(v.id) === String(this.order()?.vehicleId)),
+  );
+  tasks = computed(() =>
+    this.taskStore.tasks().filter((t) => String(t.workOrderId) === String(this.orderId)),
+  );
+  isOrderClosed = computed(() => this.order()?.status === 'FINISHED');
+
+  totalLabor = computed(() =>
+    this.tasks().reduce((sum, task) => sum + Number((task as any).laborPrice || 0), 0),
+  );
+
+  totalOrderCost = computed(() => {
+    return this.tasks().reduce((sum, task) => {
+      const labor = Number((task as any).laborPrice || 0);
+      const partsTotal = ((task as any).parts || []).reduce(
+        (pSum: number, part: any) =>
+          pSum + Number(part.unitPrice || 0) * Number(part.quantity || 1),
+        0,
+      );
+      return sum + labor + partsTotal;
+    }, 0);
+  });
+
+  completedTasks = computed(() => this.tasks().filter((t) => t.status === 'COMPLETED').length);
+  progress = computed(() =>
+    this.tasks().length ? Math.round((this.completedTasks() / this.tasks().length) * 100) : 0,
+  );
+  canFinishOrder = computed(
+    () => this.tasks().length > 0 && this.completedTasks() === this.tasks().length,
+  );
+
+  async updateOrderPrice() {
+    if (this.orderId) {
+      await this.workOrderStore.updateOrderAutoPrice(this.orderId, this.totalOrderCost());
+    }
+  }
+
+  openTaskDialog() {
+    this.newTask.set({
+      description: '',
+      priority: 'MEDIUM',
+      estimatedTime: 1.0,
+      laborPrice: 0.0,
+      parts: [],
+    });
+    this.dialog.open(this.taskDialogTemplate, {
+      width: '640px',
+      panelClass: 'custom-dialog-container',
+    });
+  }
+
+  closeDialog() {
+    this.dialog.closeAll();
+  }
+
+  addPart() {
+    this.newTask.update((t) => {
+      t.parts.push({ inventoryItemId: null, name: '', quantity: 1, unitPrice: 0 });
+      return t;
+    });
+  }
+
+  removePart(index: number) {
+    this.newTask.update((t) => {
+      t.parts.splice(index, 1);
+      return t;
+    });
+  }
+
+  onPartSelected(itemId: any, index: number) {
+    const item = this.inventoryStore.items().find((i) => String(i.id) === String(itemId));
+    if (item) {
+      this.newTask.update((t) => {
+        t.parts[index].name = item.name;
+        t.parts[index].unitPrice = item.unitPrice;
+        return t;
+      });
+    }
+  }
+
+  newTaskTotalCost = computed(() => {
+    const t = this.newTask();
+    const labor = Number(t.laborPrice || 0);
+    const parts = t.parts.reduce(
+      (sum, part) => sum + Number(part.unitPrice || 0) * Number(part.quantity || 1),
+      0,
+    );
+    return labor + parts;
+  });
+
+  async createTask() {
+    if (this.isOrderClosed() || !this.newTask().description) return;
+    const taskPayload: any = {
+      workOrderId: Number(this.orderId),
+      mechanicId: this.authState.currentUser()?.mechanicId,
+      ...this.newTask(),
+    };
+    await this.taskStore.addTask(taskPayload);
+    await this.updateOrderPrice();
+    this.closeDialog();
+  }
+
+  async completeTask(task: any) {
+    if (this.isOrderClosed()) return;
+    await this.taskStore.updateTask(task.id, { ...task, status: 'COMPLETED' });
+    await this.updateOrderPrice();
+  }
+
+  async finishOrder() {
+    const currentOrder = this.order();
+    if (!currentOrder) return;
+
+    await this.workOrderStore.updateWorkOrderChecklist(currentOrder.id!, {
+      ...currentOrder,
+      status: 'FINISHED',
+      qaChecklist: {
+        tasksCompleted: true,
+        sparePartsChecked: true,
+        diagnosisValidated: true,
+        cleaningDone: true,
+        finalTestDone: true,
+      },
+    });
+
+    await this.workOrderStore.loadWorkOrders();
+    this.router.navigate(['/mechanic/workspace']);
+  }
+
+  getPriorityLabel(priorityValue: string) {
+    const found = this.priorities.find((p) => p.value === priorityValue);
+    return found ? found.label : priorityValue;
+  }
+}
+
+
+
+===== src/app/domains/staff-coordination/application/mechanic.store.ts =====
+import { Injectable, inject, signal } from '@angular/core';
+import { MechanicService } from '../infrastructure/services/mechanic.service';
+import { Mechanic } from '../domain/models/mechanic.model';
+
+@Injectable({ providedIn: 'root' })
+export class MechanicStore {
+  private service = inject(MechanicService);
+
+  readonly mechanics = signal<Mechanic[]>([]);
+  readonly loading = signal<boolean>(false);
+  readonly error = signal<string | null>(null);
+
+  loadMechanics(): Promise<void> {
+    this.loading.set(true);
+    return new Promise((resolve, reject) => {
+      this.service.getMechanics().subscribe({
+        next: (data) => {
+          this.mechanics.set(data);
+          this.loading.set(false);
+          resolve();
+        },
+        error: (err) => {
+          console.error('Error fetching mechanics:', err);
+          this.loading.set(false);
+          reject(err);
+        },
+      });
+    });
+  }
+
+  addMechanic(mechanic: Mechanic): Promise<Mechanic> {
+    return new Promise((resolve, reject) => {
+      this.service.createMechanic(mechanic).subscribe({
+        next: (newMechanic) => {
+          this.mechanics.update((list) => [...list, newMechanic]);
+          resolve(newMechanic);
+        },
+        error: (err) => {
+          this.error.set('mechanics.errors.createError');
+          reject(err);
+        },
+      });
+    });
+  }
+
+  updateMechanic(id: string | number, mechanic: Mechanic): Promise<void> {
+    return new Promise((resolve, reject) => {
+      this.service.updateMechanic(id, mechanic).subscribe({
+        next: (updatedMechanic) => {
+          this.mechanics.update((list) =>
+            list.map((m) => (String(m.id) === String(id) ? updatedMechanic : m)),
+          );
+          resolve();
+        },
+        error: (err) => {
+          this.error.set('mechanics.errors.updateError');
+          reject(err);
+        },
+      });
+    });
+  }
+
+  deleteMechanic(id: string | number): Promise<void> {
+    return new Promise((resolve, reject) => {
+      this.service.deleteMechanic(id).subscribe({
+        next: () => {
+          this.mechanics.update((list) => list.filter((m) => String(m.id) !== String(id)));
+          resolve();
+        },
+        error: (err) => {
+          this.error.set('mechanics.errors.deleteError');
+          reject(err);
+        },
+      });
+    });
+  }
+}
+
+
+
+===== src/app/domains/staff-coordination/domain/models/mechanic.model.ts =====
+export interface Mechanic {
+  id?: string | number;
+  fullName: string;
+  specialty: string;
+  maxCapacity: number;
+  email?: string;
+  password?: string;
+  username?: string;
+  currentLoad?: number;
+}
+
+
+
+===== src/app/domains/staff-coordination/infrastructure/services/mechanic.service.ts =====
+import { Injectable, inject } from '@angular/core';
+import { HttpClient } from '@angular/common/http';
+import { Observable } from 'rxjs';
+import { Mechanic } from '../../domain/models/mechanic.model';
+import { environment } from '../../../../../environments/environment';
+
+@Injectable({ providedIn: 'root' })
+export class MechanicService {
+  private http = inject(HttpClient);
+  private apiUrl = `${environment.apiUrl}/api/v1/mechanics`;
+
+  getMechanics(): Observable<Mechanic[]> {
+    return this.http.get<Mechanic[]>(this.apiUrl);
+  }
+
+  createMechanic(data: Mechanic): Observable<Mechanic> {
+    return this.http.post<Mechanic>(this.apiUrl, data);
+  }
+
+  updateMechanic(id: string | number, data: Mechanic): Observable<Mechanic> {
+    return this.http.put<Mechanic>(`${this.apiUrl}/${id}`, data);
+  }
+
+  deleteMechanic(id: string | number): Observable<void> {
+    return this.http.delete<void>(`${this.apiUrl}/${id}`);
+  }
+}
+
+
+
+===== src/app/domains/staff-coordination/presentation/mechanics-view/components/mechanic-card/mechanic-card.html =====
+<article class="mechanic-card">
+  <div class="avatar-wrapper">
+    <div class="mechanic-avatar">{{ initials }}</div>
+  </div>
+
+  <div class="mechanic-content">
+    <div class="mechanic-top">
+      <div class="name-container">
+        <h3>{{ mechanic.fullName }}</h3>
+        <div class="tags-group">
+          <span class="custom-badge badge-info">{{ mechanic.specialty }}</span>
+          <span class="custom-badge" [ngClass]="capacityStatus.class">{{ capacityStatus.label }}</span>
+        </div>
+      </div>
+    </div>
+
+    <div class="mechanic-account" *ngIf="mechanic.email">
+      <span><mat-icon>mail</mat-icon> {{ mechanic.email }}</span>
+    </div>
+
+    <div class="workload-container">
+      <div class="workload-labels">
+        <span><mat-icon>work</mat-icon> {{ 'mechanic.workload.label' | translate }}</span>
+        <strong>{{ mechanic.currentLoad || 0 }} / {{ mechanic.maxCapacity }}</strong>
+      </div>
+      <mat-progress-bar mode="determinate" [value]="loadPercentage" class="workload-bar" [ngClass]="statusClass"></mat-progress-bar>
+    </div>
+
+    <div class="mechanic-actions">
+      <button mat-icon-button color="primary" (click)="edit.emit(mechanic)" [matTooltip]="'actions.editProfile' | translate">
+        <mat-icon>edit</mat-icon>
+      </button>
+      <button mat-icon-button color="warn" (click)="delete.emit(mechanic)" [matTooltip]="'actions.deleteMechanic' | translate">
+        <mat-icon>delete</mat-icon>
+      </button>
+    </div>
+  </div>
+</article>
+
+
+
+===== src/app/domains/staff-coordination/presentation/mechanics-view/components/mechanic-card/mechanic-card.ts =====
+import { Component, EventEmitter, Input, Output, inject } from '@angular/core';
+import { CommonModule } from '@angular/common';
+import { MatButtonModule } from '@angular/material/button';
+import { MatIconModule } from '@angular/material/icon';
+import { MatProgressBarModule } from '@angular/material/progress-bar';
+import { MatTooltipModule } from '@angular/material/tooltip';
+import { TranslatePipe, TranslateService } from '@ngx-translate/core';
+import { Mechanic } from '../../../../domain/models/mechanic.model';
+
+@Component({
+  selector: 'app-mechanic-card',
+  standalone: true,
+  imports: [
+    CommonModule,
+    MatButtonModule,
+    MatIconModule,
+    MatProgressBarModule,
+    MatTooltipModule,
+    TranslatePipe,
+  ],
+  templateUrl: './mechanic-card.html',
+  styleUrl: './mechanic-card.css',
+})
+export class MechanicCardComponent {
+  @Input({ required: true }) mechanic!: Mechanic;
+  @Output() edit = new EventEmitter<Mechanic>();
+  @Output() delete = new EventEmitter<Mechanic>();
+
+  private translate = inject(TranslateService);
+
+  get initials(): string {
+    if (!this.mechanic.fullName) return 'M';
+    const names = this.mechanic.fullName.split(' ');
+    if (names.length >= 2) return `${names[0][0]}${names[1][0]}`.toUpperCase();
+    return names[0].substring(0, 2).toUpperCase();
+  }
+
+  get loadPercentage(): number {
+    if (!this.mechanic.maxCapacity) return 0;
+    const percentage = ((this.mechanic.currentLoad || 0) / this.mechanic.maxCapacity) * 100;
+    return Math.min(Math.round(percentage), 100);
+  }
+
+  get statusClass(): string {
+    if (this.loadPercentage >= 100) return 'status-danger';
+    if (this.loadPercentage >= 75) return 'status-warning';
+    return 'status-safe';
+  }
+
+  get capacityStatus() {
+    if (this.loadPercentage >= 100) {
+      return { label: this.translate.instant('mechanic.capacity.full'), class: 'badge-danger' };
+    }
+    if (this.loadPercentage >= 75) {
+      return { label: this.translate.instant('mechanic.capacity.high'), class: 'badge-warning' };
+    }
+    return { label: this.translate.instant('mechanic.capacity.available'), class: 'badge-success' };
+  }
+}
+
+
+
+===== src/app/domains/staff-coordination/presentation/mechanics-view/components/mechanic-filters/mechanic-filters.html =====
+<div class="mechanic-filters">
+  <div class="search-box">
+    <mat-icon class="search-icon">search</mat-icon>
+    <input
+      type="text"
+      [ngModel]="search"
+      (ngModelChange)="onSearchChange($event)"
+      [placeholder]="'mechanics.filters.searchPlaceholder' | translate"
+      class="custom-search-input"
+    />
+  </div>
+
+  <mat-form-field appearance="outline" class="filter-select">
+    <mat-select [ngModel]="specialty" (ngModelChange)="onSpecialtyChange($event)" [placeholder]="'mechanics.filters.specialtyPlaceholder' | translate">
+      <mat-option [value]="null">{{ 'common.all' | translate }}</mat-option>
+      <mat-option *ngFor="let option of specialtyOptions" [value]="option">
+        {{ option }}
+      </mat-option>
+    </mat-select>
+  </mat-form-field>
+</div>
+
+
+
+===== src/app/domains/staff-coordination/presentation/mechanics-view/components/mechanic-filters/mechanic-filters.ts =====
+import { Component, EventEmitter, Input, Output } from '@angular/core';
+import { CommonModule } from '@angular/common';
+import { FormsModule } from '@angular/forms';
+import { MatInputModule } from '@angular/material/input';
+import { MatSelectModule } from '@angular/material/select';
+import { MatIconModule } from '@angular/material/icon';
+import { TranslatePipe } from '@ngx-translate/core';
+
+@Component({
+  selector: 'app-mechanic-filters',
+  standalone: true,
+  imports: [
+    CommonModule,
+    FormsModule,
+    MatInputModule,
+    MatSelectModule,
+    MatIconModule,
+    TranslatePipe,
+  ],
+  templateUrl: './mechanic-filters.html',
+  styleUrl: './mechanic-filters.css',
+})
+export class MechanicFiltersComponent {
+  @Input() search = '';
+  @Input() specialty: string | null = null;
+  @Input() specialtyOptions: string[] = [];
+
+  @Output() searchChange = new EventEmitter<string>();
+  @Output() specialtyChange = new EventEmitter<string | null>();
+
+  onSearchChange(value: string): void {
+    this.searchChange.emit(value);
+  }
+
+  onSpecialtyChange(value: string | null): void {
+    this.specialtyChange.emit(value);
+  }
+}
+
+
+
+===== src/app/domains/staff-coordination/presentation/mechanics-view/mechanics-view.html =====
+<div class="mechanics-page">
+  <div class="header-section">
+    <h1>{{ 'mechanics.title' | translate }}</h1>
+    <button mat-flat-button class="add-btn" (click)="openNew()">
+      <mat-icon>add</mat-icon>
+      {{ 'mechanics.actions.new' | translate }}
+    </button>
+  </div>
+
+  <app-mechanic-filters
+    [search]="search()"
+    [specialty]="selectedSpecialty()"
+    [specialtyOptions]="specialtyOptions()"
+    (searchChange)="search.set($event)"
+    (specialtyChange)="selectedSpecialty.set($event)">
+  </app-mechanic-filters>
+
+  <div *ngIf="mechanicStore.loading()" class="empty-state">
+    <mat-icon class="spin">refresh</mat-icon>
+    <p>{{ 'mechanics.loading' | translate }}</p>
+  </div>
+
+  <div *ngIf="!mechanicStore.loading() && filteredMechanics().length > 0" class="mechanics-grid">
+    <app-mechanic-card
+      *ngFor="let mech of filteredMechanics()"
+      [mechanic]="mech"
+      (edit)="openEdit($event)"
+      (delete)="confirmDelete($event)">
+    </app-mechanic-card>
+  </div>
+
+  <div *ngIf="!mechanicStore.loading() && filteredMechanics().length === 0" class="empty-state">
+    <mat-icon>groups</mat-icon>
+    <h3>{{ 'mechanics.empty.title' | translate }}</h3>
+    <p>{{ 'mechanics.empty.description' | translate }}</p>
+  </div>
+
+  <ng-template #mechanicDialog>
+    <div class="custom-dialog-header">
+      <h2 mat-dialog-title style="margin: 0;">
+        {{ mechanicForm().id ? ('mechanics.dialog.editTitle' | translate) : ('mechanics.dialog.registerTitle' | translate) }}
+      </h2>
+    </div>
+
+    <mat-dialog-content>
+      <div class="p-fluid mt-3" style="display: flex; flex-direction: column; gap: 1rem;">
+
+        <div *ngIf="mechanicStore.error()" class="error-message">
+          <mat-icon style="font-size: 18px; width: 18px; height: 18px;">error_outline</mat-icon>
+          {{ mechanicStore.error() }}
+        </div>
+
+        <div class="field">
+          <label>{{ 'mechanics.dialog.fullName' | translate }}</label>
+          <input matInput type="text" [(ngModel)]="mechanicForm().fullName" required autofocus class="custom-form-input">
+        </div>
+
+        <div class="field">
+          <label>{{ 'mechanics.dialog.specialty' | translate }}</label>
+          <mat-select [(ngModel)]="mechanicForm().specialty" [placeholder]="'mechanics.dialog.selectSpecialty' | translate" class="custom-form-input">
+            <mat-option *ngFor="let opt of specialtyOptions()" [value]="opt">{{ opt }}</mat-option>
+          </mat-select>
+        </div>
+
+        <div class="field">
+          <label>{{ 'mechanics.dialog.maxCapacity' | translate }}</label>
+          <input matInput type="number" [(ngModel)]="mechanicForm().maxCapacity" min="1" max="10" class="custom-form-input">
+        </div>
+
+        <div *ngIf="!mechanicForm().id" class="field">
+          <label>{{ 'mechanics.dialog.username' | translate }}</label>
+          <div class="input-group-addon">
+            <input matInput type="text" [(ngModel)]="mechanicForm().username" [placeholder]="'mechanics.dialog.usernamePlaceholder' | translate" class="custom-form-input addon-left">
+            <span class="addon">{{ adminDomain() }}</span>
+          </div>
+          <small class="text-color-secondary mt-1 block">{{ 'mechanics.dialog.usernameHelp' | translate }}</small>
+        </div>
+
+        <div *ngIf="!mechanicForm().id" class="field">
+          <label>{{ 'mechanics.dialog.password' | translate }}</label>
+          <input matInput type="password" [(ngModel)]="mechanicForm().password" required class="custom-form-input">
+        </div>
+      </div>
+    </mat-dialog-content>
+
+    <mat-dialog-actions align="end" class="dialog-footer">
+      <button mat-button (click)="hideDialog()" style="color: #64748b;">{{ 'actions.cancel' | translate }}</button>
+      <button mat-flat-button class="save-btn" (click)="saveMechanic()">
+        <mat-icon>check</mat-icon>
+        {{ mechanicForm().id ? ('mechanics.actions.saveChanges' | translate) : ('mechanics.actions.create' | translate) }}
+      </button>
+    </mat-dialog-actions>
+  </ng-template>
+</div>
+
+
+
+===== src/app/domains/staff-coordination/presentation/mechanics-view/mechanics-view.ts =====
+import { Component, computed, inject, OnInit, signal, TemplateRef, ViewChild } from '@angular/core';
+import { CommonModule } from '@angular/common';
+import { FormsModule } from '@angular/forms';
+import { MatButtonModule } from '@angular/material/button';
+import { MatIconModule } from '@angular/material/icon';
+import { MatDialog, MatDialogModule } from '@angular/material/dialog';
+import { MatInputModule } from '@angular/material/input';
+import { MatSelectModule } from '@angular/material/select';
+import { TranslatePipe, TranslateService } from '@ngx-translate/core';
+
+import { MechanicStore } from '../../application/mechanic.store';
+import { AuthState } from '../../../auth/application/auth.state';
+import { Mechanic } from '../../domain/models/mechanic.model';
+import { MechanicFiltersComponent } from './components/mechanic-filters/mechanic-filters';
+import { MechanicCardComponent } from './components/mechanic-card/mechanic-card';
+
+@Component({
+  selector: 'app-mechanics-view',
+  standalone: true,
+  imports: [
+    CommonModule,
+    FormsModule,
+    MatButtonModule,
+    MatIconModule,
+    MatDialogModule,
+    MatInputModule,
+    MatSelectModule,
+    MechanicFiltersComponent,
+    MechanicCardComponent,
+    TranslatePipe,
+  ],
+  templateUrl: './mechanics-view.html',
+  styleUrl: './mechanics-view.css',
+})
+export class MechanicsViewComponent implements OnInit {
+  mechanicStore = inject(MechanicStore);
+  authState = inject(AuthState);
+  private dialog = inject(MatDialog);
+  public translate = inject(TranslateService);
+
+  @ViewChild('mechanicDialog') mechanicDialogTemplate!: TemplateRef<any>;
+
+  mechanicForm = signal<Mechanic>(this.getEmptyMechanic());
+  search = signal('');
+  selectedSpecialty = signal<string | null>(null);
+
+  specialtyOptions = computed(() => [
+    this.translate.instant('mechanics.specialties.general'),
+    this.translate.instant('mechanics.specialties.electrical'),
+    this.translate.instant('mechanics.specialties.brakes'),
+    this.translate.instant('mechanics.specialties.tires'),
+  ]);
+
+  adminDomain = computed(() => {
+    const email = this.authState.currentUser()?.email;
+    if (!email) return '@taller.com';
+    return `@${email.split('@')[1]}`;
+  });
+
+  filteredMechanics = computed(() => {
+    const term = this.search().toLowerCase().trim();
+    return this.mechanicStore.mechanics().filter((m) => {
+      const matchesSearch =
+        !term || m.fullName?.toLowerCase().includes(term) || m.email?.toLowerCase().includes(term);
+      const matchesSpecialty =
+        !this.selectedSpecialty() || m.specialty === this.selectedSpecialty();
+      return matchesSearch && matchesSpecialty;
+    });
+  });
+
+  ngOnInit() {
+    this.mechanicStore.loadMechanics();
+  }
+
+  openNew() {
+    this.mechanicForm.set(this.getEmptyMechanic());
+    this.mechanicStore.error.set(null);
+    this.dialog.open(this.mechanicDialogTemplate, {
+      width: '450px',
+      panelClass: 'custom-dialog-container',
+    });
+  }
+
+  openEdit(mech: Mechanic) {
+    this.mechanicForm.set({ ...mech });
+    this.mechanicStore.error.set(null);
+    this.dialog.open(this.mechanicDialogTemplate, {
+      width: '450px',
+      panelClass: 'custom-dialog-container',
+    });
+  }
+
+  hideDialog() {
+    this.dialog.closeAll();
+    this.mechanicStore.error.set(null);
+  }
+
+  async confirmDelete(mech: Mechanic) {
+    const confirmed = window.confirm(
+      this.translate.instant('mechanics.confirm.delete', { name: mech.fullName }),
+    );
+    if (!confirmed || !mech.id) return;
+    await this.mechanicStore.deleteMechanic(mech.id);
+  }
+
+  async saveMechanic() {
+    this.mechanicStore.error.set(null);
+    try {
+      const mech = this.mechanicForm();
+      if (mech.id) {
+        await this.mechanicStore.updateMechanic(mech.id, mech);
+        this.hideDialog();
+        return;
+      }
+
+      const hasRequiredFields = mech.fullName && mech.username && mech.password;
+      if (!hasRequiredFields) return;
+
+      const fullEmail = `${mech.username!.trim()}${this.adminDomain()}`;
+      const payload: Mechanic = {
+        fullName: mech.fullName,
+        specialty: mech.specialty,
+        maxCapacity: mech.maxCapacity,
+        email: fullEmail,
+        password: mech.password,
+      };
+
+      await this.mechanicStore.addMechanic(payload);
+      this.hideDialog();
+    } catch (error: any) {
+      if (error?.status === 400) {
+        this.mechanicStore.error.set(this.translate.instant('mechanics.errors.invalidData'));
+      } else {
+        this.mechanicStore.error.set(this.translate.instant('mechanics.errors.server'));
+      }
+    }
+  }
+
+  private getEmptyMechanic(): Mechanic {
+    return { fullName: '', specialty: '', maxCapacity: 3, username: '', password: '' };
+  }
+}
+
+
+
+===== src/app/domains/workshop-operations/application/task.store.ts =====
+import { Injectable, inject, signal } from '@angular/core';
+import { WorkOrderService } from '../infrastructure/services/work-order.service';
+import { Task } from '../domain/models/task.model';
+
+@Injectable({ providedIn: 'root' })
+export class TaskStore {
+  private service = inject(WorkOrderService);
+
+  readonly tasks = signal<Task[]>([]);
+  readonly loading = signal<boolean>(false);
+
+  loadAllTasks(): Promise<void> {
+    this.loading.set(true);
+    return new Promise((resolve, reject) => {
+      this.service.getTasks().subscribe({
+        next: (data) => {
+          this.tasks.set(data);
+          this.loading.set(false);
+          resolve();
+        },
+        error: (err) => {
+          console.error('Error fetching tasks', err);
+          this.loading.set(false);
+          reject(err);
+        },
+      });
+    });
+  }
+
+  addTask(task: Task): Promise<Task> {
+    return new Promise((resolve, reject) => {
+      this.service.createTask(task).subscribe({
+        next: (newTask) => {
+          this.tasks.update((list) => [...list, newTask]);
+          resolve(newTask);
+        },
+        error: (err) => reject(err),
+      });
+    });
+  }
+
+  updateTask(id: string | number, data: Partial<Task>): Promise<void> {
+    return new Promise((resolve, reject) => {
+      this.service.updateTask(id, data).subscribe({
+        next: (updated) => {
+          this.tasks.update((list) => list.map((t) => (String(t.id) === String(id) ? updated : t)));
+          resolve();
+        },
+        error: (err) => reject(err),
+      });
+    });
+  }
+
+  approveTask(id: string | number): Promise<void> {
+    return new Promise((resolve, reject) => {
+      const payload = {
+        adminReviewStatus: 'APPROVED',
+        customerReportStatus: 'VISIBLE',
+      };
+      this.service.patchTask(id, payload).subscribe({
+        next: (updated) => {
+          this.tasks.update((list) => list.map((t) => (String(t.id) === String(id) ? updated : t)));
+          resolve();
+        },
+        error: (err) => reject(err),
+      });
+    });
+  }
+
+  rejectTask(id: string | number): Promise<void> {
+    return new Promise((resolve, reject) => {
+      const payload = {
+        status: 'IN_PROGRESS',
+        adminReviewStatus: 'REJECTED',
+      };
+      this.service.patchTask(id, payload).subscribe({
+        next: (updated) => {
+          this.tasks.update((list) => list.map((t) => (String(t.id) === String(id) ? updated : t)));
+          resolve();
+        },
+        error: (err) => reject(err),
+      });
+    });
+  }
+
+  deleteTask(id: string | number): Promise<void> {
+    return new Promise((resolve, reject) => {
+      this.service.deleteTask(id).subscribe({
+        next: () => {
+          this.tasks.update((list) => list.filter((t) => String(t.id) !== String(id)));
+          resolve();
+        },
+        error: (err) => reject(err),
+      });
+    });
+  }
+}
+
+
+
+===== src/app/domains/workshop-operations/application/work-order.store.ts =====
+import { Injectable, inject, signal } from '@angular/core';
+import { WorkOrderService } from '../infrastructure/services/work-order.service';
+import { WorkOrder } from '../domain/models/work-order.model';
+
+@Injectable({ providedIn: 'root' })
+export class WorkOrderStore {
+  private service = inject(WorkOrderService);
+
+  readonly workOrders = signal<WorkOrder[]>([]);
+  readonly loading = signal<boolean>(false);
+
+  loadWorkOrders(): Promise<void> {
+    this.loading.set(true);
+    return new Promise((resolve, reject) => {
+      this.service.getWorkOrders().subscribe({
+        next: (data) => {
+          this.workOrders.set(data);
+          this.loading.set(false);
+          resolve();
+        },
+        error: (err) => {
+          console.error('Error fetching work orders', err);
+          this.loading.set(false);
+          reject(err);
+        },
+      });
+    });
+  }
+
+  addWorkOrder(order: WorkOrder): Promise<WorkOrder> {
+    return new Promise((resolve, reject) => {
+      this.service.createWorkOrder(order).subscribe({
+        next: (newOrder) => {
+          this.workOrders.update((list) => [...list, newOrder]);
+          resolve(newOrder);
+        },
+        error: (err) => reject(err),
+      });
+    });
+  }
+
+  updateWorkOrder(id: string | number, data: Partial<WorkOrder>): Promise<void> {
+    return new Promise((resolve, reject) => {
+      this.service.updateWorkOrder(id, data).subscribe({
+        next: (updated) => {
+          this.workOrders.update((list) =>
+            list.map((o) => (String(o.id) === String(id) ? updated : o)),
+          );
+          resolve();
+        },
+        error: (err) => reject(err),
+      });
+    });
+  }
+
+  updateOrderAutoPrice(id: string | number, calculatedTotal: number): Promise<void> {
+    return new Promise((resolve, reject) => {
+      const existingOrder = this.workOrders().find((o) => String(o.id) === String(id));
+      if (!existingOrder) return reject('Order not found');
+
+      let newStatus = existingOrder.status;
+      if (newStatus === 'PENDING') newStatus = 'IN_PROGRESS';
+
+      const payload = {
+        estimatedDate: existingOrder.estimatedDate,
+        price: parseFloat(String(calculatedTotal)),
+        status: newStatus,
+        tasksCompleted: (existingOrder as any).qaChecklist?.tasksCompleted || false,
+        sparePartsChecked: (existingOrder as any).qaChecklist?.sparePartsChecked || false,
+        diagnosisValidated: (existingOrder as any).qaChecklist?.diagnosisValidated || false,
+        cleaningDone: (existingOrder as any).qaChecklist?.cleaningDone || false,
+        finalTestDone: (existingOrder as any).qaChecklist?.finalTestDone || false,
+      };
+
+      this.service.updateWorkOrder(id, payload).subscribe({
+        next: (updated) => {
+          this.workOrders.update((list) =>
+            list.map((o) => (String(o.id) === String(id) ? updated : o)),
+          );
+          resolve();
+        },
+        error: (err) => reject(err),
+      });
+    });
+  }
+
+  updateWorkOrderChecklist(id: string | number, updateData: any): Promise<void> {
+    return new Promise((resolve, reject) => {
+      const payload = {
+        estimatedDate: updateData.estimatedDate,
+        price: updateData.price,
+        status: updateData.status,
+        tasksCompleted: updateData.qaChecklist?.tasksCompleted || false,
+        sparePartsChecked: updateData.qaChecklist?.sparePartsChecked || false,
+        diagnosisValidated: updateData.qaChecklist?.diagnosisValidated || false,
+        cleaningDone: updateData.qaChecklist?.cleaningDone || false,
+        finalTestDone: updateData.qaChecklist?.finalTestDone || false,
+      };
+
+      this.service.updateWorkOrder(id, payload).subscribe({
+        next: (updated) => {
+          this.workOrders.update((list) =>
+            list.map((o) => (String(o.id) === String(id) ? updated : o)),
+          );
+          resolve();
+        },
+        error: (err) => reject(err),
+      });
+    });
+  }
+}
+
+
+
+===== src/app/domains/workshop-operations/domain/models/task.model.ts =====
+export interface Task {
+  id?: string | number;
+  description: string;
+  status: string; // 'PENDING', 'IN_PROGRESS', 'COMPLETED'
+  priority: string; // 'LOW', 'MEDIUM', 'HIGH'
+  estimatedTime: number;
+  laborPrice: number;
+  customerExplanation?: string;
+  adminReviewStatus?: string; // 'PENDING', 'APPROVED', 'REJECTED'
+  workOrderId: string | number;
+  mechanicId?: string | number | null;
+  parts?: any[];
+}
+
+
+
+===== src/app/domains/workshop-operations/domain/models/work-order.model.ts =====
+export interface WorkOrder {
+  id?: string | number;
+  trackingCode?: string;
+  status: string; // 'PENDING', 'IN_PROGRESS', 'FINISHED', 'DELIVERED', 'CANCELLED'
+  startDate: string | Date;
+  estimatedDate?: string | Date;
+  price: number;
+  vehicleId: string | number;
+  workshopId?: string | number;
+  customerId?: string | number;
+  mechanicId?: number | string;
+}
+
+
+
+===== src/app/domains/workshop-operations/infrastructure/services/work-order.service.ts =====
+import { Injectable, inject } from '@angular/core';
+import { HttpClient } from '@angular/common/http';
+import { Observable } from 'rxjs';
+import { environment } from '../../../../../environments/environment';
+import { WorkOrder } from '../../domain/models/work-order.model';
+import { Task } from '../../domain/models/task.model';
+
+@Injectable({ providedIn: 'root' })
+export class WorkOrderService {
+  private http = inject(HttpClient);
+  private apiUrl = `${environment.apiUrl}/api/v1`;
+
+  // --- Work Orders ---
+  getWorkOrders(): Observable<WorkOrder[]> {
+    return this.http.get<WorkOrder[]>(`${this.apiUrl}/work-orders`);
+  }
+
+  getWorkOrderById(id: string | number): Observable<WorkOrder> {
+    return this.http.get<WorkOrder>(`${this.apiUrl}/work-orders/${id}`);
+  }
+
+  createWorkOrder(data: WorkOrder): Observable<WorkOrder> {
+    return this.http.post<WorkOrder>(`${this.apiUrl}/work-orders`, data);
+  }
+
+  updateWorkOrder(id: string | number, data: Partial<WorkOrder>): Observable<WorkOrder> {
+    return this.http.put<WorkOrder>(`${this.apiUrl}/work-orders/${id}`, data);
+  }
+
+  // --- Tasks ---
+  getTasks(): Observable<Task[]> {
+    return this.http.get<Task[]>(`${this.apiUrl}/tasks`);
+  }
+
+  createTask(data: Task): Observable<Task> {
+    return this.http.post<Task>(`${this.apiUrl}/tasks`, data);
+  }
+
+  updateTask(id: string | number, data: Partial<Task>): Observable<Task> {
+    return this.http.put<Task>(`${this.apiUrl}/tasks/${id}`, data);
+  }
+
+  deleteTask(id: string | number): Observable<void> {
+    return this.http.delete<void>(`${this.apiUrl}/tasks/${id}`);
+  }
+
+  patchTask(id: string | number, data: any): Observable<Task> {
+    return this.http.patch<Task>(`${this.apiUrl}/tasks/${id}`, data);
+  }
+}
+
+
+
+===== src/app/domains/workshop-operations/presentation/create-work-order/create-work-order.html =====
+<section class="create-order-page">
+  <div class="page-header">
+    <div>
+      <span class="eyebrow">{{ 'workOrders.create.eyebrow' | translate }}</span>
+      <h1>{{ 'workOrders.create.title' | translate }}</h1>
+      <p>{{ 'workOrders.create.description' | translate }}</p>
+    </div>
+  </div>
+
+  <mat-stepper orientation="horizontal" [linear]="true" #stepper class="custom-stepper">
+
+    <mat-step [completed]="isStep1Valid">
+      <ng-template matStepLabel>{{ 'workOrders.create.step1' | translate }}</ng-template>
+      <div class="step-content">
+        <h3>Selecciona el Cliente</h3>
+        <p class="text-muted">Elige el cliente que está solicitando el servicio.</p>
+
+        <div class="field mt-4">
+          <mat-select [(ngModel)]="selectedCustomerId" placeholder="Buscar cliente..." class="custom-form-input">
+            <mat-option *ngFor="let c of customerStore.customers()" [value]="c.id">
+              {{ c.fullName }} ({{ c.dni }})
+            </mat-option>
+          </mat-select>
+        </div>
+
+        <div class="stepper-actions">
+          <button mat-button (click)="cancel()">{{ 'common.cancel' | translate }}</button>
+          <button mat-flat-button color="primary" matStepperNext [disabled]="!isStep1Valid">Siguiente <mat-icon>arrow_forward</mat-icon></button>
+        </div>
+      </div>
+    </mat-step>
+
+    <mat-step [completed]="isStep2Valid">
+      <ng-template matStepLabel>{{ 'workOrders.create.step2' | translate }}</ng-template>
+      <div class="step-content">
+        <h3>Selecciona el Vehículo</h3>
+        <p class="text-muted">Elige el vehículo asociado al cliente seleccionado.</p>
+
+        <div *ngIf="!customerVehicles().length && selectedCustomerId()" class="alert alert-warning mt-4">
+          <mat-icon>warning</mat-icon>
+          Este cliente no tiene vehículos registrados. Por favor, registre uno en la sección de Flota.
+        </div>
+
+        <div class="field mt-4" *ngIf="customerVehicles().length">
+          <mat-select [(ngModel)]="selectedVehicleId" placeholder="Seleccionar vehículo..." class="custom-form-input">
+            <mat-option *ngFor="let v of customerVehicles()" [value]="v.id">
+              {{ v.brand }} {{ v.model }} (Placa: {{ v.plate }})
+            </mat-option>
+          </mat-select>
+        </div>
+
+        <div class="stepper-actions">
+          <button mat-button matStepperPrevious>Atrás</button>
+          <button mat-flat-button color="primary" matStepperNext [disabled]="!isStep2Valid">Siguiente <mat-icon>arrow_forward</mat-icon></button>
+        </div>
+      </div>
+    </mat-step>
+
+    <mat-step [completed]="isStep3Valid">
+      <ng-template matStepLabel>{{ 'workOrders.create.step3' | translate }}</ng-template>
+      <div class="step-content">
+        <h3>Detalles de la Orden</h3>
+        <p class="text-muted">Configura la fecha estimada y el precio inicial (opcional).</p>
+
+        <div class="double-grid mt-4">
+          <div class="field">
+            <label>Fecha Estimada de Entrega <span class="required">*</span></label>
+            <input type="date" [(ngModel)]="estimatedDate" class="custom-form-input">
+          </div>
+          <div class="field">
+            <label>Precio Inicial / Adelanto (S/)</label>
+            <input type="number" [(ngModel)]="initialPrice" min="0" class="custom-form-input">
+          </div>
+        </div>
+
+        <div class="summary-box mt-4">
+          <mat-icon style="color: #0b1680;">info</mat-icon>
+          <p>Al guardar, la orden se creará en estado <strong>Pendiente</strong> y podrás asignarle tareas y mecánicos en la vista de detalle.</p>
+        </div>
+
+        <div class="stepper-actions">
+          <button mat-button matStepperPrevious>Atrás</button>
+          <button mat-flat-button class="save-btn" (click)="saveOrder()" [disabled]="!isStep3Valid || isSaving()">
+            <mat-icon *ngIf="!isSaving()">save</mat-icon>
+            <mat-icon *ngIf="isSaving()" class="spin">refresh</mat-icon>
+            {{ isSaving() ? 'Guardando...' : 'Crear Orden' }}
+          </button>
+        </div>
+      </div>
+    </mat-step>
+
+  </mat-stepper>
+</section>
+
+
+
+===== src/app/domains/workshop-operations/presentation/create-work-order/create-work-order.ts =====
+import { Component, computed, inject, OnInit, signal } from '@angular/core';
+import { CommonModule } from '@angular/common';
+import { Router } from '@angular/router';
+import { FormsModule } from '@angular/forms';
+import { MatStepperModule } from '@angular/material/stepper';
+import { MatButtonModule } from '@angular/material/button';
+import { MatInputModule } from '@angular/material/input';
+import { MatSelectModule } from '@angular/material/select';
+import { MatIconModule } from '@angular/material/icon';
+import { TranslatePipe, TranslateService } from '@ngx-translate/core';
+
+import { WorkOrderStore } from '../../application/work-order.store';
+import { CustomerStore } from '../../../customer-management/application/customer.store';
+import { VehicleStore } from '../../../fleet-management/application/vehicle.store';
+import { WorkOrder } from '../../domain/models/work-order.model';
+import { Customer } from '../../../customer-management/domain/models/customer.model';
+import { Vehicle } from '../../../fleet-management/domain/models/vehicle.model';
+
+@Component({
+  selector: 'app-create-work-order',
+  standalone: true,
+  imports: [
+    CommonModule,
+    FormsModule,
+    MatStepperModule,
+    MatButtonModule,
+    MatInputModule,
+    MatSelectModule,
+    MatIconModule,
+    TranslatePipe,
+  ],
+  templateUrl: './create-work-order.html',
+  styleUrl: './create-work-order.css',
+})
+export class CreateWorkOrderComponent implements OnInit {
+  private router = inject(Router);
+  public translate = inject(TranslateService);
+
+  private workOrderStore = inject(WorkOrderStore);
+  public customerStore = inject(CustomerStore);
+  public vehicleStore = inject(VehicleStore);
+
+  selectedCustomerId = signal<string | number | null>(null);
+  selectedVehicleId = signal<string | number | null>(null);
+  estimatedDate = signal<string>('');
+  initialPrice = signal<number>(0);
+
+  isSaving = signal(false);
+
+  async ngOnInit() {
+    await Promise.all([this.customerStore.loadCustomers(), this.vehicleStore.loadVehicles()]);
+  }
+
+  customerVehicles = computed(() => {
+    const custId = this.selectedCustomerId();
+    if (!custId) return [];
+    return this.vehicleStore.vehicles().filter((v) => String(v.customerId) === String(custId));
+  });
+
+  get isStep1Valid(): boolean {
+    return !!this.selectedCustomerId();
+  }
+  get isStep2Valid(): boolean {
+    return !!this.selectedVehicleId();
+  }
+  get isStep3Valid(): boolean {
+    return !!this.estimatedDate();
+  }
+
+  generateTrackingCode(): string {
+    const prefix = 'ORD';
+    const year = new Date().getFullYear();
+    const random = Math.floor(1000 + Math.random() * 9000);
+    return `${prefix}-${year}-${random}`;
+  }
+
+  async saveOrder() {
+    if (!this.isStep1Valid || !this.isStep2Valid || !this.isStep3Valid) return;
+
+    this.isSaving.set(true);
+    try {
+      const payload: WorkOrder = {
+        trackingCode: this.generateTrackingCode(),
+        status: 'PENDING',
+        startDate: new Date().toISOString().split('T')[0],
+        estimatedDate: this.estimatedDate(),
+        price: this.initialPrice(),
+        vehicleId: this.selectedVehicleId()!,
+        customerId: this.selectedCustomerId()!,
+      };
+
+      const newOrder = await this.workOrderStore.addWorkOrder(payload);
+      this.router.navigate([`/work-orders/${newOrder.id}`]);
+    } catch (error) {
+      console.error(error);
+      this.isSaving.set(false);
+    }
+  }
+
+  cancel() {
+    this.router.navigate(['/work-orders']);
+  }
+}
+
+
+
+===== src/app/domains/workshop-operations/presentation/dashboard/dashboard.component.ts =====
+import { Component, computed, inject, OnInit } from '@angular/core';
+import { CommonModule } from '@angular/common';
+import { Router } from '@angular/router';
+import { MatCardModule } from '@angular/material/card';
+import { MatIconModule } from '@angular/material/icon';
+import { MatButtonModule } from '@angular/material/button';
+import { MatProgressBarModule } from '@angular/material/progress-bar';
+import { TranslateModule } from '@ngx-translate/core';
+import { WorkOrderStore } from '../../application/work-order.store';
+import { TaskStore } from '../../application/task.store';
+import { VehicleStore } from '../../../fleet-management/application/vehicle.store';
+
+@Component({
+  selector: 'app-dashboard',
+  standalone: true,
+  imports: [
+    CommonModule,
+    MatCardModule,
+    MatIconModule,
+    MatButtonModule,
+    MatProgressBarModule,
+    TranslateModule,
+  ],
+  templateUrl: './dashboard.html',
+  styleUrl: './dashboard.css',
+})
+export class DashboardComponent implements OnInit {
+  public workOrderStore = inject(WorkOrderStore);
+  public taskStore = inject(TaskStore);
+  public vehicleStore = inject(VehicleStore);
+  private router = inject(Router);
+
+  async ngOnInit() {
+    await Promise.all([
+      this.workOrderStore.loadWorkOrders(),
+      this.taskStore.loadAllTasks(),
+      this.vehicleStore.loadVehicles(),
+    ]);
+  }
+
+  activeOrdersCount = computed(
+    () =>
+      this.workOrderStore.workOrders().filter((o) => ['PENDING', 'IN_PROGRESS'].includes(o.status))
+        .length,
+  );
+  completedOrdersCount = computed(
+    () =>
+      this.workOrderStore.workOrders().filter((o) => ['FINISHED', 'DELIVERED'].includes(o.status))
+        .length,
+  );
+  projectedIncome = computed(() =>
+    this.workOrderStore
+      .workOrders()
+      .filter((o) => o.status !== 'CANCELLED')
+      .reduce((sum, o) => sum + Number(o.price || 0), 0),
+  );
+
+  vehiclesInWorkshop = computed(() => {
+    const activeVehicleIds = this.workOrderStore
+      .workOrders()
+      .filter((o) => ['PENDING', 'IN_PROGRESS'].includes(o.status))
+      .map((o) => o.vehicleId);
+    return new Set(activeVehicleIds).size;
+  });
+
+  recentOrders = computed(() => [...this.workOrderStore.workOrders()].reverse().slice(0, 5));
+
+  activeVehiclesList = computed(() => {
+    return this.workOrderStore
+      .workOrders()
+      .filter((o) => ['PENDING', 'IN_PROGRESS'].includes(o.status))
+      .slice(0, 4)
+      .map((order) => {
+        const vehicle = this.vehicleStore
+          .vehicles()
+          .find((v) => String(v.id) === String(order.vehicleId));
+        return {
+          orderCode: order.trackingCode,
+          plate: vehicle?.plate,
+          name: `${vehicle?.brand} ${vehicle?.model}`,
+          image:
+            vehicle?.image ||
+            'https://images.unsplash.com/photo-1552519507-da3b142c6e3d?w=200&auto=format&fit=crop',
+          progress: order.status === 'IN_PROGRESS' ? 65 : 20,
+        };
+      });
+  });
+
+  frequentServicesList = computed(() => {
+    const taskMap: Record<string, any> = {};
+    this.taskStore.tasks().forEach((task) => {
+      const desc = task.description || 'Servicio General';
+      if (!taskMap[desc]) taskMap[desc] = { name: desc, count: 0 };
+      taskMap[desc].count += 1;
+    });
+    const sorted = Object.values(taskMap)
+      .sort((a, b) => b.count - a.count)
+      .slice(0, 3);
+    const maxCount = sorted[0]?.count || 1;
+    const icons = ['settings', 'build', 'bolt'];
+    return sorted.map((s, i) => ({
+      ...s,
+      progress: Math.round((s.count / maxCount) * 100),
+      icon: icons[i % icons.length],
+    }));
+  });
+
+  weeklyIncomeData = computed(() => {
+    let totalWeek = 0;
+    const data = [];
+    for (let i = 5; i >= 0; i--) {
+      const currentDate = new Date();
+      currentDate.setDate(currentDate.getDate() - i);
+      const dateString = currentDate.toISOString().split('T')[0];
+      const dayTotal = this.workOrderStore
+        .workOrders()
+        .filter((o) => o.startDate === dateString)
+        .reduce((sum, o) => sum + Number(o.price || 0), 0);
+      data.push({
+        label: currentDate
+          .toLocaleDateString('es-ES', { weekday: 'short' })
+          .toUpperCase()
+          .replace('.', ''),
+        value: dayTotal,
+        height: 0,
+      });
+      totalWeek += dayTotal;
+    }
+    const maxVal = Math.max(...data.map((d) => d.value), 1);
+    data.forEach((d) => (d.height = Math.max(Math.round((d.value / maxVal) * 100), 5))); // Altura mínima 5%
+    return { total: totalWeek, data };
+  });
+
+  getOrderSeverity(status: string) {
+    if (status === 'FINISHED' || status === 'DELIVERED') return 'success';
+    if (status === 'IN_PROGRESS') return 'info';
+    if (status === 'CANCELLED') return 'danger';
+    return 'warning';
+  }
+
+  goToCreate() {
+    this.router.navigate(['/work-orders/new']);
+  }
+  goToOrders() {
+    this.router.navigate(['/work-orders']);
+  }
+  goToVehicles() {
+    this.router.navigate(['/vehicles']);
+  }
+}
+
+
+
+===== src/app/domains/workshop-operations/presentation/dashboard/dashboard.html =====
+<section class="admin-dashboard">
+  <div class="dashboard-header">
+    <div>
+      <span class="eyebrow">{{ 'dashboard.eyebrow' | translate }}</span>
+      <h1>{{ 'dashboard.title' | translate }}</h1>
+      <p>{{ 'dashboard.description' | translate }}</p>
+    </div>
+    <div class="header-actions">
+      <button mat-flat-button color="primary" (click)="goToCreate()">
+        <mat-icon>add</mat-icon> {{ 'dashboard.newOrder' | translate }}
+      </button>
+      <button mat-stroked-button (click)="goToOrders()">
+        <mat-icon>list</mat-icon> {{ 'dashboard.viewOrders' | translate }}
+      </button>
+    </div>
+  </div>
+
+  <div class="kpi-grid">
+    <mat-card class="metric-card metric-card--blue">
+      <div class="metric-content">
+        <div>
+          <span>{{ 'dashboard.metrics.activeVehicles' | translate }}</span>
+          <strong>{{ vehiclesInWorkshop() }}</strong>
+          <small>{{ 'dashboard.metrics.activeVehiclesSub' | translate }}</small>
+        </div>
+        <mat-icon>directions_car</mat-icon>
+      </div>
+    </mat-card>
+
+    <mat-card class="metric-card metric-card--indigo">
+      <div class="metric-content">
+        <div>
+          <span>{{ 'dashboard.metrics.activeOrders' | translate }}</span>
+          <strong>{{ activeOrdersCount() }}</strong>
+          <small>{{ 'dashboard.metrics.activeOrdersSub' | translate }}</small>
+        </div>
+        <mat-icon>edit_document</mat-icon>
+      </div>
+    </mat-card>
+
+    <mat-card class="metric-card metric-card--green">
+      <div class="metric-content">
+        <div>
+          <span>{{ 'dashboard.metrics.completed' | translate }}</span>
+          <strong>{{ completedOrdersCount() }}</strong>
+          <small>{{ 'dashboard.metrics.completedSub' | translate }}</small>
+        </div>
+        <mat-icon>check_circle</mat-icon>
+      </div>
+    </mat-card>
+
+    <mat-card class="metric-card metric-card--violet">
+      <div class="metric-content">
+        <div>
+          <span>{{ 'dashboard.metrics.projectedRevenue' | translate }}</span>
+          <strong>S/ {{ projectedIncome() | number:'1.2-2' }}</strong>
+          <small>{{ 'dashboard.metrics.projectedRevenueSub' | translate }}</small>
+        </div>
+        <mat-icon>trending_up</mat-icon>
+      </div>
+    </mat-card>
+  </div>
+
+  <div class="dashboard-grid">
+    <div class="main-column">
+      <mat-card class="panel-card income-card">
+        <div class="panel-heading">
+          <div>
+            <h2>{{ 'dashboard.panels.weeklyIncome.title' | translate }}</h2>
+            <p>{{ 'dashboard.panels.weeklyIncome.subtitle' | translate }}</p>
+          </div>
+          <strong class="total-income">S/ {{ weeklyIncomeData().total | number:'1.2-2' }}</strong>
+        </div>
+        <div class="chart-container">
+          <div class="bar-col" *ngFor="let col of weeklyIncomeData().data">
+            <div class="bar" [style.height.%]="col.height">
+              <div class="tooltip">S/ {{ col.value }}</div>
+            </div>
+            <span>{{ col.label }}</span>
+          </div>
+        </div>
+      </mat-card>
+
+      <mat-card class="panel-card">
+        <div class="panel-heading">
+          <div>
+            <h2>{{ 'dashboard.panels.activeVehicles.title' | translate }}</h2>
+            <p>{{ 'dashboard.panels.activeVehicles.subtitle' | translate }}</p>
+          </div>
+          <button mat-button color="primary" (click)="goToVehicles()">{{ 'dashboard.panels.activeVehicles.viewAll' | translate }}</button>
+        </div>
+        <div class="vehicle-list">
+          <div class="vehicle-item" *ngFor="let v of activeVehiclesList()">
+            <img [src]="v.image" alt="Vehicle" class="vehicle-image" />
+            <div class="vehicle-info">
+              <div class="vehicle-top">
+                <div>
+                  <span class="order-code">{{ v.orderCode }}</span>
+                  <h3 class="plate-text">{{ v.plate }}</h3>
+                  <small class="model-text">{{ v.name }}</small>
+                </div>
+                <strong>{{ v.progress }}%</strong>
+              </div>
+              <mat-progress-bar mode="determinate" [value]="v.progress"></mat-progress-bar>
+            </div>
+          </div>
+        </div>
+      </mat-card>
+    </div>
+
+    <div class="side-column">
+      <mat-card class="panel-card">
+        <div class="panel-heading">
+          <div>
+            <h2>{{ 'dashboard.panels.frequentServices.title' | translate }}</h2>
+            <p>{{ 'dashboard.panels.frequentServices.subtitle' | translate }}</p>
+          </div>
+        </div>
+        <div class="services-list">
+          <div class="service-item" *ngFor="let s of frequentServicesList()">
+            <div class="service-icon"><mat-icon>{{ s.icon }}</mat-icon></div>
+            <div class="service-info">
+              <div class="service-top">
+                <h3 class="service-name">{{ s.name }}</h3>
+                <span>{{ s.count }} {{ 'dashboard.panels.frequentServices.orders' | translate }}</span>
+              </div>
+              <mat-progress-bar mode="determinate" [value]="s.progress"></mat-progress-bar>
+            </div>
+          </div>
+        </div>
+      </mat-card>
+
+      <mat-card class="panel-card">
+        <div class="panel-heading">
+          <div>
+            <h2>{{ 'dashboard.panels.recentOrders.title' | translate }}</h2>
+            <p>{{ 'dashboard.panels.recentOrders.subtitle' | translate }}</p>
+          </div>
+          <button mat-icon-button (click)="goToOrders()"><mat-icon>arrow_forward</mat-icon></button>
+        </div>
+        <div class="recent-list">
+          <div class="recent-item" *ngFor="let order of recentOrders()">
+            <div class="recent-info">
+              <span style="font-weight: 800; color: #0f172a;">{{ order.trackingCode }}</span>
+              <span class="custom-badge" [ngClass]="'badge-' + getOrderSeverity(order.status)">{{ order.status }}</span>
+            </div>
+            <strong style="color: #0b1680;">S/ {{ order.price || 0 | number:'1.2-2' }}</strong>
+          </div>
+        </div>
+      </mat-card>
+    </div>
+  </div>
+</section>
+
+
+
+===== src/app/domains/workshop-operations/presentation/tasks-view/tasks-view.html =====
+<section class="tasks-page">
+  <div class="page-header">
+    <span class="eyebrow">Control de Calidad</span>
+    <h1>Revisión de Tareas</h1>
+    <p>Aprueba o rechaza las tareas que los mecánicos han marcado como completadas.</p>
+  </div>
+
+  <div *ngIf="taskStore.loading()" class="empty-state">
+    <mat-icon class="spin">refresh</mat-icon>
+    <p>Cargando tareas...</p>
+  </div>
+
+  <div *ngIf="!taskStore.loading() && tasksToReview().length" class="tasks-grid">
+    <div *ngFor="let task of tasksToReview()" class="review-card">
+      <div class="card-top">
+        <span class="order-badge">Orden: {{ task.orderCode }}</span>
+        <span class="mechanic-name"><mat-icon>person</mat-icon> {{ task.mechanicName }}</span>
+      </div>
+
+      <h3>{{ task.description }}</h3>
+
+      <div class="details-box">
+        <strong>Explicación del Mecánico:</strong>
+        <p>{{ task.customerExplanation || 'Sin observaciones detalladas.' }}</p>
+      </div>
+
+      <div class="actions">
+        <button mat-stroked-button color="warn" (click)="rejectTask(task.id)">Rechazar</button>
+        <button mat-flat-button style="background: #16a34a; color: white;" (click)="approveTask(task.id)">Aprobar Tarea</button>
+      </div>
+    </div>
+  </div>
+
+  <div *ngIf="!taskStore.loading() && tasksToReview().length === 0" class="empty-state">
+    <mat-icon style="color: #16a34a;">check_circle</mat-icon>
+    <h3>Todo al día</h3>
+    <p>No hay tareas pendientes de revisión.</p>
+  </div>
+</section>
+
+
+
+===== src/app/domains/workshop-operations/presentation/tasks-view/tasks-view.ts =====
+import { Component, computed, inject, OnInit } from '@angular/core';
+import { CommonModule } from '@angular/common';
+import { MatButtonModule } from '@angular/material/button';
+import { MatIconModule } from '@angular/material/icon';
+import { TranslatePipe } from '@ngx-translate/core';
+
+import { TaskStore } from '../../application/task.store';
+import { WorkOrderStore } from '../../application/work-order.store';
+import { MechanicStore } from '../../../staff-coordination/application/mechanic.store';
+
+@Component({
+  selector: 'app-tasks-view',
+  standalone: true,
+  imports: [CommonModule, MatButtonModule, MatIconModule],
+  templateUrl: './tasks-view.html',
+  styleUrl: './tasks-view.css',
+})
+export class TasksViewComponent implements OnInit {
+  public taskStore = inject(TaskStore);
+  private workOrderStore = inject(WorkOrderStore);
+  private mechanicStore = inject(MechanicStore);
+
+  async ngOnInit() {
+    await Promise.all([
+      this.taskStore.loadAllTasks(),
+      this.workOrderStore.loadWorkOrders(),
+      this.mechanicStore.loadMechanics(),
+    ]);
+  }
+
+  // Mostramos solo tareas marcadas como completadas por el mecánico pero aún pendientes de revisión
+  tasksToReview = computed(() => {
+    return this.taskStore
+      .tasks()
+      .filter((t) => t.status === 'COMPLETED' && t.adminReviewStatus === 'PENDING')
+      .map((t) => {
+        const order = this.workOrderStore
+          .workOrders()
+          .find((o) => String(o.id) === String(t.workOrderId));
+        const mechanic = this.mechanicStore
+          .mechanics()
+          .find((m) => String(m.id) === String(t.mechanicId));
+        return {
+          ...t,
+          orderCode: order?.trackingCode || 'Desconocida',
+          mechanicName: mechanic?.fullName || 'Desconocido',
+        };
+      });
+  });
+
+  async approveTask(id: string | number | undefined) {
+    if (id) await this.taskStore.approveTask(id);
+  }
+
+  async rejectTask(id: string | number | undefined) {
+    if (id) await this.taskStore.rejectTask(id);
+  }
+}
+
+
+
+===== src/app/domains/workshop-operations/presentation/work-order-detail/work-order-detail.html =====
+<section class="order-detail-page">
+  <header class="page-header">
+    <button mat-icon-button (click)="goBack()" style="background: white;"><mat-icon>arrow_back</mat-icon></button>
+    <div>
+      <span class="eyebrow">Detalle de Orden</span>
+      <h1>Orden {{ order()?.trackingCode }}</h1>
+    </div>
+    <span class="custom-badge header-badge" [ngClass]="getSeverityClass(order()?.status)">{{ order()?.status }}</span>
+  </header>
+
+  <div class="grid-layout">
+    <div class="main-panel">
+      <div class="card tasks-card">
+        <div class="card-header">
+          <h2>Tareas Asignadas</h2>
+          <button mat-flat-button color="primary" (click)="openTaskDialog()"><mat-icon>add</mat-icon> Nueva Tarea</button>
+        </div>
+
+        <div class="tasks-list">
+          <div *ngFor="let task of tasks()" class="task-item">
+            <div class="task-info">
+              <h4>{{ task.description }}</h4>
+              <div class="task-meta">
+                <span class="custom-badge badge-secondary"><mat-icon style="font-size: 14px; width: 14px; height: 14px;">person</mat-icon> {{ getMechanicName(task.mechanicId) }}</span>
+                <span class="custom-badge" [ngClass]="getSeverityClass(task.status)">{{ task.status }}</span>
+                <span><mat-icon style="font-size: 14px; width: 14px; height: 14px;">schedule</mat-icon> {{ task.estimatedTime }}h</span>
+              </div>
+            </div>
+            <div class="task-price">S/ {{ task.laborPrice | number:'1.2-2' }}</div>
+          </div>
+          <div *ngIf="tasks().length === 0" class="empty-state">No hay tareas asignadas a esta orden.</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="side-panel">
+      <div class="card vehicle-card">
+        <h2>Vehículo</h2>
+        <div class="vehicle-info">
+          <mat-icon>directions_car</mat-icon>
+          <div>
+            <h3>{{ vehicle()?.brand }} {{ vehicle()?.model }}</h3>
+            <span class="plate-badge">{{ vehicle()?.plate }}</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="card summary-card">
+        <h2>Resumen</h2>
+        <div class="info-row">
+          <span>Ingreso:</span>
+          <strong>{{ order()?.startDate | date }}</strong>
+        </div>
+        <div class="info-row">
+          <span>Entrega Est.:</span>
+          <strong>{{ order()?.estimatedDate | date }}</strong>
+        </div>
+        <div class="info-row total-row">
+          <span>Total:</span>
+          <strong>S/ {{ order()?.price | number:'1.2-2' }}</strong>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <ng-template #taskDialog>
+    <div class="custom-dialog-header"><h2 mat-dialog-title style="margin:0;">Asignar Tarea</h2></div>
+    <mat-dialog-content>
+      <div class="form-grid mt-3">
+        <div class="field">
+          <label>Descripción de Tarea</label>
+          <input type="text" [(ngModel)]="newTask().description" class="custom-form-input">
+        </div>
+        <div class="field">
+          <label>Mecánico Asignado</label>
+          <mat-select [(ngModel)]="newTask().mechanicId" class="custom-form-input">
+            <mat-option *ngFor="let m of mechanicStore.mechanics()" [value]="m.id">{{ m.fullName }} ({{ m.specialty }})</mat-option>
+          </mat-select>
+        </div>
+        <div class="double-grid">
+          <div class="field">
+            <label>Prioridad</label>
+            <mat-select [(ngModel)]="newTask().priority" class="custom-form-input">
+              <mat-option *ngFor="let p of priorities" [value]="p.value">{{ p.label }}</mat-option>
+            </mat-select>
+          </div>
+          <div class="field">
+            <label>Tiempo Est. (Horas)</label>
+            <input type="number" [(ngModel)]="newTask().estimatedTime" class="custom-form-input">
+          </div>
+        </div>
+        <div class="field">
+          <label>Costo de Mano de Obra (S/)</label>
+          <input type="number" [(ngModel)]="newTask().laborPrice" class="custom-form-input">
+        </div>
+      </div>
+    </mat-dialog-content>
+    <mat-dialog-actions align="end" class="dialog-footer">
+      <button mat-button (click)="closeDialog()">Cancelar</button>
+      <button mat-flat-button color="primary" (click)="saveTask()">Guardar Tarea</button>
+    </mat-dialog-actions>
+  </ng-template>
+</section>
+
+
+
+===== src/app/domains/workshop-operations/presentation/work-order-detail/work-order-detail.ts =====
+import { Component, computed, inject, OnInit, signal, TemplateRef, ViewChild } from '@angular/core';
+import { CommonModule } from '@angular/common';
+import { ActivatedRoute, Router } from '@angular/router';
+import { FormsModule } from '@angular/forms';
+import { MatButtonModule } from '@angular/material/button';
+import { MatIconModule } from '@angular/material/icon';
+import { MatDialog, MatDialogModule } from '@angular/material/dialog';
+import { MatInputModule } from '@angular/material/input';
+import { MatSelectModule } from '@angular/material/select';
+import { TranslatePipe, TranslateService } from '@ngx-translate/core';
+
+import { WorkOrderStore } from '../../application/work-order.store';
+import { TaskStore } from '../../application/task.store';
+import { VehicleStore } from '../../../fleet-management/application/vehicle.store';
+import { MechanicStore } from '../../../staff-coordination/application/mechanic.store';
+
+@Component({
+  selector: 'app-work-order-detail',
+  standalone: true,
+  imports: [
+    CommonModule,
+    FormsModule,
+    MatButtonModule,
+    MatIconModule,
+    MatDialogModule,
+    MatInputModule,
+    MatSelectModule
+  ],
+  templateUrl: './work-order-detail.html',
+  styleUrl: './work-order-detail.css',
+})
+export class WorkOrderDetailComponent implements OnInit {
+  private route = inject(ActivatedRoute);
+  private router = inject(Router);
+  public translate = inject(TranslateService);
+  private dialog = inject(MatDialog);
+
+  private workOrderStore = inject(WorkOrderStore);
+  public taskStore = inject(TaskStore);
+  private vehicleStore = inject(VehicleStore);
+  public mechanicStore = inject(MechanicStore);
+
+  @ViewChild('taskDialog') taskDialogTemplate!: TemplateRef<any>;
+
+  orderId = this.route.snapshot.paramMap.get('id');
+
+  newTask = signal({
+    description: '',
+    priority: 'MEDIUM',
+    estimatedTime: 1,
+    laborPrice: 0,
+    mechanicId: null,
+  });
+
+  priorities = [
+    { value: 'LOW', label: 'Baja' },
+    { value: 'MEDIUM', label: 'Media' },
+    { value: 'HIGH', label: 'Alta' },
+  ];
+
+  async ngOnInit() {
+    await Promise.all([
+      this.workOrderStore.loadWorkOrders(),
+      this.taskStore.loadAllTasks(),
+      this.vehicleStore.loadVehicles(),
+      this.mechanicStore.loadMechanics(),
+    ]);
+  }
+
+  order = computed(() =>
+    this.workOrderStore.workOrders().find((o) => String(o.id) === String(this.orderId)),
+  );
+  vehicle = computed(() =>
+    this.vehicleStore.vehicles().find((v) => String(v.id) === String(this.order()?.vehicleId)),
+  );
+  tasks = computed(() =>
+    this.taskStore.tasks().filter((t) => String(t.workOrderId) === String(this.orderId)),
+  );
+
+  getSeverityClass(status: string | undefined): string {
+    if (status === 'FINISHED' || status === 'COMPLETED' || status === 'DELIVERED')
+      return 'badge-success';
+    if (status === 'IN_PROGRESS') return 'badge-info';
+    return 'badge-warning';
+  }
+
+  getMechanicName(id: string | number | null | undefined): string {
+    if (!id) return 'Sin asignar';
+    const m = this.mechanicStore.mechanics().find((x) => String(x.id) === String(id));
+    return m ? m.fullName : 'Desconocido';
+  }
+
+  goBack() {
+    this.router.navigate(['/work-orders']);
+  }
+
+  openTaskDialog() {
+    this.newTask.set({
+      description: '',
+      priority: 'MEDIUM',
+      estimatedTime: 1,
+      laborPrice: 0,
+      mechanicId: null,
+    });
+    this.dialog.open(this.taskDialogTemplate, {
+      width: '500px',
+      panelClass: 'custom-dialog-container',
+    });
+  }
+
+  closeDialog() {
+    this.dialog.closeAll();
+  }
+
+  async saveTask() {
+    if (!this.newTask().description || !this.newTask().mechanicId) return;
+
+    await this.taskStore.addTask({
+      ...this.newTask(),
+      workOrderId: this.orderId!,
+      status: 'PENDING',
+      adminReviewStatus: 'PENDING',
+    });
+    this.closeDialog();
+  }
+}
+
+
+
+===== src/app/domains/workshop-operations/presentation/work-order-list/work-order-list.html =====
+<section class="work-orders-page">
+  <div class="page-header">
+    <div>
+      <span class="eyebrow">{{ 'workOrders.eyebrow' | translate }}</span>
+      <h1>{{ 'workOrders.title' | translate }}</h1>
+      <p>{{ 'workOrders.description' | translate }}</p>
+    </div>
+    <button mat-flat-button class="add-btn" (click)="goToCreate()">
+      <mat-icon>add</mat-icon>
+      {{ 'workOrders.newOrder' | translate }}
+    </button>
+  </div>
+
+  <div class="toolbar">
+    <div class="search-box">
+      <mat-icon class="search-icon">search</mat-icon>
+      <input type="text" [ngModel]="searchQuery()" (ngModelChange)="searchQuery.set($event)" [placeholder]="'workOrders.searchPlaceholder' | translate" class="custom-search-input">
+    </div>
+
+    <mat-button-toggle-group [ngModel]="viewMode()" (ngModelChange)="viewMode.set($event)" class="custom-toggle-group">
+      <mat-button-toggle value="kanban"><mat-icon>view_column</mat-icon> Kanban</mat-button-toggle>
+      <mat-button-toggle value="list"><mat-icon>view_list</mat-icon> Lista</mat-button-toggle>
+    </mat-button-toggle-group>
+  </div>
+
+  <div *ngIf="workOrderStore.loading()" class="empty-state">
+    <mat-icon class="spin">refresh</mat-icon>
+    <p>Cargando órdenes de trabajo...</p>
+  </div>
+
+  <div *ngIf="!workOrderStore.loading() && viewMode() === 'kanban'" class="kanban-board">
+    <div *ngFor="let col of columns" class="kanban-column">
+      <div class="column-header" [style.borderBottomColor]="col.color">
+        <h3>{{ col.title }}</h3>
+        <span class="count-badge" [style.backgroundColor]="col.bg" [style.color]="col.color">
+          {{ getOrdersByStatus(col.id).length }}
+        </span>
+      </div>
+
+      <div class="column-body">
+        <div *ngFor="let order of getOrdersByStatus(col.id)" class="kanban-card" (click)="goToDetail(order.id)">
+          <div class="card-top">
+            <strong>{{ order.trackingCode }}</strong>
+            <span class="date">{{ order.startDate | date:'dd MMM' }}</span>
+          </div>
+          <h4>{{ order.vehicleName }}</h4>
+          <div class="card-meta">
+            <span class="plate-badge">{{ order.vehiclePlate }}</span>
+            <span class="customer"><mat-icon style="font-size: 1rem; width: 1rem; height: 1rem;">person</mat-icon> {{ order.customerName }}</span>
+          </div>
+          <div class="card-footer">
+            <span class="price">S/ {{ order.price | number:'1.2-2' }}</span>
+          </div>
+        </div>
+        <div *ngIf="getOrdersByStatus(col.id).length === 0" class="empty-column">
+          Sin órdenes
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div *ngIf="!workOrderStore.loading() && viewMode() === 'list'" class="table-container">
+    <table class="clean-table">
+      <thead>
+      <tr>
+        <th>Código</th>
+        <th>Vehículo</th>
+        <th>Cliente</th>
+        <th>Fecha Ingreso</th>
+        <th>Estado</th>
+        <th>Total</th>
+        <th>Acciones</th>
+      </tr>
+      </thead>
+      <tbody>
+      <tr *ngFor="let order of mappedOrders()">
+        <td><strong>{{ order.trackingCode }}</strong></td>
+        <td>
+          <div style="display: flex; flex-direction: column;">
+            <span>{{ order.vehicleName }}</span>
+            <span style="font-size: 0.8rem; color: #64748b;">{{ order.vehiclePlate }}</span>
+          </div>
+        </td>
+        <td>{{ order.customerName }}</td>
+        <td>{{ order.startDate | date }}</td>
+        <td>
+            <span class="custom-badge" [ngClass]="getSeverityClass(order.status)">
+              {{ getStatusLabel(order.status) }}
+            </span>
+        </td>
+        <td style="font-weight: 700; color: #0f172a;">S/ {{ order.price | number:'1.2-2' }}</td>
+        <td>
+          <button mat-icon-button (click)="goToDetail(order.id)" style="color: #0b1680;">
+            <mat-icon>arrow_forward</mat-icon>
+          </button>
+        </td>
+      </tr>
+      <tr *ngIf="mappedOrders().length === 0">
+        <td colspan="7" class="text-center" style="padding: 3rem; color: #64748b;">No se encontraron órdenes.</td>
+      </tr>
+      </tbody>
+    </table>
+  </div>
+</section>
+
+
+
+===== src/app/domains/workshop-operations/presentation/work-order-list/work-order-list.ts =====
+import { Component, computed, inject, OnInit, signal } from '@angular/core';
+import { CommonModule } from '@angular/common';
+import { Router } from '@angular/router';
+import { FormsModule } from '@angular/forms';
+import { MatButtonModule } from '@angular/material/button';
+import { MatIconModule } from '@angular/material/icon';
+import { MatInputModule } from '@angular/material/input';
+import { MatButtonToggleModule } from '@angular/material/button-toggle';
+import { TranslatePipe, TranslateService } from '@ngx-translate/core';
+
+import { WorkOrderStore } from '../../application/work-order.store';
+import { VehicleStore } from '../../../fleet-management/application/vehicle.store';
+import { CustomerStore } from '../../../customer-management/application/customer.store';
+
+@Component({
+  selector: 'app-work-order-list',
+  standalone: true,
+  imports: [
+    CommonModule,
+    FormsModule,
+    MatButtonModule,
+    MatIconModule,
+    MatInputModule,
+    MatButtonToggleModule,
+    TranslatePipe,
+  ],
+  templateUrl: './work-order-list.html',
+  styleUrl: './work-order-list.css',
+})
+export class WorkOrderListComponent implements OnInit {
+  private router = inject(Router);
+  public translate = inject(TranslateService);
+
+  public workOrderStore = inject(WorkOrderStore);
+  private vehicleStore = inject(VehicleStore);
+  private customerStore = inject(CustomerStore);
+
+  viewMode = signal<'kanban' | 'list'>('kanban');
+  searchQuery = signal('');
+
+  columns = [
+    { id: 'PENDING', title: 'Pendiente', color: '#f59e0b', bg: '#fef3c7' },
+    { id: 'IN_PROGRESS', title: 'En Proceso', color: '#3b82f6', bg: '#dbeafe' },
+    { id: 'FINISHED', title: 'Finalizado', color: '#10b981', bg: '#d1fae5' },
+    { id: 'DELIVERED', title: 'Entregado', color: '#64748b', bg: '#e2e8f0' },
+  ];
+
+  async ngOnInit() {
+    await Promise.all([
+      this.workOrderStore.loadWorkOrders(),
+      this.vehicleStore.loadVehicles(),
+      this.customerStore.loadCustomers(),
+    ]);
+  }
+
+  mappedOrders = computed(() => {
+    const term = this.searchQuery().toLowerCase();
+
+    return this.workOrderStore
+      .workOrders()
+      .map((order) => {
+        const vehicle = this.vehicleStore
+          .vehicles()
+          .find((v) => String(v.id) === String(order.vehicleId));
+        const customer = this.customerStore
+          .customers()
+          .find((c) => String(c.id) === String(vehicle?.customerId));
+
+        return {
+          ...order,
+          vehiclePlate: vehicle?.plate || 'N/A',
+          vehicleName: vehicle ? `${vehicle.brand} ${vehicle.model}` : 'Vehículo Desconocido',
+          customerName: customer?.fullName || 'Sin Asignar',
+        };
+      })
+      .filter(
+        (order) =>
+          !term ||
+          order.trackingCode?.toLowerCase().includes(term) ||
+          order.vehiclePlate.toLowerCase().includes(term) ||
+          order.customerName.toLowerCase().includes(term),
+      );
+  });
+
+  getOrdersByStatus(statusId: string) {
+    return this.mappedOrders().filter((o) => o.status === statusId);
+  }
+
+  getSeverityClass(status: string): string {
+    if (status === 'FINISHED' || status === 'DELIVERED') return 'badge-success';
+    if (status === 'IN_PROGRESS') return 'badge-info';
+    return 'badge-warning';
+  }
+
+  getStatusLabel(status: string): string {
+    const found = this.columns.find((c) => c.id === status);
+    return found ? found.title : status;
+  }
+
+  goToCreate() {
+    this.router.navigate(['/work-orders/new']);
+  }
+
+  goToDetail(id: string | number | undefined) {
+    if (id) this.router.navigate([`/work-orders/${id}`]);
+  }
+}
+
+
+
+===== src/app/shared/infrastructure/interceptors/jwt.interceptor.ts =====
+import { HttpInterceptorFn } from '@angular/common/http';
+
+export const jwtInterceptor: HttpInterceptorFn = (req, next) => {
+  let token = localStorage.getItem('token');
+
+  if (token) {
+    token = token.replace(/['"]+/g, '');
+  }
+
+  const isPublicEndpoint =
+    req.url.includes('/auth/') || req.url.includes('/tracking/') || req.url.includes('/inventory/');
+
+  if (token && !isPublicEndpoint) {
+    const clonedRequest = req.clone({
+      setHeaders: {
+        Authorization: `Bearer ${token}`,
+      },
+    });
+    return next(clonedRequest);
+  }
+
+  return next(req);
+};
+
+
+
+===== src/app/shared/presentation/admin-layout/admin-layout.component.html =====
+<div class="admin-layout">
+
+  <aside class="sidebar" *ngIf="!isMobile">
+    <div class="logo-area">
+      <h2>{{ 'layout.brand' | translate }}</h2>
+      <span class="subtitle">{{ 'nav.controlPanel' | translate }}</span>
+    </div>
+
+    <nav class="menu">
+      <a routerLink="/" class="menu-item" routerLinkActive="router-link-exact-active" [routerLinkActiveOptions]="{exact: true}">
+        <mat-icon>home</mat-icon>
+        <span>{{ 'nav.dashboard' | translate }}</span>
+      </a>
+      <a routerLink="/customers" class="menu-item" routerLinkActive="router-link-exact-active">
+        <mat-icon>people</mat-icon>
+        <span>{{ 'nav.customers' | translate }}</span>
+      </a>
+      <a routerLink="/vehicles" class="menu-item" routerLinkActive="router-link-exact-active">
+        <mat-icon>directions_car</mat-icon>
+        <span>{{ 'nav.vehicles' | translate }}</span>
+      </a>
+      <a routerLink="/work-orders" class="menu-item" routerLinkActive="router-link-exact-active">
+        <mat-icon>assignment</mat-icon>
+        <span>{{ 'nav.workOrders' | translate }}</span>
+      </a>
+      <a routerLink="/tasks" class="menu-item" routerLinkActive="router-link-exact-active">
+        <mat-icon>checklist</mat-icon>
+        <span>{{ 'nav.tasks' | translate }}</span>
+      </a>
+      <a routerLink="/mechanics" class="menu-item" routerLinkActive="router-link-exact-active">
+        <mat-icon>engineering</mat-icon>
+        <span>{{ 'nav.mechanics' | translate }}</span>
+      </a>
+      <a routerLink="/inventory" class="menu-item" routerLinkActive="router-link-exact-active">
+        <mat-icon>inventory_2</mat-icon>
+        <span>{{ 'nav.inventory' | translate }}</span>
+      </a>
+    </nav>
+  </aside>
+
+  <main class="main-content">
+
+    <header class="topbar">
+      <div class="topbar-left">
+        <span class="welcome-text">
+          {{ 'topbar.welcome' | translate }}
+          <strong>{{ authState.currentUser()?.name || ('topbar.admin' | translate) }}</strong>
+        </span>
+      </div>
+
+      <div class="topbar-right">
+        <app-language-switcher></app-language-switcher>
+
+        <div class="user-info">
+          <mat-icon class="user-icon">person</mat-icon>
+          <span>{{ authState.currentUser()?.name || ('topbar.admin' | translate) }}</span>
+        </div>
+
+        <button mat-stroked-button color="warn" (click)="logout()" class="logout-btn">
+          <mat-icon>logout</mat-icon>
+          {{ 'topbar.logout' | translate }}
+        </button>
+      </div>
+    </header>
+
+    <section class="content">
+      <router-outlet></router-outlet>
+    </section>
+
+  </main>
+</div>
+
+
+
+===== src/app/shared/presentation/admin-layout/admin-layout.component.ts =====
+import { Component, HostListener, inject, OnInit } from '@angular/core';
+import { RouterModule } from '@angular/router';
+import { CommonModule } from '@angular/common';
+import { MatButtonModule } from '@angular/material/button';
+import { MatIconModule } from '@angular/material/icon';
+import { TranslatePipe } from '@ngx-translate/core';
+import { AuthService } from '../../../domains/auth/infrastructure/auth.service';
+import { AuthState } from '../../../domains/auth/application/auth.state';
+import { LanguageSwitcher } from '../language-switcher/language-switcher';
+
+@Component({
+  selector: 'app-admin-layout',
+  standalone: true,
+  imports: [
+    CommonModule,
+    RouterModule,
+    MatButtonModule,
+    MatIconModule,
+    LanguageSwitcher,
+    TranslatePipe,
+  ],
+  templateUrl: './admin-layout.component.html',
+  styleUrl: './admin-layout.component.css',
+})
+export class AdminLayoutComponent implements OnInit {
+  private authService = inject(AuthService);
+  public authState = inject(AuthState);
+
+  isMobile = false;
+
+  ngOnInit(): void {
+    this.checkScreenSize();
+  }
+
+  @HostListener('window:resize')
+  checkScreenSize() {
+    this.isMobile = window.innerWidth < 768;
+  }
+
+  logout() {
+    this.authService.logout();
+  }
+}
+
+
+
+===== src/app/shared/presentation/language-switcher/language-switcher.html =====
+<div class="lang-switcher">
+  <button
+    *ngFor="let option of options"
+    [title]="option.label"
+    [class]="['lang-btn', translate.currentLang === option.value ? 'active' : '']"
+    (click)="switchLocale(option.value)"
+  >
+    <span class="flag">{{ option.flag }}</span>
+    <span class="label">{{ option.label }}</span>
+  </button>
+</div>
+
+
+
+===== src/app/shared/presentation/language-switcher/language-switcher.ts =====
+import { Component, computed } from '@angular/core';
+import { CommonModule } from '@angular/common';
+import { TranslateService } from '@ngx-translate/core';
+
+@Component({
+  selector: 'app-language-switcher',
+  standalone: true,
+  imports: [CommonModule],
+  templateUrl: './language-switcher.html',
+  styleUrl: './language-switcher.css',
+})
+export class LanguageSwitcher {
+  options = [
+    { label: 'ES', value: 'es', flag: '🇪🇸' },
+    { label: 'EN', value: 'en', flag: '🇺🇸' },
+  ];
+
+  constructor(public translate: TranslateService) {}
+
+  switchLocale(value: string) {
+    this.translate.use(value);
+    localStorage.setItem('autoservice-locale', value);
+  }
+}
+
+
+
+===== src/environments/environment.prod.ts =====
+export const environment = {
+  production: true,
+  apiUrl: 'http://localhost:8080',
+};
+
+
+
+===== src/environments/environment.ts =====
+export const environment = {
+  production: false,
+  apiUrl: 'http://localhost:8080',
+};
+
+
+
+===== src/index.html =====
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <title>AutoserviceFront</title>
+    <base href="/" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <link rel="icon" type="image/x-icon" href="favicon.ico" />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;500&display=swap"
+      rel="stylesheet"
+    />
+    <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet" />
+  </head>
+  <body>
+    <app-root></app-root>
+  </body>
+</html>
+
+
+
+===== src/main.ts =====
+/**
+ * Main entry file for the application (Bootstrap)
+ *
+ * This is the starting point for the entire Angular application.
+ * It is responsible for:
+ * - Importing the global configuration (`appConfig`)
+ * - Importing the root component (`AppComponent`)
+ * - Initializing the application with `bootstrapApplication`
+ *
+ * @file main.ts
+ * @version 1.0
+ * @see {@link appConfig} - Global configuration of providers
+ * @see {@link AppComponent} - Root component of the application
+ */
+import { bootstrapApplication } from '@angular/platform-browser';
+
+// Global configuration of the application
+import { appConfig } from './app/app.config';
+
+// Root component
+import { App } from './app/app';
+
+/**
+ * Initializes and starts the Angular application in standalone mode.
+ *
+ * Uses `bootstrapApplication` instead of the legacy `bootstrapModule`
+ * since this project uses standalone components.
+ */
+bootstrapApplication(App, appConfig)
+  .catch((err) => console.error(err));
+
+
+

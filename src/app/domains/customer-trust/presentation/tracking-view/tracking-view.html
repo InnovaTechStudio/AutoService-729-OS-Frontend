@@ -1,190 +1,195 @@
 <div class="tracking-layout">
-  <app-language-switcher class="no-print"></app-language-switcher>
+  <header class="public-header no-print">
+    <div class="header-content">
+      <div class="logo">
+        <mat-icon style="color: #0b1680; font-size: 2rem; width: 2rem; height: 2rem;">directions_car</mat-icon>
+        <span style="font-weight: 800; font-size: 1.2rem; color: #0f172a;">AutoService</span>
+      </div>
+      <app-language-switcher></app-language-switcher>
+    </div>
+  </header>
 
-  <div class="tracking-header no-print">
-    <mat-icon class="header-icon">directions_car</mat-icon>
-    <h1>{{ ('tracking.title') | translate}}</h1>
-    <p>{{ ('tracking.subtitle') | translate}}</p>
-  </div>
+  <main class="tracking-main no-print">
+    <div class="search-section">
+      <h1>Sigue el estado de tu vehículo</h1>
+      <p>Ingresa el código de seguimiento proporcionado por tu taller para conocer el progreso de reparación en tiempo real.</p>
 
-  <div class="tracking-content">
-
-    <div class="search-box no-print">
-      <label for="code">{{ ('tracking.serviceCode') | translate}}</label>
-      <div class="search-input-group">
-        <input
-          id="code"
-          [(ngModel)]="trackingCode"
-          placeholder="Ej: AS-1001A"
-          (keyup.enter)="handleSearch()"
-          class="code-input"
-        />
-        <button class="btn-search" (click)="handleSearch()" [disabled]="trackingStore.isLoading()">
-          <mat-icon>search</mat-icon>
-          {{ ('tracking.search') | translate}}
+      <div class="search-box">
+        <mat-icon class="search-icon">search</mat-icon>
+        <input type="text" [(ngModel)]="trackingCode" (keyup.enter)="search()" placeholder="Ej: ORD-2023-XYZ" class="tracking-input">
+        <button mat-flat-button class="search-btn" (click)="search()" [disabled]="trackingStore.loading()">
+          <mat-icon *ngIf="trackingStore.loading()" class="spin">refresh</mat-icon>
+          Buscar
         </button>
       </div>
 
-      @if (trackingStore.error()) {
-        <div class="error-message mt-3">
-          <mat-icon>error_outline</mat-icon> {{ trackingStore.error() }}
-        </div>
-      }
+      <div *ngIf="trackingStore.error()" class="error-msg">
+        <mat-icon>error_outline</mat-icon> {{ trackingStore.error() | translate }}
+      </div>
     </div>
 
-    @if (trackingStore.order()) {
-      <div class="results-box fade-in no-print">
-
-        <div class="vehicle-header">
-          <div class="vehicle-details">
-            <span class="label">{{ ('tracking.vehicleReceived') | translate}}</span>
-            <h2>
-              {{ trackingStore.vehicle()?.brand }} {{ trackingStore.vehicle()?.model }}
-              <span>{{ trackingStore.vehicle()?.plate }}</span>
-            </h2>
-          </div>
-
-          <div style="display: flex; gap: 1rem; align-items: center;">
-            <div class="tag status-tag" [ngClass]="'tag-' + getStatusSeverity(trackingStore.order()!.status)">
-              {{ trackingStore.order()?.status }}
+    <div *ngIf="trackingStore.order()" class="result-section">
+      <div class="result-grid">
+        <div class="main-panel">
+          <div class="status-card">
+            <div class="card-header">
+              <div>
+                <span class="eyebrow">Estado de Orden</span>
+                <h2>{{ trackingStore.vehicle()?.brand }} {{ trackingStore.vehicle()?.model }}</h2>
+                <span class="custom-badge badge-secondary">{{ trackingStore.vehicle()?.plate }}</span>
+              </div>
+              <span class="custom-badge status-badge" [ngClass]="getSeverityClass(trackingStore.order()?.status)">
+                {{ trackingStore.order()?.status }}
+              </span>
             </div>
 
-            <button mat-flat-button color="primary" (click)="downloadPDF()" style="border-radius: 8px;">
-              <mat-icon>picture_as_pdf</mat-icon>
-              Descargar Comprobante
+            <div class="progress-container">
+              <div class="progress-labels">
+                <span>Ingreso</span>
+                <span>En Diagnóstico</span>
+                <span>En Progreso</span>
+                <span>Listo</span>
+              </div>
+              <mat-progress-bar mode="determinate" [value]="progressPercentage()"></mat-progress-bar>
+            </div>
+          </div>
+
+          <div class="tasks-card">
+            <h3>Detalle de Tareas</h3>
+            <div class="tasks-list">
+              <div *ngFor="let task of trackingStore.tasks()" class="task-item">
+                <div class="task-info">
+                  <mat-icon [style.color]="task.status === 'COMPLETED' ? '#16a34a' : '#64748b'">
+                    {{ task.status === 'COMPLETED' ? 'check_circle' : 'pending' }}
+                  </mat-icon>
+                  <div>
+                    <h4>{{ task.description }}</h4>
+                    <p *ngIf="task.customerExplanation">{{ task.customerExplanation }}</p>
+                  </div>
+                </div>
+                <span class="custom-badge" [ngClass]="getSeverityClass(task.status)">{{ task.status }}</span>
+              </div>
+            </div>
+            <div *ngIf="!trackingStore.tasks().length" class="empty-tasks">
+              No hay tareas registradas aún.
+            </div>
+          </div>
+        </div>
+
+        <div class="side-panel">
+          <div class="info-card">
+            <h3>Resumen de Orden</h3>
+            <div class="info-row">
+              <span>Código:</span>
+              <strong>{{ trackingStore.order()?.trackingCode }}</strong>
+            </div>
+            <div class="info-row">
+              <span>Ingreso:</span>
+              <strong>{{ trackingStore.order()?.startDate | date }}</strong>
+            </div>
+            <div class="info-row">
+              <span>Entrega Estimada:</span>
+              <strong>{{ trackingStore.order()?.estimatedDate | date }}</strong>
+            </div>
+            <div class="info-row total-row">
+              <span>Monto Total Estimado:</span>
+              <strong class="text-primary">S/ {{ trackingStore.order()?.price | number:'1.2-2' }}</strong>
+            </div>
+
+            <button *ngIf="orderIsFinished()" mat-flat-button class="pay-btn" (click)="openPaymentModal()">
+              <mat-icon>credit_card</mat-icon> Pagar Orden
+            </button>
+
+            <div *ngIf="orderIsDelivered()" class="success-box">
+              <mat-icon>check_circle</mat-icon>
+              <span>¡Orden pagada y entregada!</span>
+            </div>
+
+            <button mat-stroked-button color="primary" class="print-btn w-full mt-3" (click)="printReceipt()">
+              <mat-icon>print</mat-icon> Imprimir Resumen
             </button>
           </div>
         </div>
+      </div>
+    </div>
+  </main>
 
-        <div class="dates-grid">
-          <div class="date-item">
-            <span class="label">{{ ('tracking.entryDate') | translate}}</span>
-            <strong><mat-icon class="text-blue-500">event</mat-icon> {{ trackingStore.order()?.startDate }}</strong>
-          </div>
-          <div class="date-item right-align">
-            <span class="label">{{ ('tracking.estimatedDelivery') | translate}}</span>
-            <strong><mat-icon class="text-orange-500">event_available</mat-icon> {{ trackingStore.order()?.estimatedDate }}</strong>
-          </div>
-        </div>
+  <div class="print-only print-container">
+    <div *ngIf="trackingStore.order()">
+      <div class="receipt-header">
+        <h1>AutoService</h1>
+        <p>Resumen de Servicio Automotriz</p>
+        <p class="receipt-date">Fecha de impresión: {{ trackingStore.order()?.startDate | date }}</p>
+      </div>
 
-        <div class="dashboard-grid">
-          <div class="left-section">
-            <div class="service-card">
-              <div class="card-header">
-                <h3>{{ ('tracking.serviceTasks') | translate}}</h3>
-                <p>{{ ('tracking.taskInstructions') | translate}}</p>
+      <table class="receipt-table-info">
+        <tr>
+          <td width="50%">
+            <strong>CLIENTE:</strong><br>
+            {{ trackingStore.customer()?.fullName || 'N/A' }}<br>
+            DNI: {{ trackingStore.customer()?.dni || 'N/A' }}<br>
+            Tel: {{ trackingStore.customer()?.phone || 'N/A' }}
+          </td>
+          <td width="50%" class="text-right">
+            <strong>TALLER:</strong><br>
+            {{ trackingStore.workshop()?.name || 'AutoService Central' }}<br>
+            ORDEN #: {{ trackingStore.order()?.trackingCode }}
+          </td>
+        </tr>
+      </table>
+
+      <hr style="border: 1px dashed #cbd5e1; margin: 15px 0;">
+
+      <table class="receipt-table-info">
+        <tr>
+          <td><strong>VEHÍCULO:</strong> {{ trackingStore.vehicle()?.brand }} {{ trackingStore.vehicle()?.model }}</td>
+          <td><strong>PLACA:</strong> {{ trackingStore.vehicle()?.plate }}</td>
+        </tr>
+        <tr>
+          <td><strong>ESTADO ACTUAL:</strong> {{ trackingStore.order()?.status }}</td>
+          <td><strong>ENTREGA:</strong> {{ trackingStore.order()?.estimatedDate | date }}</td>
+        </tr>
+      </table>
+
+      <table class="receipt-main-table">
+        <thead>
+        <tr>
+          <th>Tarea Asignada</th>
+          <th>Estado</th>
+          <th>Mano de Obra</th>
+        </tr>
+        </thead>
+        <tbody>
+        <ng-container *ngFor="let task of trackingStore.tasks()">
+          <tr class="task-row">
+            <td>
+              <strong>{{ task.description }}</strong>
+              <div *ngIf="task.customerExplanation" style="font-size: 9pt; color: #64748b; margin-top: 4px;">Nota: {{ task.customerExplanation }}</div>
+
+              <div *ngIf="$any(task).parts?.length" class="print-parts-detail">
+                <span style="font-size: 8.5pt; font-weight: bold; color: #475569;">Repuestos:</span>
+                <ul>
+                  <li *ngFor="let part of $any(task).parts">- {{ part.quantity }}x {{ part.name }} (S/{{ part.unitPrice }})</li>
+                </ul>
               </div>
+            </td>
+            <td>{{ task.status }}</td>
+            <td class="text-right font-mono">S/ {{ task.laborPrice | number:'1.2-2' }}</td>
+          </tr>
+        </ng-container>
+        </tbody>
+      </table>
 
-              @for (task of trackingStore.tasks(); track task.id) {
-                <div class="task-item" [class.active]="selectedTask?.id === task.id" (click)="selectTask(task)">
-                  <div class="task-left">
-                    <div class="task-icon" [ngClass]="getTaskTagSeverity(task.status)">
-                      <mat-icon *ngIf="task.status === 'Completada'">check_circle</mat-icon>
-                      <mat-icon *ngIf="task.status === 'En Proceso'">settings</mat-icon>
-                      <mat-icon *ngIf="task.status === 'Pendiente'">schedule</mat-icon>
-                      <mat-icon *ngIf="task.status !== 'Completada' && task.status !== 'En Proceso' && task.status !== 'Pendiente'">circle</mat-icon>
-                    </div>
-                    <div>
-                      <strong>{{ task.description }}</strong>
-                      <p>{{ task.status }}</p>
-                    </div>
-                  </div>
-                  <div class="tag" [ngClass]="'tag-' + getTaskTagSeverity(task.status)">
-                    {{ task.status }}
-                  </div>
-                </div>
-              }
-            </div>
-
-            <div class="mechanic-report-card">
-              <div class="card-header">
-                <h3>{{ ('tracking.mechanicReport') | translate}}</h3>
-              </div>
-              @if (selectedTask) {
-                <div class="report-box">
-                  <strong>{{ selectedTask.description }}</strong>
-                  <p>{{ getSelectedTaskCustomerExplanation() }}</p>
-                </div>
-              }
-            </div>
-
-            <div class="evidence-card">
-              @if (selectedTask?.photo) {
-                <img [src]="selectedTask!.photo" alt="evidence" />
-              } @else {
-                <div class="no-image"><mat-icon>image</mat-icon><p>Sin evidencia visual</p></div>
-              }
-            </div>
-          </div>
-
-          <div class="right-section">
-            <div class="cost-card" style="background: white; border-radius: 18px; padding: 1.5rem; box-shadow: 0 10px 30px rgba(0,0,0,0.08);">
-              <span class="mini-title">{{ ('tracking.estimatedTotalCost') | translate}}</span>
-              <h2 style="font-size: 2.3rem; margin: 1rem 0; color: #111827;">S/. {{ trackingStore.order()?.price }}</h2>
-              <p>{{ ('tracking.costDisclaimer') | translate}}</p>
-              <button class="pay-now-btn" (click)="openPaymentModal()">
-                <mat-icon style="color: white; margin-right: 8px;">credit_card</mat-icon>
-                {{ ('tracking.makePayment') | translate}}
-              </button>
-            </div>
-          </div>
+      <div class="receipt-summary">
+        <div>
+          <h2>TOTAL ESTIMADO: S/ {{ trackingStore.order()?.price | number:'1.2-2' }}</h2>
+          <p style="font-size: 9pt; color: #64748b;">El monto incluye mano de obra y repuestos aplicados.</p>
         </div>
       </div>
-    }
 
-    @if (trackingStore.order()) {
-      <div class="a4-document print-only">
-        <div class="doc-header">
-          <div class="doc-brand">
-            <h2>AutoService</h2>
-            <span>Red de Talleres Especializados</span>
-          </div>
-          <div class="doc-meta">
-            <h1>Comprobante de Servicio</h1>
-            <p><strong>Placa:</strong> {{ trackingStore.vehicle()?.plate }}</p>
-            <p><strong>Fecha de Emisión:</strong> {{ currentDate || 'Hoy' }}</p>
-            <p><strong>Código de Rastreo:</strong> {{ trackingStore.order()?.trackingCode || trackingStore.order()?.id }}</p>
-          </div>
-        </div>
-
-        <div class="doc-body">
-          <div class="print-section">
-            <h3>Datos del Vehículo y Servicio</h3>
-            <p><strong>Marca y Modelo:</strong> {{ trackingStore.vehicle()?.brand }} {{ trackingStore.vehicle()?.model }}</p>
-            <p><strong>Estado Actual:</strong> {{ trackingStore.order()?.status }}</p>
-            <p><strong>Fecha de Ingreso:</strong> {{ trackingStore.order()?.startDate }}</p>
-            <p><strong>Entrega Estimada:</strong> {{ trackingStore.order()?.estimatedDate }}</p>
-          </div>
-
-          <div class="print-section">
-            <h3>Detalle de Tareas Asignadas</h3>
-            <table class="print-table">
-              <thead>
-              <tr>
-                <th>Tarea</th>
-                <th>Estado</th>
-                <th>Detalle / Informe Técnico</th>
-              </tr>
-              </thead>
-              <tbody>
-                @for (task of trackingStore.tasks(); track task.id) {
-                  <tr>
-                    <td><strong>{{ task.description }}</strong></td>
-                    <td>{{ task.status }}</td>
-                    <td>{{ task.customerExplanation || 'Sin observaciones detalladas' }}</td>
-                  </tr>
-                }
-              </tbody>
-            </table>
-          </div>
-
-          <div class="print-footer">
-            <h2>Costo Total Estimado: S/. {{ trackingStore.order()?.price }}</h2>
-            <p>Este documento es un comprobante informativo generado por AutoService y detalla el estado actual y los costos asociados al mantenimiento de su vehículo. No representa un comprobante de pago con validez fiscal.</p>
-          </div>
-        </div>
+      <div style="text-align: center; margin-top: 40px; font-size: 9pt; color: #94a3b8;">
+        Este documento es informativo y no representa un comprobante fiscal válido.
       </div>
-    }
-
+    </div>
   </div>
 </div>

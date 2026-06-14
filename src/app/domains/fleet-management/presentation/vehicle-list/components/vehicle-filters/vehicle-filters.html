@@ -1,26 +1,32 @@
 <div class="vehicle-filters">
-  <mat-form-field appearance="outline" class="search-box">
-    <mat-label>{{('vehicles1.search.placeholder') | translate }}</mat-label>
-    <mat-icon matPrefix>search</mat-icon>
+  <div class="search-box">
+    <mat-icon class="search-icon">search</mat-icon>
     <input
-      matInput
+      type="text"
       [ngModel]="search"
-      placeholder="Buscar por placa, dueño, marca o modelo..."
-      (ngModelChange)="onSearchChange($event)" />
+      (ngModelChange)="onSearchChange($event)"
+      [placeholder]="'vehicles.filters.searchPlaceholder' | translate"
+      class="custom-search-input"
+    />
+  </div>
+
+  <mat-form-field appearance="outline" class="filter-select">
+    <mat-label>{{ 'vehicles.filters.statusPlaceholder' | translate }}</mat-label>
+    <mat-select [ngModel]="status" (ngModelChange)="onStatusChange($event)">
+      <mat-option [value]="null">{{ 'vehicles.filters.statusPlaceholder' | translate }}</mat-option>
+      <mat-option *ngFor="let option of statusOptions" [value]="option.value">
+        {{ option.label }}
+      </mat-option>
+    </mat-select>
   </mat-form-field>
 
-  <mat-form-field appearance="outline" class="status-filter">
-    <mat-label>{{('vehicles1.search.filterByStatus') | translate }}</mat-label>
-    <mat-select
-      [ngModel]="status"
-      (ngModelChange)="onStatusChange($event)">
-      <mat-option [value]="null">Todos</mat-option>
-
-      @for (option of statusOptions; track option) {
-        <mat-option [value]="option">
-          {{ option }}
-        </mat-option>
-      }
+  <mat-form-field appearance="outline" class="filter-select">
+    <mat-label>{{ 'vehicles.filters.sortPlaceholder' | translate }}</mat-label>
+    <mat-select [ngModel]="sortBy" (ngModelChange)="onSortByChange($event)">
+      <mat-option [value]="null">{{ 'vehicles.filters.sortPlaceholder' | translate }}</mat-option>
+      <mat-option *ngFor="let option of sortOptions" [value]="option.value">
+        {{ option.label }}
+      </mat-option>
     </mat-select>
   </mat-form-field>
 </div>

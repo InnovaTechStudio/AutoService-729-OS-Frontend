@@ -1,28 +1,21 @@
 <div class="mechanic-filters">
-  <mat-form-field appearance="outline" class="search-box">
-    <mat-label>{{ 'staffManagement.actions.searchMechanic' | translate}}</mat-label>
-    <mat-icon matPrefix>search</mat-icon>
-
+  <div class="search-box">
+    <mat-icon class="search-icon">search</mat-icon>
     <input
-      matInput
+      type="text"
       [ngModel]="search"
-      placeholder="Buscar por nombre o especialidad..."
-      (ngModelChange)="onSearchChange($event)" />
-  </mat-form-field>
+      (ngModelChange)="onSearchChange($event)"
+      [placeholder]="'mechanics.filters.searchPlaceholder' | translate"
+      class="custom-search-input"
+    />
+  </div>
 
-  <mat-form-field appearance="outline" class="specialty-filter">
-    <mat-label>{{ 'staffManagement.actions.filterBySpecialty' | translate}}</mat-label>
-
-    <mat-select
-      [ngModel]="specialty"
-      (ngModelChange)="onSpecialtyChange($event)">
-      <mat-option [value]="null">Todas</mat-option>
-
-      @for (option of specialtyOptions; track option) {
-        <mat-option [value]="option">
-          {{ option }}
-        </mat-option>
-      }
+  <mat-form-field appearance="outline" class="filter-select">
+    <mat-select [ngModel]="specialty" (ngModelChange)="onSpecialtyChange($event)" [placeholder]="'mechanics.filters.specialtyPlaceholder' | translate">
+      <mat-option [value]="null">{{ 'common.all' | translate }}</mat-option>
+      <mat-option *ngFor="let option of specialtyOptions" [value]="option">
+        {{ option }}
+      </mat-option>
     </mat-select>
   </mat-form-field>
 </div>

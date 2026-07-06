@@ -2,7 +2,8 @@
   "actions": {
     "deleteMechanic": "Desactivar",
     "editProfile": "Editar Perfil",
-    "cancel": "Cancelar"
+    "cancel": "Cancelar",
+    "edit": "Editar"
   },
   "auth": {
     "loginError": "Credenciales inválidas o error de conexión",
@@ -22,7 +23,9 @@
     "unassigned": "No asignado",
     "undefined": "Indefinido",
     "currencyPrefix": "S/.",
-    "vehicle": "Vehículo"
+    "vehicle": "Vehículo",
+    "cancel": "Cancelar",
+    "save": "Guardar"
   },
   "customer": {
     "dni": "DNI / Documento",
@@ -56,6 +59,14 @@
       "fullNamePlaceholder": "ej. Juan Pérez",
       "phonePlaceholder": "+51 999 999 999",
       "save": "Guardar",
+      "cancel": "Cancelar",
+      "editTitle": "Editar Cliente",
+      "update": "Actualizar"
+    },
+    "delete": {
+      "title": "Eliminar Cliente",
+      "description": "¿Está seguro de que desea eliminar este cliente?",
+      "confirm": "Eliminar",
       "cancel": "Cancelar"
     },
     "registerButton": "Registrar Cliente",
@@ -150,6 +161,14 @@
       "supply": "Insumo",
       "tool": "Herramienta"
     },
+    "card": {
+      "minStock": "Stock mínimo",
+      "stock": "Stock actual",
+      "price": "Precio unitario"
+    },
+    "status": {
+      "inStock": "En Stock"
+    },
     "deleteConfirm": "¿Eliminar {name} del inventario?",
     "description": "Control de repuestos, aceites e insumos para asignación de tareas.",
     "editTitle": "Editar artículo",
@@ -230,7 +249,8 @@
     "actions": {
       "new": "Agregar mecánico",
       "cancel": "Cancelar",
-      "create": "Crear"
+      "create": "Crear",
+      "saveChanges": "Guardar Cambios"
     },
     "card": {
       "activeTasks": "Tareas activas",
@@ -252,7 +272,8 @@
       "usernamePlaceholder": "nombre",
       "username": "Cuenta de Mecánico",
       "usernameHelp": "Se recomienda nombre+apellido",
-      "password": "Contraseña"
+      "password": "Contraseña",
+      "editTitle": "Editar Mecánico"
     },
     "empty": {
       "description": "Intente cambiar el filtro o registre a un nuevo miembro.",
@@ -541,6 +562,8 @@
       "viewDetail": "Ver detalle",
       "total": "Total"
     },
+    "searchPlaceholder": "Buscar ordenes por placa o modelo",
+    "newOrder": "Nueva Orden",
     "create": {
       "title": "Nueva Recepción de Vehículo",
       "description": "Registra el ingreso rápidamente. El diagnóstico y las tareas las asignará el mecánico.",

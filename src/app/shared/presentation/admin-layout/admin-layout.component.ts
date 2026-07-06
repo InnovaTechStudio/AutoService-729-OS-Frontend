@@ -7,6 +7,9 @@ import { TranslatePipe } from '@ngx-translate/core';
 import { AuthService } from '../../../domains/auth/infrastructure/auth.service';
 import { AuthState } from '../../../domains/auth/application/auth.state';
 import { LanguageSwitcher } from '../language-switcher/language-switcher';
+import { MatSidenavModule } from '@angular/material/sidenav';
+import { MatToolbarModule } from '@angular/material/toolbar';
+import { MatListModule } from '@angular/material/list';
 
 @Component({
   selector: 'app-admin-layout',
@@ -17,6 +20,9 @@ import { LanguageSwitcher } from '../language-switcher/language-switcher';
     MatButtonModule,
     MatIconModule,
     LanguageSwitcher,
+    MatSidenavModule,
+    MatToolbarModule,
+    MatListModule,
     TranslatePipe,
   ],
   templateUrl: './admin-layout.component.html',
@@ -31,10 +37,23 @@ export class AdminLayoutComponent implements OnInit {
   ngOnInit(): void {
     this.checkScreenSize();
   }
+  sidebarOpen = false;
 
+  toggleSidebar() {
+    this.sidebarOpen = !this.sidebarOpen;
+  }
+  closeSidebar() {
+    if (this.isMobile) {
+      this.sidebarOpen = false;
+    }
+  }
   @HostListener('window:resize')
   checkScreenSize() {
     this.isMobile = window.innerWidth < 768;
+
+    if (!this.isMobile) {
+      this.sidebarOpen = false;
+    }
   }
 
   logout() {

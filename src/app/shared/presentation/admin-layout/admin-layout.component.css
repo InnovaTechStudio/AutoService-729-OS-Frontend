@@ -24,3 +24,31 @@
 .logout-btn { border-radius: 50px !important; }
 /* Content */
 .content { flex: 1; overflow-y: auto; padding: 2rem; }
+.menu-btn{display:none;
+}
+
+@media (max-width:768px){
+
+  .menu-btn{
+    display:flex;
+  }
+  .sidebar{
+    position:fixed;
+    top:0;
+    left:-260px;
+    width:260px;
+    height:100vh;
+    z-index:1000;
+    transition:left .3s;
+
+  }
+  .sidebar.mobile-open{
+    left:0;
+  }
+  .main-content{
+
+    width:100%;
+
+  }
+
+}

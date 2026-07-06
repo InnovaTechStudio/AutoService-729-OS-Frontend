@@ -1,37 +1,39 @@
 <div class="admin-layout">
 
-  <aside class="sidebar" *ngIf="!isMobile">
+  <aside  class="sidebar"
+          [class.mobile-open]="sidebarOpen"
+          [class.mobile]="isMobile">
     <div class="logo-area">
       <h2>{{ 'layout.brand' | translate }}</h2>
       <span class="subtitle">{{ 'nav.controlPanel' | translate }}</span>
     </div>
 
     <nav class="menu">
-      <a routerLink="/" class="menu-item" routerLinkActive="router-link-exact-active" [routerLinkActiveOptions]="{exact: true}">
+      <a routerLink="/" class="menu-item" routerLinkActive="router-link-exact-active" [routerLinkActiveOptions]="{exact: true}" (click)="closeSidebar()">
         <mat-icon>home</mat-icon>
         <span>{{ 'nav.dashboard' | translate }}</span>
       </a>
-      <a routerLink="/customers" class="menu-item" routerLinkActive="router-link-exact-active">
+      <a routerLink="/customers" class="menu-item" routerLinkActive="router-link-exact-active" (click)="closeSidebar()">
         <mat-icon>people</mat-icon>
         <span>{{ 'nav.customers' | translate }}</span>
       </a>
-      <a routerLink="/vehicles" class="menu-item" routerLinkActive="router-link-exact-active">
+      <a routerLink="/vehicles" class="menu-item" routerLinkActive="router-link-exact-active" (click)="closeSidebar()">
         <mat-icon>directions_car</mat-icon>
         <span>{{ 'nav.vehicles' | translate }}</span>
       </a>
-      <a routerLink="/work-orders" class="menu-item" routerLinkActive="router-link-exact-active">
+      <a routerLink="/work-orders" class="menu-item" routerLinkActive="router-link-exact-active" (click)="closeSidebar()">
         <mat-icon>assignment</mat-icon>
         <span>{{ 'nav.workOrders' | translate }}</span>
       </a>
-      <a routerLink="/tasks" class="menu-item" routerLinkActive="router-link-exact-active">
+      <a routerLink="/tasks" class="menu-item" routerLinkActive="router-link-exact-active" (click)="closeSidebar()">
         <mat-icon>checklist</mat-icon>
         <span>{{ 'nav.tasks' | translate }}</span>
       </a>
-      <a routerLink="/mechanics" class="menu-item" routerLinkActive="router-link-exact-active">
+      <a routerLink="/mechanics" class="menu-item" routerLinkActive="router-link-exact-active" (click)="closeSidebar()">
         <mat-icon>engineering</mat-icon>
         <span>{{ 'nav.mechanics' | translate }}</span>
       </a>
-      <a routerLink="/inventory" class="menu-item" routerLinkActive="router-link-exact-active">
+      <a routerLink="/inventory" class="menu-item" routerLinkActive="router-link-exact-active" (click)="closeSidebar()">
         <mat-icon>inventory_2</mat-icon>
         <span>{{ 'nav.inventory' | translate }}</span>
       </a>
@@ -41,6 +43,15 @@
   <main class="main-content">
 
     <header class="topbar">
+      <button
+        *ngIf="isMobile"
+        mat-icon-button
+        class="menu-btn"
+        (click)="toggleSidebar()">
+
+        <mat-icon>menu</mat-icon>
+
+      </button>
       <div class="topbar-left">
         <span class="welcome-text">
           {{ 'topbar.welcome' | translate }}

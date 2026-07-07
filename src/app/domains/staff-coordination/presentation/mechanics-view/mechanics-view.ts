@@ -11,6 +11,7 @@ import { TranslatePipe, TranslateService } from '@ngx-translate/core';
 import { MechanicStore } from '../../application/mechanic.store';
 import { AuthState } from '../../../auth/application/auth.state';
 import { Mechanic } from '../../domain/models/mechanic.model';
+import { TaskStore } from '../../../workshop-operations/application/task.store';
 import { MechanicFiltersComponent } from './components/mechanic-filters/mechanic-filters';
 import { MechanicCardComponent } from './components/mechanic-card/mechanic-card';
 
@@ -35,6 +36,7 @@ import { MechanicCardComponent } from './components/mechanic-card/mechanic-card'
 export class MechanicsViewComponent implements OnInit {
   mechanicStore = inject(MechanicStore);
   authState = inject(AuthState);
+  private taskStore = inject(TaskStore);
   private dialog = inject(MatDialog);
   public translate = inject(TranslateService);
 
@@ -57,9 +59,19 @@ export class MechanicsViewComponent implements OnInit {
     return `@${email.split('@')[1]}`;
   });
 
+  mechanicsWithLoad = computed(() => {
+    const tasks = this.taskStore.tasks();
+    return this.mechanicStore.mechanics().map((m) => ({
+      ...m,
+      currentLoad: tasks.filter(
+        (t) => String(t.mechanicId) === String(m.id) && ['PENDING', 'IN_PROGRESS'].includes(t.status),
+      ).length,
+    }));
+  });
+
   filteredMechanics = computed(() => {
     const term = this.search().toLowerCase().trim();
-    return this.mechanicStore.mechanics().filter((m) => {
+    return this.mechanicsWithLoad().filter((m) => {
       const matchesSearch =
         !term || m.fullName?.toLowerCase().includes(term) || m.email?.toLowerCase().includes(term);
       const matchesSpecialty =
@@ -70,6 +82,7 @@ export class MechanicsViewComponent implements OnInit {
 
   ngOnInit() {
     this.mechanicStore.loadMechanics();
+    this.taskStore.loadAllTasks();
   }
 
   openNew() {

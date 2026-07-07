@@ -49,8 +49,8 @@
           <div class="task-content">
             <h4>{{ task.description }}</h4>
             <div class="task-meta">
-              <span class="custom-badge" [ngClass]="task.status === 'COMPLETED' ? 'badge-success' : 'badge-warning'">
-                {{ task.status === 'COMPLETED' ? ('tasks.summary.completed' | translate) : task.status }}
+              <span class="custom-badge" [ngClass]="task.status === 'COMPLETED' ? 'badge-success' : (task.status === 'IN_PROGRESS' ? 'badge-info' : 'badge-warning')">
+                {{ getTaskStatusLabel(task.status) }}
               </span>
               <span class="custom-badge badge-info">{{ getPriorityLabel($any(task).priority || 'MEDIUM') }}</span>
               <span class="time-label"><mat-icon style="font-size:1rem; width:1rem; height:1rem;">schedule</mat-icon> {{ $any(task).estimatedTime }}h</span>
@@ -67,7 +67,10 @@
             </div>
           </div>
 
-          <button *ngIf="task.status !== 'COMPLETED' && !isOrderClosed()" mat-mini-fab style="background-color: #16a34a; color: white;" (click)="completeTask(task)">
+          <button *ngIf="task.status === 'PENDING' && !isOrderClosed()" mat-mini-fab style="background-color: #3b82f6; color: white;" (click)="startTask(task)">
+            <mat-icon>play_arrow</mat-icon>
+          </button>
+          <button *ngIf="task.status === 'IN_PROGRESS' && !isOrderClosed()" mat-mini-fab style="background-color: #16a34a; color: white;" (click)="completeTask(task)">
             <mat-icon>check</mat-icon>
           </button>
         </div>
@@ -96,10 +99,10 @@
       </div>
       <mat-progress-bar mode="determinate" [value]="progress()" class="mb-3"></mat-progress-bar>
 
-      <button *ngIf="canFinishOrder() && order()?.status !== 'FINISHED'" mat-flat-button style="background-color: #16a34a; color: white; width: 100%; padding: 1.5rem;" (click)="finishOrder()">
-        <mat-icon>check_circle</mat-icon>
-        {{ 'mechanicOrder.finishOrder' | translate }}
-      </button>
+      <div *ngIf="progress() === 100" class="custom-badge badge-success w-full" style="text-align: center; padding: 0.75rem; display: block;">
+        <mat-icon style="vertical-align: middle;">check_circle</mat-icon>
+        Todas las tareas completadas. El administrador revisará el checklist para finalizar la orden.
+      </div>
     </mat-card-content>
   </mat-card>
 

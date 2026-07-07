@@ -85,6 +85,20 @@ export class WorkOrderStore {
     });
   }
 
+  markAsDelivered(id: string | number): Promise<void> {
+    return new Promise((resolve, reject) => {
+      this.service.patchWorkOrder(id, { status: 'DELIVERED' }).subscribe({
+        next: (updated) => {
+          this.workOrders.update((list) =>
+            list.map((o) => (String(o.id) === String(id) ? updated : o)),
+          );
+          resolve();
+        },
+        error: (err) => reject(err),
+      });
+    });
+  }
+
   updateWorkOrderChecklist(id: string | number, updateData: any): Promise<void> {
     return new Promise((resolve, reject) => {
       const payload = {

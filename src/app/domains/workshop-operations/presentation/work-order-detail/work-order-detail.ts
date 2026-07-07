@@ -241,4 +241,9 @@ export class WorkOrderDetailComponent implements OnInit {
       this.router.navigate(['/work-orders']);
     }
   }
+
+  async markAsDelivered() {
+    if (!this.orderId || this.order()?.status !== 'FINISHED') return;
+    await this.workOrderStore.markAsDelivered(this.orderId);
+  }
 }

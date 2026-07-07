@@ -81,6 +81,13 @@
                 (click)="finishOrder()">
           <mat-icon>verified</mat-icon> Finalizar Orden
         </button>
+
+        <button mat-flat-button class="finish-btn w-full mt-3"
+                style="background: #0f172a; color: white;"
+                *ngIf="order()?.status === 'FINISHED'"
+                (click)="markAsDelivered()">
+          <mat-icon>local_shipping</mat-icon> Marcar como Entregado
+        </button>
       </div>
     </div>
   </div>

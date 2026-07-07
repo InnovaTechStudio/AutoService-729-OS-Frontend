@@ -27,6 +27,10 @@ export class WorkOrderService {
     return this.http.put<WorkOrder>(`${this.apiUrl}/work-orders/${id}`, data);
   }
 
+  patchWorkOrder(id: string | number, data: { status: string }): Observable<WorkOrder> {
+    return this.http.patch<WorkOrder>(`${this.apiUrl}/work-orders/${id}`, data);
+  }
+
   // --- Tasks ---
   getTasks(): Observable<Task[]> {
     return this.http.get<Task[]>(`${this.apiUrl}/tasks`);

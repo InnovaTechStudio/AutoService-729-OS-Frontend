@@ -106,9 +106,6 @@ export class MechanicOrderExecutionComponent implements OnInit {
   progress = computed(() =>
     this.tasks().length ? Math.round((this.completedTasks() / this.tasks().length) * 100) : 0,
   );
-  canFinishOrder = computed(
-    () => this.tasks().length > 0 && this.completedTasks() === this.tasks().length,
-  );
 
   async updateOrderPrice() {
     if (this.orderId) {
@@ -183,30 +180,21 @@ export class MechanicOrderExecutionComponent implements OnInit {
     this.closeDialog();
   }
 
+  async startTask(task: any) {
+    if (this.isOrderClosed() || task.status !== 'PENDING') return;
+    await this.taskStore.updateTask(task.id, { ...task, status: 'IN_PROGRESS' });
+  }
+
   async completeTask(task: any) {
-    if (this.isOrderClosed()) return;
+    if (this.isOrderClosed() || task.status !== 'IN_PROGRESS') return;
     await this.taskStore.updateTask(task.id, { ...task, status: 'COMPLETED' });
     await this.updateOrderPrice();
   }
 
-  async finishOrder() {
-    const currentOrder = this.order();
-    if (!currentOrder) return;
-
-    await this.workOrderStore.updateWorkOrderChecklist(currentOrder.id!, {
-      ...currentOrder,
-      status: 'FINISHED',
-      qaChecklist: {
-        tasksCompleted: true,
-        sparePartsChecked: true,
-        diagnosisValidated: true,
-        cleaningDone: true,
-        finalTestDone: true,
-      },
-    });
-
-    await this.workOrderStore.loadWorkOrders();
-    this.router.navigate(['/mechanic/workspace']);
+  getTaskStatusLabel(status: string): string {
+    if (status === 'IN_PROGRESS') return 'En Proceso';
+    if (status === 'COMPLETED') return 'Completada';
+    return 'Pendiente';
   }
 
   getPriorityLabel(priorityValue: string) {

@@ -1,26 +1,53 @@
-.login-layout { display: flex; min-height: 100vh; width: 100%; overflow: hidden; font-family: Inter, system-ui, sans-serif; background: #1f1f23; }
-.hero-section { flex: 1; position: relative; background-image: linear-gradient( rgba(255,255,255,0.15), rgba(255,255,255,0.15) ), url('https://images.unsplash.com/photo-1492144534655-ae79c964c9d7?q=80&w=1600&auto=format&fit=crop'); background-size: cover; background-position: center; display: flex; align-items: center; justify-content: center; padding: 4rem; }
-.hero-section::after { content: ''; position: absolute; top: -10%; right: -70px; width: 140px; height: 120%; background: rgba(255,255,255,0.75); transform: rotate(18deg); backdrop-filter: blur(2px); }
-.hero-content { position: relative; z-index: 1; max-width: 480px; color: white; }
-.hero-content h1 { font-size: 3.5rem; font-weight: 800; margin-bottom: 1rem; letter-spacing: -1px; }
-.hero-content p { font-size: 1rem; line-height: 1.8; color: rgba(255,255,255,0.9); }
-.form-section { flex: 1; display: flex; align-items: center; justify-content: center; padding: 2rem; background: #f3f4f6; }
-.login-box { width: 100%; max-width: 430px; padding: 3rem; background: #ffffff; border-radius: 14px; border-left: 3px solid #0b1680; box-shadow: 0 10px 35px rgba(0,0,0,0.08); color: #111827; }
-.lang-switcher-wrapper { display: flex; justify-content: flex-end; margin-bottom: 1.5rem; }
+.login-layout {
+  min-height: 100vh;
+  width: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 2rem;
+  font-family: Inter, system-ui, sans-serif;
+  background: radial-gradient(circle at 15% 15%, #1e2a78 0%, #0b1680 45%, #050a2e 100%);
+  position: relative;
+}
+
+.lang-switcher-wrapper { position: absolute; top: 1.5rem; right: 1.5rem; z-index: 2; }
+
+.login-box {
+  width: 100%;
+  max-width: 430px;
+  padding: 3rem;
+  background: #ffffff;
+  border-radius: 20px;
+  box-shadow: 0 25px 60px rgba(0,0,0,0.35);
+  color: #111827;
+}
+
+.brand { display: flex; justify-content: center; margin-bottom: 1.5rem; }
+.brand-logo { width: 140px; height: auto; }
+
 .login-header { text-align: center; margin-bottom: 2rem; }
-.login-header h2 { font-size: 2rem; font-weight: 700; color: #111827; margin-bottom: 0.7rem; }
+.login-header h2 { font-size: 1.8rem; font-weight: 700; color: #111827; margin-bottom: 0.6rem; }
 .login-header p { color: #6b7280; font-size: 0.95rem; line-height: 1.5; }
+
 .login-form { display: flex; flex-direction: column; gap: 0.5rem; }
 .input-group { display: flex; flex-direction: column; gap: 0.55rem; width: 100%; }
 .input-group label { font-size: 0.78rem; font-weight: 700; letter-spacing: 0.5px; text-transform: uppercase; color: #6b7280; }
+
 ::ng-deep .mat-mdc-text-field-wrapper { border-radius: 6px !important; background-color: #f9fafb !important; }
 ::ng-deep .mat-mdc-form-field-infix { padding-top: 12px !important; padding-bottom: 12px !important; min-height: auto !important; }
+
 .submit-btn { width: 100%; margin-top: 0.5rem; border-radius: 6px !important; padding: 1.5rem !important; font-weight: 700; background: #0b1680 !important; color: white !important; transition: all 0.25s ease; box-shadow: 0 8px 18px rgba(37,99,235,0.25); }
 .submit-btn:hover:not([disabled]) { transform: translateY(-1px); box-shadow: 0 10px 22px rgba(37,99,235,0.3); }
+
 .error-message { display: flex; align-items: center; gap: 0.5rem; padding: 0.9rem; border-radius: 8px; background: #fef2f2; border: 1px solid #fecaca; color: #dc2626; font-size: 0.9rem; margin-bottom: 0.5rem; }
+
 .text-center { text-align: center; }
 .mt-4 { margin-top: 1rem; }
 .text-color-secondary { color: #6b7280; }
 .toggle-link { color: #0b1680; text-decoration: none; font-weight: bold; }
 .toggle-link:hover { text-decoration: underline; }
-@media (max-width: 900px) { .login-layout { flex-direction: column; } .hero-section { display: flex; min-height: 240px; width: 100%; } .hero-section::after { display: none; } .hero-content { text-align: center; } .hero-content h1 { font-size: 2.4rem; } .hero-content p { font-size: 0.95rem; } .form-section { width: 100%; padding: 1.5rem; } .login-box { max-width: 100%; padding: 2rem; margin-top: -40px; position: relative; z-index: 2; } }
+
+@media (max-width: 500px) {
+  .login-box { padding: 2rem; }
+  .brand-logo { width: 110px; }
+}

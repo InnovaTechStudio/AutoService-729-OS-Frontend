@@ -3,7 +3,6 @@ import { CommonModule } from '@angular/common';
 import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
 import { TranslatePipe } from '@ngx-translate/core';
-
 import { TaskStore } from '../../application/task.store';
 import { WorkOrderStore } from '../../application/work-order.store';
 import { MechanicStore } from '../../../staff-coordination/application/mechanic.store';
@@ -28,25 +27,28 @@ export class TasksViewComponent implements OnInit {
     ]);
   }
 
-  // Mostramos solo tareas marcadas como completadas por el mecánico pero aún pendientes de revisión
-  tasksToReview = computed(() => {
-    return this.taskStore
-      .tasks()
-      .filter((t) => t.status === 'COMPLETED' && t.adminReviewStatus === 'PENDING')
-      .map((t) => {
-        const order = this.workOrderStore
-          .workOrders()
-          .find((o) => String(o.id) === String(t.workOrderId));
-        const mechanic = this.mechanicStore
-          .mechanics()
-          .find((m) => String(m.id) === String(t.mechanicId));
-        return {
-          ...t,
-          orderCode: order?.trackingCode || 'Desconocida',
-          mechanicName: mechanic?.fullName || 'Desconocido',
-        };
-      });
+  allMappedTasks = computed(() => {
+    return this.taskStore.tasks().map((t) => {
+      const order = this.workOrderStore
+        .workOrders()
+        .find((o) => String(o.id) === String(t.workOrderId));
+      const mechanic = this.mechanicStore
+        .mechanics()
+        .find((m) => String(m.id) === String(t.mechanicId));
+      return {
+        ...t,
+        orderCode: order?.trackingCode || 'Desconocida',
+        mechanicName: mechanic?.fullName || 'Desconocido',
+      };
+    });
   });
+
+  getTasksByStatus(status: string, adminReviewStatus?: string) {
+    return this.allMappedTasks().filter(
+      (t) =>
+        t.status === status && (!adminReviewStatus || t.adminReviewStatus === adminReviewStatus),
+    );
+  }
 
   async approveTask(id: string | number | undefined) {
     if (id) await this.taskStore.approveTask(id);

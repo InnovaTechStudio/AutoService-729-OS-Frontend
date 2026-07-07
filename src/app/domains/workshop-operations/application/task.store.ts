@@ -14,12 +14,20 @@ export class TaskStore {
     return new Promise((resolve, reject) => {
       this.service.getTasks().subscribe({
         next: (data) => {
-          this.tasks.set(data);
+          const parsedData = data.map((t: any) => {
+            let parts = [];
+            if (t.internalObservation && t.internalObservation.startsWith('PARTS:')) {
+              try {
+                parts = JSON.parse(t.internalObservation.substring(6));
+              } catch (e) {}
+            }
+            return { ...t, parts };
+          });
+          this.tasks.set(parsedData);
           this.loading.set(false);
           resolve();
         },
         error: (err) => {
-          console.error('Error fetching tasks', err);
           this.loading.set(false);
           reject(err);
         },
@@ -27,23 +35,34 @@ export class TaskStore {
     });
   }
 
-  addTask(task: Task): Promise<Task> {
+  addTask(task: any): Promise<Task> {
     return new Promise((resolve, reject) => {
-      this.service.createTask(task).subscribe({
+      const payload = {
+        ...task,
+        internalObservation: task.parts?.length ? 'PARTS:' + JSON.stringify(task.parts) : '',
+      };
+      this.service.createTask(payload).subscribe({
         next: (newTask) => {
-          this.tasks.update((list) => [...list, newTask]);
-          resolve(newTask);
+          const savedTask = { ...newTask, parts: task.parts || [] };
+          this.tasks.update((list) => [...list, savedTask]);
+          resolve(savedTask);
         },
         error: (err) => reject(err),
       });
     });
   }
 
-  updateTask(id: string | number, data: Partial<Task>): Promise<void> {
+  updateTask(id: string | number, data: any): Promise<void> {
     return new Promise((resolve, reject) => {
-      this.service.updateTask(id, data).subscribe({
+      const payload = { ...data };
+      if (data.parts?.length) payload.internalObservation = 'PARTS:' + JSON.stringify(data.parts);
+
+      this.service.updateTask(id, payload).subscribe({
         next: (updated) => {
-          this.tasks.update((list) => list.map((t) => (String(t.id) === String(id) ? updated : t)));
+          const savedTask = { ...updated, parts: data.parts || [] };
+          this.tasks.update((list) =>
+            list.map((t) => (String(t.id) === String(id) ? savedTask : t)),
+          );
           resolve();
         },
         error: (err) => reject(err),
@@ -88,6 +107,22 @@ export class TaskStore {
       this.service.deleteTask(id).subscribe({
         next: () => {
           this.tasks.update((list) => list.filter((t) => String(t.id) !== String(id)));
+          resolve();
+        },
+        error: (err) => reject(err),
+      });
+    });
+  }
+
+  patchTask(id: string | number, payload: any): Promise<void> {
+    return new Promise((resolve, reject) => {
+      this.service.patchTask(id, payload).subscribe({
+        next: (updated) => {
+          this.tasks.update((list) =>
+            list.map((t) =>
+              String(t.id) === String(id) ? { ...t, ...updated, parts: t.parts } : t,
+            ),
+          );
           resolve();
         },
         error: (err) => reject(err),

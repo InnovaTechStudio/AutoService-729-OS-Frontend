@@ -34,6 +34,7 @@ import { MatCheckboxModule } from '@angular/material/checkbox';
     MatDialogModule,
     MatSelectModule,
     MatCheckboxModule,
+    TranslatePipe,
   ],
   templateUrl: './work-order-detail.html',
   styleUrl: './work-order-detail.css',
@@ -63,9 +64,9 @@ export class WorkOrderDetailComponent implements OnInit {
   });
 
   priorities = [
-    { value: 'LOW', label: 'Baja' },
-    { value: 'MEDIUM', label: 'Media' },
-    { value: 'HIGH', label: 'Alta' },
+    { value: 'LOW', label: this.translate.instant('priorities.low') },
+    { value: 'MEDIUM', label: this.translate.instant('priorities.medium') },
+    { value: 'HIGH', label: this.translate.instant('priorities.high') },
   ];
 
   checklist = {
@@ -129,20 +130,19 @@ export class WorkOrderDetailComponent implements OnInit {
   }
 
   getStatusLabel(status: string | undefined): string {
-    switch (status) {
-      case 'PENDING': return 'Pendiente';
-      case 'IN_PROGRESS': return 'En Proceso';
-      case 'COMPLETED': return 'Completada';
-      case 'FINISHED': return 'Finalizado';
-      case 'DELIVERED': return 'Entregado';
-      default: return status || '';
-    }
+    if (!status) return '';
+    return this.translate.instant('taskStatus.' + status.toLowerCase()) || status;
+  }
+
+  getOrderStatusLabel(status: string | undefined): string {
+    if (!status) return '';
+    return this.translate.instant('orderStatus.' + status.toLowerCase()) || status;
   }
 
   getMechanicName(id: string | number | null | undefined): string {
-    if (!id) return 'Sin asignar';
+    if (!id) return this.translate.instant('common.noAssigned');
     const m = this.mechanicStore.mechanics().find((x) => String(x.id) === String(id));
-    return m ? m.fullName : 'Desconocido';
+    return m ? m.fullName : this.translate.instant('common.undefined');
   }
 
   getTaskTotal(task: any): number {

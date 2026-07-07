@@ -2,7 +2,7 @@ import { Component, computed, inject, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
-import { TranslatePipe } from '@ngx-translate/core';
+import { TranslatePipe, TranslateService } from '@ngx-translate/core';
 import { TaskStore } from '../../application/task.store';
 import { WorkOrderStore } from '../../application/work-order.store';
 import { MechanicStore } from '../../../staff-coordination/application/mechanic.store';
@@ -10,7 +10,7 @@ import { MechanicStore } from '../../../staff-coordination/application/mechanic.
 @Component({
   selector: 'app-tasks-view',
   standalone: true,
-  imports: [CommonModule, MatButtonModule, MatIconModule],
+  imports: [CommonModule, MatButtonModule, MatIconModule, TranslatePipe],
   templateUrl: './tasks-view.html',
   styleUrl: './tasks-view.css',
 })
@@ -18,6 +18,7 @@ export class TasksViewComponent implements OnInit {
   public taskStore = inject(TaskStore);
   private workOrderStore = inject(WorkOrderStore);
   private mechanicStore = inject(MechanicStore);
+  private translate = inject(TranslateService);
 
   async ngOnInit() {
     await Promise.all([
@@ -37,8 +38,8 @@ export class TasksViewComponent implements OnInit {
         .find((m) => String(m.id) === String(t.mechanicId));
       return {
         ...t,
-        orderCode: order?.trackingCode || 'Desconocida',
-        mechanicName: mechanic?.fullName || 'Desconocido',
+        orderCode: order?.trackingCode || this.translate.instant('tasks.fallbacks.unknown'),
+        mechanicName: mechanic?.fullName || this.translate.instant('common.undefined'),
       };
     });
   });
@@ -61,9 +62,9 @@ export class TasksViewComponent implements OnInit {
 
   getPriorityLabel(priority: string | undefined): string {
     switch (priority) {
-      case 'HIGH': return 'Alta';
-      case 'LOW': return 'Baja';
-      default: return 'Media';
+      case 'HIGH': return this.translate.instant('priorities.high');
+      case 'LOW': return this.translate.instant('priorities.low');
+      default: return this.translate.instant('priorities.medium');
     }
   }
 

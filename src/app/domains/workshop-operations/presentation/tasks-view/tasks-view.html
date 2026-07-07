@@ -1,19 +1,19 @@
 <section class="tasks-page">
   <div class="page-header">
-    <span class="eyebrow">Operaciones</span>
-    <h1>Kanban de Tareas</h1>
-    <p>Supervisa el estado de todas las tareas y aprueba las finalizadas.</p>
+    <span class="eyebrow">{{ 'tasksKanban.eyebrow' | translate }}</span>
+    <h1>{{ 'tasksKanban.title' | translate }}</h1>
+    <p>{{ 'tasksKanban.subtitle' | translate }}</p>
   </div>
 
   <div *ngIf="taskStore.loading()" class="empty-state">
     <mat-icon class="spin">refresh</mat-icon>
-    <p>Cargando tareas...</p>
+    <p>{{ 'tasksKanban.loading' | translate }}</p>
   </div>
 
   <div *ngIf="!taskStore.loading()" class="kanban-board">
 
     <div class="kanban-column col-pending">
-      <h3>Pendientes</h3>
+      <h3>{{ 'tasksKanban.columns.pending' | translate }}</h3>
       <div *ngFor="let task of getTasksByStatus('PENDING')" class="review-card">
         <div class="card-top">
           <span class="order-badge">{{ task.orderCode }}</span>
@@ -22,15 +22,15 @@
         <h4>{{ task.description }}</h4>
         <div class="task-extra-meta">
           <span><mat-icon>schedule</mat-icon> {{ task.estimatedTime }}h</span>
-          <span><mat-icon>payments</mat-icon> S/ {{ getTaskTotal(task) | number:'1.2-2' }}</span>
+          <span><mat-icon>payments</mat-icon> {{ 'common.currencyPrefix' | translate }} {{ getTaskTotal(task) | number:'1.2-2' }}</span>
         </div>
         <span class="mechanic-name"><mat-icon>person</mat-icon> {{ task.mechanicName }}</span>
       </div>
-      <div *ngIf="getTasksByStatus('PENDING').length === 0" class="empty-col">No hay tareas</div>
+      <div *ngIf="getTasksByStatus('PENDING').length === 0" class="empty-col">{{ 'tasksKanban.emptyColumn' | translate }}</div>
     </div>
 
     <div class="kanban-column col-progress">
-      <h3>En Proceso</h3>
+      <h3>{{ 'tasksKanban.columns.inProgress' | translate }}</h3>
       <div *ngFor="let task of getTasksByStatus('IN_PROGRESS')" class="review-card">
         <div class="card-top">
           <span class="order-badge">{{ task.orderCode }}</span>
@@ -39,15 +39,15 @@
         <h4>{{ task.description }}</h4>
         <div class="task-extra-meta">
           <span><mat-icon>schedule</mat-icon> {{ task.estimatedTime }}h</span>
-          <span><mat-icon>payments</mat-icon> S/ {{ getTaskTotal(task) | number:'1.2-2' }}</span>
+          <span><mat-icon>payments</mat-icon> {{ 'common.currencyPrefix' | translate }} {{ getTaskTotal(task) | number:'1.2-2' }}</span>
         </div>
         <span class="mechanic-name"><mat-icon>person</mat-icon> {{ task.mechanicName }}</span>
       </div>
-      <div *ngIf="getTasksByStatus('IN_PROGRESS').length === 0" class="empty-col">No hay tareas</div>
+      <div *ngIf="getTasksByStatus('IN_PROGRESS').length === 0" class="empty-col">{{ 'tasksKanban.emptyColumn' | translate }}</div>
     </div>
 
     <div class="kanban-column col-review">
-      <h3>Revisión (QA)</h3>
+      <h3>{{ 'tasksKanban.columns.review' | translate }}</h3>
       <div *ngFor="let task of getTasksByStatus('COMPLETED', 'PENDING')" class="review-card">
         <div class="card-top">
           <span class="order-badge badge-review">{{ task.orderCode }}</span>
@@ -56,23 +56,23 @@
         <h4>{{ task.description }}</h4>
         <div class="task-extra-meta">
           <span><mat-icon>schedule</mat-icon> {{ task.estimatedTime }}h</span>
-          <span><mat-icon>payments</mat-icon> S/ {{ getTaskTotal(task) | number:'1.2-2' }}</span>
+          <span><mat-icon>payments</mat-icon> {{ 'common.currencyPrefix' | translate }} {{ getTaskTotal(task) | number:'1.2-2' }}</span>
         </div>
         <span class="mechanic-name"><mat-icon>person</mat-icon> {{ task.mechanicName }}</span>
         <div class="details-box">
-          <strong>Nota del mecánico:</strong>
-          <p>{{ task.customerExplanation || 'Sin observaciones detalladas.' }}</p>
+          <strong>{{ 'tasksKanban.mechanicNote' | translate }}</strong>
+          <p>{{ task.customerExplanation || ('tasksKanban.noNote' | translate) }}</p>
         </div>
         <div class="actions">
-          <button mat-stroked-button color="warn" (click)="rejectTask(task.id)">Rechazar</button>
-          <button mat-flat-button class="approve-btn" (click)="approveTask(task.id)">Aprobar</button>
+          <button mat-stroked-button color="warn" (click)="rejectTask(task.id)">{{ 'tasksKanban.reject' | translate }}</button>
+          <button mat-flat-button class="approve-btn" (click)="approveTask(task.id)">{{ 'tasksKanban.approve' | translate }}</button>
         </div>
       </div>
-      <div *ngIf="getTasksByStatus('COMPLETED', 'PENDING').length === 0" class="empty-col">No hay tareas</div>
+      <div *ngIf="getTasksByStatus('COMPLETED', 'PENDING').length === 0" class="empty-col">{{ 'tasksKanban.emptyColumn' | translate }}</div>
     </div>
 
     <div class="kanban-column col-approved">
-      <h3>Aprobadas</h3>
+      <h3>{{ 'tasksKanban.columns.approved' | translate }}</h3>
       <div *ngFor="let task of getTasksByStatus('COMPLETED', 'APPROVED')" class="review-card is-approved">
         <div class="card-top">
           <span class="order-badge">{{ task.orderCode }}</span>
@@ -81,11 +81,11 @@
         <h4 class="strike">{{ task.description }}</h4>
         <div class="task-extra-meta">
           <span><mat-icon>schedule</mat-icon> {{ task.estimatedTime }}h</span>
-          <span><mat-icon>payments</mat-icon> S/ {{ getTaskTotal(task) | number:'1.2-2' }}</span>
+          <span><mat-icon>payments</mat-icon> {{ 'common.currencyPrefix' | translate }} {{ getTaskTotal(task) | number:'1.2-2' }}</span>
         </div>
-        <span class="mechanic-name approved-label"><mat-icon>check_circle</mat-icon> Aprobado</span>
+        <span class="mechanic-name approved-label"><mat-icon>check_circle</mat-icon> {{ 'tasksKanban.approvedLabel' | translate }}</span>
       </div>
-      <div *ngIf="getTasksByStatus('COMPLETED', 'APPROVED').length === 0" class="empty-col">No hay tareas</div>
+      <div *ngIf="getTasksByStatus('COMPLETED', 'APPROVED').length === 0" class="empty-col">{{ 'tasksKanban.emptyColumn' | translate }}</div>
     </div>
 
   </div>

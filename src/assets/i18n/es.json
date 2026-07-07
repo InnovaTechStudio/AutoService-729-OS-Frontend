@@ -651,14 +651,18 @@
     "brand": "AutoService"
   },
   "workOrderDetail": {
+    "eyebrow": "Detalle de Orden",
+    "orderPrefix": "Orden",
     "actions": {
-      "back": "Volver"
+      "back": "Volver",
+      "finishOrder": "Finalizar Orden",
+      "markDelivered": "Marcar como Entregado"
     },
     "initialDescription": "Descripción inicial",
     "tasks": {
-      "title": "Tareas de la Orden",
-      "addTask": "Agregar Tarea",
-      "empty": "Aún no hay tareas registradas.",
+      "title": "Tareas Asignadas",
+      "addTask": "Nueva Tarea",
+      "empty": "No hay tareas asignadas a esta orden.",
       "columns": {
         "task": "Tarea",
         "status": "Estado",
@@ -666,6 +670,29 @@
         "materials": "Materiales"
       },
       "noMaterials": "Ninguno"
+    },
+    "vehicleCard": {
+      "title": "Vehículo"
+    },
+    "summary": {
+      "title": "Resumen",
+      "arrival": "Ingreso:",
+      "estimatedDelivery": "Entrega Est.:",
+      "total": "Total:"
+    },
+    "checklist": {
+      "title": "Control de Calidad (Checklist)",
+      "save": "Guardar",
+      "tasksCompleted": "Tareas Ejecutadas",
+      "sparePartsChecked": "Repuestos Validados",
+      "diagnosisValidated": "Diagnóstico Confirmado",
+      "cleaningDone": "Limpieza General",
+      "finalTestDone": "Prueba de Ruta"
+    },
+    "dialog": {
+      "title": "Asignar Tarea",
+      "mechanicAssigned": "Mecánico Asignado (Por Defecto)",
+      "saveTask": "Guardar Tarea"
     },
     "quote": {
       "title": "Costo total de la Orden"
@@ -687,6 +714,9 @@
     "diagnosisPlaceholder": "Ingrese el diagnóstico",
     "newTask": "Nueva Tarea",
     "tasks": "Tareas",
+    "totalWithMaterials": "Costo Total (Inc. Materiales)",
+    "materialsLabel": "Materiales:",
+    "allTasksCompleteBanner": "Todas las tareas completadas. El administrador revisará el checklist para finalizar la orden.",
     "dialog": {
       "newTask": "Nueva Tarea",
       "description": "Descripción",
@@ -694,7 +724,15 @@
       "descriptionPlaceholder": "Descripción de la tarea",
       "priority": "Prioridad",
       "laborPrice": "Costo mano de obra",
-      "estimatedTime": "Tiempo estimado"
+      "estimatedTime": "Tiempo estimado",
+      "partsTitle": "Materiales / Repuestos",
+      "addPart": "Añadir",
+      "selectItemPlaceholder": "Seleccionar ítem",
+      "searchPartPlaceholder": "Buscar repuesto...",
+      "quantityPlaceholder": "Cant.",
+      "stockLabel": "Stock",
+      "emptyParts": "Sin materiales asignados. Pulsa en \"Añadir\".",
+      "estimatedCost": "Costo Estimado Tarea:"
     }
   },
   "taskStatus": {
@@ -712,6 +750,41 @@
     "pending": "Pendiente",
     "in_progress": "En Proceso",
     "finished": "Finalizado",
+    "delivered": "Entregado",
     "cancelled": "Cancelado"
+  },
+  "tasksKanban": {
+    "eyebrow": "Operaciones",
+    "title": "Kanban de Tareas",
+    "subtitle": "Supervisa el estado de todas las tareas y aprueba las finalizadas.",
+    "loading": "Cargando tareas...",
+    "columns": {
+      "pending": "Pendientes",
+      "inProgress": "En Proceso",
+      "review": "Revisión (QA)",
+      "approved": "Aprobadas"
+    },
+    "emptyColumn": "No hay tareas",
+    "mechanicNote": "Nota del mecánico:",
+    "noNote": "Sin observaciones detalladas.",
+    "reject": "Rechazar",
+    "approve": "Aprobar",
+    "approvedLabel": "Aprobado"
+  },
+  "obdScanner": {
+    "title": "Escáner OBD-II",
+    "subtitle": "Simulación de diagnóstico — conecta el escáner al puerto del vehículo para leer sus códigos de falla.",
+    "connectButton": "Conectar Escáner",
+    "scanAgainButton": "Escanear de nuevo",
+    "connecting": "Conectando al puerto OBD-II del vehículo...",
+    "reading": "Leyendo códigos de falla (DTC)...",
+    "faultsDetected": "{count} código(s) detectado(s)",
+    "createTask": "Crear Tarea",
+    "suggestedByScanner": "Sugerida por el escáner OBD-II:",
+    "severity": {
+      "high": "Crítico",
+      "medium": "Moderado",
+      "low": "Leve"
+    }
   }
 }

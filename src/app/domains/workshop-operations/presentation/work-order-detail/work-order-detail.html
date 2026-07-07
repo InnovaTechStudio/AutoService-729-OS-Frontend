@@ -2,18 +2,18 @@
   <header class="page-header">
     <button mat-icon-button (click)="goBack()" class="back-btn"><mat-icon>arrow_back</mat-icon></button>
     <div>
-      <span class="eyebrow">Detalle de Orden</span>
-      <h1>Orden {{ order()?.trackingCode }}</h1>
+      <span class="eyebrow">{{ 'workOrderDetail.eyebrow' | translate }}</span>
+      <h1>{{ 'workOrderDetail.orderPrefix' | translate }} {{ order()?.trackingCode }}</h1>
     </div>
-    <span class="custom-badge header-badge" [ngClass]="getSeverityClass(order()?.status)">{{ order()?.status }}</span>
+    <span class="custom-badge header-badge" [ngClass]="getSeverityClass(order()?.status)">{{ getOrderStatusLabel(order()?.status) }}</span>
   </header>
 
   <div class="grid-layout">
     <div class="main-panel">
       <div class="card tasks-card">
         <div class="card-header">
-          <h2>Tareas Asignadas</h2>
-          <button mat-flat-button color="primary" (click)="openTaskDialog()"><mat-icon>add</mat-icon> Nueva Tarea</button>
+          <h2>{{ 'workOrderDetail.tasks.title' | translate }}</h2>
+          <button mat-flat-button color="primary" (click)="openTaskDialog()"><mat-icon>add</mat-icon> {{ 'workOrderDetail.tasks.addTask' | translate }}</button>
         </div>
 
         <div class="tasks-list">
@@ -29,32 +29,32 @@
                 <span><mat-icon style="font-size: 14px; width: 14px; height: 14px;">schedule</mat-icon> {{ task.estimatedTime }}h</span>
               </div>
             </div>
-            <div class="task-price">S/ {{ getTaskTotal(task) | number:'1.2-2' }}</div>
+            <div class="task-price">{{ 'common.currencyPrefix' | translate }} {{ getTaskTotal(task) | number:'1.2-2' }}</div>
           </div>
-          <div *ngIf="tasks().length === 0" class="empty-state">No hay tareas asignadas a esta orden.</div>
+          <div *ngIf="tasks().length === 0" class="empty-state">{{ 'workOrderDetail.tasks.empty' | translate }}</div>
         </div>
       </div>
 
       <div class="card checklist-card">
         <div class="card-header">
-          <h2>Control de Calidad (Checklist)</h2>
+          <h2>{{ 'workOrderDetail.checklist.title' | translate }}</h2>
           <button mat-stroked-button color="primary" (click)="saveChecklist()">
-            <mat-icon>save</mat-icon> Guardar
+            <mat-icon>save</mat-icon> {{ 'workOrderDetail.checklist.save' | translate }}
           </button>
         </div>
         <div class="checklist-grid">
-          <mat-checkbox [(ngModel)]="checklist.tasksCompleted">Tareas Ejecutadas</mat-checkbox>
-          <mat-checkbox [(ngModel)]="checklist.sparePartsChecked">Repuestos Validados</mat-checkbox>
-          <mat-checkbox [(ngModel)]="checklist.diagnosisValidated">Diagnóstico Confirmado</mat-checkbox>
-          <mat-checkbox [(ngModel)]="checklist.cleaningDone">Limpieza General</mat-checkbox>
-          <mat-checkbox [(ngModel)]="checklist.finalTestDone">Prueba de Ruta</mat-checkbox>
+          <mat-checkbox [(ngModel)]="checklist.tasksCompleted">{{ 'workOrderDetail.checklist.tasksCompleted' | translate }}</mat-checkbox>
+          <mat-checkbox [(ngModel)]="checklist.sparePartsChecked">{{ 'workOrderDetail.checklist.sparePartsChecked' | translate }}</mat-checkbox>
+          <mat-checkbox [(ngModel)]="checklist.diagnosisValidated">{{ 'workOrderDetail.checklist.diagnosisValidated' | translate }}</mat-checkbox>
+          <mat-checkbox [(ngModel)]="checklist.cleaningDone">{{ 'workOrderDetail.checklist.cleaningDone' | translate }}</mat-checkbox>
+          <mat-checkbox [(ngModel)]="checklist.finalTestDone">{{ 'workOrderDetail.checklist.finalTestDone' | translate }}</mat-checkbox>
         </div>
       </div>
     </div>
 
     <div class="side-panel">
       <div class="card vehicle-card">
-        <h2>Vehículo</h2>
+        <h2>{{ 'workOrderDetail.vehicleCard.title' | translate }}</h2>
         <div class="vehicle-info">
           <mat-icon>directions_car</mat-icon>
           <div>
@@ -65,65 +65,65 @@
       </div>
 
       <div class="card summary-card">
-        <h2>Resumen</h2>
+        <h2>{{ 'workOrderDetail.summary.title' | translate }}</h2>
         <div class="info-row">
-          <span>Ingreso:</span>
+          <span>{{ 'workOrderDetail.summary.arrival' | translate }}</span>
           <strong>{{ order()?.startDate | date }}</strong>
         </div>
         <div class="info-row">
-          <span>Entrega Est.:</span>
+          <span>{{ 'workOrderDetail.summary.estimatedDelivery' | translate }}</span>
           <strong>{{ order()?.estimatedDate | date }}</strong>
         </div>
         <div class="info-row total-row">
-          <span>Total:</span>
-          <strong>S/ {{ order()?.price | number:'1.2-2' }}</strong>
+          <span>{{ 'workOrderDetail.summary.total' | translate }}</span>
+          <strong>{{ 'common.currencyPrefix' | translate }} {{ order()?.price | number:'1.2-2' }}</strong>
         </div>
 
         <button mat-flat-button class="finish-btn w-full mt-3"
                 *ngIf="order()?.status !== 'FINISHED' && order()?.status !== 'DELIVERED'"
                 [disabled]="!canFinishOrder()"
                 (click)="finishOrder()">
-          <mat-icon>verified</mat-icon> Finalizar Orden
+          <mat-icon>verified</mat-icon> {{ 'workOrderDetail.actions.finishOrder' | translate }}
         </button>
 
         <button mat-flat-button class="finish-btn w-full mt-3"
                 style="background: #0f172a; color: white;"
                 *ngIf="order()?.status === 'FINISHED'"
                 (click)="markAsDelivered()">
-          <mat-icon>local_shipping</mat-icon> Marcar como Entregado
+          <mat-icon>local_shipping</mat-icon> {{ 'workOrderDetail.actions.markDelivered' | translate }}
         </button>
       </div>
     </div>
   </div>
 
   <ng-template #taskDialog>
-    <div class="custom-dialog-header"><h2 mat-dialog-title style="margin:0;">Asignar Tarea</h2></div>
+    <div class="custom-dialog-header"><h2 mat-dialog-title style="margin:0;">{{ 'workOrderDetail.dialog.title' | translate }}</h2></div>
     <mat-dialog-content>
       <div class="form-grid mt-3">
         <div class="field">
-          <label>Descripción de Tarea</label>
-          <input type="text" [(ngModel)]="newTask().description" class="custom-form-input" placeholder="Ej. Cambio de pastillas de freno">
+          <label>{{ 'mechanicOrder.dialog.description' | translate }}</label>
+          <input type="text" [(ngModel)]="newTask().description" class="custom-form-input" [placeholder]="'mechanicOrder.dialog.descriptionPlaceholder' | translate">
         </div>
         <div class="field">
-          <label>Mecánico Asignado (Por Defecto)</label>
+          <label>{{ 'workOrderDetail.dialog.mechanicAssigned' | translate }}</label>
           <mat-select [(ngModel)]="newTask().mechanicId" [disabled]="true" class="custom-form-input">
             <mat-option *ngFor="let m of mechanicStore.mechanics()" [value]="m.id">{{ m.fullName }} ({{ m.specialty }})</mat-option>
           </mat-select>
         </div>
         <div class="double-grid">
           <div class="field">
-            <label>Prioridad</label>
+            <label>{{ 'mechanicOrder.dialog.priority' | translate }}</label>
             <mat-select [(ngModel)]="newTask().priority" class="custom-form-input">
               <mat-option *ngFor="let p of priorities" [value]="p.value">{{ p.label }}</mat-option>
             </mat-select>
           </div>
           <div class="field">
-            <label>Tiempo Est. (Horas)</label>
+            <label>{{ 'mechanicOrder.dialog.estimatedTime' | translate }}</label>
             <input type="number" [(ngModel)]="newTask().estimatedTime" class="custom-form-input" min="0.1" step="0.5">
           </div>
         </div>
         <div class="field">
-          <label>Costo de Mano de Obra (S/)</label>
+          <label>{{ 'mechanicOrder.dialog.laborPrice' | translate }}</label>
           <input type="number" [(ngModel)]="newTask().laborPrice" class="custom-form-input" min="0">
         </div>
 
@@ -131,30 +131,30 @@
 
         <div class="inventory-section">
           <div class="section-head">
-            <label><mat-icon style="font-size:1.2rem; width:1.2rem; height:1.2rem; vertical-align: middle;">inventory_2</mat-icon> Materiales / Repuestos</label>
-            <button mat-stroked-button color="primary" (click)="addPart()"><mat-icon>add</mat-icon> Añadir</button>
+            <label><mat-icon style="font-size:1.2rem; width:1.2rem; height:1.2rem; vertical-align: middle;">inventory_2</mat-icon> {{ 'mechanicOrder.dialog.partsTitle' | translate }}</label>
+            <button mat-stroked-button color="primary" (click)="addPart()"><mat-icon>add</mat-icon> {{ 'mechanicOrder.dialog.addPart' | translate }}</button>
           </div>
 
           <div *ngFor="let part of newTask().parts; let i = index" class="part-row">
-            <mat-select [(ngModel)]="part.inventoryItemId" (selectionChange)="onPartSelected($event.value, i)" class="custom-form-input" placeholder="Seleccionar ítem">
-              <mat-option *ngFor="let item of inventoryStore.items()" [value]="item.id">{{ item.name }} (S/{{ item.unitPrice }})</mat-option>
+            <mat-select [(ngModel)]="part.inventoryItemId" (selectionChange)="onPartSelected($event.value, i)" class="custom-form-input" [placeholder]="'mechanicOrder.dialog.selectItemPlaceholder' | translate">
+              <mat-option *ngFor="let item of inventoryStore.items()" [value]="item.id">{{ item.name }} ({{ 'common.currencyPrefix' | translate }}{{ item.unitPrice }})</mat-option>
             </mat-select>
-            <input type="number" [(ngModel)]="part.quantity" class="custom-form-input text-center" min="1" placeholder="Cant.">
-            <div class="part-subtotal">S/. {{ ((part.unitPrice || 0) * (part.quantity || 1)) | number:'1.2-2' }}</div>
+            <input type="number" [(ngModel)]="part.quantity" class="custom-form-input text-center" min="1" [placeholder]="'mechanicOrder.dialog.quantityPlaceholder' | translate">
+            <div class="part-subtotal">{{ 'common.currencyPrefix' | translate }} {{ ((part.unitPrice || 0) * (part.quantity || 1)) | number:'1.2-2' }}</div>
             <button mat-icon-button color="warn" (click)="removePart(i)"><mat-icon>delete</mat-icon></button>
           </div>
-          <div *ngIf="newTask().parts.length === 0" class="empty-parts">Sin materiales asignados. Pulsa en "Añadir".</div>
+          <div *ngIf="newTask().parts.length === 0" class="empty-parts">{{ 'mechanicOrder.dialog.emptyParts' | translate }}</div>
         </div>
 
         <div class="total-preview">
-          <span>Costo Estimado Tarea:</span>
-          <h2>S/. {{ getNewTaskTotal() | number:'1.2-2' }}</h2>
+          <span>{{ 'mechanicOrder.dialog.estimatedCost' | translate }}</span>
+          <h2>{{ 'common.currencyPrefix' | translate }} {{ getNewTaskTotal() | number:'1.2-2' }}</h2>
         </div>
       </div>
     </mat-dialog-content>
     <mat-dialog-actions align="end" class="dialog-footer">
-      <button mat-button (click)="closeDialog()" style="color: #64748b;">Cancelar</button>
-      <button mat-flat-button color="primary" (click)="saveTask()">Guardar Tarea</button>
+      <button mat-button (click)="closeDialog()" style="color: #64748b;">{{ 'common.cancel' | translate }}</button>
+      <button mat-flat-button color="primary" (click)="saveTask()">{{ 'workOrderDetail.dialog.saveTask' | translate }}</button>
     </mat-dialog-actions>
   </ng-template>
 </section>

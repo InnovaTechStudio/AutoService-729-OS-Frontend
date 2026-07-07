@@ -25,29 +25,29 @@
     <mat-card-content>
       <div class="scanner-header">
         <div>
-          <h3><mat-icon class="scanner-title-icon">settings_input_hdmi</mat-icon> Escáner OBD-II</h3>
-          <p class="scanner-subtitle">Simulación de diagnóstico — conecta el escáner al puerto del vehículo para leer sus códigos de falla.</p>
+          <h3><mat-icon class="scanner-title-icon">settings_input_hdmi</mat-icon> {{ 'obdScanner.title' | translate }}</h3>
+          <p class="scanner-subtitle">{{ 'obdScanner.subtitle' | translate }}</p>
         </div>
         <button mat-flat-button class="scan-btn"
                 *ngIf="scannerStatus() === 'idle' || scannerStatus() === 'done'"
                 [disabled]="isOrderClosed()"
                 (click)="runScan()">
           <mat-icon>{{ scannerStatus() === 'done' ? 'refresh' : 'usb' }}</mat-icon>
-          {{ scannerStatus() === 'done' ? 'Escanear de nuevo' : 'Conectar Escáner' }}
+          {{ (scannerStatus() === 'done' ? 'obdScanner.scanAgainButton' : 'obdScanner.connectButton') | translate }}
         </button>
       </div>
 
       <div *ngIf="scannerStatus() === 'connecting' || scannerStatus() === 'reading'" class="scanner-progress">
         <mat-progress-bar mode="indeterminate"></mat-progress-bar>
-        <span *ngIf="scannerStatus() === 'connecting'"><mat-icon class="spin">sync</mat-icon> Conectando al puerto OBD-II del vehículo...</span>
-        <span *ngIf="scannerStatus() === 'reading'"><mat-icon class="spin">sync</mat-icon> Leyendo códigos de falla (DTC)...</span>
+        <span *ngIf="scannerStatus() === 'connecting'"><mat-icon class="spin">sync</mat-icon> {{ 'obdScanner.connecting' | translate }}</span>
+        <span *ngIf="scannerStatus() === 'reading'"><mat-icon class="spin">sync</mat-icon> {{ 'obdScanner.reading' | translate }}</span>
       </div>
 
       <div *ngIf="scannerStatus() === 'done' && scanResult()" class="scanner-results">
         <div class="scan-meta">
           <span><mat-icon>directions_car</mat-icon> {{ vehicle()?.plate }}</span>
           <span><mat-icon>schedule</mat-icon> {{ scanResult()!.scannedAt | date:'short' }}</span>
-          <span class="fault-count">{{ scanResult()!.faults.length }} código(s) detectado(s)</span>
+          <span class="fault-count">{{ 'obdScanner.faultsDetected' | translate:{ count: scanResult()!.faults.length } }}</span>
         </div>
 
         <div *ngFor="let fault of scanResult()!.faults" class="fault-item">
@@ -60,7 +60,7 @@
             <p>{{ fault.description }}</p>
           </div>
           <button mat-stroked-button color="primary" [disabled]="isOrderClosed()" (click)="openTaskDialogFromFault(fault)">
-            <mat-icon>add_task</mat-icon> Crear Tarea
+            <mat-icon>add_task</mat-icon> {{ 'obdScanner.createTask' | translate }}
           </button>
         </div>
       </div>
@@ -100,11 +100,11 @@
               </span>
               <span class="custom-badge badge-info">{{ getPriorityLabel($any(task).priority || 'MEDIUM') }}</span>
               <span class="time-label"><mat-icon style="font-size:1rem; width:1rem; height:1rem;">schedule</mat-icon> {{ $any(task).estimatedTime }}h</span>
-              <strong class="price-label">S/ {{ $any(task).laborPrice }}</strong>
+              <strong class="price-label">{{ 'common.currencyPrefix' | translate }} {{ $any(task).laborPrice }}</strong>
             </div>
 
             <div *ngIf="$any(task).parts && $any(task).parts.length > 0" class="task-parts">
-              <small class="parts-title"><mat-icon style="font-size:1rem; width:1rem; height:1rem;">inventory_2</mat-icon> Materiales:</small>
+              <small class="parts-title"><mat-icon style="font-size:1rem; width:1rem; height:1rem;">inventory_2</mat-icon> {{ 'mechanicOrder.materialsLabel' | translate }}</small>
               <div class="parts-tags">
                 <span *ngFor="let p of $any(task).parts" class="custom-badge badge-secondary">
                   {{ p.quantity }}x {{ p.name }}
@@ -129,11 +129,11 @@
     <mat-card-content>
       <div class="summary-row">
         <span>{{ 'mechanicOrder.totalLabor' | translate }}</span>
-        <strong>S/ {{ totalLabor() | number:'1.2-2' }}</strong>
+        <strong>{{ 'common.currencyPrefix' | translate }} {{ totalLabor() | number:'1.2-2' }}</strong>
       </div>
       <div class="summary-row highlight-total">
-        <span>Costo Total (Inc. Materiales)</span>
-        <strong>S/ {{ totalOrderCost() | number:'1.2-2' }}</strong>
+        <span>{{ 'mechanicOrder.totalWithMaterials' | translate }}</span>
+        <strong>{{ 'common.currencyPrefix' | translate }} {{ totalOrderCost() | number:'1.2-2' }}</strong>
       </div>
       <div class="summary-row">
         <span>{{ 'mechanicOrder.tasksLabel' | translate }}</span>
@@ -147,7 +147,7 @@
 
       <div *ngIf="progress() === 100" class="custom-badge badge-success w-full" style="text-align: center; padding: 0.75rem; display: block;">
         <mat-icon style="vertical-align: middle;">check_circle</mat-icon>
-        Todas las tareas completadas. El administrador revisará el checklist para finalizar la orden.
+        {{ 'mechanicOrder.allTasksCompleteBanner' | translate }}
       </div>
     </mat-card-content>
   </mat-card>
@@ -160,7 +160,7 @@
     <mat-dialog-content>
       <div class="dialog-form mt-3">
         <div class="scanner-origin-tag" *ngIf="newTask().technicalDiagnosis">
-          <mat-icon>settings_input_hdmi</mat-icon> Sugerida por el escáner OBD-II: {{ newTask().technicalDiagnosis }}
+          <mat-icon>settings_input_hdmi</mat-icon> {{ 'obdScanner.suggestedByScanner' | translate }} {{ newTask().technicalDiagnosis }}
         </div>
         <div class="field">
           <label>{{ 'mechanicOrder.dialog.description' | translate }}</label>
@@ -189,30 +189,30 @@
 
         <div class="inventory-section">
           <div class="section-head">
-            <label><mat-icon style="font-size:1.2rem; width:1.2rem; height:1.2rem; vertical-align: middle;">inventory_2</mat-icon> Materiales / Repuestos</label>
-            <button mat-stroked-button color="primary" (click)="addPart()"><mat-icon>add</mat-icon> Añadir</button>
+            <label><mat-icon style="font-size:1.2rem; width:1.2rem; height:1.2rem; vertical-align: middle;">inventory_2</mat-icon> {{ 'mechanicOrder.dialog.partsTitle' | translate }}</label>
+            <button mat-stroked-button color="primary" (click)="addPart()"><mat-icon>add</mat-icon> {{ 'mechanicOrder.dialog.addPart' | translate }}</button>
           </div>
 
           <div *ngFor="let part of newTask().parts; let i = index" class="part-row">
-            <mat-select [(ngModel)]="part.inventoryItemId" (selectionChange)="onPartSelected($event.value, i)" class="custom-form-input" placeholder="Buscar repuesto...">
-              <mat-option *ngFor="let item of inventoryStore.items()" [value]="item.id">{{ item.name }} (Stock: {{ item.stock }})</mat-option>
+            <mat-select [(ngModel)]="part.inventoryItemId" (selectionChange)="onPartSelected($event.value, i)" class="custom-form-input" [placeholder]="'mechanicOrder.dialog.searchPartPlaceholder' | translate">
+              <mat-option *ngFor="let item of inventoryStore.items()" [value]="item.id">{{ item.name }} ({{ 'mechanicOrder.dialog.stockLabel' | translate }}: {{ item.stock }})</mat-option>
             </mat-select>
             <input type="number" [(ngModel)]="part.quantity" class="custom-form-input text-center" min="1" style="width: 80px;">
-            <div class="part-subtotal">S/. {{ ((part.unitPrice || 0) * (part.quantity || 1)) | number:'1.2-2' }}</div>
+            <div class="part-subtotal">{{ 'common.currencyPrefix' | translate }} {{ ((part.unitPrice || 0) * (part.quantity || 1)) | number:'1.2-2' }}</div>
             <button mat-icon-button color="warn" (click)="removePart(i)"><mat-icon>delete</mat-icon></button>
           </div>
-          <div *ngIf="newTask().parts.length === 0" class="empty-parts">Sin materiales asignados. Pulsa en "Añadir".</div>
+          <div *ngIf="newTask().parts.length === 0" class="empty-parts">{{ 'mechanicOrder.dialog.emptyParts' | translate }}</div>
         </div>
 
         <div class="total-preview">
-          <span>Costo Estimado Tarea:</span>
-          <h2>S/. {{ newTaskTotalCost() | number:'1.2-2' }}</h2>
+          <span>{{ 'mechanicOrder.dialog.estimatedCost' | translate }}</span>
+          <h2>{{ 'common.currencyPrefix' | translate }} {{ newTaskTotalCost() | number:'1.2-2' }}</h2>
         </div>
       </div>
     </mat-dialog-content>
 
     <mat-dialog-actions align="end" class="dialog-footer">
-      <button mat-button (click)="closeDialog()" style="color: #64748b;">Cancelar</button>
+      <button mat-button (click)="closeDialog()" style="color: #64748b;">{{ 'common.cancel' | translate }}</button>
       <button mat-flat-button style="background: #0b1680; color: white;" (click)="createTask()">
         <mat-icon>save</mat-icon> {{ 'mechanicOrder.dialog.save' | translate }}
       </button>

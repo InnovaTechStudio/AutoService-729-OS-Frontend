@@ -652,20 +652,47 @@
     "brand": "AutoService"
   },
   "workOrderDetail": {
+    "eyebrow": "Order Details",
+    "orderPrefix": "Order",
     "actions": {
-      "back": "Back"
+      "back": "Back",
+      "finishOrder": "Finish Order",
+      "markDelivered": "Mark as Delivered"
     },
     "initialDescription": "Initial description",
     "tasks": {
-      "title": "Order Tasks",
-      "addTask": "Add Task",
-      "empty": "No tasks registered yet.",
+      "title": "Assigned Tasks",
+      "addTask": "New Task",
+      "empty": "No tasks assigned to this order.",
       "columns": {
         "task": "Task",
         "status": "Status",
         "materials": "Materials"
       },
       "noMaterials": "None"
+    },
+    "vehicleCard": {
+      "title": "Vehicle"
+    },
+    "summary": {
+      "title": "Summary",
+      "arrival": "Arrival:",
+      "estimatedDelivery": "Est. Delivery:",
+      "total": "Total:"
+    },
+    "checklist": {
+      "title": "Quality Control (Checklist)",
+      "save": "Save",
+      "tasksCompleted": "Tasks Completed",
+      "sparePartsChecked": "Spare Parts Validated",
+      "diagnosisValidated": "Diagnosis Confirmed",
+      "cleaningDone": "General Cleaning",
+      "finalTestDone": "Road Test"
+    },
+    "dialog": {
+      "title": "Assign Task",
+      "mechanicAssigned": "Assigned Mechanic (Default)",
+      "saveTask": "Save Task"
     },
     "quote": {
       "title": "Total Order Cost"
@@ -687,6 +714,9 @@
     "diagnosisPlaceholder": "Enter diagnosis",
     "newTask": "New Task",
     "tasks": "Tasks",
+    "totalWithMaterials": "Total Cost (Incl. Materials)",
+    "materialsLabel": "Materials:",
+    "allTasksCompleteBanner": "All tasks completed. The administrator will review the checklist to finish the order.",
     "dialog": {
       "newTask": "New Task",
       "description": "Description",
@@ -694,7 +724,15 @@
       "descriptionPlaceholder": "Task description",
       "priority": "Priority",
       "laborPrice": "Labor cost",
-      "estimatedTime": "Estimated time"
+      "estimatedTime": "Estimated time",
+      "partsTitle": "Spare Parts & Supplies",
+      "addPart": "Add",
+      "selectItemPlaceholder": "Select item",
+      "searchPartPlaceholder": "Search for part...",
+      "quantityPlaceholder": "Qty.",
+      "stockLabel": "Stock",
+      "emptyParts": "No materials assigned. Tap \"Add\".",
+      "estimatedCost": "Estimated Task Cost:"
     }
   },
   "taskStatus": {
@@ -712,6 +750,41 @@
     "pending": "Pending",
     "in_progress": "In Progress",
     "finished": "Finished",
+    "delivered": "Delivered",
     "cancelled": "Cancelled"
+  },
+  "tasksKanban": {
+    "eyebrow": "Operations",
+    "title": "Task Kanban",
+    "subtitle": "Monitor the status of all tasks and approve the finished ones.",
+    "loading": "Loading tasks...",
+    "columns": {
+      "pending": "Pending",
+      "inProgress": "In Progress",
+      "review": "Review (QA)",
+      "approved": "Approved"
+    },
+    "emptyColumn": "No tasks",
+    "mechanicNote": "Mechanic's note:",
+    "noNote": "No detailed notes.",
+    "reject": "Reject",
+    "approve": "Approve",
+    "approvedLabel": "Approved"
+  },
+  "obdScanner": {
+    "title": "OBD-II Scanner",
+    "subtitle": "Diagnostic simulation — connect the scanner to the vehicle's port to read its fault codes.",
+    "connectButton": "Connect Scanner",
+    "scanAgainButton": "Scan again",
+    "connecting": "Connecting to the vehicle's OBD-II port...",
+    "reading": "Reading fault codes (DTC)...",
+    "faultsDetected": "{count} code(s) detected",
+    "createTask": "Create Task",
+    "suggestedByScanner": "Suggested by the OBD-II scanner:",
+    "severity": {
+      "high": "Critical",
+      "medium": "Moderate",
+      "low": "Low"
+    }
   }
 }

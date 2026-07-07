@@ -170,9 +170,9 @@ export class MechanicOrderExecutionComponent implements OnInit {
   }
 
   getFaultSeverityLabel(severity: string): string {
-    if (severity === 'HIGH') return 'Crítico';
-    if (severity === 'MEDIUM') return 'Moderado';
-    return 'Leve';
+    if (severity === 'HIGH') return this.translate.instant('obdScanner.severity.high');
+    if (severity === 'MEDIUM') return this.translate.instant('obdScanner.severity.medium');
+    return this.translate.instant('obdScanner.severity.low');
   }
 
   getFaultSeverityClass(severity: string): string {
@@ -246,9 +246,9 @@ export class MechanicOrderExecutionComponent implements OnInit {
   }
 
   getTaskStatusLabel(status: string): string {
-    if (status === 'IN_PROGRESS') return 'En Proceso';
-    if (status === 'COMPLETED') return 'Completada';
-    return 'Pendiente';
+    if (status === 'IN_PROGRESS') return this.translate.instant('taskStatus.in_progress');
+    if (status === 'COMPLETED') return this.translate.instant('taskStatus.completed');
+    return this.translate.instant('taskStatus.pending');
   }
 
   getPriorityLabel(priorityValue: string) {

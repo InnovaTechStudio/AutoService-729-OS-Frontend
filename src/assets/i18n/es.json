@@ -110,7 +110,8 @@
         "servicesCount": "{count} servicios completados",
         "subtitle": "Servicios más solicitados.",
         "title": "Servicios frecuentes",
-        "tireRotation": "Rotación de Llantas"
+        "tireRotation": "Rotación de Llantas",
+        "orders": "Órdenes"
       },
       "recentOrders": {
         "amount": "Monto",

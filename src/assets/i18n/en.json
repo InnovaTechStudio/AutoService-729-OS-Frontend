@@ -111,7 +111,8 @@
         "servicesCount": "{count} services completed",
         "subtitle": "Most requested services.",
         "title": "Frequent Services",
-        "tireRotation": "Tire Rotation"
+        "tireRotation": "Tire Rotation",
+        "orders": "Orders"
       },
       "recentOrders": {
         "amount": "Amount",

@@ -239,7 +239,7 @@ export class VehicleListComponent implements OnInit {
   }
 
   viewVehicleDetail(selectedVehicle: Vehicle) {
-    this.router.navigate([`/admin/vehicles/${selectedVehicle.id}`]);
+    this.router.navigate([`/vehicles/${selectedVehicle.id}`]);
   }
 
   private getEmptyVehicle(): Vehicle {

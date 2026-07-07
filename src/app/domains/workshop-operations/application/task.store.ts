@@ -21,7 +21,7 @@ export class TaskStore {
                 parts = JSON.parse(t.internalObservation.substring(6));
               } catch (e) {}
             }
-            return { ...t, parts };
+            return { ...t, parts, adminReviewStatus: t.adminReviewStatus || 'PENDING' };
           });
           this.tasks.set(parsedData);
           this.loading.set(false);

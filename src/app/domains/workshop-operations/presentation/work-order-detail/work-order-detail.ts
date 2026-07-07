@@ -14,7 +14,6 @@ import { FormsModule } from '@angular/forms';
 import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
 import { MatDialog, MatDialogModule } from '@angular/material/dialog';
-import { MatInputModule } from '@angular/material/input';
 import { TranslatePipe, TranslateService } from '@ngx-translate/core';
 import { WorkOrderStore } from '../../application/work-order.store';
 import { TaskStore } from '../../application/task.store';
@@ -33,7 +32,6 @@ import { MatCheckboxModule } from '@angular/material/checkbox';
     MatButtonModule,
     MatIconModule,
     MatDialogModule,
-    MatInputModule,
     MatSelectModule,
     MatCheckboxModule,
   ],
@@ -130,6 +128,17 @@ export class WorkOrderDetailComponent implements OnInit {
     return 'badge-warning';
   }
 
+  getStatusLabel(status: string | undefined): string {
+    switch (status) {
+      case 'PENDING': return 'Pendiente';
+      case 'IN_PROGRESS': return 'En Proceso';
+      case 'COMPLETED': return 'Completada';
+      case 'FINISHED': return 'Finalizado';
+      case 'DELIVERED': return 'Entregado';
+      default: return status || '';
+    }
+  }
+
   getMechanicName(id: string | number | null | undefined): string {
     if (!id) return 'Sin asignar';
     const m = this.mechanicStore.mechanics().find((x) => String(x.id) === String(id));
@@ -143,6 +152,10 @@ export class WorkOrderDetailComponent implements OnInit {
       0,
     );
     return labor + partsTotal;
+  }
+
+  getNewTaskTotal(): number {
+    return this.getTaskTotal(this.newTask());
   }
 
   goBack() {

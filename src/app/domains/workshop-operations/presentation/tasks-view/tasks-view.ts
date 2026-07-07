@@ -50,6 +50,29 @@ export class TasksViewComponent implements OnInit {
     );
   }
 
+  getTaskTotal(task: any): number {
+    const labor = Number(task.laborPrice || 0);
+    const partsTotal = (task.parts || []).reduce(
+      (sum: number, p: any) => sum + Number(p.unitPrice || 0) * Number(p.quantity || 1),
+      0,
+    );
+    return labor + partsTotal;
+  }
+
+  getPriorityLabel(priority: string | undefined): string {
+    switch (priority) {
+      case 'HIGH': return 'Alta';
+      case 'LOW': return 'Baja';
+      default: return 'Media';
+    }
+  }
+
+  getPriorityClass(priority: string | undefined): string {
+    if (priority === 'HIGH') return 'badge-danger';
+    if (priority === 'LOW') return 'badge-secondary';
+    return 'badge-warning';
+  }
+
   async approveTask(id: string | number | undefined) {
     if (id) await this.taskStore.approveTask(id);
   }

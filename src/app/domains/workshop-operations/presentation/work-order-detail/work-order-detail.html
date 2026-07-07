@@ -17,16 +17,20 @@
         </div>
 
         <div class="tasks-list">
-          <div *ngFor="let task of tasks()" class="task-item">
+          <div *ngFor="let task of tasks()" class="task-item" [class.is-completed]="task.status === 'COMPLETED'">
             <div class="task-info">
               <h4>{{ task.description }}</h4>
               <div class="task-meta">
                 <span class="custom-badge badge-secondary"><mat-icon style="font-size: 14px; width: 14px; height: 14px;">person</mat-icon> {{ getMechanicName(task.mechanicId) }}</span>
-                <span class="custom-badge" [ngClass]="getSeverityClass(task.status)">{{ task.status }}</span>
+                <span class="custom-badge" [ngClass]="getSeverityClass(task.status)">
+                  <mat-icon *ngIf="task.status === 'COMPLETED'" style="font-size: 12px; width: 12px; height: 12px; margin-right: 2px;">check_circle</mat-icon>
+                  {{ getStatusLabel(task.status) }}
+                </span>
                 <span><mat-icon style="font-size: 14px; width: 14px; height: 14px;">schedule</mat-icon> {{ task.estimatedTime }}h</span>
               </div>
             </div>
-            <div class="task-price">S/ {{ getTaskTotal(task) | number:'1.2-2' }}</div>          </div>
+            <div class="task-price">S/ {{ getTaskTotal(task) | number:'1.2-2' }}</div>
+          </div>
           <div *ngIf="tasks().length === 0" class="empty-state">No hay tareas asignadas a esta orden.</div>
         </div>
       </div>
@@ -98,52 +102,53 @@
       <div class="form-grid mt-3">
         <div class="field">
           <label>Descripción de Tarea</label>
-          <mat-form-field appearance="outline" class="w-full"><input matInput type="text" [(ngModel)]="newTask().description"></mat-form-field>
+          <input type="text" [(ngModel)]="newTask().description" class="custom-form-input" placeholder="Ej. Cambio de pastillas de freno">
         </div>
         <div class="field">
           <label>Mecánico Asignado (Por Defecto)</label>
-          <mat-form-field appearance="outline" class="w-full">
-            <mat-select [(ngModel)]="newTask().mechanicId" [disabled]="true">
-              <mat-option *ngFor="let m of mechanicStore.mechanics()" [value]="m.id">{{ m.fullName }} ({{ m.specialty }})</mat-option>
-            </mat-select>
-          </mat-form-field>
+          <mat-select [(ngModel)]="newTask().mechanicId" [disabled]="true" class="custom-form-input">
+            <mat-option *ngFor="let m of mechanicStore.mechanics()" [value]="m.id">{{ m.fullName }} ({{ m.specialty }})</mat-option>
+          </mat-select>
         </div>
         <div class="double-grid">
           <div class="field">
             <label>Prioridad</label>
-            <mat-form-field appearance="outline" class="w-full">
-              <mat-select [(ngModel)]="newTask().priority">
-                <mat-option *ngFor="let p of priorities" [value]="p.value">{{ p.label }}</mat-option>
-              </mat-select>
-            </mat-form-field>
+            <mat-select [(ngModel)]="newTask().priority" class="custom-form-input">
+              <mat-option *ngFor="let p of priorities" [value]="p.value">{{ p.label }}</mat-option>
+            </mat-select>
           </div>
           <div class="field">
             <label>Tiempo Est. (Horas)</label>
-            <mat-form-field appearance="outline" class="w-full"><input matInput type="number" [(ngModel)]="newTask().estimatedTime" min="0.1" step="0.5"></mat-form-field>
+            <input type="number" [(ngModel)]="newTask().estimatedTime" class="custom-form-input" min="0.1" step="0.5">
           </div>
         </div>
         <div class="field">
           <label>Costo de Mano de Obra (S/)</label>
-          <mat-form-field appearance="outline" class="w-full"><input matInput type="number" [(ngModel)]="newTask().laborPrice" min="0"></mat-form-field>
+          <input type="number" [(ngModel)]="newTask().laborPrice" class="custom-form-input" min="0">
         </div>
 
-        <hr style="border: 1px solid #e2e8f0; margin: 15px 0;">
+        <hr class="divider">
 
-        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px;">
-          <label style="font-weight: 600; color: #0f172a;"><mat-icon style="vertical-align: middle; font-size: 20px;">inventory_2</mat-icon> Materiales / Repuestos</label>
-          <button mat-stroked-button color="primary" (click)="addPart()"><mat-icon>add</mat-icon> Añadir</button>
-        </div>
+        <div class="inventory-section">
+          <div class="section-head">
+            <label><mat-icon style="font-size:1.2rem; width:1.2rem; height:1.2rem; vertical-align: middle;">inventory_2</mat-icon> Materiales / Repuestos</label>
+            <button mat-stroked-button color="primary" (click)="addPart()"><mat-icon>add</mat-icon> Añadir</button>
+          </div>
 
-        <div *ngFor="let part of newTask().parts; let i = index" style="display: grid; grid-template-columns: 2fr 1fr auto; gap: 10px; margin-bottom: 10px;">
-          <mat-form-field appearance="outline" class="w-full">
-            <mat-select [(ngModel)]="part.inventoryItemId" (selectionChange)="onPartSelected($event.value, i)" placeholder="Seleccionar ítem">
+          <div *ngFor="let part of newTask().parts; let i = index" class="part-row">
+            <mat-select [(ngModel)]="part.inventoryItemId" (selectionChange)="onPartSelected($event.value, i)" class="custom-form-input" placeholder="Seleccionar ítem">
               <mat-option *ngFor="let item of inventoryStore.items()" [value]="item.id">{{ item.name }} (S/{{ item.unitPrice }})</mat-option>
             </mat-select>
-          </mat-form-field>
-          <mat-form-field appearance="outline" class="w-full">
-            <input matInput type="number" [(ngModel)]="part.quantity" min="1" placeholder="Cant.">
-          </mat-form-field>
-          <button mat-icon-button color="warn" (click)="removePart(i)"><mat-icon>delete</mat-icon></button>
+            <input type="number" [(ngModel)]="part.quantity" class="custom-form-input text-center" min="1" placeholder="Cant.">
+            <div class="part-subtotal">S/. {{ ((part.unitPrice || 0) * (part.quantity || 1)) | number:'1.2-2' }}</div>
+            <button mat-icon-button color="warn" (click)="removePart(i)"><mat-icon>delete</mat-icon></button>
+          </div>
+          <div *ngIf="newTask().parts.length === 0" class="empty-parts">Sin materiales asignados. Pulsa en "Añadir".</div>
+        </div>
+
+        <div class="total-preview">
+          <span>Costo Estimado Tarea:</span>
+          <h2>S/. {{ getNewTaskTotal() | number:'1.2-2' }}</h2>
         </div>
       </div>
     </mat-dialog-content>

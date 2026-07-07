@@ -10,66 +10,82 @@
     <p>Cargando tareas...</p>
   </div>
 
-  <div *ngIf="!taskStore.loading()" class="kanban-board" style="display: flex; gap: 20px; overflow-x: auto; padding-bottom: 20px; align-items: flex-start;">
+  <div *ngIf="!taskStore.loading()" class="kanban-board">
 
-    <div class="kanban-column" style="flex: 1; min-width: 300px; background: #f8fafc; padding: 15px; border-radius: 12px;">
-      <h3 style="margin-top: 0; margin-bottom: 15px; border-bottom: 3px solid #f59e0b; padding-bottom: 5px; color: #0f172a;">Pendientes</h3>
-      <div *ngFor="let task of getTasksByStatus('PENDING')" class="review-card" style="background: white; padding: 15px; border-radius: 8px; margin-bottom: 10px; box-shadow: 0 1px 3px rgba(0,0,0,0.1); border-left: 4px solid #f59e0b;">
-        <div class="card-top" style="display: flex; justify-content: space-between; margin-bottom: 10px;">
-          <span class="order-badge" style="background: #e2e8f0; padding: 3px 8px; border-radius: 4px; font-size: 0.8rem; font-weight: bold;">{{ task.orderCode }}</span>
+    <div class="kanban-column col-pending">
+      <h3>Pendientes</h3>
+      <div *ngFor="let task of getTasksByStatus('PENDING')" class="review-card">
+        <div class="card-top">
+          <span class="order-badge">{{ task.orderCode }}</span>
+          <span class="custom-badge" [ngClass]="getPriorityClass(task.priority)">{{ getPriorityLabel(task.priority) }}</span>
         </div>
-        <h4 style="margin: 0 0 10px 0; color: #0f172a;">{{ task.description }}</h4>
-        <span class="mechanic-name" style="font-size: 0.85rem; color: #64748b; display: flex; align-items: center; gap: 5px;">
-          <mat-icon style="font-size: 1rem; width: 1rem; height: 1rem;">person</mat-icon> {{ task.mechanicName }}
-        </span>
+        <h4>{{ task.description }}</h4>
+        <div class="task-extra-meta">
+          <span><mat-icon>schedule</mat-icon> {{ task.estimatedTime }}h</span>
+          <span><mat-icon>payments</mat-icon> S/ {{ getTaskTotal(task) | number:'1.2-2' }}</span>
+        </div>
+        <span class="mechanic-name"><mat-icon>person</mat-icon> {{ task.mechanicName }}</span>
       </div>
-      <div *ngIf="getTasksByStatus('PENDING').length === 0" style="color: #94a3b8; font-size: 0.9rem; text-align: center; padding: 10px;">No hay tareas</div>
+      <div *ngIf="getTasksByStatus('PENDING').length === 0" class="empty-col">No hay tareas</div>
     </div>
 
-    <div class="kanban-column" style="flex: 1; min-width: 300px; background: #f8fafc; padding: 15px; border-radius: 12px;">
-      <h3 style="margin-top: 0; margin-bottom: 15px; border-bottom: 3px solid #3b82f6; padding-bottom: 5px; color: #0f172a;">En Proceso</h3>
-      <div *ngFor="let task of getTasksByStatus('IN_PROGRESS')" class="review-card" style="background: white; padding: 15px; border-radius: 8px; margin-bottom: 10px; box-shadow: 0 1px 3px rgba(0,0,0,0.1); border-left: 4px solid #3b82f6;">
-        <div class="card-top" style="display: flex; justify-content: space-between; margin-bottom: 10px;">
-          <span class="order-badge" style="background: #e2e8f0; padding: 3px 8px; border-radius: 4px; font-size: 0.8rem; font-weight: bold;">{{ task.orderCode }}</span>
+    <div class="kanban-column col-progress">
+      <h3>En Proceso</h3>
+      <div *ngFor="let task of getTasksByStatus('IN_PROGRESS')" class="review-card">
+        <div class="card-top">
+          <span class="order-badge">{{ task.orderCode }}</span>
+          <span class="custom-badge" [ngClass]="getPriorityClass(task.priority)">{{ getPriorityLabel(task.priority) }}</span>
         </div>
-        <h4 style="margin: 0 0 10px 0; color: #0f172a;">{{ task.description }}</h4>
-        <span class="mechanic-name" style="font-size: 0.85rem; color: #64748b; display: flex; align-items: center; gap: 5px;">
-          <mat-icon style="font-size: 1rem; width: 1rem; height: 1rem;">person</mat-icon> {{ task.mechanicName }}
-        </span>
+        <h4>{{ task.description }}</h4>
+        <div class="task-extra-meta">
+          <span><mat-icon>schedule</mat-icon> {{ task.estimatedTime }}h</span>
+          <span><mat-icon>payments</mat-icon> S/ {{ getTaskTotal(task) | number:'1.2-2' }}</span>
+        </div>
+        <span class="mechanic-name"><mat-icon>person</mat-icon> {{ task.mechanicName }}</span>
       </div>
-      <div *ngIf="getTasksByStatus('IN_PROGRESS').length === 0" style="color: #94a3b8; font-size: 0.9rem; text-align: center; padding: 10px;">No hay tareas</div>
+      <div *ngIf="getTasksByStatus('IN_PROGRESS').length === 0" class="empty-col">No hay tareas</div>
     </div>
 
-    <div class="kanban-column" style="flex: 1; min-width: 300px; background: #f8fafc; padding: 15px; border-radius: 12px;">
-      <h3 style="margin-top: 0; margin-bottom: 15px; border-bottom: 3px solid #8b5cf6; padding-bottom: 5px; color: #0f172a;">Revisión (QA)</h3>
-      <div *ngFor="let task of getTasksByStatus('COMPLETED', 'PENDING')" class="review-card" style="background: white; padding: 15px; border-radius: 8px; margin-bottom: 10px; box-shadow: 0 1px 3px rgba(0,0,0,0.1); border-left: 4px solid #8b5cf6;">
-        <div class="card-top" style="display: flex; justify-content: space-between; margin-bottom: 10px;">
-          <span class="order-badge" style="background: #ede9fe; color: #6d28d9; padding: 3px 8px; border-radius: 4px; font-size: 0.8rem; font-weight: bold;">{{ task.orderCode }}</span>
+    <div class="kanban-column col-review">
+      <h3>Revisión (QA)</h3>
+      <div *ngFor="let task of getTasksByStatus('COMPLETED', 'PENDING')" class="review-card">
+        <div class="card-top">
+          <span class="order-badge badge-review">{{ task.orderCode }}</span>
+          <span class="custom-badge" [ngClass]="getPriorityClass(task.priority)">{{ getPriorityLabel(task.priority) }}</span>
         </div>
-        <h4 style="margin: 0 0 10px 0; color: #0f172a;">{{ task.description }}</h4>
-        <div style="font-size: 0.85rem; color: #64748b; margin-bottom: 15px; background: #f1f5f9; padding: 8px; border-radius: 4px;">
-          <strong>Nota:</strong> {{ task.customerExplanation || 'Sin nota' }}
+        <h4>{{ task.description }}</h4>
+        <div class="task-extra-meta">
+          <span><mat-icon>schedule</mat-icon> {{ task.estimatedTime }}h</span>
+          <span><mat-icon>payments</mat-icon> S/ {{ getTaskTotal(task) | number:'1.2-2' }}</span>
         </div>
-        <div class="actions" style="display: flex; gap: 10px;">
-          <button mat-stroked-button color="warn" (click)="rejectTask(task.id)" style="flex: 1;">Rechazar</button>
-          <button mat-flat-button style="background: #16a34a; color: white; flex: 1;" (click)="approveTask(task.id)">Aprobar</button>
+        <span class="mechanic-name"><mat-icon>person</mat-icon> {{ task.mechanicName }}</span>
+        <div class="details-box">
+          <strong>Nota del mecánico:</strong>
+          <p>{{ task.customerExplanation || 'Sin observaciones detalladas.' }}</p>
+        </div>
+        <div class="actions">
+          <button mat-stroked-button color="warn" (click)="rejectTask(task.id)">Rechazar</button>
+          <button mat-flat-button class="approve-btn" (click)="approveTask(task.id)">Aprobar</button>
         </div>
       </div>
-      <div *ngIf="getTasksByStatus('COMPLETED', 'PENDING').length === 0" style="color: #94a3b8; font-size: 0.9rem; text-align: center; padding: 10px;">No hay tareas</div>
+      <div *ngIf="getTasksByStatus('COMPLETED', 'PENDING').length === 0" class="empty-col">No hay tareas</div>
     </div>
 
-    <div class="kanban-column" style="flex: 1; min-width: 300px; background: #f8fafc; padding: 15px; border-radius: 12px;">
-      <h3 style="margin-top: 0; margin-bottom: 15px; border-bottom: 3px solid #10b981; padding-bottom: 5px; color: #0f172a;">Aprobadas</h3>
-      <div *ngFor="let task of getTasksByStatus('COMPLETED', 'APPROVED')" class="review-card" style="background: white; padding: 15px; border-radius: 8px; margin-bottom: 10px; box-shadow: 0 1px 3px rgba(0,0,0,0.1); opacity: 0.8; border-left: 4px solid #10b981;">
-        <div class="card-top" style="display: flex; justify-content: space-between; margin-bottom: 10px;">
-          <span class="order-badge" style="background: #e2e8f0; padding: 3px 8px; border-radius: 4px; font-size: 0.8rem; font-weight: bold;">{{ task.orderCode }}</span>
+    <div class="kanban-column col-approved">
+      <h3>Aprobadas</h3>
+      <div *ngFor="let task of getTasksByStatus('COMPLETED', 'APPROVED')" class="review-card is-approved">
+        <div class="card-top">
+          <span class="order-badge">{{ task.orderCode }}</span>
+          <span class="custom-badge" [ngClass]="getPriorityClass(task.priority)">{{ getPriorityLabel(task.priority) }}</span>
         </div>
-        <h4 style="margin: 0 0 10px 0; color: #0f172a; text-decoration: line-through;">{{ task.description }}</h4>
-        <span class="mechanic-name" style="font-size: 0.85rem; color: #64748b; display: flex; align-items: center; gap: 5px;">
-          <mat-icon style="font-size: 1rem; width: 1rem; height: 1rem; color: #10b981;">check_circle</mat-icon> Aprobado
-        </span>
+        <h4 class="strike">{{ task.description }}</h4>
+        <div class="task-extra-meta">
+          <span><mat-icon>schedule</mat-icon> {{ task.estimatedTime }}h</span>
+          <span><mat-icon>payments</mat-icon> S/ {{ getTaskTotal(task) | number:'1.2-2' }}</span>
+        </div>
+        <span class="mechanic-name approved-label"><mat-icon>check_circle</mat-icon> Aprobado</span>
       </div>
-      <div *ngIf="getTasksByStatus('COMPLETED', 'APPROVED').length === 0" style="color: #94a3b8; font-size: 0.9rem; text-align: center; padding: 10px;">No hay tareas</div>
+      <div *ngIf="getTasksByStatus('COMPLETED', 'APPROVED').length === 0" class="empty-col">No hay tareas</div>
     </div>
 
   </div>

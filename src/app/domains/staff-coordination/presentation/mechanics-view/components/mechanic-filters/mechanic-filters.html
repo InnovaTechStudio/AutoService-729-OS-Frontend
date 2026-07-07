@@ -10,12 +10,15 @@
     />
   </div>
 
-  <mat-form-field appearance="outline" class="filter-select">
-    <mat-select [ngModel]="specialty" (ngModelChange)="onSpecialtyChange($event)" [placeholder]="'mechanics.filters.specialtyPlaceholder' | translate">
-      <mat-option [value]="null">{{ 'common.all' | translate }}</mat-option>
-      <mat-option *ngFor="let option of specialtyOptions" [value]="option">
-        {{ option }}
-      </mat-option>
-    </mat-select>
-  </mat-form-field>
+  <mat-select
+    [ngModel]="specialty"
+    (ngModelChange)="onSpecialtyChange($event)"
+    [placeholder]="'mechanics.filters.specialtyPlaceholder' | translate"
+    class="filter-select"
+  >
+    <mat-option [value]="null">{{ 'common.all' | translate }}</mat-option>
+    <mat-option *ngFor="let option of specialtyOptions" [value]="option">
+      {{ option }}
+    </mat-option>
+  </mat-select>
 </div>

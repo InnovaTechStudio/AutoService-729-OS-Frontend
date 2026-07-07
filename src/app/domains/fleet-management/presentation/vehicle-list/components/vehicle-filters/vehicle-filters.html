@@ -10,23 +10,27 @@
     />
   </div>
 
-  <mat-form-field appearance="outline" class="filter-select">
-    <mat-label>{{ 'vehicles.filters.statusPlaceholder' | translate }}</mat-label>
-    <mat-select [ngModel]="status" (ngModelChange)="onStatusChange($event)">
-      <mat-option [value]="null">{{ 'vehicles.filters.statusPlaceholder' | translate }}</mat-option>
-      <mat-option *ngFor="let option of statusOptions" [value]="option.value">
-        {{ option.label }}
-      </mat-option>
-    </mat-select>
-  </mat-form-field>
+  <mat-select
+    [ngModel]="status"
+    (ngModelChange)="onStatusChange($event)"
+    [placeholder]="'vehicles.filters.statusPlaceholder' | translate"
+    class="filter-select"
+  >
+    <mat-option [value]="null">{{ 'vehicles.filters.statusPlaceholder' | translate }}</mat-option>
+    <mat-option *ngFor="let option of statusOptions" [value]="option.value">
+      {{ option.label }}
+    </mat-option>
+  </mat-select>
 
-  <mat-form-field appearance="outline" class="filter-select">
-    <mat-label>{{ 'vehicles.filters.sortPlaceholder' | translate }}</mat-label>
-    <mat-select [ngModel]="sortBy" (ngModelChange)="onSortByChange($event)">
-      <mat-option [value]="null">{{ 'vehicles.filters.sortPlaceholder' | translate }}</mat-option>
-      <mat-option *ngFor="let option of sortOptions" [value]="option.value">
-        {{ option.label }}
-      </mat-option>
-    </mat-select>
-  </mat-form-field>
+  <mat-select
+    [ngModel]="sortBy"
+    (ngModelChange)="onSortByChange($event)"
+    [placeholder]="'vehicles.filters.sortPlaceholder' | translate"
+    class="filter-select"
+  >
+    <mat-option [value]="null">{{ 'vehicles.filters.sortPlaceholder' | translate }}</mat-option>
+    <mat-option *ngFor="let option of sortOptions" [value]="option.value">
+      {{ option.label }}
+    </mat-option>
+  </mat-select>
 </div>

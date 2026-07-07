@@ -7,9 +7,10 @@
 .name-container { display: flex; flex-direction: column; gap: 0.4rem; }
 h3 { margin: 0; font-size: 1.15rem; color: #1e293b; line-height: 1.2; font-weight: 800; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
 .tags-group { display: flex; gap: 0.5rem; flex-wrap: wrap; }
-.mechanic-account { display: flex; gap: 1rem; font-size: 0.85rem; color: #64748b; }
-.mechanic-account span { display: flex; align-items: center; gap: 0.4rem; }
-.mechanic-account mat-icon { font-size: 1.1rem; width: 1.1rem; height: 1.1rem; }
+.mechanic-account { display: flex; gap: 1rem; font-size: 0.85rem; color: #64748b; min-width: 0; }
+.mechanic-account span { display: flex; align-items: center; gap: 0.4rem; min-width: 0; overflow: hidden; }
+.mechanic-account .email-text { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.mechanic-account mat-icon { font-size: 1.1rem; width: 1.1rem; height: 1.1rem; flex-shrink: 0; }
 .workload-container { background: #f8fafc; padding: 0.8rem; border-radius: 12px; border: 1px solid #f1f5f9; margin-top: 0.25rem; }
 .workload-labels { display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.5rem; font-size: 0.85rem; }
 .workload-labels span { color: #64748b; font-weight: 600; display: flex; align-items: center; gap: 0.4rem; }

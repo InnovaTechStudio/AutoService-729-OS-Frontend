@@ -1,41 +1,41 @@
 <div class="custom-dialog-header" style="background: #0f172a; color: white;">
-  <h2 mat-dialog-title style="margin: 0; color: white;">Pago de Servicio</h2>
+  <h2 mat-dialog-title style="margin: 0; color: white;">{{ 'tracking.payment.dialogTitle' | translate }}</h2>
 </div>
 
 <mat-dialog-content class="payment-content">
   <div class="payment-summary">
     <div class="summary-row">
-      <span>Taller:</span>
-      <strong>{{ workshop?.name || 'AutoService Central' }}</strong>
+      <span>{{ 'tracking.payment.workshopLabel' | translate }}</span>
+      <strong>{{ workshop?.name || 'AutoService' }}</strong>
     </div>
     <div class="summary-row">
-      <span>Orden #:</span>
+      <span>{{ 'tracking.payment.orderLabel' | translate }}</span>
       <strong>{{ order?.trackingCode }}</strong>
     </div>
     <div class="summary-row total-row">
-      <span>Total a Pagar:</span>
-      <h2>S/ {{ order?.price | number:'1.2-2' }}</h2>
+      <span>{{ 'tracking.payment.totalToPay' | translate }}</span>
+      <h2>{{ 'common.currencyPrefix' | translate }} {{ order?.price | number:'1.2-2' }}</h2>
     </div>
   </div>
 
   <div class="payment-form mt-3">
     <div class="field">
-      <label>Número de Tarjeta</label>
+      <label>{{ 'tracking.payment.cardNumber' | translate }}</label>
       <input type="text" [(ngModel)]="paymentData.cardNumber" placeholder="0000 0000 0000 0000" class="custom-form-input font-mono" maxlength="19">
     </div>
 
     <div class="field">
-      <label>Titular de la Tarjeta</label>
-      <input type="text" [(ngModel)]="paymentData.cardHolder" placeholder="Nombre como aparece en la tarjeta" class="custom-form-input">
+      <label>{{ 'tracking.payment.cardHolder' | translate }}</label>
+      <input type="text" [(ngModel)]="paymentData.cardHolder" [placeholder]="'tracking.payment.cardHolderPlaceholder' | translate" class="custom-form-input">
     </div>
 
     <div class="double-grid">
       <div class="field">
-        <label>Expiración (MM/AA)</label>
+        <label>{{ 'tracking.payment.expiry' | translate }}</label>
         <input type="text" [(ngModel)]="paymentData.expiryDate" placeholder="MM/AA" class="custom-form-input" maxlength="5">
       </div>
       <div class="field">
-        <label>CVV</label>
+        <label>{{ 'tracking.payment.cvv' | translate }}</label>
         <input type="password" [(ngModel)]="paymentData.cvv" placeholder="123" class="custom-form-input" maxlength="4">
       </div>
     </div>
@@ -43,15 +43,15 @@
 
   <div class="secure-badge">
     <mat-icon style="color: #16a34a; font-size: 1.2rem; width: 1.2rem; height: 1.2rem;">lock</mat-icon>
-    <span>Pago seguro encriptado de extremo a extremo.</span>
+    <span>{{ 'tracking.payment.secureBadge' | translate }}</span>
   </div>
 </mat-dialog-content>
 
 <mat-dialog-actions align="end" class="dialog-footer">
-  <button mat-button (click)="close()" [disabled]="isProcessing" style="color: #64748b;">Cancelar</button>
+  <button mat-button (click)="close()" [disabled]="isProcessing" style="color: #64748b;">{{ 'tracking.payment.cancel' | translate }}</button>
   <button mat-flat-button class="pay-btn" (click)="simulatePayment()" [disabled]="isProcessing">
     <mat-icon *ngIf="!isProcessing">payment</mat-icon>
     <mat-icon *ngIf="isProcessing" class="spin">refresh</mat-icon>
-    {{ isProcessing ? 'Procesando...' : 'Pagar S/ ' + (order?.price | number:'1.2-2') }}
+    {{ isProcessing ? ('tracking.payment.processing' | translate) : ('tracking.payment.payAction' | translate:{ total: (order?.price | number:'1.2-2') }) }}
   </button>
 </mat-dialog-actions>

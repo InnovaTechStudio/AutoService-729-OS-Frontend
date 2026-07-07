@@ -1,14 +1,15 @@
-import { Component, computed, inject, OnInit } from '@angular/core';
+import { Component, computed, inject, OnInit, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { Router } from '@angular/router';
 import { MatCardModule } from '@angular/material/card';
 import { MatIconModule } from '@angular/material/icon';
 import { MatButtonModule } from '@angular/material/button';
 import { MatProgressBarModule } from '@angular/material/progress-bar';
-import { TranslateModule } from '@ngx-translate/core';
+import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import { WorkOrderStore } from '../../application/work-order.store';
 import { TaskStore } from '../../application/task.store';
 import { VehicleStore } from '../../../fleet-management/application/vehicle.store';
+import { WorkshopService } from '../../../../shared/infrastructure/services/workshop.service';
 
 @Component({
   selector: 'app-dashboard',
@@ -29,6 +30,10 @@ export class DashboardComponent implements OnInit {
   public taskStore = inject(TaskStore);
   public vehicleStore = inject(VehicleStore);
   private router = inject(Router);
+  private translate = inject(TranslateService);
+  private workshopService = inject(WorkshopService);
+
+  workshopName = signal<string | null>(null);
 
   async ngOnInit() {
     await Promise.all([
@@ -36,6 +41,10 @@ export class DashboardComponent implements OnInit {
       this.taskStore.loadAllTasks(),
       this.vehicleStore.loadVehicles(),
     ]);
+    this.workshopService.getCurrentWorkshop().subscribe({
+      next: (workshop) => this.workshopName.set(workshop.name),
+      error: () => this.workshopName.set(null),
+    });
   }
 
   activeOrdersCount = computed(
@@ -136,6 +145,11 @@ export class DashboardComponent implements OnInit {
     if (status === 'IN_PROGRESS') return 'info';
     if (status === 'CANCELLED') return 'danger';
     return 'warning';
+  }
+
+  getOrderStatusLabel(status: string | undefined): string {
+    if (!status) return '';
+    return this.translate.instant('orderStatus.' + status.toLowerCase()) || status;
   }
 
   goToCreate() {

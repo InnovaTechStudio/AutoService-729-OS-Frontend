@@ -31,7 +31,7 @@ td { color: #334155; padding: 1rem; border-bottom: 1px solid #f8fafc; font-size:
 .field { display: flex; flex-direction: column; gap: 0.5rem; }
 .field label { font-size: 0.85rem; font-weight: 700; color: #374151; }
 .required { color: #ef4444; }
-.custom-form-input { padding: 0.9rem; border-radius: 12px; border: 1px solid #d1d5db; background: #f9fafb; font-size: 1rem; color: #111827; outline: none; transition: border-color 0.2s; }
+.custom-form-input { padding: 0.9rem; border-radius: 12px; border: 1px solid #d1d5db; background: #f9fafb; font-size: 1rem; color: #111827; outline: none; transition: border-color 0.2s; width: 100%; box-sizing: border-box; }
 .custom-form-input:focus { border-color: #0b1680; background: white; }
 .dialog-footer { padding: 1rem 1.5rem !important; border-top: 1px solid #f1f5f9; margin-top: 1rem; }
 .save-btn { background: #0b1680 !important; color: white !important; border-radius: 12px !important; padding: 1.2rem 1.5rem !important; font-weight: 600; display: flex; align-items: center; gap: 0.5rem; }

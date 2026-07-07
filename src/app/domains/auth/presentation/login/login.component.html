@@ -1,64 +1,59 @@
 <div class="login-layout">
-  <div class="hero-section">
-    <div class="hero-content">
-      <h1>{{ isRegister ? ('login.registerHeroTitle' | translate) : ('login.title' | translate) }}</h1>
-      <p>{{ isRegister ? ('login.registerHeroSubtitle' | translate) : ('login.subtitle' | translate) }}</p>
-    </div>
+  <div class="lang-switcher-wrapper">
+    <app-language-switcher></app-language-switcher>
   </div>
 
-  <div class="form-section">
-    <div class="login-box">
-      <div class="lang-switcher-wrapper">
-        <app-language-switcher></app-language-switcher>
-      </div>
-
-      <div class="login-header">
-        <h2>{{ isRegister ? ('login.registerTitle' | translate) : ('login.welcome' | translate) }}</h2>
-        <p>{{ isRegister ? ('login.registerDescription' | translate) : ('login.description' | translate) }}</p>
-      </div>
-
-      <form (ngSubmit)="handleSubmit()" class="login-form">
-
-        <div class="input-group" *ngIf="isRegister">
-          <label for="workshopName">{{ 'login.workshopName' | translate }}</label>
-          <mat-form-field appearance="outline" class="w-full">
-            <input matInput id="workshopName" [(ngModel)]="form.workshopName" name="workshopName" [placeholder]="'login.workshopPlaceholder' | translate">
-          </mat-form-field>
-        </div>
-
-        <div class="input-group">
-          <label for="email">{{ 'login.email' | translate }}</label>
-          <mat-form-field appearance="outline" class="w-full">
-            <input matInput id="email" type="email" [(ngModel)]="form.email" name="email" [placeholder]="'login.emailPlaceholder' | translate">
-          </mat-form-field>
-        </div>
-
-        <div class="input-group">
-          <label for="password">{{ 'login.password' | translate }}</label>
-          <mat-form-field appearance="outline" class="w-full">
-            <input matInput id="password" [type]="hidePassword ? 'password' : 'text'" [(ngModel)]="form.password" name="password" [placeholder]="'login.passwordPlaceholder' | translate">
-            <button mat-icon-button matSuffix (click)="hidePassword = !hidePassword" type="button">
-              <mat-icon>{{ hidePassword ? 'visibility_off' : 'visibility' }}</mat-icon>
-            </button>
-          </mat-form-field>
-        </div>
-
-        <div *ngIf="errorMessage" class="error-message">
-          <mat-icon style="font-size: 18px; width: 18px; height: 18px;">error_outline</mat-icon>
-          {{ errorMessage }}
-        </div>
-
-        <button mat-flat-button color="primary" type="submit" [disabled]="isLoading" class="w-full mt-3 submit-btn">
-          {{ isRegister ? ('login.registerButton' | translate) : ('login.submit' | translate) }}
-        </button>
-
-        <div class="text-center mt-4">
-          <span class="text-color-secondary">{{ isRegister ? ('login.hasAccount' | translate) : ('login.noWorkshop' | translate) }}</span><br>
-          <a href="#" (click)="toggleMode(); $event.preventDefault()" class="font-bold text-primary toggle-link">
-            {{ isRegister ? ('login.loginHere' | translate) : ('login.registerHere' | translate) }}
-          </a>
-        </div>
-      </form>
+  <div class="login-box">
+    <div class="brand">
+      <img src="autoservice-logo.png" alt="AutoService" class="brand-logo" />
     </div>
+
+    <div class="login-header">
+      <h2>{{ isRegister ? ('login.registerTitle' | translate) : ('login.welcome' | translate) }}</h2>
+      <p>{{ isRegister ? ('login.registerDescription' | translate) : ('login.description' | translate) }}</p>
+    </div>
+
+    <form (ngSubmit)="handleSubmit()" class="login-form">
+
+      <div class="input-group" *ngIf="isRegister">
+        <label for="workshopName">{{ 'login.workshopName' | translate }}</label>
+        <mat-form-field appearance="outline" class="w-full">
+          <input matInput id="workshopName" [(ngModel)]="form.workshopName" name="workshopName" [placeholder]="'login.workshopPlaceholder' | translate">
+        </mat-form-field>
+      </div>
+
+      <div class="input-group">
+        <label for="email">{{ 'login.email' | translate }}</label>
+        <mat-form-field appearance="outline" class="w-full">
+          <input matInput id="email" type="email" [(ngModel)]="form.email" name="email" [placeholder]="'login.emailPlaceholder' | translate">
+        </mat-form-field>
+      </div>
+
+      <div class="input-group">
+        <label for="password">{{ 'login.password' | translate }}</label>
+        <mat-form-field appearance="outline" class="w-full">
+          <input matInput id="password" [type]="hidePassword ? 'password' : 'text'" [(ngModel)]="form.password" name="password" [placeholder]="'login.passwordPlaceholder' | translate">
+          <button mat-icon-button matSuffix (click)="hidePassword = !hidePassword" type="button">
+            <mat-icon>{{ hidePassword ? 'visibility_off' : 'visibility' }}</mat-icon>
+          </button>
+        </mat-form-field>
+      </div>
+
+      <div *ngIf="errorMessage" class="error-message">
+        <mat-icon style="font-size: 18px; width: 18px; height: 18px;">error_outline</mat-icon>
+        {{ errorMessage }}
+      </div>
+
+      <button mat-flat-button color="primary" type="submit" [disabled]="isLoading" class="w-full mt-3 submit-btn">
+        {{ isRegister ? ('login.registerButton' | translate) : ('login.submit' | translate) }}
+      </button>
+
+      <div class="text-center mt-4">
+        <span class="text-color-secondary">{{ isRegister ? ('login.hasAccount' | translate) : ('login.noWorkshop' | translate) }}</span><br>
+        <a href="#" (click)="toggleMode(); $event.preventDefault()" class="font-bold text-primary toggle-link">
+          {{ isRegister ? ('login.loginHere' | translate) : ('login.registerHere' | translate) }}
+        </a>
+      </div>
+    </form>
   </div>
 </div>

@@ -11,15 +11,15 @@
 
   <main class="tracking-main no-print">
     <div class="search-section">
-      <h1>Sigue el estado de tu vehículo</h1>
-      <p>Ingresa el código de seguimiento proporcionado por tu taller para conocer el progreso de reparación en tiempo real.</p>
+      <h1>{{ 'tracking.title' | translate }}</h1>
+      <p>{{ 'tracking.subtitle' | translate }}</p>
 
       <div class="search-box">
         <mat-icon class="search-icon">search</mat-icon>
-        <input type="text" [(ngModel)]="trackingCode" (keyup.enter)="search()" placeholder="Ej: ORD-2023-XYZ" class="tracking-input">
+        <input type="text" [(ngModel)]="trackingCode" (keyup.enter)="search()" [placeholder]="'tracking.inputPlaceholder' | translate" class="tracking-input">
         <button mat-flat-button class="search-btn" (click)="search()" [disabled]="trackingStore.loading()">
           <mat-icon *ngIf="trackingStore.loading()" class="spin">refresh</mat-icon>
-          Buscar
+          {{ 'tracking.searchButton' | translate }}
         </button>
       </div>
 
@@ -34,28 +34,44 @@
           <div class="status-card">
             <div class="card-header">
               <div>
-                <span class="eyebrow">Estado de Orden</span>
+                <span class="eyebrow">{{ 'tracking.orderStatusEyebrow' | translate }}</span>
                 <h2>{{ trackingStore.vehicle()?.brand }} {{ trackingStore.vehicle()?.model }}</h2>
                 <span class="custom-badge badge-secondary">{{ trackingStore.vehicle()?.plate }}</span>
               </div>
               <span class="custom-badge status-badge" [ngClass]="getSeverityClass(trackingStore.order()?.status)">
-                {{ trackingStore.order()?.status }}
+                {{ getOrderStatusLabel(trackingStore.order()?.status) }}
               </span>
             </div>
 
-            <div class="progress-container">
-              <div class="progress-labels">
-                <span>Ingreso</span>
-                <span>En Diagnóstico</span>
-                <span>En Progreso</span>
-                <span>Listo</span>
+            <div class="stepper">
+              <div class="step" [class.done]="activeStep() > 0" [class.active]="activeStep() === 0">
+                <div class="step-dot"><mat-icon>{{ activeStep() > 0 ? 'check' : 'inventory_2' }}</mat-icon></div>
+                <span>{{ 'tracking.progressSteps.arrival' | translate }}</span>
               </div>
+              <div class="step-line" [class.done]="activeStep() > 0"></div>
+              <div class="step" [class.done]="activeStep() > 1" [class.active]="activeStep() === 1">
+                <div class="step-dot"><mat-icon>{{ activeStep() > 1 ? 'check' : 'search' }}</mat-icon></div>
+                <span>{{ 'tracking.progressSteps.diagnosis' | translate }}</span>
+              </div>
+              <div class="step-line" [class.done]="activeStep() > 1"></div>
+              <div class="step" [class.done]="activeStep() > 2" [class.active]="activeStep() === 2">
+                <div class="step-dot"><mat-icon>{{ activeStep() > 2 ? 'check' : 'build' }}</mat-icon></div>
+                <span>{{ 'tracking.progressSteps.inProgress' | translate }}</span>
+              </div>
+              <div class="step-line" [class.done]="activeStep() > 2"></div>
+              <div class="step" [class.active]="activeStep() === 3">
+                <div class="step-dot"><mat-icon>{{ activeStep() === 3 ? 'check_circle' : 'flag' }}</mat-icon></div>
+                <span>{{ 'tracking.progressSteps.ready' | translate }}</span>
+              </div>
+            </div>
+
+            <div class="progress-container">
               <mat-progress-bar mode="determinate" [value]="progressPercentage()"></mat-progress-bar>
             </div>
           </div>
 
           <div class="tasks-card">
-            <h3>Detalle de Tareas</h3>
+            <h3>{{ 'tracking.tasksTitle' | translate }}</h3>
             <div class="tasks-list">
               <div *ngFor="let task of trackingStore.tasks()" class="task-item">
                 <div class="task-info">
@@ -65,48 +81,54 @@
                   <div>
                     <h4>{{ task.description }}</h4>
                     <p *ngIf="task.customerExplanation">{{ task.customerExplanation }}</p>
+                    <div *ngIf="task.parts?.length" class="task-parts-tags">
+                      <span *ngFor="let part of task.parts" class="custom-badge badge-secondary">{{ part.quantity }}x {{ part.name }}</span>
+                    </div>
                   </div>
                 </div>
-                <span class="custom-badge" [ngClass]="getSeverityClass(task.status)">{{ task.status }}</span>
+                <div class="task-side">
+                  <span class="custom-badge" [ngClass]="getSeverityClass(task.status)">{{ getTaskStatusLabel(task.status) }}</span>
+                  <strong class="task-cost">{{ 'common.currencyPrefix' | translate }} {{ getTaskTotal(task) | number:'1.2-2' }}</strong>
+                </div>
               </div>
             </div>
             <div *ngIf="!trackingStore.tasks().length" class="empty-tasks">
-              No hay tareas registradas aún.
+              {{ 'tracking.noTasksYet' | translate }}
             </div>
           </div>
         </div>
 
         <div class="side-panel">
           <div class="info-card">
-            <h3>Resumen de Orden</h3>
+            <h3>{{ 'tracking.summary.title' | translate }}</h3>
             <div class="info-row">
-              <span>Código:</span>
+              <span>{{ 'tracking.summary.code' | translate }}</span>
               <strong>{{ trackingStore.order()?.trackingCode }}</strong>
             </div>
             <div class="info-row">
-              <span>Ingreso:</span>
+              <span>{{ 'tracking.summary.arrival' | translate }}</span>
               <strong>{{ trackingStore.order()?.startDate | date }}</strong>
             </div>
             <div class="info-row">
-              <span>Entrega Estimada:</span>
+              <span>{{ 'tracking.summary.estimatedDelivery' | translate }}</span>
               <strong>{{ trackingStore.order()?.estimatedDate | date }}</strong>
             </div>
             <div class="info-row total-row">
-              <span>Monto Total Estimado:</span>
-              <strong class="text-primary">S/ {{ trackingStore.order()?.price | number:'1.2-2' }}</strong>
+              <span>{{ 'tracking.summary.total' | translate }}</span>
+              <strong class="text-primary">{{ 'common.currencyPrefix' | translate }} {{ trackingStore.order()?.price | number:'1.2-2' }}</strong>
             </div>
 
             <button *ngIf="orderIsFinished()" mat-flat-button class="pay-btn" (click)="openPaymentModal()">
-              <mat-icon>credit_card</mat-icon> Pagar Orden
+              <mat-icon>credit_card</mat-icon> {{ 'tracking.payment.payButton' | translate }}
             </button>
 
             <div *ngIf="orderIsDelivered()" class="success-box">
               <mat-icon>check_circle</mat-icon>
-              <span>¡Orden pagada y entregada!</span>
+              <span>{{ 'tracking.deliveredSuccessMessage' | translate }}</span>
             </div>
 
             <button mat-stroked-button color="primary" class="print-btn w-full mt-3" (click)="printReceipt()">
-              <mat-icon>print</mat-icon> Imprimir Resumen
+              <mat-icon>download</mat-icon> {{ 'tracking.payment.downloadReceipt' | translate }}
             </button>
           </div>
         </div>
@@ -118,22 +140,22 @@
     <div *ngIf="trackingStore.order()">
       <div class="receipt-header">
         <h1>AutoService</h1>
-        <p>Resumen de Servicio Automotriz</p>
-        <p class="receipt-date">Fecha de impresión: {{ trackingStore.order()?.startDate | date }}</p>
+        <p>{{ 'tracking.receipt.subtitle' | translate }}</p>
+        <p class="receipt-date">{{ 'tracking.receipt.printDate' | translate }}: {{ today | date:'medium' }}</p>
       </div>
 
       <table class="receipt-table-info">
         <tr>
           <td width="50%">
-            <strong>CLIENTE:</strong><br>
-            {{ trackingStore.customer()?.fullName || 'N/A' }}<br>
-            DNI: {{ trackingStore.customer()?.dni || 'N/A' }}<br>
-            Tel: {{ trackingStore.customer()?.phone || 'N/A' }}
+            <strong>{{ 'tracking.receipt.customer' | translate | uppercase }}:</strong><br>
+            {{ trackingStore.customer()?.fullName || ('common.notRegistered' | translate) }}<br>
+            {{ 'tracking.receipt.dni' | translate }}: {{ trackingStore.customer()?.dni || ('common.notRegistered' | translate) }}<br>
+            {{ 'tracking.receipt.phone' | translate }}: {{ trackingStore.customer()?.phone || ('common.notRegistered' | translate) }}
           </td>
           <td width="50%" class="text-right">
-            <strong>TALLER:</strong><br>
-            {{ trackingStore.workshop()?.name || 'AutoService Central' }}<br>
-            ORDEN #: {{ trackingStore.order()?.trackingCode }}
+            <strong>{{ 'tracking.receipt.workshop' | translate | uppercase }}:</strong><br>
+            {{ trackingStore.workshop()?.name || 'AutoService' }}<br>
+            {{ 'tracking.receipt.order' | translate }}: {{ trackingStore.order()?.trackingCode }}
           </td>
         </tr>
       </table>
@@ -142,21 +164,21 @@
 
       <table class="receipt-table-info">
         <tr>
-          <td><strong>VEHÍCULO:</strong> {{ trackingStore.vehicle()?.brand }} {{ trackingStore.vehicle()?.model }}</td>
-          <td><strong>PLACA:</strong> {{ trackingStore.vehicle()?.plate }}</td>
+          <td><strong>{{ 'tracking.receipt.vehicle' | translate | uppercase }}:</strong> {{ trackingStore.vehicle()?.brand }} {{ trackingStore.vehicle()?.model }}</td>
+          <td><strong>{{ 'tracking.receipt.plate' | translate | uppercase }}:</strong> {{ trackingStore.vehicle()?.plate }}</td>
         </tr>
         <tr>
-          <td><strong>ESTADO ACTUAL:</strong> {{ trackingStore.order()?.status }}</td>
-          <td><strong>ENTREGA:</strong> {{ trackingStore.order()?.estimatedDate | date }}</td>
+          <td><strong>{{ 'tracking.receipt.status' | translate | uppercase }}:</strong> {{ getOrderStatusLabel(trackingStore.order()?.status) }}</td>
+          <td><strong>{{ 'tracking.receipt.delivery' | translate | uppercase }}:</strong> {{ trackingStore.order()?.estimatedDate | date }}</td>
         </tr>
       </table>
 
       <table class="receipt-main-table">
         <thead>
         <tr>
-          <th>Tarea Asignada</th>
-          <th>Estado</th>
-          <th>Mano de Obra</th>
+          <th>{{ 'tracking.receipt.taskColumn' | translate }}</th>
+          <th>{{ 'tracking.receipt.statusColumn' | translate }}</th>
+          <th class="text-right">{{ 'tracking.receipt.costColumn' | translate }}</th>
         </tr>
         </thead>
         <tbody>
@@ -164,31 +186,41 @@
           <tr class="task-row">
             <td>
               <strong>{{ task.description }}</strong>
-              <div *ngIf="task.customerExplanation" style="font-size: 9pt; color: #64748b; margin-top: 4px;">Nota: {{ task.customerExplanation }}</div>
+              <div *ngIf="task.customerExplanation" style="font-size: 9pt; color: #64748b; margin-top: 4px;">{{ 'tracking.noteLabel' | translate }}: {{ task.customerExplanation }}</div>
+              <div style="font-size: 8.5pt; color: #94a3b8; margin-top: 2px;">{{ 'tracking.receipt.laborLine' | translate }}: {{ 'common.currencyPrefix' | translate }} {{ task.laborPrice | number:'1.2-2' }}</div>
 
-              <div *ngIf="$any(task).parts?.length" class="print-parts-detail">
-                <span style="font-size: 8.5pt; font-weight: bold; color: #475569;">Repuestos:</span>
+              <div *ngIf="task.parts?.length" class="print-parts-detail">
+                <span style="font-size: 8.5pt; font-weight: bold; color: #475569;">{{ 'tracking.receipt.partsLine' | translate }}:</span>
                 <ul>
-                  <li *ngFor="let part of $any(task).parts">- {{ part.quantity }}x {{ part.name }} (S/{{ part.unitPrice }})</li>
+                  <li *ngFor="let part of task.parts">- {{ part.quantity }}x {{ part.name }} ({{ 'common.currencyPrefix' | translate }}{{ part.unitPrice }})</li>
                 </ul>
               </div>
             </td>
-            <td>{{ task.status }}</td>
-            <td class="text-right font-mono">S/ {{ task.laborPrice | number:'1.2-2' }}</td>
+            <td>{{ getTaskStatusLabel(task.status) }}</td>
+            <td class="text-right font-mono">{{ 'common.currencyPrefix' | translate }} {{ getTaskTotal(task) | number:'1.2-2' }}</td>
           </tr>
         </ng-container>
         </tbody>
       </table>
 
       <div class="receipt-summary">
-        <div>
-          <h2>TOTAL ESTIMADO: S/ {{ trackingStore.order()?.price | number:'1.2-2' }}</h2>
-          <p style="font-size: 9pt; color: #64748b;">El monto incluye mano de obra y repuestos aplicados.</p>
+        <div class="receipt-summary-row">
+          <span>{{ 'tracking.receipt.laborSubtotal' | translate }}</span>
+          <span>{{ 'common.currencyPrefix' | translate }} {{ totalLabor() | number:'1.2-2' }}</span>
         </div>
+        <div class="receipt-summary-row">
+          <span>{{ 'tracking.receipt.partsSubtotal' | translate }}</span>
+          <span>{{ 'common.currencyPrefix' | translate }} {{ totalParts() | number:'1.2-2' }}</span>
+        </div>
+        <div class="receipt-summary-row receipt-summary-total">
+          <span>{{ 'tracking.receipt.totalEstimated' | translate | uppercase }}</span>
+          <span>{{ 'common.currencyPrefix' | translate }} {{ trackingStore.order()?.price | number:'1.2-2' }}</span>
+        </div>
+        <p class="receipt-summary-note">{{ 'tracking.receipt.totalNote' | translate }}</p>
       </div>
 
-      <div style="text-align: center; margin-top: 40px; font-size: 9pt; color: #94a3b8;">
-        Este documento es informativo y no representa un comprobante fiscal válido.
+      <div class="receipt-disclaimer">
+        {{ 'tracking.receipt.disclaimer' | translate }}
       </div>
     </div>
   </div>

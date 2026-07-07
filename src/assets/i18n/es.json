@@ -11,6 +11,7 @@
   },
   "common": {
     "action": "Acción",
+    "all": "Todas",
     "code": "Código",
     "language": "Idioma",
     "loading": "Cargando...",
@@ -107,6 +108,7 @@
       "frequentServices": {
         "brakeRepair": "Reparación de Frenos",
         "oilChange": "Cambio de Aceite",
+        "orders": "órdenes",
         "servicesCount": "{count} servicios completados",
         "subtitle": "Servicios más solicitados.",
         "title": "Servicios frecuentes",

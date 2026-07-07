@@ -3,6 +3,7 @@
     <div>
       <span class="eyebrow">{{ 'dashboard.eyebrow' | translate }}</span>
       <h1>{{ 'dashboard.title' | translate }}</h1>
+      <p class="workshop-name" *ngIf="workshopName()">{{ workshopName() }}</p>
       <p>{{ 'dashboard.description' | translate }}</p>
     </div>
     <div class="header-actions">
@@ -142,7 +143,7 @@
           <div class="recent-item" *ngFor="let order of recentOrders()">
             <div class="recent-info">
               <span style="font-weight: 800; color: #0f172a;">{{ order.trackingCode }}</span>
-              <span class="custom-badge" [ngClass]="'badge-' + getOrderSeverity(order.status)">{{ order.status }}</span>
+              <span class="custom-badge" [ngClass]="'badge-' + getOrderSeverity(order.status)">{{ getOrderStatusLabel(order.status) }}</span>
             </div>
             <strong style="color: #0b1680;">S/ {{ order.price || 0 | number:'1.2-2' }}</strong>
           </div>

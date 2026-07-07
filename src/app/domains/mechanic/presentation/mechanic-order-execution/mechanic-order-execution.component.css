@@ -48,6 +48,34 @@
 .badge-info { color: #1d4ed8; background: #dbeafe; }
 .badge-warning { color: #92400e; background: #fef3c7; }
 .badge-secondary { color: #475569; background: #e2e8f0; }
+.badge-danger { color: #b91c1c; background: #fee2e2; }
+
+.scanner-card { background: linear-gradient(135deg, #0b1680 0%, #1e293b 100%); color: white; }
+.scanner-header { display: flex; justify-content: space-between; align-items: center; gap: 1rem; flex-wrap: wrap; }
+.scanner-header h3 { margin: 0; display: flex; align-items: center; gap: 0.5rem; font-size: 1.15rem; }
+.scanner-title-icon { color: #93c5fd; }
+.scanner-subtitle { margin: 0.35rem 0 0; color: #cbd5e1; font-size: 0.85rem; max-width: 480px; }
+.scan-btn { background: white !important; color: #0b1680 !important; font-weight: 700; border-radius: 12px; padding: 0.6rem 1.4rem !important; }
+
+.scanner-progress { margin-top: 1.25rem; display: flex; flex-direction: column; gap: 0.6rem; }
+.scanner-progress span { display: flex; align-items: center; gap: 0.4rem; color: #dbeafe; font-size: 0.9rem; }
+.spin { animation: spin 1s linear infinite; }
+@keyframes spin { 100% { transform: rotate(360deg); } }
+
+.scanner-results { margin-top: 1.25rem; background: rgba(255,255,255,0.06); border-radius: 16px; padding: 1.1rem; }
+.scan-meta { display: flex; flex-wrap: wrap; gap: 1.25rem; margin-bottom: 1rem; padding-bottom: 0.75rem; border-bottom: 1px solid rgba(255,255,255,0.15); font-size: 0.85rem; color: #cbd5e1; }
+.scan-meta span { display: flex; align-items: center; gap: 0.3rem; }
+.scan-meta mat-icon { font-size: 1.1rem; width: 1.1rem; height: 1.1rem; }
+.fault-count { font-weight: 700; color: white; }
+
+.fault-item { display: flex; justify-content: space-between; align-items: center; gap: 1rem; background: white; color: #1e293b; border-radius: 14px; padding: 1rem 1.2rem; margin-bottom: 0.75rem; }
+.fault-item:last-child { margin-bottom: 0; }
+.fault-top { display: flex; gap: 0.5rem; margin-bottom: 0.5rem; }
+.fault-info h4 { margin: 0 0 0.3rem; font-size: 1rem; color: #0f172a; font-weight: 700; }
+.fault-info p { margin: 0; color: #64748b; font-size: 0.85rem; max-width: 460px; }
+
+.scanner-origin-tag { display: flex; align-items: center; gap: 0.5rem; background: #eef2ff; color: #4338ca; border: 1px solid #c7d2fe; border-radius: 10px; padding: 0.65rem 0.9rem; font-size: 0.85rem; font-weight: 600; }
+.scanner-origin-tag mat-icon { font-size: 1.1rem; width: 1.1rem; height: 1.1rem; }
 ::ng-deep .custom-dialog-container .mat-mdc-dialog-container .mdc-dialog__surface { border-radius: 24px !important; }
 ::ng-deep .custom-form-input .mat-mdc-text-field-wrapper { border-radius: 12px !important; background: transparent !important; padding: 0 !important; border: none !important;}
 ::ng-deep .custom-form-input .mat-mdc-form-field-infix { padding: 0 !important;}

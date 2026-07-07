@@ -6,6 +6,7 @@ export interface Task {
   estimatedTime: number;
   laborPrice: number;
   customerExplanation?: string;
+  technicalDiagnosis?: string;
   adminReviewStatus?: string; // 'PENDING', 'APPROVED', 'REJECTED'
   workOrderId: string | number;
   mechanicId?: string | number | null;

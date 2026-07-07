@@ -21,6 +21,52 @@
     </mat-card-content>
   </mat-card>
 
+  <mat-card class="scanner-card mb-4">
+    <mat-card-content>
+      <div class="scanner-header">
+        <div>
+          <h3><mat-icon class="scanner-title-icon">settings_input_hdmi</mat-icon> Escáner OBD-II</h3>
+          <p class="scanner-subtitle">Simulación de diagnóstico — conecta el escáner al puerto del vehículo para leer sus códigos de falla.</p>
+        </div>
+        <button mat-flat-button class="scan-btn"
+                *ngIf="scannerStatus() === 'idle' || scannerStatus() === 'done'"
+                [disabled]="isOrderClosed()"
+                (click)="runScan()">
+          <mat-icon>{{ scannerStatus() === 'done' ? 'refresh' : 'usb' }}</mat-icon>
+          {{ scannerStatus() === 'done' ? 'Escanear de nuevo' : 'Conectar Escáner' }}
+        </button>
+      </div>
+
+      <div *ngIf="scannerStatus() === 'connecting' || scannerStatus() === 'reading'" class="scanner-progress">
+        <mat-progress-bar mode="indeterminate"></mat-progress-bar>
+        <span *ngIf="scannerStatus() === 'connecting'"><mat-icon class="spin">sync</mat-icon> Conectando al puerto OBD-II del vehículo...</span>
+        <span *ngIf="scannerStatus() === 'reading'"><mat-icon class="spin">sync</mat-icon> Leyendo códigos de falla (DTC)...</span>
+      </div>
+
+      <div *ngIf="scannerStatus() === 'done' && scanResult()" class="scanner-results">
+        <div class="scan-meta">
+          <span><mat-icon>directions_car</mat-icon> {{ vehicle()?.plate }}</span>
+          <span><mat-icon>schedule</mat-icon> {{ scanResult()!.scannedAt | date:'short' }}</span>
+          <span class="fault-count">{{ scanResult()!.faults.length }} código(s) detectado(s)</span>
+        </div>
+
+        <div *ngFor="let fault of scanResult()!.faults" class="fault-item">
+          <div class="fault-info">
+            <div class="fault-top">
+              <span class="custom-badge badge-secondary">{{ fault.code }}</span>
+              <span class="custom-badge" [ngClass]="getFaultSeverityClass(fault.severity)">{{ getFaultSeverityLabel(fault.severity) }}</span>
+            </div>
+            <h4>{{ fault.title }}</h4>
+            <p>{{ fault.description }}</p>
+          </div>
+          <button mat-stroked-button color="primary" [disabled]="isOrderClosed()" (click)="openTaskDialogFromFault(fault)">
+            <mat-icon>add_task</mat-icon> Crear Tarea
+          </button>
+        </div>
+      </div>
+    </mat-card-content>
+  </mat-card>
+
   <mat-card class="diagnosis-card mb-4">
     <mat-card-content>
       <h3>{{ 'mechanicOrder.diagnosis' | translate }}</h3>
@@ -113,6 +159,9 @@
 
     <mat-dialog-content>
       <div class="dialog-form mt-3">
+        <div class="scanner-origin-tag" *ngIf="newTask().technicalDiagnosis">
+          <mat-icon>settings_input_hdmi</mat-icon> Sugerida por el escáner OBD-II: {{ newTask().technicalDiagnosis }}
+        </div>
         <div class="field">
           <label>{{ 'mechanicOrder.dialog.description' | translate }}</label>
           <input type="text" [(ngModel)]="newTask().description" class="custom-form-input" [placeholder]="'mechanicOrder.dialog.descriptionPlaceholder' | translate">

@@ -16,6 +16,8 @@ import { TaskStore } from '../../../workshop-operations/application/task.store';
 import { VehicleStore } from '../../../fleet-management/application/vehicle.store';
 import { AuthState } from '../../../auth/application/auth.state';
 import { InventoryStore } from '../../../inventory-management/application/inventory.store';
+import { ObdScannerService } from '../../infrastructure/services/obd-scanner.service';
+import { ObdFault, ObdScanResult } from '../../domain/obd-fault.model';
 
 @Component({
   selector: 'app-mechanic-order-execution',
@@ -46,11 +48,15 @@ export class MechanicOrderExecutionComponent implements OnInit {
   private vehicleStore = inject(VehicleStore);
   private authState = inject(AuthState);
   public inventoryStore = inject(InventoryStore);
+  private obdScanner = inject(ObdScannerService);
 
   @ViewChild('taskDialogTemplate') taskDialogTemplate!: TemplateRef<any>;
 
   orderId = this.route.snapshot.paramMap.get('id');
   diagnosis = signal('');
+
+  scannerStatus = signal<'idle' | 'connecting' | 'reading' | 'done'>('idle');
+  scanResult = signal<ObdScanResult | null>(null);
 
   priorities = [
     { value: 'LOW', label: this.translate.instant('priorities.low') || 'Baja' },
@@ -64,6 +70,7 @@ export class MechanicOrderExecutionComponent implements OnInit {
     estimatedTime: 1.0,
     laborPrice: 0.0,
     parts: [] as any[],
+    technicalDiagnosis: '',
   });
 
   async ngOnInit() {
@@ -120,11 +127,58 @@ export class MechanicOrderExecutionComponent implements OnInit {
       estimatedTime: 1.0,
       laborPrice: 0.0,
       parts: [],
+      technicalDiagnosis: '',
     });
     this.dialog.open(this.taskDialogTemplate, {
       width: '640px',
       panelClass: 'custom-dialog-container',
     });
+  }
+
+  openTaskDialogFromFault(fault: ObdFault) {
+    this.newTask.set({
+      description: fault.title,
+      priority: fault.severity,
+      estimatedTime: fault.suggestedEstimatedTime,
+      laborPrice: fault.suggestedLaborPrice,
+      parts: [],
+      technicalDiagnosis: `${fault.code} - ${fault.description}`,
+    });
+    this.dialog.open(this.taskDialogTemplate, {
+      width: '640px',
+      panelClass: 'custom-dialog-container',
+    });
+  }
+
+  runScan() {
+    if (this.scannerStatus() === 'connecting' || this.scannerStatus() === 'reading') return;
+    this.scanResult.set(null);
+    this.scannerStatus.set('connecting');
+
+    setTimeout(() => {
+      this.scannerStatus.set('reading');
+      this.obdScanner.scan(this.vehicle()?.plate).subscribe((result) => {
+        this.scanResult.set(result);
+        this.scannerStatus.set('done');
+      });
+    }, 900);
+  }
+
+  resetScan() {
+    this.scannerStatus.set('idle');
+    this.scanResult.set(null);
+  }
+
+  getFaultSeverityLabel(severity: string): string {
+    if (severity === 'HIGH') return 'Crítico';
+    if (severity === 'MEDIUM') return 'Moderado';
+    return 'Leve';
+  }
+
+  getFaultSeverityClass(severity: string): string {
+    if (severity === 'HIGH') return 'badge-danger';
+    if (severity === 'MEDIUM') return 'badge-warning';
+    return 'badge-secondary';
   }
 
   closeDialog() {

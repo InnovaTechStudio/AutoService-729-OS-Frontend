@@ -24,7 +24,7 @@ export class TrackingStore {
     try {
       const orders = await this.service.getOrderByCode(trackingCode).toPromise();
       if (!orders || orders.length === 0) {
-        this.error.set('tracking.errors.notFound');
+        this.error.set('tracking.notFound');
         this.loading.set(false);
         return;
       }
@@ -41,7 +41,16 @@ export class TrackingStore {
           .catch(() => null),
       ]);
 
-      this.tasks.set(tasksRes || []);
+      const parsedTasks = (tasksRes || []).map((t: any) => {
+        let parts = [];
+        if (t.internalObservation && t.internalObservation.startsWith('PARTS:')) {
+          try {
+            parts = JSON.parse(t.internalObservation.substring(6));
+          } catch {}
+        }
+        return { ...t, parts };
+      });
+      this.tasks.set(parsedTasks);
       this.vehicle.set(vehicleRes || null);
       this.workshop.set(workshopRes || null);
 
@@ -53,7 +62,7 @@ export class TrackingStore {
       this.loading.set(false);
     } catch (err) {
       console.error(err);
-      this.error.set('tracking.errors.serverError');
+      this.error.set('tracking.errorConnection');
       this.loading.set(false);
     }
   }
@@ -69,7 +78,7 @@ export class TrackingStore {
       this.loading.set(false);
     } catch (err) {
       console.error(err);
-      this.error.set('tracking.errors.paymentFailed');
+      this.error.set('tracking.paymentFailedError');
       this.loading.set(false);
       throw err;
     }

@@ -17,6 +17,7 @@ import { TranslatePipe } from '@ngx-translate/core';
     MatButtonModule,
     MatInputModule,
     MatIconModule,
+    TranslatePipe,
   ],
   templateUrl: './payment-modal.html',
   styleUrl: './payment-modal.css',

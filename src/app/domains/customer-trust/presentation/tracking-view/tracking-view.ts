@@ -33,6 +33,7 @@ export class TrackingViewComponent {
   private dialog = inject(MatDialog);
 
   trackingCode = '';
+  today = new Date();
 
   progressPercentage = computed(() => {
     const order = this.trackingStore.order();
@@ -46,8 +47,42 @@ export class TrackingViewComponent {
     return Math.round((completed / tasks.length) * 100);
   });
 
+  activeStep = computed(() => {
+    const order = this.trackingStore.order();
+    if (!order) return 0;
+    if (order.status === 'FINISHED' || order.status === 'DELIVERED') return 3;
+    if (order.status === 'IN_PROGRESS') return 2;
+    if (this.trackingStore.tasks().length > 0) return 1;
+    return 0;
+  });
+
   orderIsFinished = computed(() => this.trackingStore.order()?.status === 'FINISHED');
   orderIsDelivered = computed(() => this.trackingStore.order()?.status === 'DELIVERED');
+
+  totalLabor = computed(() =>
+    this.trackingStore
+      .tasks()
+      .reduce((sum, task: any) => sum + Number(task.laborPrice || 0), 0),
+  );
+
+  totalParts = computed(() =>
+    this.trackingStore.tasks().reduce((sum, task: any) => {
+      const partsTotal = (task.parts || []).reduce(
+        (pSum: number, p: any) => pSum + Number(p.unitPrice || 0) * Number(p.quantity || 1),
+        0,
+      );
+      return sum + partsTotal;
+    }, 0),
+  );
+
+  getTaskTotal(task: any): number {
+    const labor = Number(task.laborPrice || 0);
+    const partsTotal = (task.parts || []).reduce(
+      (sum: number, p: any) => sum + Number(p.unitPrice || 0) * Number(p.quantity || 1),
+      0,
+    );
+    return labor + partsTotal;
+  }
 
   search() {
     if (this.trackingCode.trim()) {
@@ -60,6 +95,16 @@ export class TrackingViewComponent {
       return 'badge-success';
     if (status === 'IN_PROGRESS') return 'badge-info';
     return 'badge-warning';
+  }
+
+  getOrderStatusLabel(status: string | undefined): string {
+    if (!status) return '';
+    return this.translate.instant('orderStatus.' + status.toLowerCase()) || status;
+  }
+
+  getTaskStatusLabel(status: string | undefined): string {
+    if (!status) return '';
+    return this.translate.instant('taskStatus.' + status.toLowerCase()) || status;
   }
 
   openPaymentModal() {
